@@ -4,23 +4,89 @@
 
 Wondervale is designed for a child and a caring adult using the experience together.
 
-The adult is a conversation partner and facilitator. The child should retain agency over exploration and decisions.
+The child directly controls a recurring protagonist inside the story. The adult is a conversation partner and facilitator, not the controller or answer-giver.
+
+## Experience frame
+
+Wondervale uses a **storybook shell + living interactive scenes**.
+
+The storybook shell provides:
+
+- chapter/episode framing;
+- transitions and recaps;
+- parent preview/reflection;
+- the Wondervale Chronicle;
+- a stable place to see how the world has changed.
+
+Interactive scenes provide:
+
+- direct protagonist control;
+- exploration;
+- character conversation;
+- object interaction;
+- experiments;
+- building;
+- problem solving;
+- visible consequences.
+
+The MVP should use bounded persistent locations rather than attempt a large open world.
 
 ## Session rhythm
 
 A typical 12–20 minute Core Episode may use:
 
 1. **Parent preview** — under one minute;
-2. **Story hook** — establish a meaningful problem;
-3. **Explore** — allow noticing before explanation;
-4. **Talk together** — one concise prompt;
-5. **Try / test / build / solve** — child acts;
-6. **Observe consequence** — the world responds;
-7. **Connect / deepen** — use or discuss the idea;
-8. **Story payoff** — something visibly changes;
-9. **Optional reflection** — one short after-play prompt.
+2. **Storybook opening** — re-establish context and motivation;
+3. **Enter living scene** — child takes control;
+4. **Explore** — allow noticing before explanation;
+5. **Talk together** — one concise parent cue when useful;
+6. **Try / test / build / solve** — child acts through the protagonist;
+7. **Observe consequence** — the world responds;
+8. **Connect / deepen** — use or discuss the idea;
+9. **Story payoff** — something visibly changes;
+10. **Chronicle update** — record a meaningful event/discovery;
+11. **Optional reflection** — one short after-play prompt.
 
 This is a rhythm, not a rigid template.
+
+## Player-controlled protagonist
+
+The protagonist is a fully authored recurring character, not a blank avatar.
+
+The child controls:
+
+- movement/exploration;
+- object interaction;
+- choices and strategies;
+- some dialogue choices where useful.
+
+The character retains:
+
+- personality;
+- relationships;
+- recurring preferences;
+- established knowledge;
+- visible growth.
+
+This allows agency without requiring every possible player action to become canon.
+
+## EFL-first experience
+
+English is both the primary story language and an important learning medium.
+
+EFL support should preserve story flow:
+
+- short natural sentences;
+- meaningful repetition;
+- visuals that carry context;
+- replayable narration;
+- clear demonstration before text-heavy explanation;
+- optional tap/inspect support for important words;
+- language difficulty separate from reasoning difficulty.
+
+A child should be able to solve a cognitively interesting problem even when the English used to frame it is simple.
+
+Do not turn every scene into explicit vocabulary instruction.
 
 ## Parent participation levels
 
@@ -58,7 +124,7 @@ Only the short prompt needs to appear during play.
 When possible:
 
 1. child notices or acts;
-2. system observes the relevant moment;
+2. system reaches a natural thinking moment;
 3. parent cue follows or supports the child's focus.
 
 Do not make the adult read an explanation before the child has had a chance to think.
@@ -72,7 +138,7 @@ Do not use one global “age level” as the only difficulty variable.
 Future support profiles may include independent dimensions such as:
 
 - reading support;
-- language support;
+- English language support;
 - number challenge;
 - reasoning challenge;
 - motor/accessibility preferences.
@@ -102,13 +168,14 @@ Use graduated support rather than immediate answers.
 Example ladder:
 
 1. allow exploration;
-2. repeat/clarify the goal;
-3. draw attention to a relevant feature;
-4. narrow possibilities;
-5. model one step;
-6. reveal enough to continue.
+2. repeat/clarify the goal with simpler language if needed;
+3. demonstrate the interaction without solving the reasoning;
+4. draw attention to a relevant feature;
+5. narrow possibilities;
+6. model one reasoning step;
+7. reveal enough to continue.
 
-A hint should preserve as much thinking as possible.
+Language support and problem-solving support should be distinguishable. A child who does not understand a sentence should not automatically receive the solution to the problem.
 
 ## Failure
 
@@ -121,6 +188,29 @@ Prefer recoverable consequences:
 
 Avoid shame, loud failure effects, loss of accumulated progress, or arbitrary penalties.
 
+## Reward and progression
+
+The main reward is diegetic progression:
+
+- the world changes;
+- the story moves;
+- characters remember;
+- locations gain functions;
+- new possibilities appear.
+
+The **Wondervale Chronicle** (working name) serves as a low-pressure secondary reward and memory system.
+
+It may show:
+
+- illustrated story moments;
+- location changes;
+- discoveries;
+- character milestones;
+- useful words/phrases encountered;
+- open mysteries.
+
+Avoid turning the Chronicle into points, ranks, streaks, or completion pressure.
+
 ## Pacing
 
 Do not optimize for maximum interaction density.
@@ -128,6 +218,7 @@ Do not optimize for maximum interaction density.
 Children need time to:
 
 - inspect;
+- move around;
 - talk;
 - laugh;
 - predict;
