@@ -12,6 +12,30 @@ Children should be able to remember:
 - how a place changed;
 - how something learned earlier became useful later.
 
+## Core cast direction
+
+Start with a **core trio**.
+
+### Role A — player-controlled protagonist
+A recurring authored character directly controlled by the child.
+
+The protagonist needs:
+
+- enough personality to be memorable;
+- enough openness for the child to make meaningful choices;
+- clear strengths and limitations;
+- relationships that can grow;
+- a first-season arc that does not require changing their entire personality.
+
+### Roles B and C — recurring companions
+Two companions should provide contrasting but complementary approaches to problems.
+
+They should disagree at times, notice different things, and contribute without becoming answer machines.
+
+Do not create “the math one,” “the science one,” or “the English one.”
+
+Additional recurring characters should enter gradually after the trio is understood.
+
 ## Character model
 
 Each recurring character should define:
@@ -19,24 +43,24 @@ Each recurring character should define:
 ### Stable core
 Traits that should remain recognizable.
 
-- temperament
-- interests
-- humor style
-- communication style
-- strengths
-- limitations
-- fears / dislikes
-- values
+- temperament;
+- interests;
+- humor style;
+- communication style;
+- strengths;
+- limitations;
+- fears / dislikes;
+- values.
 
 ### Current state
 Facts that can change.
 
-- current goals
-- knowledge
-- relationships
-- responsibilities
-- ongoing problems
-- recent experiences
+- current goals;
+- knowledge;
+- relationships;
+- responsibilities;
+- ongoing problems;
+- recent experiences.
 
 ### Growth arc
 A small number of long-term developments.
@@ -70,12 +94,24 @@ Do not introduce the full cast at once.
 
 Use staged entry:
 
-1. core pair or small group;
+1. core trio;
 2. recurring local characters;
 3. later arrivals;
 4. occasional specialists or visitors.
 
 A new character should have a reason to exist beyond delivering information.
+
+## World presentation
+
+Wondervale uses a **storybook shell + living interactive scenes**.
+
+The storybook layer represents narrative memory: chapters, transitions, recaps, and the Chronicle.
+
+Interactive locations represent the living present.
+
+A location should be bounded enough to author and test well, while persistent enough to feel like a real place revisited across episodes.
+
+This deliberately avoids committing the early project to a large seamless open world.
 
 ## World model
 
@@ -126,6 +162,22 @@ Classify persistent changes:
 - **seasonal** — changes presentation but is reversible;
 - **cosmetic** — visual reminder without gameplay consequence.
 
+## Wondervale Chronicle
+
+The Chronicle (working name) is the storybook layer's record of meaningful progress.
+
+It can contain:
+
+- illustrated event pages;
+- before/after location memories;
+- character milestones;
+- discoveries;
+- open mysteries;
+- meaningful keepsakes;
+- useful EFL words/phrases encountered in context.
+
+It must remain a story-memory tool rather than a completion-score system.
+
 ## Continuity ledger
 
 Maintain a machine-readable ledger for:
@@ -143,7 +195,7 @@ Maintain a machine-readable ledger for:
 
 ## World coherence rules
 
-- New locations should have a place on a stable map.
+- New locations should have a place in a coherent geography even if no full map UI exists yet.
 - A persistent building cannot silently disappear.
 - Characters should not forget major shared events without explanation.
 - A character's expertise must not expand merely because an episode needs an answer-giver.
