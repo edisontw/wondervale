@@ -2,9 +2,9 @@
 
 **Parent-guided EFL learning adventures for ages 6–9.**
 
-Wondervale is an EFL-first interactive story world designed for children ages 6–9 and the adults learning alongside them. Children directly control a recurring protagonist within a growing core cast.
+Wondervale is an EFL-first interactive story world designed for children ages 6–9 and the adults learning alongside them.
 
-The product is not a digital worksheet collection. Children explore an evolving world, follow recurring characters, solve story problems, experiment, read, calculate, observe, and make choices. Parents act as conversation partners through short, well-timed prompts rather than as teachers or answer-givers.
+Children directly control **Milo**, a recurring protagonist, alongside **Nia** and **Finn**. The trio explores an evolving world, solves story problems, experiments, reads, calculates, observes, and makes choices. Parents act as conversation partners through short, well-timed prompts rather than as teachers or answer-givers.
 
 ## Core principles
 
@@ -17,6 +17,15 @@ The product is not a digital worksheet collection. Children explore an evolving 
 - **Privacy and accessibility by default.** The first version should work without child accounts, unnecessary personal data, or a narrow assumption about reading/motor ability.
 - **Living-world reward.** Story, character, and location growth are the primary rewards; scores and streaks are not.
 - **Static-first.** Early versions should not require a backend merely to play an episode.
+
+## Experience model
+
+Wondervale uses a **storybook shell + living interactive scenes**.
+
+- Storybook: chapters, recaps, transitions, Chronicle, parent preview/reflection.
+- Living scenes: direct control of Milo, exploration, dialogue, manipulation, experiments and problem solving.
+- Desktop: child experience and parent guide can appear side-by-side.
+- Mobile: dedicated Child View and Parent View.
 
 ## Content structure
 
@@ -36,36 +45,43 @@ Learning is modeled separately through a skill graph and can span many episodes.
 
 World/character state is derived from an event/progress ledger rather than being stored only as a mutable snapshot.
 
-## Initial development sequence
+## Current work sequence
 
-1. Foundation documents and world/content schemas
-2. Content compiler/validator and minimal application shell
-3. Episode 01 vertical slice
-4. Real parent-child validation
-5. 3–4 connected episode MVP
-6. Season 1 alpha
-7. Cloud accounts/adaptive systems only after real usage justifies them
+1. Core trio — **initial canon locked**
+2. Season 1 story architecture — **next**
+3. Season 1 learning weave
+4. Episode Production Brief format
+5. E01 full vertical slice
+6. E02–E04 connected MVP
+7. Season 1 production
+
+See [Work Sequence](docs/WORK_SEQUENCE.md).
 
 ## Documentation
 
 ### Product and content
 - [Product Vision](docs/PRODUCT_VISION.md)
 - [Content Strategy](docs/CONTENT_STRATEGY.md)
+- [Core Trio](docs/CORE_TRIO.md)
 - [Character & World Bible](docs/CHARACTER_WORLD_BIBLE.md)
 - [World & Continuity Model](docs/WORLD_CONTINUITY.md)
 - [Learning Framework](docs/LEARNING_FRAMEWORK.md)
 - [Content Model](docs/CONTENT_MODEL.md)
 - [Parent Guide System](docs/PARENT_GUIDE_SYSTEM.md)
+- [Parent / Child Display Model](docs/PARENT_DISPLAY_MODEL.md)
 - [Experience Design](docs/EXPERIENCE_DESIGN.md)
+- [Prompt & Production Pipeline](docs/PROMPT_PIPELINE.md)
+- [Design Decisions](docs/OPEN_DECISIONS.md)
 
 ### Engineering and quality
 - [Architecture](docs/ARCHITECTURE.md)
 - [Content Versioning & State](docs/CONTENT_VERSIONING.md)
 - [Accessibility, Privacy & Safety](docs/ACCESSIBILITY_PRIVACY_SAFETY.md)
 - [Research & Validation](docs/RESEARCH_VALIDATION.md)
+- [Work Sequence](docs/WORK_SEQUENCE.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Deployment](docs/DEPLOYMENT.md)
 
 ## Status
 
-**Foundation phase.** No production learning content has been locked yet. Character names, visual style, Season 1 story details, and public domain are intentionally still open for iteration.
+**Foundation / pre-Season-1 design.** Core product direction and the initial trio are defined. Season 1 story architecture is the next focused design task. Visual style, final Season 1 plot, and public domain remain intentionally open for iteration.
