@@ -30,6 +30,10 @@ Production specification:
 
 - `docs/EPISODE_PRODUCTION_BRIEF.md`
 
+Current episode production:
+
+- `content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md` — approved_for_script
+
 Rules:
 
 - A downstream workstream must not silently redefine an upstream locked decision.
