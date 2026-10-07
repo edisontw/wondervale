@@ -13,42 +13,55 @@ The product is not a digital worksheet collection. Children explore an evolving 
 - **The world remembers.** Characters can learn, relationships can change, and places can be built, repaired, opened, or transformed across episodes.
 - **Learning accumulates.** Skills are revisited and transferred into new contexts rather than taught once and forgotten.
 - **Reusable engine, non-repetitive experience.** Technical activity components may be reused; stories and surface interactions should not feel templated.
-- **English first, multilingual-ready.** Initial content is written in English, while the content model keeps future localization possible.
-- **Privacy by default.** The first version should work without child accounts or unnecessary personal data.
+- **English first, multilingual-ready.** Child-facing content and parent guidance are designed so their languages can be separated later.
+- **Privacy and accessibility by default.** The first version should work without child accounts, unnecessary personal data, or a narrow assumption about reading/motor ability.
+- **Static-first.** Early versions should not require a backend merely to play an episode.
 
-## Product structure
+## Content structure
 
 ```
 World
 └── Season
-    └── Episode
-        └── Scene
-            ├── Story
-            ├── Activity
-            ├── Parent cue
-            └── World / character effects
+    └── Story Arc
+        └── Episode
+            └── Scene
+                ├── Story beats
+                ├── Activities
+                ├── Parent cues
+                └── Continuity effects
 ```
 
 Learning is modeled separately through a skill graph and can span many episodes.
 
+World/character state is derived from an event/progress ledger rather than being stored only as a mutable snapshot.
+
 ## Initial development sequence
 
 1. Foundation documents and world/content schemas
-2. Minimal web application shell
+2. Content compiler/validator and minimal application shell
 3. Episode 01 vertical slice
-4. Parent-guidance interaction testing
-5. 3–4 episode MVP
+4. Real parent-child validation
+5. 3–4 connected episode MVP
 6. Season 1 alpha
 7. Cloud accounts/adaptive systems only after real usage justifies them
 
 ## Documentation
 
+### Product and content
 - [Product Vision](docs/PRODUCT_VISION.md)
+- [Content Strategy](docs/CONTENT_STRATEGY.md)
+- [Character & World Bible](docs/CHARACTER_WORLD_BIBLE.md)
 - [World & Continuity Model](docs/WORLD_CONTINUITY.md)
 - [Learning Framework](docs/LEARNING_FRAMEWORK.md)
 - [Content Model](docs/CONTENT_MODEL.md)
 - [Parent Guide System](docs/PARENT_GUIDE_SYSTEM.md)
+- [Experience Design](docs/EXPERIENCE_DESIGN.md)
+
+### Engineering and quality
 - [Architecture](docs/ARCHITECTURE.md)
+- [Content Versioning & State](docs/CONTENT_VERSIONING.md)
+- [Accessibility, Privacy & Safety](docs/ACCESSIBILITY_PRIVACY_SAFETY.md)
+- [Research & Validation](docs/RESEARCH_VALIDATION.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Deployment](docs/DEPLOYMENT.md)
 
