@@ -250,7 +250,7 @@ Help is **on demand** and scoped to the current activity. Never auto-escalate be
 | Context | First support | Further support | Last resort |
 |---|---|---|---|
 | SC02 repair | show clear `Help` target; replay `STEWARD-004` / `UI-001` | demonstrate press/hold or tap | one-action assisted hold |
-| SC03 observation | replay `UI-002` / `UI-003`; enlarge map | `UI-004`, `NIA-017`; emphasize broad feature without explanation | visually present an additional feature so two evidence types are available; child still chooses a guess |
+| SC03 observation | replay `UI-002` / `UI-003`; enlarge map | `UI-004`, `NIA-017`; emphasize broad feature without explanation | offer a clearly focusable, single-action assisted Inspect on an additional feature; the child deliberately activates it so two distinct inspections are recorded before choosing a guess |
 | SC04 anchor comparison | `UI-006` / `UI-007`; enlarge symbols | `NIA-024` (fountain suggestion, never forced first); point toward broad landmark sector | assisted travel **with explicit consent**; still child confirms symbol/place |
 | SC05 marker search | `UI-009` / `NIA-029` | highlight broad exit/post region | assisted inspection |
 | SC05 cleaning | `UI-010`; demonstrate control | tap/keyboard activation | one-action assisted reveal |
