@@ -146,14 +146,6 @@ Locked workflow rules include:
 - final line-by-line voice text is downstream of detailed script approval rather than a prerequisite for the initial brief;
 - every brief carries episode-specific QA/acceptance criteria.
 
-## Next focused design layer
-
-### E01 full vertical slice — begin with the E01 Production Brief
-
-Use the locked Season 1 story architecture, learning weave, and standard EPB to author **S01E01 only**.
-
-The immediate next task is the E01 Production Brief at `approved_for_script` quality. Do not jump directly to image/audio generation or implementation.
-
 ### 10. S01E01 Production Brief — approved for script
 
 The canonical E01 brief is:
