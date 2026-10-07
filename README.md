@@ -1,8 +1,8 @@
 # Wondervale
 
-**Parent-guided interactive learning adventures for ages 6–9.**
+**Parent-guided EFL learning adventures for ages 6–9.**
 
-Wondervale is an English-first interactive story world designed for children ages 6–9 and the adults learning alongside them.
+Wondervale is an EFL-first interactive story world designed for children ages 6–9 and the adults learning alongside them. Children directly control a recurring protagonist within a growing core cast.
 
 The product is not a digital worksheet collection. Children explore an evolving world, follow recurring characters, solve story problems, experiment, read, calculate, observe, and make choices. Parents act as conversation partners through short, well-timed prompts rather than as teachers or answer-givers.
 
@@ -13,8 +13,9 @@ The product is not a digital worksheet collection. Children explore an evolving 
 - **The world remembers.** Characters can learn, relationships can change, and places can be built, repaired, opened, or transformed across episodes.
 - **Learning accumulates.** Skills are revisited and transferred into new contexts rather than taught once and forgotten.
 - **Reusable engine, non-repetitive experience.** Technical activity components may be reused; stories and surface interactions should not feel templated.
-- **English first, multilingual-ready.** Child-facing content and parent guidance are designed so their languages can be separated later.
+- **EFL-first, multilingual-ready.** English is the initial story language, with visual/audio scaffolding and separate child/parent language channels for future localization.
 - **Privacy and accessibility by default.** The first version should work without child accounts, unnecessary personal data, or a narrow assumption about reading/motor ability.
+- **Living-world reward.** Story, character, and location growth are the primary rewards; scores and streaks are not.
 - **Static-first.** Early versions should not require a backend merely to play an episode.
 
 ## Content structure
