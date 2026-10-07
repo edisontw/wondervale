@@ -124,7 +124,9 @@ A separate person/model could generate the episode assets and implementation wit
 
 E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md) — **approved_for_script**
 
-**Next focused task: S01E01 detailed script.**
+**S01E01 detailed script:** [approved v1](../content/season-01/s01e01/DETAILED_SCRIPT.md).
+
+**Next focused task: S01E01 interaction specification.**
 
 Only E01 is taken through the whole production pipeline first.
 
