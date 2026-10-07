@@ -137,7 +137,7 @@ prompts/
       60-qa-review.md
 ```
 
-The exact paths can change after E01 validates the workflow.
+The first real derived pack is [`prompts/season-01/e01/00-README.md`](../prompts/season-01/e01/00-README.md). It contains task-specific source contracts rather than duplicated giant context prompts, a requirement-only asset register and an exact 121-line **voice text** TSV (not audio). Visual generation remains blocked until a cross-episode style and references are approved. The exact paths can change after E01 validates the workflow.
 
 ## Story/script prompt
 

@@ -1,0 +1,124 @@
+# Generated exact spoken-text export; approved S01E01 DETAILED_SCRIPT.md revision 1
+# Text-only export. No recording, performance, or final audio claimed.
+line_id	scene_id	speaker	exact_text	playback_condition	delivery_direction	pronunciation_note
+S01E01-NARRATOR-001	s01e01-sc01	NARRATOR	The fountain splashes in Town Square.	script_trigger	warm clear storybook	none
+S01E01-NARRATOR-002	s01e01-sc01	NARRATOR	A big tree gives cool shade.	script_trigger	warm clear storybook	none
+S01E01-NARRATOR-003	s01e01-sc01	NARRATOR	But one paper will not stay still.	script_trigger	warm clear storybook	none
+S01E01-MILO-001	s01e01-sc01	MILO	It's waving at us!	script_trigger	curious energetic natural	none
+S01E01-FINN-001	s01e01-sc01	FINN	That paper is very friendly.	script_trigger	inventive playful natural	none
+S01E01-NIA-001	s01e01-sc01	NIA	Its corner is loose.	script_trigger	observant calm natural	none
+S01E01-STEWARD-001	s01e01-sc01	STEWARD	Oh! Not again.	script_trigger	kind practical non-expository	none
+S01E01-STEWARD-002	s01e01-sc01	STEWARD	I can fix this corner.	script_trigger	kind practical non-expository	none
+S01E01-MILO-002	s01e01-sc01	MILO	Can we help?	script_trigger	curious energetic natural	none
+S01E01-STEWARD-003	s01e01-sc01	STEWARD	Yes. Please hold the paper.	script_trigger	kind practical non-expository	none
+S01E01-NARRATOR-004	s01e01-sc01	NARRATOR	Milo walks into the square.	script_trigger	warm clear storybook	none
+S01E01-MILO-003	s01e01-sc02	MILO	I love that splash.	script_trigger	curious energetic natural	none
+S01E01-FINN-002	s01e01-sc02	FINN	I can hear it from here.	script_trigger	inventive playful natural	none
+S01E01-NIA-002	s01e01-sc02	NIA	This tree gives us shade.	script_trigger	observant calm natural	none
+S01E01-MILO-004	s01e01-sc02	MILO	And a good place to sit.	script_trigger	curious energetic natural	none
+S01E01-STEWARD-004	s01e01-sc02	STEWARD	Hold here, please.	script_trigger	kind practical non-expository	none
+S01E01-UI-001	s01e01-sc02	UI	Help hold the paper.	essential_ui_text_optional_readaloud	neutral clear optional	none
+S01E01-MILO-005	s01e01-sc02	MILO	Got it!	script_trigger	curious energetic natural	none
+S01E01-STEWARD-005	s01e01-sc02	STEWARD	Thanks. One little clip…	script_trigger	kind practical non-expository	none
+S01E01-FINN-003	s01e01-sc02	FINN	Wait. There's paper behind it.	script_trigger	inventive playful natural	none
+S01E01-NIA-003	s01e01-sc02	NIA	I see another map.	script_trigger	observant calm natural	none
+S01E01-MILO-006	s01e01-sc02	MILO	Behind this one?	script_trigger	curious energetic natural	none
+S01E01-STEWARD-006	s01e01-sc02	STEWARD	I didn't know it was there.	script_trigger	kind practical non-expository	none
+S01E01-STEWARD-007	s01e01-sc02	STEWARD	Please don't pull the old paper.	script_trigger	kind practical non-expository	none
+S01E01-NIA-004	s01e01-sc02	NIA	We can draw what we see.	script_trigger	observant calm natural	none
+S01E01-MILO-007	s01e01-sc02	MILO	Now I'm really curious.	script_trigger	curious energetic natural	none
+S01E01-NIA-005	s01e01-sc02	NIA	The old map is still here.	repeat_on_request	observant calm natural	none
+S01E01-MILO-008	s01e01-sc03	MILO	An old map!	script_trigger	curious energetic natural	none
+S01E01-MILO-009	s01e01-sc03	MILO	Where does it go?	script_trigger	curious energetic natural	none
+S01E01-NIA-006	s01e01-sc03	NIA	Let's see what's really there.	script_trigger	observant calm natural	none
+S01E01-UI-002	s01e01-sc03	UI	Look closely at the old map.	essential_ui_text_optional_readaloud	neutral clear optional	none
+S01E01-MILO-010	s01e01-sc03	MILO	I see a long line.	script_trigger	curious energetic natural	none
+S01E01-NIA-007	s01e01-sc03	NIA	It goes across the map.	script_trigger	observant calm natural	none
+S01E01-NIA-008	s01e01-sc03	NIA	I'll draw that line.	script_trigger	observant calm natural	none
+S01E01-FINN-004	s01e01-sc03	FINN	What's this shape?	script_trigger	inventive playful natural	none
+S01E01-NIA-009	s01e01-sc03	NIA	It has no name here.	script_trigger	observant calm natural	none
+S01E01-MILO-011	s01e01-sc03	MILO	Maybe it's something special.	script_trigger	curious energetic natural	none
+S01E01-FINN-005	s01e01-sc03	FINN	Look at these little holes.	script_trigger	inventive playful natural	none
+S01E01-FINN-006	s01e01-sc03	FINN	They're under the new paper.	script_trigger	inventive playful natural	none
+S01E01-NIA-010	s01e01-sc03	NIA	This paper looks much older.	script_trigger	observant calm natural	none
+S01E01-MILO-012	s01e01-sc03	MILO	I have an idea.	script_trigger	curious energetic natural	none
+S01E01-NIA-011	s01e01-sc03	NIA	Tell us your guess.	script_trigger	observant calm natural	none
+S01E01-MILO-013	s01e01-sc03	MILO	Maybe it's a treasure map!	guess_A	curious energetic natural	none
+S01E01-FINN-007	s01e01-sc03	FINN	Maybe. Let's check first.	guess_A	inventive playful natural	none
+S01E01-MILO-014	s01e01-sc03	MILO	Maybe it's our town.	guess_B	curious energetic natural	none
+S01E01-NIA-012	s01e01-sc03	NIA	We can look outside.	guess_B	observant calm natural	none
+S01E01-MILO-015	s01e01-sc03	MILO	I'm not sure yet.	guess_C	curious energetic natural	none
+S01E01-FINN-008	s01e01-sc03	FINN	Good. We can check.	guess_C	inventive playful natural	none
+S01E01-FINN-009	s01e01-sc03	FINN	These holes are under the paper.	only_if_layer_holes_uninspected	inventive playful natural	none
+S01E01-NIA-013	s01e01-sc03	NIA	So this map was here before.	only_if_layer_holes_uninspected	observant calm natural	none
+S01E01-NIA-014	s01e01-sc03	NIA	See? We have a line.	script_trigger	observant calm natural	none
+S01E01-NIA-015	s01e01-sc03	NIA	And a shape with no name.	script_trigger	observant calm natural	none
+S01E01-FINN-010	s01e01-sc03	FINN	But is this our square?	script_trigger	inventive playful natural	none
+S01E01-MILO-016	s01e01-sc03	MILO	Let's find out!	script_trigger	curious energetic natural	none
+S01E01-NIA-016	s01e01-sc03	NIA	We can look again.	repeat_on_request	observant calm natural	none
+S01E01-UI-003	s01e01-sc03	UI	Look for lines and shapes.	help_ui_text_optional_readaloud	neutral clear optional	none
+S01E01-UI-004	s01e01-sc03	UI	Try another part of the map.	help_ui_text_optional_readaloud	neutral clear optional	none
+S01E01-NIA-017	s01e01-sc03	NIA	What can we see right here?	script_trigger	observant calm natural	none
+S01E01-FINN-011	s01e01-sc04	FINN	There's a round mark here.	script_trigger	inventive playful natural	none
+S01E01-NIA-018	s01e01-sc04	NIA	And look: a big tree.	script_trigger	observant calm natural	none
+S01E01-MILO-017	s01e01-sc04	MILO	We have both!	script_trigger	curious energetic natural	none
+S01E01-FINN-012	s01e01-sc04	FINN	Let's check the real places.	script_trigger	inventive playful natural	none
+S01E01-UI-005	s01e01-sc04	UI	Find both places in the square.	essential_ui_text_optional_readaloud	neutral clear optional	none
+S01E01-MILO-018	s01e01-sc04	MILO	This fountain is round.	script_trigger	curious energetic natural	none
+S01E01-NIA-019	s01e01-sc04	NIA	The round mark fits here.	script_trigger	observant calm natural	none
+S01E01-FINN-013	s01e01-sc04	FINN	That's one very big tree.	script_trigger	inventive playful natural	none
+S01E01-NIA-020	s01e01-sc04	NIA	The tree mark fits here.	script_trigger	observant calm natural	none
+S01E01-MILO-019	s01e01-sc04	MILO	One place fits!	script_trigger	curious energetic natural	none
+S01E01-NIA-021	s01e01-sc04	NIA	Let's check the other one.	script_trigger	observant calm natural	none
+S01E01-FINN-014	s01e01-sc04	FINN	Hmm. That shape is different.	script_trigger	inventive playful natural	none
+S01E01-MILO-020	s01e01-sc04	MILO	Let's keep looking.	script_trigger	curious energetic natural	none
+S01E01-NIA-022	s01e01-sc04	NIA	Both marks fit our square.	script_trigger	observant calm natural	none
+S01E01-FINN-015	s01e01-sc04	FINN	So this map shows this place.	script_trigger	inventive playful natural	none
+S01E01-MILO-021	s01e01-sc04	MILO	But there's another line.	script_trigger	curious energetic natural	none
+S01E01-NIA-023	s01e01-sc04	NIA	It goes past the tree.	script_trigger	observant calm natural	none
+S01E01-MILO-022	s01e01-sc04	MILO	Then let's follow it!	script_trigger	curious energetic natural	none
+S01E01-UI-006	s01e01-sc04	UI	Look at the two map shapes.	help_ui_text_optional_readaloud	neutral clear optional	none
+S01E01-NIA-024	s01e01-sc04	NIA	Find the round fountain first.	script_trigger	observant calm natural	none
+S01E01-UI-007	s01e01-sc04	UI	You can visit either place first.	help_ui_text_optional_readaloud	neutral clear optional	none
+S01E01-FINN-016	s01e01-sc05	FINN	The line goes this way.	script_trigger	inventive playful natural	none
+S01E01-MILO-023	s01e01-sc05	MILO	Near the edge of the square?	script_trigger	curious energetic natural	none
+S01E01-NIA-025	s01e01-sc05	NIA	There's something on that post.	script_trigger	observant calm natural	none
+S01E01-MILO-024	s01e01-sc05	MILO	It's covered in dirt.	script_trigger	curious energetic natural	none
+S01E01-STEWARD-008	s01e01-sc05	STEWARD	That old plate is safe to clean.	script_trigger	kind practical non-expository	none
+S01E01-STEWARD-009	s01e01-sc05	STEWARD	I've got a soft cloth.	script_trigger	kind practical non-expository	none
+S01E01-FINN-017	s01e01-sc05	FINN	Those holes look familiar.	script_trigger	inventive playful natural	none
+S01E01-FINN-018	s01e01-sc05	FINN	Like the ones behind the board.	script_trigger	inventive playful natural	none
+S01E01-MILO-025	s01e01-sc05	MILO	Let's see what it says.	script_trigger	curious energetic natural	none
+S01E01-UI-008	s01e01-sc05	UI	Clean the old plate.	essential_ui_text_optional_readaloud	neutral clear optional	none
+S01E01-NARRATOR-005	s01e01-sc05	NARRATOR	A little dirt comes away.	script_trigger	warm clear storybook	none
+S01E01-NARRATOR-006	s01e01-sc05	NARRATOR	A mark appears under it.	script_trigger	warm clear storybook	none
+S01E01-MILO-026	s01e01-sc05	MILO	Riverside!	script_trigger	curious energetic natural	review Riverside consistency
+S01E01-NIA-026	s01e01-sc05	NIA	So this way led there.	script_trigger	observant calm natural	none
+S01E01-FINN-019	s01e01-sc05	FINN	The old mark is real.	script_trigger	inventive playful natural	none
+S01E01-MILO-027	s01e01-sc05	MILO	Then the map isn't just a guess.	script_trigger	curious energetic natural	none
+S01E01-NIA-027	s01e01-sc05	NIA	It shows places we know.	script_trigger	observant calm natural	none
+S01E01-FINN-020	s01e01-sc05	FINN	But look at the old line.	script_trigger	inventive playful natural	none
+S01E01-FINN-021	s01e01-sc05	FINN	It keeps going past here.	script_trigger	inventive playful natural	none
+S01E01-MILO-028	s01e01-sc05	MILO	Isn't that way a dead end?	script_trigger	curious energetic natural	none
+S01E01-NIA-028	s01e01-sc05	NIA	Maybe the town changed.	script_trigger	observant calm natural	none
+S01E01-UI-009	s01e01-sc05	UI	Look near the path out.	help_ui_text_optional_readaloud	neutral clear optional	none
+S01E01-NIA-029	s01e01-sc05	NIA	Check the old line again.	script_trigger	observant calm natural	none
+S01E01-UI-010	s01e01-sc05	UI	Hold to clean the plate.	help_ui_text_optional_readaloud	neutral clear optional	none
+S01E01-MILO-029	s01e01-sc05	MILO	The Riverside mark is still here.	repeat_on_request	curious energetic natural	review Riverside consistency
+S01E01-NARRATOR-007	s01e01-sc06	NARRATOR	The old map stays safe.	script_trigger	warm clear storybook	none
+S01E01-NARRATOR-008	s01e01-sc06	NARRATOR	The old mark is clear now.	script_trigger	warm clear storybook	none
+S01E01-NIA-030	s01e01-sc06	NIA	I'll keep our drawing here.	script_trigger	observant calm natural	none
+S01E01-MILO-030	s01e01-sc06	MILO	The fountain and tree match.	script_trigger	curious energetic natural	none
+S01E01-FINN-022	s01e01-sc06	FINN	And the plate says Riverside.	script_trigger	inventive playful natural	review Riverside consistency
+S01E01-NIA-031	s01e01-sc06	NIA	But this shape has no name.	script_trigger	observant calm natural	none
+S01E01-MILO-031	s01e01-sc06	MILO	Maybe we'll find out there!	script_trigger	curious energetic natural	none
+S01E01-FINN-023	s01e01-sc06	FINN	Only one way to check.	script_trigger	inventive playful natural	none
+S01E01-NARRATOR-009	s01e01-sc06	NARRATOR	One small mark changed the square.	script_trigger	warm clear storybook	none
+S01E01-NARRATOR-010	s01e01-sc06	NARRATOR	One big question is still open.	script_trigger	warm clear storybook	none
+S01E01-NARRATOR-011	s01e01-sc06	NARRATOR	Next time, we can visit Riverside.	script_trigger	warm clear storybook	review Riverside consistency
+S01E01-NARRATOR-012	resume-only	NARRATOR	We were helping at the noticeboard.	resume_only	warm clear storybook	none
+S01E01-NARRATOR-013	resume-only	NARRATOR	Let's see what needs fixing.	resume_only	warm clear storybook	none
+S01E01-NARRATOR-014	resume-only	NARRATOR	We found an old map.	resume_only	warm clear storybook	none
+S01E01-NARRATOR-015	resume-only	NARRATOR	What can it show us?	resume_only	warm clear storybook	none
+S01E01-NARRATOR-016	resume-only	NARRATOR	The old plate points to Riverside.	resume_only	warm clear storybook	review Riverside consistency
+S01E01-NARRATOR-017	resume-only	NARRATOR	Let's save what we found.	resume_only	warm clear storybook	none

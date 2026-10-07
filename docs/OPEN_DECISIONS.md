@@ -179,28 +179,28 @@ Still open inside the E01 vertical slice:
 - final voice provider/performance;
 - validation of language/help/recap/checkpoint baselines with families.
 
+### 11. S01E01 Prompt Pack — approved for downstream planning
+
+The canonical derived pack is [`prompts/season-01/e01/00-README.md`](../prompts/season-01/e01/00-README.md).
+
+Locked by this production-preparation layer:
+
+- one indexed, task-specific prompt system derived from approved EPB/script/interaction; no independent story authority;
+- script change-control, EFL/parent review, visual design, character, location, props/UI, animation, music, SFX, voice, engineering and QA prompt families;
+- 121 exact approved script spoken lines exported to `40-voice-lines.tsv`; this is **text**, not voice recordings;
+- a working E01 asset registry with stable candidate IDs, states, reuse, approval and provenance requirements;
+- **image-generation gate:** choose and approve one visual style system, trio references, Town Square layout and stable unnamed mystery-symbol reference before any final art;
+- no assumption of generated music/SFX/voice, working website, or runtime PASS.
+
+Still open: chosen cross-episode visual style, actual character/location references, physical layout/compositions, symbol depiction (its narrative meaning stays unknown), final media files and voice casting, runtime technical details, and executed acceptance/family test results.
+
 ## Next focused design layer
 
-### S01E01 prompt pack
+### S01E01 visual style mini-pass
 
-The S01E01 detailed script is approved v1: [`DETAILED_SCRIPT.md`](../content/season-01/s01e01/DETAILED_SCRIPT.md).
+Use [`20-visual-style.md`](../prompts/season-01/e01/20-visual-style.md) to evaluate three viable visual systems, select one and record a shared mini-style bible. Confirm small-screen trio silhouettes, storybook/living-scene consistency, readable Town Square geography, non-color-only map/plate clues and an unexplained but stable symbol.
 
-The S01E01 interaction specification is approved v1: [`INTERACTION_SPEC.md`](../content/season-01/s01e01/INTERACTION_SPEC.md); [`INTERACTION_TEST_MATRIX.md`](../content/season-01/s01e01/INTERACTION_TEST_MATRIX.md) lists **planned** tests, not runtime PASS results.
-
-Locked by the interaction design:
-
-- two substantive interactions: evidence observation and living-space map/marker exploration;
-- seven scene phases (SC00–SC06), three ungraded guess options converging to one canon result;
-- evidence regions A/B/C in any order; two inspections suffice and remaining required evidence is surfaced non-punitively;
-- two real-world landmark confirmations in any order, independent of earlier casual exploration;
-- reveal is only possible after map comparison; `RIVERSIDE` is not exposed before the plate reveal;
-- accessible touch/mouse/keyboard/assist paths, no precision/timing gate;
-- one nonblocking parent cue and fast desktop/mobile parent presentation;
-- safe scene/checkpoint commits, exact-once event semantics, resumed recap selection, and historical replay isolation.
-
-Open for later production/testing: precise control layout, compiled manifest schema, visual style/assets, final music/SFX/voice, runtime implementation, and actual parent-child acceptance results.
-
-Next derive **task-specific prompt packs** from the EPB, script, interaction contract, and stable bibles. A dedicated visual-style mini-pass is required before image generation; do not generate images/audio or implement the site in the prompt-pack step.
+Until this is approved, the image prompt recipes are **blocked**, not ready to run. Do not rewrite story canon or begin batch production.
 
 ## Can defer until after the connected MVP
 
