@@ -6,6 +6,29 @@ The parent is a conversation partner, not an answer key.
 
 Parent guidance should increase the quality of adult-child interaction while adding very little cognitive overhead.
 
+The approved display strategy is defined in [PARENT_DISPLAY_MODEL.md](PARENT_DISPLAY_MODEL.md).
+
+## Display strategy
+
+### Desktop / large shared screen
+Show the child experience and parent guide at the same time.
+
+Default direction:
+
+- child area: approximately 70–75%;
+- parent area: approximately 25–30%;
+- parent area visually quieter;
+- no answer spoilers;
+- cues update at natural moments.
+
+### Mobile
+Maintain two coordinated views:
+
+- **Child View** — gameplay/story surface;
+- **Parent View** — preview, current cue, follow-up/fallback, reflection and adult settings.
+
+The first implementation may use rapid same-device switching. Second-device synchronization can be added later if justified.
+
 ## Before an episode
 
 A short preview may show:
@@ -90,7 +113,8 @@ Parent cues should:
 - not require specialist knowledge;
 - be skippable unless explicitly part of a shared activity;
 - not interrupt every interaction;
-- avoid making the child wait for adult approval after every decision.
+- avoid making the child wait for adult approval after every decision;
+- be safe for the child to see on a shared desktop screen.
 
 ## Parent participation
 
