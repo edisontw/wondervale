@@ -170,10 +170,10 @@ Locked for E01:
 
 Still open inside the E01 vertical slice:
 
-- final script/dialogue;
+- final script/dialogue — **resolved in approved S01E01 script v1**;
 - final child-facing E01 title;
 - exact art/rendering style and final character/location model sheets;
-- final parent-cue wording after script review;
+- final parent-cue wording — **resolved provisionally in approved S01E01 script v1; family-test revisions remain possible**;
 - exact interaction implementation;
 - final image/music/SFX prompts/assets;
 - final voice provider/performance;
@@ -181,11 +181,13 @@ Still open inside the E01 vertical slice:
 
 ## Next focused design layer
 
-### S01E01 detailed script
+### S01E01 interaction specification
 
-Write the full E01 script using the approved Production Brief as the episode authority.
+The S01E01 full detailed script is now approved: [`content/season-01/s01e01/DETAILED_SCRIPT.md`](../content/season-01/s01e01/DETAILED_SCRIPT.md).
 
-Do not begin final image/audio generation or implementation before the script is reviewed and locked.
+Locked for downstream scripting/voice export: spoken line IDs and exact English text (script revision 1), scene/branch triggers, parent preview/cue/reflection copy, Chronicle text, and resume micro-recaps. The script passes the line-length/ID review documented with the commit.
+
+Next define precise interaction states, input/accessibility behavior, help/recovery, checkpoint/replay behavior, and acceptance tests using the approved EPB and script. Do not start image/audio production or website implementation in this step.
 
 ## Can defer until after the connected MVP
 
