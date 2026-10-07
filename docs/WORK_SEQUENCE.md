@@ -128,7 +128,9 @@ E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTIO
 
 **S01E01 interaction specification:** [approved v1](../content/season-01/s01e01/INTERACTION_SPEC.md); [acceptance test plan](../content/season-01/s01e01/INTERACTION_TEST_MATRIX.md) — designed, not executed.
 
-**Next focused task: S01E01 prompt pack (with visual-style gate before image generation).**
+**S01E01 derived prompt pack:** [approved v1](../prompts/season-01/e01/00-README.md), including 121 exact voice-text records. No visual, audio or runtime assets have been generated.
+
+**Next focused task: S01E01 visual style mini-pass**, required before character/background/prop image generation.
 
 Only E01 is taken through the whole production pipeline first.
 
