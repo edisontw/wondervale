@@ -34,6 +34,8 @@ Current episode production:
 
 - `content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md` — approved_for_script
 - `content/season-01/s01e01/DETAILED_SCRIPT.md` — approved v1
+- `content/season-01/s01e01/INTERACTION_SPEC.md` — approved v1
+- `content/season-01/s01e01/INTERACTION_TEST_MATRIX.md` — design plan, not executed
 
 Rules:
 

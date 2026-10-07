@@ -51,7 +51,7 @@ World/character state is derived from an event/progress ledger rather than being
 2. Season 1 story architecture — **approved**
 3. Season 1 learning weave — **approved**
 4. Episode Production Brief format — **approved**
-5. E01 full vertical slice — **in progress: brief and detailed script approved; interaction specification next**
+5. E01 full vertical slice — **in progress: brief, script and interaction specification approved; prompt pack next**
 6. E02–E04 connected MVP
 7. Season 1 production
 
@@ -72,6 +72,8 @@ See [Work Sequence](docs/WORK_SEQUENCE.md).
 - [Episode Production Brief Standard](docs/EPISODE_PRODUCTION_BRIEF.md)
 - [S01E01 Production Brief](content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md)
 - [S01E01 Detailed Script](content/season-01/s01e01/DETAILED_SCRIPT.md)
+- [S01E01 Interaction Specification](content/season-01/s01e01/INTERACTION_SPEC.md)
+- [S01E01 Interaction Test Matrix](content/season-01/s01e01/INTERACTION_TEST_MATRIX.md)
 - [Parent Guide System](docs/PARENT_GUIDE_SYSTEM.md)
 - [Parent / Child Display Model](docs/PARENT_DISPLAY_MODEL.md)
 - [Experience Design](docs/EXPERIENCE_DESIGN.md)
@@ -89,4 +91,4 @@ See [Work Sequence](docs/WORK_SEQUENCE.md).
 
 ## Status
 
-**E01 vertical slice in progress.** Core trio, Season 1 story architecture, learning weave, and the Episode Production Brief standard are approved. S01E01's Production Brief and detailed script are approved; the next focused task is the S01E01 interaction specification.
+**E01 vertical slice in progress.** Core trio, Season 1 story architecture, learning weave, and the Episode Production Brief standard are approved. S01E01's Production Brief and detailed script are approved; the next focused task is the S01E01 prompt pack, with visual-style approval before image generation.
