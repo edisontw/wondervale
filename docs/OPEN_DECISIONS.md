@@ -154,32 +154,46 @@ Use the locked Season 1 story architecture, learning weave, and standard EPB to 
 
 The immediate next task is the E01 Production Brief at `approved_for_script` quality. Do not jump directly to image/audio generation or implementation.
 
-## Resolve during Episode 01 design
+### 10. S01E01 Production Brief — approved for script
 
-### Audio/narration baseline
-Decide which child-facing text is voiced, replay behavior, caption/transcript rules, and whether prototype narration is recorded or synthetic.
+The canonical E01 brief is:
 
-### EFL scaffolding baseline
-Define an initial language band for E01:
+- [`content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md`](../content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md)
 
-- approximate sentence length;
-- amount of new vocabulary;
-- amount of repeated language;
-- picture/audio support;
-- tap-for-meaning behavior;
-- when translation is or is not offered.
+Locked for E01:
 
-### Help model
-Test the graduated scaffold ladder with actual children.
+- six episode scenes plus parent preview, with two substantive child interactions;
+- observation-before-interpretation as the first reasoning interaction;
+- map-to-real-place reasoning using two persistent Town Square anchors: a fountain and mature shade tree;
+- discovery and accessible cleaning/reveal of the first old route marker;
+- old map layer is documented/preserved rather than damaged;
+- one recommended during-play parent cue plus optional reflection;
+- E01 prototype language band: mostly 3–8-word required lines, occasional 10–12-word visually supported lines, and no more than about five comprehension-critical new lexical items without explicit justification;
+- required storybook narration and progression-critical character dialogue are voiced with visible text/replay;
+- temporary synthetic voices may be used for prototype timing; final voice production waits for script lock;
+- E01 help ladder separates language, control, reasoning, and accessibility support;
+- scene-boundary/local safe checkpoints plus a short Chronicle-style resume recap are the E01 prototype;
+- no canonical branch in E01;
+- E01 brief status is `approved_for_script`.
 
-### Session checkpoint behavior
-Determine how a family pauses/resumes a 12–20 minute episode.
+Still open inside the E01 vertical slice:
 
-### Recap format
-Prototype a short “Previously in Wondervale” experience using the Chronicle.
+- final script/dialogue;
+- final child-facing E01 title;
+- exact art/rendering style and final character/location model sheets;
+- final parent-cue wording after script review;
+- exact interaction implementation;
+- final image/music/SFX prompts/assets;
+- final voice provider/performance;
+- validation of language/help/recap/checkpoint baselines with families.
 
-### Visual art direction
-Lock only enough art direction to create a coherent vertical slice. Do not build a full asset library before the E01 interaction format is validated.
+## Next focused design layer
+
+### S01E01 detailed script
+
+Write the full E01 script using the approved Production Brief as the episode authority.
+
+Do not begin final image/audio generation or implementation before the script is reviewed and locked.
 
 ## Can defer until after the connected MVP
 

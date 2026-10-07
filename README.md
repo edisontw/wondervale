@@ -51,7 +51,7 @@ World/character state is derived from an event/progress ledger rather than being
 2. Season 1 story architecture — **approved**
 3. Season 1 learning weave — **approved**
 4. Episode Production Brief format — **approved**
-5. E01 full vertical slice — **next**
+5. E01 full vertical slice — **in progress: Production Brief approved; detailed script next**
 6. E02–E04 connected MVP
 7. Season 1 production
 
@@ -70,6 +70,7 @@ See [Work Sequence](docs/WORK_SEQUENCE.md).
 - [Season 1 Learning Weave](docs/SEASON_1_LEARNING_WEAVE.md)
 - [Content Model](docs/CONTENT_MODEL.md)
 - [Episode Production Brief Standard](docs/EPISODE_PRODUCTION_BRIEF.md)
+- [S01E01 Production Brief](content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md)
 - [Parent Guide System](docs/PARENT_GUIDE_SYSTEM.md)
 - [Parent / Child Display Model](docs/PARENT_DISPLAY_MODEL.md)
 - [Experience Design](docs/EXPERIENCE_DESIGN.md)
@@ -87,4 +88,4 @@ See [Work Sequence](docs/WORK_SEQUENCE.md).
 
 ## Status
 
-**Season 1 pre-production design.** Core trio, Season 1 story architecture, learning weave, and the Episode Production Brief standard are approved. The next focused task is S01E01's Production Brief, beginning the E01 vertical slice.
+**E01 vertical slice in progress.** Core trio, Season 1 story architecture, learning weave, and the Episode Production Brief standard are approved. S01E01's Production Brief is now `approved_for_script`; the next focused task is the S01E01 detailed script.

@@ -120,7 +120,11 @@ A separate person/model could generate the episode assets and implementation wit
 
 ## Stage 5 — E01 full vertical slice
 
-**Next major focused task**
+**Status: in progress**
+
+E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md) — **approved_for_script**
+
+**Next focused task: S01E01 detailed script.**
 
 Only E01 is taken through the whole production pipeline first.
 
