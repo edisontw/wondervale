@@ -87,23 +87,41 @@ Approved direction is defined in [PARENT_DISPLAY_MODEL.md](PARENT_DISPLAY_MODEL.
 - **Mobile:** separate Child View and Parent View, initially supporting fast same-device switching.
 - Future second-device synchronization is optional and not required for E01.
 
-## Still required before Episode 01 content lock
+### 7. Season 1 story architecture — locked
 
-### 7. Season 1 premise and architecture
+Season 1 story architecture is defined in [SEASON_1_ARCHITECTURE.md](SEASON_1_ARCHITECTURE.md).
+
+Locked architecture-level decisions include:
+
+- the **Missing Place / old-route mystery** replaces *The Lost River* for Season 1;
+- 3 Story Arcs and 11 Core Episodes;
+- gradual visible world growth across recurring locations;
+- the old route changed through normal town change rather than a villain or single catastrophe;
+- the unsafe North Hill segment remains closed;
+- the final missing place is a former shared community space, internally called **the Common**;
+- the Common is reopened for present-day use rather than restored exactly;
+- the season ends with a new Wondervale loop and the trio's Season 1 growth paid off in behavior.
+
+The final child-facing season title, episode titles, detailed learning weave, scripts, interactions, and production details remain open.
+
+*The Lost River* is no longer the Season 1 current concept and remains available only as a possible future story seed.
+
+## Next focused design layer
+
+### Season 1 learning weave
+
+Map learning into the approved story skeleton without changing the dramatic reason each episode exists.
 
 Define:
 
-- central mystery/problem;
-- 2–3 Story Arcs;
-- approximately 10–12 Core Episodes;
-- visible world changes;
-- major character development;
-- naturally arising learning themes;
-- season payoff.
+- primary and secondary learning goals;
+- revisit / transfer opportunities;
+- EFL language functions;
+- likely misconceptions;
+- evidence of thinking;
+- parent-child discussion opportunities.
 
-This is the **next focused design task**.
-
-*The Lost River* remains only a working concept until this task is completed.
+Do not begin Episode 01 detailed production until this layer is stable.
 
 ## Resolve during Episode 01 design
 

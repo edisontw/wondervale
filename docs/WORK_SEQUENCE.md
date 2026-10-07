@@ -18,7 +18,7 @@ Before a focused work session:
 
 ## Stage 1 — Core trio lock
 
-**Status: current task / initial direction locked**
+**Status: complete / locked for Season 1 architecture**
 
 Define:
 
@@ -38,7 +38,9 @@ Do not begin full character art production until the Character Bible is internal
 
 ## Stage 2 — Season 1 story architecture
 
-**Next major focused task**
+**Status: complete / approved**
+
+Canonical architecture: [SEASON_1_ARCHITECTURE.md](SEASON_1_ARCHITECTURE.md)
 
 Create:
 
@@ -60,6 +62,8 @@ Exit condition:
 Every Episode has a dramatic/story reason to exist even if all learning labels are hidden.
 
 ## Stage 3 — Season 1 learning weave
+
+**Next major focused task**
 
 After the story skeleton is stable, map learning into it.
 
