@@ -283,7 +283,7 @@ Optional fallback: “Can you point to a line or shape?”
 
 - [S01E01-MILO-026] “Riverside!”
 - [S01E01-NIA-026] “So this way led there.”
-- [S01E01-FINN-019] “We found a real old mark.”
+- [S01E01-FINN-019] “The old mark is real.”
 - [S01E01-MILO-027] “Then the map isn't just a guess.”
 - [S01E01-NIA-027] “It shows places we know.”
 - [S01E01-FINN-020] “But look at the old line.”
@@ -313,7 +313,7 @@ Optional fallback: “Can you point to a line or shape?”
 [stage] Nia's sketch becomes the visual basis of the Chronicle page. It shows the old layer as **preserved**, the two familiar landmarks, the unlabelled symbol, the faded route, and the old marker before/after cleaning. No score, badge, XP, or victory chest.
 
 - [S01E01-NARRATOR-007] “The old map stays safe.”
-- [S01E01-NARRATOR-008] “The square has one new old mark.”
+- [S01E01-NARRATOR-008] “The old mark is clear now.”
 - [S01E01-NIA-030] “I'll keep our drawing here.”
 - [S01E01-MILO-030] “The fountain and tree match.”
 - [S01E01-FINN-022] “And the plate says Riverside.”
