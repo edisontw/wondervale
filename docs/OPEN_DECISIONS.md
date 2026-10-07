@@ -106,22 +106,36 @@ The final child-facing season title, episode titles, detailed learning weave, sc
 
 *The Lost River* is no longer the Season 1 current concept and remains available only as a possible future story seed.
 
+### 8. Season 1 learning weave — locked
+
+Season 1 learning architecture is defined in [SEASON_1_LEARNING_WEAVE.md](SEASON_1_LEARNING_WEAVE.md).
+
+Locked at this layer:
+
+- five cross-episode learning threads: evidence/explanation, spatial routes, time/sources/change, design/systems/iteration, and perspective/community/tradeoffs;
+- each Core Episode's primary/secondary learning role;
+- revisit and transfer relationships across the season;
+- high-level EFL language functions;
+- important misconception hypotheses;
+- meaningful evidence-of-thinking targets;
+- one high-value parent discussion opportunity per episode.
+
+Still intentionally open until Episode Production Specification / E01 design:
+
+- exact activities and mechanics;
+- exact quantitative difficulty;
+- final EFL vocabulary/sentence load;
+- final cue wording/timing;
+- detailed scaffolds/hints;
+- scoring or automatic assessment behavior.
+
 ## Next focused design layer
 
-### Season 1 learning weave
+### Episode Production Brief format
 
-Map learning into the approved story skeleton without changing the dramatic reason each episode exists.
+Define the standard human-readable specification used to take one approved episode into script, interaction, learning/EFL, parent guidance, visual/audio production, continuity, and QA.
 
-Define:
-
-- primary and secondary learning goals;
-- revisit / transfer opportunities;
-- EFL language functions;
-- likely misconceptions;
-- evidence of thinking;
-- parent-child discussion opportunities.
-
-Do not begin Episode 01 detailed production until this layer is stable.
+Do not begin E01 detailed production until the standard brief format is stable.
 
 ## Resolve during Episode 01 design
 

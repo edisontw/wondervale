@@ -13,7 +13,7 @@ Then read only the files needed for the current workstream.
 | Workstream | Primary files |
 |---|---|
 | Narrative / Season / Episode story | `PRODUCT_VISION.md`, `CORE_TRIO.md`, `CHARACTER_WORLD_BIBLE.md`, `CONTENT_STRATEGY.md`, `WORLD_CONTINUITY.md`, current Season architecture |
-| Learning / EFL / parent discussion | `PRODUCT_VISION.md`, `CONTENT_STRATEGY.md`, `LEARNING_FRAMEWORK.md`, current Season architecture, `PARENT_GUIDE_SYSTEM.md` |
+| Learning / EFL / parent discussion | `PRODUCT_VISION.md`, `CONTENT_STRATEGY.md`, `LEARNING_FRAMEWORK.md`, current Season architecture, current Season learning weave, `PARENT_GUIDE_SYSTEM.md` |
 | Visual / character / location art | `CORE_TRIO.md`, `CHARACTER_WORLD_BIBLE.md`, `EXPERIENCE_DESIGN.md`, `ACCESSIBILITY_PRIVACY_SAFETY.md`, approved Episode Production Brief when available |
 | Audio / music / voice | `CORE_TRIO.md`, `EXPERIENCE_DESIGN.md`, approved Episode Production Brief/script, `ACCESSIBILITY_PRIVACY_SAFETY.md` |
 | Engineering / runtime / UI | `ARCHITECTURE.md`, `CONTENT_MODEL.md`, `CONTENT_VERSIONING.md`, `EXPERIENCE_DESIGN.md`, `PARENT_DISPLAY_MODEL.md`, `ACCESSIBILITY_PRIVACY_SAFETY.md`, `DEPLOYMENT.md` |
@@ -24,6 +24,7 @@ Then read only the files needed for the current workstream.
 Current Season 1 canon is in:
 
 - `docs/SEASON_1_ARCHITECTURE.md`
+- `docs/SEASON_1_LEARNING_WEAVE.md`
 
 Rules:
 

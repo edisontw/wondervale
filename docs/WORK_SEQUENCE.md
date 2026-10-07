@@ -63,7 +63,9 @@ Every Episode has a dramatic/story reason to exist even if all learning labels a
 
 ## Stage 3 — Season 1 learning weave
 
-**Next major focused task**
+**Status: complete / approved**
+
+Canonical learning architecture: [SEASON_1_LEARNING_WEAVE.md](SEASON_1_LEARNING_WEAVE.md)
 
 After the story skeleton is stable, map learning into it.
 
@@ -84,6 +86,8 @@ Exit condition:
 Learning reinforces the story rather than interrupting it, and important concepts have future revisit points.
 
 ## Stage 4 — Episode production specification
+
+**Next major focused task**
 
 Create a standard **Episode Production Brief**.
 

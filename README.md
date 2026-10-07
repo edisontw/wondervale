@@ -47,10 +47,10 @@ World/character state is derived from an event/progress ledger rather than being
 
 ## Current work sequence
 
-1. Core trio — **initial canon locked**
-2. Season 1 story architecture — **next**
-3. Season 1 learning weave
-4. Episode Production Brief format
+1. Core trio — **locked**
+2. Season 1 story architecture — **approved**
+3. Season 1 learning weave — **approved**
+4. Episode Production Brief format — **next**
 5. E01 full vertical slice
 6. E02–E04 connected MVP
 7. Season 1 production
@@ -66,6 +66,8 @@ See [Work Sequence](docs/WORK_SEQUENCE.md).
 - [Character & World Bible](docs/CHARACTER_WORLD_BIBLE.md)
 - [World & Continuity Model](docs/WORLD_CONTINUITY.md)
 - [Learning Framework](docs/LEARNING_FRAMEWORK.md)
+- [Season 1 Story Architecture](docs/SEASON_1_ARCHITECTURE.md)
+- [Season 1 Learning Weave](docs/SEASON_1_LEARNING_WEAVE.md)
 - [Content Model](docs/CONTENT_MODEL.md)
 - [Parent Guide System](docs/PARENT_GUIDE_SYSTEM.md)
 - [Parent / Child Display Model](docs/PARENT_DISPLAY_MODEL.md)
@@ -84,4 +86,4 @@ See [Work Sequence](docs/WORK_SEQUENCE.md).
 
 ## Status
 
-**Foundation / pre-Season-1 design.** Core product direction and the initial trio are defined. Season 1 story architecture is the next focused design task. Visual style, final Season 1 plot, and public domain remain intentionally open for iteration.
+**Season 1 pre-production design.** Core trio, Season 1 story architecture, and Season 1 learning weave are approved. The next focused task is the standard Episode Production Brief format before detailed E01 production.
