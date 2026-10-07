@@ -129,13 +129,30 @@ Still intentionally open until Episode Production Specification / E01 design:
 - detailed scaffolds/hints;
 - scoring or automatic assessment behavior.
 
+### 9. Episode Production Brief format — locked
+
+The standard Episode Production Brief is defined in [EPISODE_PRODUCTION_BRIEF.md](EPISODE_PRODUCTION_BRIEF.md).
+
+Locked workflow rules include:
+
+- one canonical human-readable brief per episode;
+- the brief is authoritative for episode intent, required beats, learning, continuity, and production requirements;
+- stable IDs are required for episode/scene/continuity references once content enters production;
+- interaction design must distinguish cognitive action from interface mechanic;
+- language, interaction, reasoning, and accessibility scaffolds remain separable;
+- parent cues are sparse and non-spoiling;
+- persistent effects must be represented structurally rather than only in prose;
+- asset sections describe production requirements before assets/prompts are generated;
+- final line-by-line voice text is downstream of detailed script approval rather than a prerequisite for the initial brief;
+- every brief carries episode-specific QA/acceptance criteria.
+
 ## Next focused design layer
 
-### Episode Production Brief format
+### E01 full vertical slice — begin with the E01 Production Brief
 
-Define the standard human-readable specification used to take one approved episode into script, interaction, learning/EFL, parent guidance, visual/audio production, continuity, and QA.
+Use the locked Season 1 story architecture, learning weave, and standard EPB to author **S01E01 only**.
 
-Do not begin E01 detailed production until the standard brief format is stable.
+The immediate next task is the E01 Production Brief at `approved_for_script` quality. Do not jump directly to image/audio generation or implementation.
 
 ## Resolve during Episode 01 design
 

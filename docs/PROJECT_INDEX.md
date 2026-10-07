@@ -19,12 +19,16 @@ Then read only the files needed for the current workstream.
 | Engineering / runtime / UI | `ARCHITECTURE.md`, `CONTENT_MODEL.md`, `CONTENT_VERSIONING.md`, `EXPERIENCE_DESIGN.md`, `PARENT_DISPLAY_MODEL.md`, `ACCESSIBILITY_PRIVACY_SAFETY.md`, `DEPLOYMENT.md` |
 | Continuity / QA | `WORLD_CONTINUITY.md`, `CONTENT_VERSIONING.md`, current Season architecture, approved Episode Production Brief, `OPEN_DECISIONS.md` |
 | Prompt / production pipeline | `PROMPT_PIPELINE.md`, approved Episode Production Brief, plus only the relevant Visual/Audio/Narrative source files |
-| Episode assembly | Approved Episode Production Brief first; then only the source files needed by the active downstream task |
+| Episode brief / assembly | `EPISODE_PRODUCTION_BRIEF.md`, current Season architecture, current Season learning weave; then only the source files needed by the active downstream task |
 
 Current Season 1 canon is in:
 
 - `docs/SEASON_1_ARCHITECTURE.md`
 - `docs/SEASON_1_LEARNING_WEAVE.md`
+
+Production specification:
+
+- `docs/EPISODE_PRODUCTION_BRIEF.md`
 
 Rules:
 
