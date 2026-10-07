@@ -87,7 +87,9 @@ Learning reinforces the story rather than interrupting it, and important concept
 
 ## Stage 4 — Episode production specification
 
-**Next major focused task**
+**Status: complete / approved**
+
+Canonical specification: [EPISODE_PRODUCTION_BRIEF.md](EPISODE_PRODUCTION_BRIEF.md)
 
 Create a standard **Episode Production Brief**.
 
@@ -108,7 +110,7 @@ It should contain:
 - art asset list;
 - animation needs;
 - audio/music needs;
-- voice script;
+- voice/narration requirements and export contract;
 - Chronicle update;
 - test cases.
 
@@ -117,6 +119,8 @@ Exit condition:
 A separate person/model could generate the episode assets and implementation without inventing missing story rules.
 
 ## Stage 5 — E01 full vertical slice
+
+**Next major focused task**
 
 Only E01 is taken through the whole production pipeline first.
 

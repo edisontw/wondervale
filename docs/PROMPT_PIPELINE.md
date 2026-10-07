@@ -45,6 +45,10 @@ These should be referenced by ID/version where practical.
 
 ## Episode Production Brief
 
+The canonical Episode Production Brief specification is [EPISODE_PRODUCTION_BRIEF.md](EPISODE_PRODUCTION_BRIEF.md).
+
+The summary below is only a prompt-pipeline view; the canonical specification takes precedence.
+
 Working sections:
 
 ### Identity
