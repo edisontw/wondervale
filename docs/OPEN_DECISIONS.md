@@ -174,20 +174,33 @@ Still open inside the E01 vertical slice:
 - final child-facing E01 title;
 - exact art/rendering style and final character/location model sheets;
 - final parent-cue wording — **resolved provisionally in approved S01E01 script v1; family-test revisions remain possible**;
-- exact interaction implementation;
+- exact interaction implementation — **behavior contract approved in E01 Interaction Spec v1; runtime technology/control layout still open**;
 - final image/music/SFX prompts/assets;
 - final voice provider/performance;
 - validation of language/help/recap/checkpoint baselines with families.
 
 ## Next focused design layer
 
-### S01E01 interaction specification
+### S01E01 prompt pack
 
-The S01E01 full detailed script is now approved: [`content/season-01/s01e01/DETAILED_SCRIPT.md`](../content/season-01/s01e01/DETAILED_SCRIPT.md).
+The S01E01 detailed script is approved v1: [`DETAILED_SCRIPT.md`](../content/season-01/s01e01/DETAILED_SCRIPT.md).
 
-Locked for downstream scripting/voice export: spoken line IDs and exact English text (script revision 1), scene/branch triggers, parent preview/cue/reflection copy, Chronicle text, and resume micro-recaps. The script passes the line-length/ID review documented with the commit.
+The S01E01 interaction specification is approved v1: [`INTERACTION_SPEC.md`](../content/season-01/s01e01/INTERACTION_SPEC.md); [`INTERACTION_TEST_MATRIX.md`](../content/season-01/s01e01/INTERACTION_TEST_MATRIX.md) lists **planned** tests, not runtime PASS results.
 
-Next define precise interaction states, input/accessibility behavior, help/recovery, checkpoint/replay behavior, and acceptance tests using the approved EPB and script. Do not start image/audio production or website implementation in this step.
+Locked by the interaction design:
+
+- two substantive interactions: evidence observation and living-space map/marker exploration;
+- seven scene phases (SC00–SC06), three ungraded guess options converging to one canon result;
+- evidence regions A/B/C in any order; two inspections suffice and remaining required evidence is surfaced non-punitively;
+- two real-world landmark confirmations in any order, independent of earlier casual exploration;
+- reveal is only possible after map comparison; `RIVERSIDE` is not exposed before the plate reveal;
+- accessible touch/mouse/keyboard/assist paths, no precision/timing gate;
+- one nonblocking parent cue and fast desktop/mobile parent presentation;
+- safe scene/checkpoint commits, exact-once event semantics, resumed recap selection, and historical replay isolation.
+
+Open for later production/testing: precise control layout, compiled manifest schema, visual style/assets, final music/SFX/voice, runtime implementation, and actual parent-child acceptance results.
+
+Next derive **task-specific prompt packs** from the EPB, script, interaction contract, and stable bibles. A dedicated visual-style mini-pass is required before image generation; do not generate images/audio or implement the site in the prompt-pack step.
 
 ## Can defer until after the connected MVP
 

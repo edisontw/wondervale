@@ -126,7 +126,9 @@ E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTIO
 
 **S01E01 detailed script:** [approved v1](../content/season-01/s01e01/DETAILED_SCRIPT.md).
 
-**Next focused task: S01E01 interaction specification.**
+**S01E01 interaction specification:** [approved v1](../content/season-01/s01e01/INTERACTION_SPEC.md); [acceptance test plan](../content/season-01/s01e01/INTERACTION_TEST_MATRIX.md) — designed, not executed.
+
+**Next focused task: S01E01 prompt pack (with visual-style gate before image generation).**
 
 Only E01 is taken through the whole production pipeline first.
 
