@@ -12,29 +12,13 @@ Children should be able to remember:
 - how a place changed;
 - how something learned earlier became useful later.
 
-## Core cast direction
+The current core trio is defined in [CORE_TRIO.md](CORE_TRIO.md):
 
-Start with a **core trio**.
+- **Milo** — player-controlled protagonist; curious, action-oriented explorer;
+- **Nia** — careful observer and communicator;
+- **Finn** — builder and playful challenger.
 
-### Role A — player-controlled protagonist
-A recurring authored character directly controlled by the child.
-
-The protagonist needs:
-
-- enough personality to be memorable;
-- enough openness for the child to make meaningful choices;
-- clear strengths and limitations;
-- relationships that can grow;
-- a first-season arc that does not require changing their entire personality.
-
-### Roles B and C — recurring companions
-Two companions should provide contrasting but complementary approaches to problems.
-
-They should disagree at times, notice different things, and contribute without becoming answer machines.
-
-Do not create “the math one,” “the science one,” or “the English one.”
-
-Additional recurring characters should enter gradually after the trio is understood.
+These are ways of approaching problems, not school-subject assignments.
 
 ## Character model
 
@@ -65,13 +49,6 @@ Facts that can change.
 ### Growth arc
 A small number of long-term developments.
 
-Examples:
-
-- learns to test ideas before jumping to conclusions;
-- becomes more comfortable asking for help;
-- learns to listen to another person's perspective;
-- becomes more patient when plans fail.
-
 Growth should emerge through events and behavior, not through moral lectures.
 
 ## Character knowledge
@@ -90,9 +67,9 @@ A future callback should reference these milestones when useful.
 
 ## Character introduction
 
-Do not introduce the full cast at once.
+The trio is present early enough for children to learn their relationship.
 
-Use staged entry:
+Additional cast should enter gradually:
 
 1. core trio;
 2. recurring local characters;
