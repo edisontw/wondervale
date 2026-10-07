@@ -157,6 +157,42 @@ Use choices for:
 
 Major canonical forks multiply writing, testing, continuity, and learning requirements. Add them only intentionally.
 
+## Reward philosophy
+
+Wondervale uses **diegetic world growth** as its primary reward.
+
+Children should return because:
+
+- the story continues;
+- a place visibly changes;
+- a character remembers what happened;
+- a new interaction becomes possible;
+- a mystery becomes clearer;
+- the Wondervale Chronicle gains a meaningful page, discovery, or memory.
+
+The Chronicle is a reflection/recap system, not a scoreboard.
+
+Optional keepsakes may exist when they carry story or discovery meaning. They should not depend on rarity, grinding, randomized drops, or fear of missing out.
+
+Avoid making stars, XP, coins, streaks, or completion percentages the emotional center of the product.
+
+## EFL content rule
+
+Wondervale is EFL-first, but cognitive challenge must not be reduced to match language simplicity.
+
+Prefer:
+
+- short natural English;
+- visual context;
+- replayable narration;
+- useful repetition across scenes;
+- vocabulary encountered through meaningful action;
+- support for understanding instructions without giving away the reasoning.
+
+A complex idea may be explored through simple language.
+
+Avoid turning every episode into explicit vocabulary practice.
+
 ## Surprise without randomness
 
 Variety should come from story, perspective, environment, and thinking—not from arbitrary reward randomness.
