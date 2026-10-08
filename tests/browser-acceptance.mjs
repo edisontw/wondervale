@@ -100,7 +100,7 @@ try{
  assert.equal(await p.locator('#parent-cue').count(),1);pass('UX-07','Nonblocking first-observation parent cue in desktop side panel.');
  await click(p,'Look at the shape');await drain(p);await click(p,"Maybe it's a treasure map!");assert.equal(await p.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-MILO-013');await drain(p);assert.equal(await p.locator('.map-inset .map-art').count(),1);assert.equal(await p.locator('.map-inset image[href="public/art/glyph.svg"]').count(),1);assert.equal((await p.locator('body').innerText()).includes('${mapArt()}'),false);pass('INT-05','A/B observations, A guess, C physical fallback converge.');
  await click(p,'Old post');assert.equal(await p.getByRole('button',{name:'Clean the old plate.',exact:true}).count(),0);pass('INT-15','No early clean control or destination disclosure.');
- await click(p,'Bench');await click(p,'Compare the round mark');await drain(p);assert.deepEqual((await cp(p)).anchors,[]);pass('INT-12','Unrelated object gives friendly mismatch without completion.');
+ assert.equal(await p.getByRole('button',{name:'Bench',exact:true}).count(),0);assert.equal(await p.getByRole('button',{name:'Compare the round mark'}).count(),0);assert.equal(await p.getByRole('button',{name:'Compare the tree mark'}).count(),0);assert.deepEqual((await cp(p)).anchors,[]);pass('INT-12','Unrelated location does not present misleading comparison buttons or confirm either landmark.');
  await click(p,'Fountain');await click(p,'Big tree');assert.deepEqual((await cp(p)).anchors,[]);pass('INT-13','Arrival alone never verifies landmarks.');
  for(const [place,compare] of [['Big tree','Compare the tree mark'],['Fountain','Compare the round mark']]){await click(p,place);await click(p,compare);await drain(p);}pass('INT-11','Tree then fountain both confirmed in the world.');
  await click(p,'Old post');assert.equal((await p.locator('body').innerText()).includes('RIVERSIDE'),false);await click(p,'Look at the old post');await drain(p);pass('INT-14','Broad exit marker accessible only after both anchors; dirty destination hidden.');
@@ -112,6 +112,25 @@ try{
  await click(p,'Replay this memory');await finishPath(p);assert.deepEqual(await ledger(p),complete);await click(p,'Leave replay');assert.deepEqual(await ledger(p),complete);pass('SAV-08','Full replay and exit preserve present ledger.');
  await c.close();
  for(const [id,order,choice] of [['INT-06',['blank_shape','layer_holes'],'B'],['INT-07',['line','layer_holes'],'C'],['INT-08',['layer_holes','blank_shape','line'],'B']]){const {c,p}=await context({stage:'map'});for(const r of order){await click(p,({line:'Look at the line',blank_shape:'Look at the shape',layer_holes:'Look at the paper'})[r]);await drain(p);}await click(p,content.lines[`S01E01-MILO-${({A:'013',B:'014',C:'015'})[choice]}`].exact_text);await drain(p);assert.equal((await cp(p)).phase,'square_compare');assert.equal((await cp(p)).played.includes('S01E01-FINN-009'),false);pass(id,'Reordered observations converge; no duplicate C fallback.');await c.close();}
+ const {c:compareCtx,p:comparePage}=await context({stage:'observed'});
+ assert.equal(await comparePage.getByRole('button',{name:'Compare the round mark'}).count(),0);
+ assert.equal(await comparePage.getByRole('button',{name:'Compare the tree mark'}).count(),0);
+ assert.match(await comparePage.locator('.comparison-guide').innerText(),/Walk to the Fountain or Big tree/);
+ assert.match(await comparePage.locator('.notice').first().innerText(),/Fountain.*Not yet/);
+ await click(comparePage,'Fountain'); 
+ assert.equal(await comparePage.getByRole('button',{name:'Compare the round mark'}).count(),1);
+ assert.equal(await comparePage.getByRole('button',{name:'Compare the tree mark'}).count(),0);
+ await click(comparePage,'Compare the round mark');await drain(comparePage);
+ assert.match(await comparePage.locator('.notice').first().innerText(),/Fountain.*Matched/);
+ assert.equal(await comparePage.getByRole('button',{name:'Compare the round mark'}).count(),0);
+ await click(comparePage,'Big tree');
+ assert.equal(await comparePage.getByRole('button',{name:'Compare the tree mark'}).count(),1);
+ await click(comparePage,'Compare the tree mark');await drain(comparePage);
+ assert.equal((await cp(comparePage)).phase,'marker_search');
+ pass('FIELD-QA-COMPARE-01','Comparison buttons appear only by their matching real landmarks; completing both advances without a mismatch loop.');
+ assert.equal(await comparePage.getByRole('button',{name:'Bench',exact:true}).count(),0);
+ pass('FIELD-QA-COMPARE-02','Unillustrated optional bench navigation is not presented as a required map symbol.');
+ await compareCtx.close();
  const {c:qr,p:qp}=await context({stage:'map'});
  await click(qp,'Look at the line');
  await click(qp,'Read again');
@@ -149,12 +168,13 @@ try{
 
  // Regression: Movement after comparison UI is visible
  const {c:cc1,p:cp1}=await context({stage:'observed'});
- assert.equal(await cp1.getByRole('button',{name:'Compare the round mark'}).count(),1);
+ assert.equal(await cp1.getByRole('button',{name:'Compare the round mark'}).count(),0);
  const worldBoxCp=await cp1.locator('#world').boundingBox();
  await cp1.locator('#world').click({position:{x:worldBoxCp.width*0.73,y:worldBoxCp.height*0.56}});
  const cpFeet=await cp1.locator('.actor.milo').evaluate(el=>[parseFloat(el.style.left)/100,parseFloat(el.style.top)/100]);
  assert.ok(Math.hypot(cpFeet[0]-0.73,cpFeet[1]-0.56)<0.05);
- assert.equal(await cp1.getByRole('button',{name:'Compare the round mark'}).count(),1);
+ assert.equal(await cp1.getByRole('button',{name:'Compare the round mark'}).count(),0);
+ assert.equal(await cp1.getByRole('button',{name:'Compare the tree mark'}).count(),1);
  await click(cp1,'Compare the tree mark');
  assert.equal(await cp1.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-FINN-013');
  await drain(cp1);
