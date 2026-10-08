@@ -1,0 +1,36 @@
+name: Wondervale E01 runtime acceptance
+on:
+  push:
+    branches: [main, feat/s01e01-playable-slice]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile exact locked episode text
+        run: npm run build
+      - name: Verify core behavior and saves
+        run: npm test
+      - name: Install pinned browser test dependency
+        run: npm install --ignore-scripts --package-lock=false
+      - name: Install actual Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run actual desktop, touch, keyboard, save and replay paths
+        run: |
+          python3 -m http.server 4173 > /tmp/wondervale-test-server.log 2>&1 &
+          npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e01-runtime-evidence
+          path: test-results/
