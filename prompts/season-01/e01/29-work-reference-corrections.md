@@ -1,0 +1,11 @@
+# Work reference correction prompts
+
+## Board
+
+Use case: precise-object-edit. Edit target: supplied Wondervale noticeboard prop sheet. Preserve exactly the two board views, their perspective, roof, timber, iron hardware, stone bases, plants, paper positions, warm illustrated living diorama style and lighting. Change only the printed content on the exposed old paper behind the lifted lower-right current notice in both views: remove ALL compass, stars, trees, mountains, river, dotted route, and invented map iconography, leaving aged blank paper with subtle wear, small old nail holes and irregular edges. Keep the old paper physically BEHIND the loose front notice without tearing it. Do not introduce any symbols, writing, arrows or labels on old paper; exact map evidence will be added as a separate deterministic editable layer. All other details unchanged. Output one high-resolution two-view reference sheet, opaque warm ivory background, no extra panels.
+
+## Plate
+
+Use case: precise-object-edit. Asset: Wondervale low route-marker reference. Image 1 is authoritative Town Square setting and marker geometry (far-right low wooden post). Image 2 is texture reference only; DO NOT use its round stone ball cap. Produce a compact two-state sheet showing the SAME low public wooden route post from image 1 twice at identical scale and identical three-quarter orientation, on ivory background. Match square's faceted dark metal cap with tiny simple finial, wooden short square shaft, vertically rectangular pale inset plate with four visible screws and modest stone footing with daisies; ordinary weathered civic object. Left state plate covered in opaque soil/lichen so NOTHING is readable. Right state plate cleaned to an aged pale blank surface, fully unlettered. Same post geometry, material, plants, light and camera in both. Warm painterly outlined illustrated living diorama compatible with input. No destination text, arrows, glyphs, headings, labels, captions, map or people anywhere. Do not imply magic, treasure, or opened destination. This is reference art; editable RIVERSIDE and arrow are future runtime overlays only after cleaning.
+
+Generator: built-in ChatGPT image generation, 2026-10-08. Exact model not returned. Outputs are reference candidates, not approved production assets.

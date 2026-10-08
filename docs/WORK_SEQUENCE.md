@@ -136,7 +136,7 @@ E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTIO
 
 **S01E01 Reference A is identity-APPROVED:** the user explicitly PASSED C01 and [PR #12](https://github.com/edisontw/wondervale/pull/12) was merged. [Verified original / decision record](ART_REFERENCE_PROGRESS.md). Two separately uploaded 1448×1086 turnarounds were integrity-checked and compared: **C02 layout only (not approved appearance); C03 rejected appearance**. C01 is the only identity authority; exact source/provenance, sprite, mobile checks remain open.
 
-**Next focused task: regenerate ONE trio turnaround using C01 as a real image reference**, [Prompt 27](../prompts/season-01/e01/27-trio-turnaround-identity-locked.md). Check identity drift before Town Square master. Do not batch-produce scene art.
+**Work update 2026-10-08:** the exact owner-approved turnaround was recovered and matched against the existing candidate-branch blob. Original Square/board/plate sources and non-spoiling board/plate revisions are now preserved with integrity manifest and CI. See [reference gate review](../assets/reference-candidates/s01e01/WORK_REFERENCE_GATE_REVIEW.md). **Next focused task: one owner visual approval of Square, blank board/plate treatment and contract glyph**, then first limited production derivatives. C01 remains the identity anchor; no need to regenerate the approved turnaround. No actual runtime acceptance tests have run.
 
 Only E01 is taken through the whole production pipeline first.
 

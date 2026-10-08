@@ -1,0 +1,71 @@
+{
+  "schema": "wondervale-reference-integrity-v1",
+  "assets": [
+    {
+      "path": "assets/reference-candidates/s01e01/route-marker-prop-revise.png",
+      "bytes": 2298931,
+      "sha256": "ccd0bc0d6b13afd8cbe22d11a4d3841f0538a832f52a4e1a695395b17814c2fa",
+      "git_blob": "7589acf714a6bf1e7464221899c1419435a7ec4a",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "status": "revise_do_not_use_in_runtime"
+    },
+    {
+      "path": "assets/reference-candidates/s01e01/noticeboard-prop-revise.png",
+      "bytes": 2433768,
+      "sha256": "bbeca664ac0402be25a14ba16b9ea3db9665bae156a0b5c8b66ef066c9f156e1",
+      "git_blob": "f4f04c1dfc81bb91e5ca58e286a38843ba9ccdca",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "status": "revise_do_not_use_in_runtime"
+    },
+    {
+      "path": "assets/reference-candidates/s01e01/town-square-master-provisional.png",
+      "bytes": 3048942,
+      "sha256": "3cefeb7257ea2a0828d285b103e60fc787e22b62d9048a35646305137d4bf444",
+      "git_blob": "3292402e9257c7ee6dc4f99e6609cd6f876d0a92",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "status": "reference_candidate"
+    },
+    {
+      "path": "assets/reference-candidates/s01e01/wondervale-trio-turnaround-front-side-back.png",
+      "bytes": 2178183,
+      "sha256": "212a061d033f126ea6f5a57392e38f99a7b0a38101e240870f41de461edf5233",
+      "git_blob": "9e6ac0dcde86820ccc55b620497024805887348f",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "status": "owner_approved_reference_identity_anchor_remains_C01"
+    },
+    {
+      "path": "assets/reference-candidates/s01e01/noticeboard-blank-old-paper-candidate-01.png",
+      "bytes": 2303388,
+      "sha256": "b16726087212cc9471ec1e9b35ea463fae99c199f7d9c076bc15aa888ba969cb",
+      "git_blob": "0e7d30ee67b011de476aec6d0f3999bb20749973",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "status": "reference_candidate"
+    },
+    {
+      "path": "assets/reference-candidates/s01e01/route-marker-blank-states-candidate-01.png",
+      "bytes": 2309330,
+      "sha256": "aeba9b80e08404e7a3cf8f27628f2cde45cfd857d4df9e09163911ce7802e50e",
+      "git_blob": "324a4fb975720464e62a83bc71032de7202cdf15",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "status": "reference_candidate"
+    }
+  ]
+}
