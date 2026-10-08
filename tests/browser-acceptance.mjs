@@ -1,7 +1,7 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
-import {fresh,dispatch,payload,groups,KEY,events} from '../engine/episode.mjs';
+import {fresh,dispatch,payload,groups,KEY,events,constrainToRoad} from '../engine/episode.mjs';
 const base=process.env.TEST_BASE_URL||'http://127.0.0.1:4173';
 const out='test-results';await mkdir(out,{recursive:true});
 const content=JSON.parse(await readFile('public/episode.json'));
@@ -45,7 +45,7 @@ try{
  await click(p,'Noticeboard');await click(p,'Help hold the paper.');await drain(p);assert.equal((await cp(p)).checkpoint,'cp_map_exposed');pass('INT-04','Tap hold saves intact map-exposure checkpoint.');
  await click(p,'Look at the line');await drain(p);await click(p,'Look at the line');await drain(p);assert.equal(await p.getByRole('button',{name:"Maybe it's a treasure map!",exact:true}).count(),0);pass('INT-09','Repeated region does not unlock speculation.');
  assert.equal(await p.locator('#parent-cue').count(),1);pass('UX-07','Nonblocking first-observation parent cue in desktop side panel.');
- await click(p,'Look at the shape');await drain(p);await click(p,"Maybe it's a treasure map!");assert.equal(await p.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-MILO-013');await drain(p);pass('INT-05','A/B observations, A guess, C physical fallback converge.');
+ await click(p,'Look at the shape');await drain(p);await click(p,"Maybe it's a treasure map!");assert.equal(await p.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-MILO-013');await drain(p);assert.equal(await p.locator('.map-inset .map-art').count(),1);assert.equal(await p.locator('.map-inset image[href="public/art/glyph.svg"]').count(),1);assert.equal((await p.locator('body').innerText()).includes('${mapArt()}'),false);pass('INT-05','A/B observations, A guess, C physical fallback converge.');
  await click(p,'Old post');assert.equal(await p.getByRole('button',{name:'Clean the old plate.',exact:true}).count(),0);pass('INT-15','No early clean control or destination disclosure.');
  await click(p,'Bench');await click(p,'Compare the round mark');await drain(p);assert.deepEqual((await cp(p)).anchors,[]);pass('INT-12','Unrelated object gives friendly mismatch without completion.');
  await click(p,'Fountain');await click(p,'Big tree');assert.deepEqual((await cp(p)).anchors,[]);pass('INT-13','Arrival alone never verifies landmarks.');
@@ -59,6 +59,27 @@ try{
  await click(p,'Replay this memory');await finishPath(p);assert.deepEqual(await ledger(p),complete);await click(p,'Leave replay');assert.deepEqual(await ledger(p),complete);pass('SAV-08','Full replay and exit preserve present ledger.');
  await c.close();
  for(const [id,order,choice] of [['INT-06',['blank_shape','layer_holes'],'B'],['INT-07',['line','layer_holes'],'C'],['INT-08',['layer_holes','blank_shape','line'],'B']]){const {c,p}=await context({stage:'map'});for(const r of order){await click(p,({line:'Look at the line',blank_shape:'Look at the shape',layer_holes:'Look at the paper'})[r]);await drain(p);}await click(p,content.lines[`S01E01-MILO-${({A:'013',B:'014',C:'015'})[choice]}`].exact_text);await drain(p);assert.equal((await cp(p)).phase,'square_compare');assert.equal((await cp(p)).played.includes('S01E01-FINN-009'),false);pass(id,'Reordered observations converge; no duplicate C fallback.');await c.close();}
+ const {c:qr,p:qp}=await context({stage:'map'});
+ await click(qp,'Look at the line');
+ await click(qp,'Read again');
+ assert.equal(await qp.locator('.caption [role="status"]').count(),1);
+ assert.match(await qp.locator('.caption [role="status"]').innerText(),/Reading aloud again|Audio unavailable/);
+ await drain(qp);
+ await qp.reload({waitUntil:'networkidle'});
+ assert.equal(await qp.getByRole('dialog',{name:'Story so far'}).count(),1);
+ await click(qp,'Read again');
+ assert.equal(await qp.locator('.dialog [role="status"]').count(),1);
+ assert.equal(await qp.locator('.dialog [data-line-id]').count(),2);
+ await click(qp,'Continue the story');
+ pass('FIELD-QA-03','Manual reread responds even when autoplay audio is disabled; recap reread responds after reload.');
+ await qr.close();
+ const {c:rc,p:rp}=await context({stage:'square'});
+ await rp.locator('#world').click({position:{x:36,y:25}});
+ const feet=await rp.locator('.actor.milo').evaluate(el=>[parseFloat(el.style.left)/100,parseFloat(el.style.top)/100]);
+ const projected=constrainToRoad(36/(await rp.locator('#world').boundingBox()).width,25/(await rp.locator('#world').boundingBox()).height);
+ assert.ok(Math.hypot(feet[0]-projected[0],feet[1]-projected[1])<1e-6);
+ pass('FIELD-QA-04','Off-road pointer click projects Milo to the walking route.');
+ await rc.close();
  const {c:mc,p:mp}=await context({mobile:true});await mp.screenshot({path:`${out}/mobile-opening.png`,fullPage:true});await finishPath(mp,{mobile:true,choice:'C',anchorOrder:['fountain','large_tree']});assert.ok(await mp.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));pass('UX-01/UX-02/UX-04/UX-05','Audio off, reduced motion, touch actions and explicit assisted travel complete E01; no horizontal page overflow.','Chromium emulated touch 390×844');await mc.close();
  const {c:pc,p:pp}=await context({mobile:true,stage:'map'});await tap(pp,'Look at the line');await drain(pp);await tap(pp,'Parent');assert.equal(await pp.getByText(content.parent.cue,{exact:true}).count(),1);await tap(pp,'Back to Child View');assert.equal(await pp.getByRole('button',{name:'Look at the line',exact:true}).getAttribute('aria-pressed'),'true');await tap(pp,'Parent');await tap(pp,'Back to Child View');pass('INT-20/UX-08','Repeated Parent/Child switches preserve inspection; cue remains single.','Chromium emulated touch 390×844');await pc.close();
  for(const [stage,id,expected] of [['square','SAV-01','012'],['map','SAV-02','014'],['observed','SAV-03','014'],['anchors','SAV-04','014'],['marker','SAV-05','016']]){const {c,p}=await context({stage});await p.reload({waitUntil:'networkidle'});assert.equal(await p.getByRole('dialog').count(),1);assert.equal(await p.locator('.dialog [data-line-id]').first().getAttribute('data-line-id'),`S01E01-NARRATOR-${expected}`);await click(p,'Continue the story');assert.equal(await p.getByRole('dialog').count(),0);pass(id,'Resume presents exactly one state-appropriate optional recap.');await c.close();}
