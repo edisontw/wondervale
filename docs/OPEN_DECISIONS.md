@@ -220,9 +220,17 @@ Blocked/open: fal credit exhausted; Canva media ID / ChatGPT container path cann
 
 No change to selected visual grammar or reference gate; full E01 image asset production remains blocked until real reference review.
 
+### 14. S01E01 Reference A — trio candidate uploaded and validated (2026-10-08)
+
+[Reference status](ART_REFERENCE_PROGRESS.md) · [Draft PR #12](https://github.com/edisontw/wondervale/pull/12).
+
+The uploaded full-resolution PNG is verified **1448×1086, 2,438,208 bytes**, matching Git blob `aeb4fcf6cef5ca354bd3be495ea1226081f26604`. GitHub Actions run `37731077246` **PASS** generated a 640×480 candidate review preview and source SHA256; original unchanged. An initial preview review recommends retaining this consistent, age-appropriate, three-angle trio sheet as a **candidate**.
+
+**Unresolved before locking reference:** project-owner visual approval; exact generator/prompt/licensing provenance (earlier Canva dimensions differ); extraction of sprite-ready character refs and true phone-scale QA. The draft PR must not be merged as `reference_approved` until decision and provenance. Town Square and batch scenes remain blocked.
+
 ## Next focused design layer
 
-### S01E01 visual reference candidate set
+### S01E01 visual reference candidate set — Reference A approval next
 
 Using the approved [visual grammar](VISUAL_STYLE_BIBLE.md) and [E01 reference contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md), create a **small** controlled reference set in dependency order: shared trio silhouette/identity sheet; Square master scene; unlabelled symbol at multiple sizes; board and marker state pairs; one Chronicle reuse check. Review phone-scale readability, storybook/living-scene coherence and clue safety, record provenance and approve/revise references. Do not generate large scene/pose batches yet.
 

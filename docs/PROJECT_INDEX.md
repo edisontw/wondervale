@@ -42,6 +42,7 @@ Current episode production:
 - `content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md` — Square topology + stable mystery-symbol design; reference images pending
 - `docs/IMAGE_ASSET_UPLOAD_WORKFLOW.md` — tested PNG GitHub transfer/readback and manual high-resolution fallback
 - `prompts/season-01/e01/26-trio-reference-manual.md` — narrow reference-A prompt for next window/manual transfer
+- `docs/ART_REFERENCE_PROGRESS.md` — candidate A uploaded/verified; artistic and provenance approval pending (draft PR #12)
 
 Rules:
 
