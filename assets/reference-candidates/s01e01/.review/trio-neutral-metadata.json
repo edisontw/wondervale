@@ -1,0 +1,18 @@
+{
+  "schema": "wondervale-reference-image-preview-v1",
+  "source_path": "assets/reference-candidates/s01e01/s01e01-trio-neutral-candidate-01.png",
+  "source_format": "PNG",
+  "source_width": 1448,
+  "source_height": 1086,
+  "source_bytes": 2438208,
+  "source_sha256": "46559b83c3a8f79e985d5e35c97f2b7653243ef515d5adc1bf2854991daa6448",
+  "source_git_blob_sha": "aeb4fcf6cef5ca354bd3be495ea1226081f26604",
+  "preview_path": "assets/reference-candidates/s01e01/.review/trio-neutral-preview-512.jpg",
+  "preview_width": 640,
+  "preview_height": 480,
+  "preview_bytes": 71490,
+  "preview_sha256": "33f402fba82992d43a1b7e4a67341870fa3c40f0a850bbf584db4d89100ae7d4",
+  "created_at_utc": "2026-10-08T05:10:58.518554+00:00",
+  "visual_art_approved": false,
+  "comment": "Source untouched; preview is for human/art QA, not game assets."
+}
