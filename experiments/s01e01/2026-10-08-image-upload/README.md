@@ -34,7 +34,7 @@ All three are tests/visual candidates, not canonical assets. Full-resolution ori
 ## Verification and known connector limitation
 
 - Blob uploads returned real Git blob SHA values; a committed Git tree can verify each expected filename, blob SHA and byte size.
-- `GitHub.fetch_blob` / `GitHub.fetch` attempts to decode non-UTF-8 binary and returns a UnicodeDecodeError or UTF-8 restriction. **This does not imply the uploaded binary blob is invalid**; for verification use Git tree metadata plus a raw/binary-capable client or normal GitHub browser download.
+- IMPORTANT: `GitHub.fetch_blob` / generic `GitHub.fetch` may reject non-UTF-8 binary (UnicodeDecodeError / UTF-8-only). **The tested reliable readback is `GitHub.fetch_file({encoding: "base64"})` on a committed path**: it returns the PNG Base64 content, size can be checked after decoding, and PNG signature, IHDR dimensions and CRCs can be validated. Also verify SHA/size from Git tree metadata. Both committed PNGs passed independent readback+CRC tests.
 - For locally produced files, compute `git hash-object <file>` and compare with GitHub returned blob SHA. Do **not** paste long Base64 strings if a direct byte/file upload is unavailable; mismatched SHA invalidates verification.
 - After a successful image import, separately review content, consistency, mobile readability, provenance, and source-of-truth constraints before marking `reference_approved`.
 
@@ -52,3 +52,12 @@ All three are tests/visual candidates, not canonical assets. Full-resolution ori
 2. For final-resolution generated art, use the manual GitHub upload fallback (or a later same-runtime file-write connector).
 3. Produce small E01 reference candidate set in order, starting with the **trio neutral sheet** and validating consistent small-size silhouettes; only then Square/map/plate.
 4. Record asset file paths, rights/provenance, and approval in E01 reference contract; keep experimental tests segregated.
+
+## Concrete readback results (PASS; 2026-10-08)
+
+| Path | GitHub blob SHA | Bytes | PNG dimensions | CRC check |
+|---|---|---:|---|---|
+| `missing-place-glyph-upload-test.png` | `83a85d16a0305dbc18537cc301cc1b9610969494` | 2,244 | 128×128 | PASS (IHDR, IDAT, IEND) |
+| `generated-image-transfer-test-48x30.png` | `0cb466ac2753da52b50faf6cb8c30adf50823440` | 878 | 48×30 | PASS (IHDR, PLTE, IDAT, IEND) |
+
+Both files were committed and verified by decoding the **base64-form** `fetch_file` response from GitHub and checking the PNG magic and every chunk CRC. No corruption found. Note that the latter is **only 48×30**; this proves transfer of image-derived pixels but is not usable visual reference quality.
