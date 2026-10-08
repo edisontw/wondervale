@@ -210,6 +210,16 @@ Locked at **visual-grammar level**:
 
 Still open: rendered character reference identities, Square master art/layout shot, symbol vector/media candidate legibility, exact composition/camera, implementation tech, actual final art/audio, and user test results. **No reference image has been generated or approved yet.**
 
+### 13. Image generation and GitHub binary upload smoke test (2026-10-08)
+
+See [E01 smoke report](../experiments/s01e01/2026-10-08-image-upload/README.md), [upload runbook](IMAGE_ASSET_UPLOAD_WORKFLOW.md), and [manual trio handoff](../prompts/season-01/e01/26-trio-reference-manual.md).
+
+Confirmed: Canva image generation succeeded (`MAHXYFZZA0A`), the ChatGPT image generator produced a local raster, and GitHub `create_blob(encoding=base64)` successfully committed and read back two test PNGs with valid signatures, dimensions and CRCs. One test PNG contains only **48×30 image-derived pixels** and is **not production-ready**. The SVG/PNG glyph probe is also a **candidate only**.
+
+Blocked/open: fal credit exhausted; Canva media ID / ChatGPT container path cannot automatically be read as bytes in the GitHub Code Mode runtime. **Full-resolution generated images have not been committed directly through the assistant.** Manual download → branch upload → verify → PR is the reliable fallback; do not promote an unreviewed image or experimental thumbnail as the approved trio reference.
+
+No change to selected visual grammar or reference gate; full E01 image asset production remains blocked until real reference review.
+
 ## Next focused design layer
 
 ### S01E01 visual reference candidate set
