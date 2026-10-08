@@ -51,7 +51,7 @@ World/character state is derived from an event/progress ledger rather than being
 2. Season 1 story architecture — **approved**
 3. Season 1 learning weave — **approved**
 4. Episode Production Brief format — **approved**
-5. E01 full vertical slice — **in progress: C01 trio identity locked; faithful turnaround next**
+5. E01 full vertical slice — **in progress: C01 trio identity locked; recovered approved turnaround; remaining visual reference review next**
 6. E02–E04 connected MVP
 7. Season 1 production
 
@@ -98,4 +98,4 @@ See [Work Sequence](docs/WORK_SEQUENCE.md).
 
 ## Status
 
-**E01 vertical slice in progress.** Core trio, Season 1 story architecture, learning weave, and the Episode Production Brief standard are approved. S01E01's Production Brief and detailed script are approved; the S01E01 task-specific prompt pack and 121-line voice-text export are prepared. The illustrated living diorama visual style v1 and E01 reference contract are locked; the core trio C01 visual identity has been accepted. Next produce a **matching** turnaround using C01 as source image, then Square and clue reference art; production sprite assets and runtime remain open.
+**E01 vertical slice in progress.** Core trio, Season 1 story architecture, learning weave, and the Episode Production Brief standard are approved. S01E01's Production Brief and detailed script are approved; the S01E01 task-specific prompt pack and 121-line voice-text export are prepared. The illustrated living diorama visual style v1 and E01 reference contract are locked; the core trio C01 visual identity has been accepted. The matching owner-approved turnaround has been recovered and verified. Original Square art and non-spoiling clue reference candidates are preserved; see [Work reference gate review](assets/reference-candidates/s01e01/WORK_REFERENCE_GATE_REVIEW.md). Next approve the bounded reference set before production sprite assets and runtime.
