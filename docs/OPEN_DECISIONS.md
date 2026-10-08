@@ -208,7 +208,7 @@ Locked at **visual-grammar level**:
 - old/new paper and dirty/clean plate state overlays, with editable RIVERSIDE text and arrow appearing only after reveal;
 - no batch/scene image generation before **actual character, location, glyph and marker visual references** are made and approved.
 
-Still open: rendered character reference identities, Square master art/layout shot, symbol vector/media candidate legibility, exact composition/camera, implementation tech, actual final art/audio, and user test results. **No reference image has been generated or approved yet.**
+Now resolved by decision #15: **C01 trio identity** is visually approved. Still open: corrected matching turnaround, sprite production/provenance, Square master art, symbol rendered candidate, exact composition/camera, implementation tech, audio and runtime/user tests.
 
 ### 13. Image generation and GitHub binary upload smoke test (2026-10-08)
 
@@ -222,17 +222,28 @@ No change to selected visual grammar or reference gate; full E01 image asset pro
 
 ### 14. S01E01 Reference A — trio candidate uploaded and validated (2026-10-08)
 
-[Reference status](ART_REFERENCE_PROGRESS.md) · [Draft PR #12](https://github.com/edisontw/wondervale/pull/12).
+[Reference status](ART_REFERENCE_PROGRESS.md) · [Merged PR #12](https://github.com/edisontw/wondervale/pull/12).
 
-The uploaded full-resolution PNG is verified **1448×1086, 2,438,208 bytes**, matching Git blob `aeb4fcf6cef5ca354bd3be495ea1226081f26604`. GitHub Actions run `37731077246` **PASS** generated a 640×480 candidate review preview and source SHA256; original unchanged. An initial preview review recommends retaining this consistent, age-appropriate, three-angle trio sheet as a **candidate**.
+The uploaded full-resolution PNG is verified **1448×1086, 2,438,208 bytes**, matching Git blob `aeb4fcf6cef5ca354bd3be495ea1226081f26604`. GitHub Actions run `37731077246` **PASS** generated a 640×480 candidate review preview and source SHA256; original unchanged. Project owner subsequently explicitly **PASSED** this sheet as **trio identity v1**. The approval is for appearance, not sprite/media rights or integrated runtime.
 
-**Unresolved before locking reference:** project-owner visual approval; exact generator/prompt/licensing provenance (earlier Canva dimensions differ); extraction of sprite-ready character refs and true phone-scale QA. The draft PR must not be merged as `reference_approved` until decision and provenance. Town Square and batch scenes remain blocked.
+**Still unresolved:** exact generator/prompt/licensing provenance (earlier Canva dimensions differ); faithful turnaround from C01, sprite-ready variants and phone-scale QA. C01 appearance is visually approved and PR #12 is merged, but no complete game asset is approved.
+
+### 15. C01 identity lock and C02/C03 turnaround rejection (2026-10-08)
+
+The user accepted the **Candidate 01** illustrated trio design with an explicit **PASS**. Therefore `ref-wv-trio-neutral-v1` is **approved for identity/face/hair/clothes/colors/proportions only**, anchored to blob `aeb4fcf6cef5ca354bd3be495ea1226081f26604`. [Main decision record](ART_REFERENCE_PROGRESS.md).
+
+Both later manually uploaded full-resolution PNGs passed file integrity verification:
+
+- **Candidate 02:** original Git blob `6bb10737cc1273bfe13b7d647179025bd0475437`; acceptable *turnaround layout* only, **REVISE for appearance**. Milo trousers/scarf, Nia braid/dress and Finn orange curls drift from the approved identity.
+- **Candidate 03:** original Git blob `98bf5cd42adfac1d9ce8f3febc65947530ac2696`; **REJECT as identity**, with additional goggles and work overalls for Finn.
+
+Neither later image can be used as a character identity reference. The next image generation must use **C01 image input** to recreate the same three children at new camera angles; do not just mention "same characters" in text. Retain C02/C03 only for audit/composition. Source licensing, final sprites, and all environment references remain open.
 
 ## Next focused design layer
 
-### S01E01 visual reference candidate set — Reference A approval next
+### S01E01 visual reference candidate set — C01-anchored turnaround next
 
-Using the approved [visual grammar](VISUAL_STYLE_BIBLE.md) and [E01 reference contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md), create a **small** controlled reference set in dependency order: shared trio silhouette/identity sheet; Square master scene; unlabelled symbol at multiple sizes; board and marker state pairs; one Chronicle reuse check. Review phone-scale readability, storybook/living-scene coherence and clue safety, record provenance and approve/revise references. Do not generate large scene/pose batches yet.
+Using the approved [visual grammar](VISUAL_STYLE_BIBLE.md) and [E01 reference contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md), continue the **small** controlled reference set in dependency order: **C01-anchored corrective turnaround**; Square master scene; unlabelled symbol at multiple sizes; board and marker state pairs; one Chronicle reuse check. Review phone-scale readability, storybook/living-scene coherence and clue safety, record provenance and approve/revise references. Do not generate large scene/pose batches yet.
 
 ## Can defer until after the connected MVP
 

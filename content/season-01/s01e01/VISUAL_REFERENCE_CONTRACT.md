@@ -3,9 +3,9 @@
 ```yaml
 episode_id: s01e01
 visual_reference_contract_version: 1
-status: layout_and_symbol_design_locked_pending_rendered_reference_approval
+status: trio_identity_visual_ref_approved_square_symbol_marker_pending
 style: wondervale-illustrated-living-diorama@1
-character_identity_images: pending
+character_identity_images: ref-wv-trio-neutral-v1 (C01 approved)
 town_square_master_image: pending
 mystery_symbol_rendered_reference: pending
 ```
@@ -15,6 +15,14 @@ mystery_symbol_rendered_reference: pending
 This is the E01-specific **design/reference contract**, not a rendered location file or a completed asset pack.
 
 Use with [Wondervale Visual Mini-Bible](../../../docs/VISUAL_STYLE_BIBLE.md), the approved E01 EPB, detailed script, interaction spec and prompt-pack [Asset Manifest](../../../prompts/season-01/e01/ASSET_MANIFEST.md).
+
+## Reference A — core trio identity (approved)
+
+The user explicitly approved the appearance of **Candidate 01** on 2026-10-08. Its exact [PNG](../../../assets/reference-candidates/s01e01/s01e01-trio-neutral-candidate-01.png), Git blob `aeb4fcf6cef5ca354bd3be495ea1226081f26604`, is the Season 1 identity anchor `ref-wv-trio-neutral-v1`. The combined sheet is a reference—not standalone transparent game sprites. Generation and usage rights provenance and phone-size sprite testing remain to be completed before actual game inclusion.
+
+**Do not use** [Candidate 02/03](../../../assets/reference-candidates/s01e01/TRIO_TURNAROUND_REVIEW.md) as identity anchors; they show substantially different hair and clothes, and C03 adds Finn's oversized goggles. Candidate 02 can inspire only the multi-angle **layout**, not character art.
+
+Next: one corrected [identity-locked turnaround sheet](../../../prompts/season-01/e01/27-trio-turnaround-identity-locked.md) using C01 as an image reference, and then a Square master scene consistent with the approved trio and the topology below. The **Square, mystery mark, board/plate and Chronicle visuals remain unapproved**.
 
 ## 1. Town Square topology — locked
 
@@ -120,7 +128,7 @@ Reference IDs required before bulk image generation:
 - `ref-wv-board-plate-v1` — front/old paper and dirty/clean plate state comparisons.
 - `ref-wv-chronicle-v1` — concept layout reusing source geometry (can follow first four).
 
-These names are **reference requirements only**; no image file is claimed.
+These are reference registry IDs. **Only `ref-wv-trio-neutral-v1` has an approved visual identity PNG** at present; Square, glyph, plate and Chronicle images remain pending.
 
 Minimum reviewer checks:
 

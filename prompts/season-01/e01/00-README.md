@@ -6,13 +6,14 @@ pack_revision: 1
 pack_status: approved_for_downstream_planning
 visual_style: wondervale-illustrated-living-diorama@1
 visual_grammar_locked: true
-reference_images_approved: false
+reference_images_approved: trio_identity_only
 episode_id: s01e01
 source_epb_revision: 1
 source_script_revision: 1
 source_interaction_revision: 1
 voiced_line_count: 121
-generated_media_count: 0
+generated_reference_pngs: 3
+generated_production_media_count: 0
 runtime_tests_executed: false
 ```
 
@@ -35,13 +36,14 @@ Start with `01-master-context.md`, then load **only one relevant task prompt** a
 | Shared prompt/context and provenance | `01-master-context.md` | ready |
 | Script maintenance and EFL/parent review | `10-script-review.md`, `11-learning-parent.md` | review only; exact text locked |
 | Visual direction mini-pass | `20-visual-style.md` | **COMPLETED:** see `docs/VISUAL_STYLE_BIBLE.md` |
-| **Small visual reference candidate set** | `25-visual-reference-set.md` | **NEXT:** allowed candidates, not batch assets |
+| **C01 identity-locked turnaround** | `27-trio-turnaround-identity-locked.md` | **NEXT:** image-to-image generation only; no identity redesign |
+| Other small visual references | `25-visual-reference-set.md` | Square/map/plate pending; not batch scene art |
 | Character, location, prop/UI and animation | `21-character-art.md`, `22-location-art.md`, `23-prop-ui-art.md`, `24-animation.md` | **REFERENCE CANDIDATES NEXT:** grammar locked; bulk/scene art blocked until actual reference approval |
 | Music family, SFX | `30-music.md`, `31-sfx.md` | direction planning only; no audio yet |
 | Voice | `40-voice-production.md`, `40-voice-lines.tsv` | text export only, no recording |
 | Engineering | `50-engineering.md` | handoff prompt; no implementation yet |
 | Independent QA | `60-qa-review.md` | static review now; runtime tests later |
-| Asset requirements | `ASSET_MANIFEST.md` | all asset states unproduced |
+| Asset requirements | `ASSET_MANIFEST.md` | C01 identity approved; production sprites and rest of media unproduced |
 
 ## Production gates
 
