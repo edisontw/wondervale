@@ -126,17 +126,15 @@ E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTIO
 
 **S01E01 detailed script:** [approved v1](../content/season-01/s01e01/DETAILED_SCRIPT.md).
 
-**S01E01 interaction specification:** [approved v1](../content/season-01/s01e01/INTERACTION_SPEC.md); [acceptance test plan](../content/season-01/s01e01/INTERACTION_TEST_MATRIX.md) — designed, not executed.
+**S01E01 interaction specification:** [approved v1](../content/season-01/s01e01/INTERACTION_SPEC.md); [test matrix](../content/season-01/s01e01/INTERACTION_TEST_MATRIX.md) now has actual prototype evidence. [Dated QA](E01_RUNTIME_QA_2026-10-08.md): 22 engine groups, 46 real Chromium result records and eight static/content checks passed within the stated prototype scope; family UX-11/UX-12 remain pending.
 
-**S01E01 derived prompt pack:** [approved v1](../prompts/season-01/e01/00-README.md), including 121 exact voice-text records. Three visual **reference candidate** PNGs now exist (one identity-approved, two not); no production-ready character sprites, environment art, audio or runtime assets have been made.
+**Prompt/media:** [approved prompt pack](../prompts/season-01/e01/00-README.md), 121 exact voice-text records unchanged. Original source PNGs and two ChatGPT generated transparent actor candidates are committed; runtime WebP derivatives are verified. Neutral still poses and labelled synthetic read-aloud do not complete final animation/audio production.
 
-**S01E01 visual mini-pass:** [Visual Style Bible v1](VISUAL_STYLE_BIBLE.md) and [E01 Visual Reference Contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md) — visual direction and topology/symbol design **locked**, C01 trio **identity reference approved**; Town Square, glyph, plate, Chronicle and production sprites **not yet approved**.
+**Visual references:** C01 is identity authority. Exact owner-approved turnaround recovered and hash-matched. Owner passed V1 Square, glyph and blank board/plate revisions; [approval record](VISUAL_REFERENCE_APPROVAL_2026-10-08.md). C02 remains layout-only; C03 remains rejected as appearance.
 
-**Reference-generation/upload smoke test:** [test record](../experiments/s01e01/2026-10-08-image-upload/README.md); Canva/ChatGPT generation succeeded, GitHub PNG blob upload and base64 readback/CRC passed. **Full-resolution direct transfer remains open**: see [upload runbook](IMAGE_ASSET_UPLOAD_WORKFLOW.md).
+**Full-resolution transfer:** original-byte access, bounded byte-to-connector transport, exact Git blob/SHA-256/dimensions/PNG CRC and CI checkout validation succeeded. See [intake checkpoint](WORK_CHECKPOINT_2026-10-08.md) and production integrity report; no regeneration needed for usable imported Square art.
 
-**S01E01 Reference A is identity-APPROVED:** the user explicitly PASSED C01 and [PR #12](https://github.com/edisontw/wondervale/pull/12) was merged. [Verified original / decision record](ART_REFERENCE_PROGRESS.md). Two separately uploaded 1448×1086 turnarounds were integrity-checked and compared: **C02 layout only (not approved appearance); C03 rejected appearance**. C01 is the only identity authority; exact source/provenance, sprite, mobile checks remain open.
-
-**Work update 2026-10-08:** the exact owner-approved turnaround was recovered and matched against the existing candidate-branch blob. Original Square/board/plate sources and non-spoiling board/plate revisions are now preserved with integrity manifest and CI. See [reference gate review](../assets/reference-candidates/s01e01/WORK_REFERENCE_GATE_REVIEW.md). **Next focused task: one owner visual approval of Square, blank board/plate treatment and contract glyph**, then first limited production derivatives. C01 remains the identity anchor; no need to regenerate the approved turnaround. No actual runtime acceptance tests have run.
+**Playable assembly:** SC00–SC06, parent/child views, deliberate map/place comparison, gated editable marker, atomic save/ledger, historical replay, derived world state, Chronicle and offline-after-install are implemented. Runtime-only release verified. MN4 deployment is not claimed; [next preview procedure](MN4_E01_PREVIEW.md). Final voices/music/SFX, richer poses, source rights provenance and real-device/family acceptance remain open.
 
 Only E01 is taken through the whole production pipeline first.
 
