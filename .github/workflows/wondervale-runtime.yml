@@ -17,6 +17,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Verify original production and runtime image integrity
+        run: python3 scripts/verify_production_assets.py
       - name: Compile exact locked episode text
         run: npm run build
       - name: Verify core behavior and saves
