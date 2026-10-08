@@ -194,13 +194,27 @@ Locked by this production-preparation layer:
 
 Still open: chosen cross-episode visual style, actual character/location references, physical layout/compositions, symbol depiction (its narrative meaning stays unknown), final media files and voice casting, runtime technical details, and executed acceptance/family test results.
 
+### 12. Visual Mini-Pass — selected style direction v1
+
+Canonical [Visual Style Bible](VISUAL_STYLE_BIBLE.md), [three-direction comparison and decision](VISUAL_STYLE_DECISION.md), and [E01 Visual Reference Contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md).
+
+Locked at **visual-grammar level**:
+
+- **Illustrated Living Diorama**, 2.5D appearance made from re-usable painterly/drawn layers, not mandatory full 3D;
+- warm readable contours, restrained texture/lighting, consistent illustrations across storybook, living scenes and Chronicle;
+- distinct grayscale trio silhouettes and recognizable Milo control staging, without locking faces or clothing before model-sheet review;
+- one bounded Town Square topology with noticeboard, central round fountain, mature tree, then exit-area old marker;
+- single versioned **unlabelled abstract mystery glyph design** that does not decode the Common;
+- old/new paper and dirty/clean plate state overlays, with editable RIVERSIDE text and arrow appearing only after reveal;
+- no batch/scene image generation before **actual character, location, glyph and marker visual references** are made and approved.
+
+Still open: rendered character reference identities, Square master art/layout shot, symbol vector/media candidate legibility, exact composition/camera, implementation tech, actual final art/audio, and user test results. **No reference image has been generated or approved yet.**
+
 ## Next focused design layer
 
-### S01E01 visual style mini-pass
+### S01E01 visual reference candidate set
 
-Use [`20-visual-style.md`](../prompts/season-01/e01/20-visual-style.md) to evaluate three viable visual systems, select one and record a shared mini-style bible. Confirm small-screen trio silhouettes, storybook/living-scene consistency, readable Town Square geography, non-color-only map/plate clues and an unexplained but stable symbol.
-
-Until this is approved, the image prompt recipes are **blocked**, not ready to run. Do not rewrite story canon or begin batch production.
+Using the approved [visual grammar](VISUAL_STYLE_BIBLE.md) and [E01 reference contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md), create a **small** controlled reference set in dependency order: shared trio silhouette/identity sheet; Square master scene; unlabelled symbol at multiple sizes; board and marker state pairs; one Chronicle reuse check. Review phone-scale readability, storybook/living-scene coherence and clue safety, record provenance and approve/revise references. Do not generate large scene/pose batches yet.
 
 ## Can defer until after the connected MVP
 

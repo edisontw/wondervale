@@ -14,7 +14,7 @@ Then read only the files needed for the current workstream.
 |---|---|
 | Narrative / Season / Episode story | `PRODUCT_VISION.md`, `CORE_TRIO.md`, `CHARACTER_WORLD_BIBLE.md`, `CONTENT_STRATEGY.md`, `WORLD_CONTINUITY.md`, current Season architecture |
 | Learning / EFL / parent discussion | `PRODUCT_VISION.md`, `CONTENT_STRATEGY.md`, `LEARNING_FRAMEWORK.md`, current Season architecture, current Season learning weave, `PARENT_GUIDE_SYSTEM.md` |
-| Visual / character / location art | `CORE_TRIO.md`, `CHARACTER_WORLD_BIBLE.md`, `EXPERIENCE_DESIGN.md`, `ACCESSIBILITY_PRIVACY_SAFETY.md`, approved Episode Production Brief when available |
+| Visual / character / location art | `VISUAL_STYLE_BIBLE.md`, E01 `VISUAL_REFERENCE_CONTRACT.md`, `CORE_TRIO.md`, `CHARACTER_WORLD_BIBLE.md`, `EXPERIENCE_DESIGN.md`, `ACCESSIBILITY_PRIVACY_SAFETY.md`, approved Episode Production Brief when available |
 | Audio / music / voice | `CORE_TRIO.md`, `EXPERIENCE_DESIGN.md`, approved Episode Production Brief/script, `ACCESSIBILITY_PRIVACY_SAFETY.md` |
 | Engineering / runtime / UI | `ARCHITECTURE.md`, `CONTENT_MODEL.md`, `CONTENT_VERSIONING.md`, `EXPERIENCE_DESIGN.md`, `PARENT_DISPLAY_MODEL.md`, `ACCESSIBILITY_PRIVACY_SAFETY.md`, `DEPLOYMENT.md` |
 | Continuity / QA | `WORLD_CONTINUITY.md`, `CONTENT_VERSIONING.md`, current Season architecture, approved Episode Production Brief, `OPEN_DECISIONS.md` |
@@ -37,6 +37,9 @@ Current episode production:
 - `content/season-01/s01e01/INTERACTION_SPEC.md` — approved v1
 - `content/season-01/s01e01/INTERACTION_TEST_MATRIX.md` — design plan, not executed
 - `prompts/season-01/e01/00-README.md` — approved derived prompt pack; no media yet
+- `docs/VISUAL_STYLE_BIBLE.md` — selected illustrated living diorama visual grammar v1
+- `docs/VISUAL_STYLE_DECISION.md` — three-way comparison and decision record
+- `content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md` — Square topology + stable mystery-symbol design; reference images pending
 
 Rules:
 

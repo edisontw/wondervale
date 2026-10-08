@@ -130,7 +130,9 @@ E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTIO
 
 **S01E01 derived prompt pack:** [approved v1](../prompts/season-01/e01/00-README.md), including 121 exact voice-text records. No visual, audio or runtime assets have been generated.
 
-**Next focused task: S01E01 visual style mini-pass**, required before character/background/prop image generation.
+**S01E01 visual mini-pass:** [Visual Style Bible v1](VISUAL_STYLE_BIBLE.md) and [E01 Visual Reference Contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md) — visual direction and topology/symbol design **locked**, actual reference images **not yet made/approved**.
+
+**Next focused task: S01E01 visual reference set** — generate/review a small, coherent trio + Square + map/plate reference set; only then produce batch images.
 
 Only E01 is taken through the whole production pipeline first.
 

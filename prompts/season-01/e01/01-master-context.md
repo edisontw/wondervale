@@ -20,15 +20,15 @@ Do not add villain, treasure confirmation, magic, timed task, pixel hunt, forced
 ## Explicit unresolved inputs
 
 ```text
-APPROVED_VISUAL_STYLE = UNSET (must be locked before image generation)
+APPROVED_VISUAL_STYLE = wondervale-illustrated-living-diorama@1 (LOCKED in docs/VISUAL_STYLE_BIBLE.md)
 APPROVED_CHARACTER_REFS = UNSET
-APPROVED_TOWN_SQUARE_LAYOUT = UNSET
-APPROVED_SYMBOL_REFERENCE = UNSET (shape stable, meaning unknown)
+APPROVED_TOWN_SQUARE_LAYOUT = topology/design LOCKED in E01 VISUAL_REFERENCE_CONTRACT.md; rendered master ref PENDING
+APPROVED_SYMBOL_REFERENCE = glyph geometric recipe LOCKED: s01-missing-place-glyph-v1; actual vector/media candidate PENDING and meaning UNKNOWN
 APPROVED_AUDIO_DIRECTION = UNSET
 APPROVED_ASSET_PATHS = UNSET
 ```
 
-Do **not** substitute invented values for any UNSET input during media generation.
+Do **not** substitute invented values for any UNSET input. Visual grammar now permits **small candidate reference generation only**; do not batch-produce scenes, poses or props until actual character, Town Square, and glyph refs are reviewed.
 
 ## Mandatory task output footer
 
