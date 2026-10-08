@@ -1,22 +1,28 @@
-# S01E01 — Candidate Images (Draft Review Area)
+# S01E01 — Character Visual References
 
-This branch holds **unapproved** visual references, separate from game-ready asset paths. The original PNG upload succeeded and was verified on GitHub.
+## Identity reference: APPROVED (scope limited)
 
-## Current first candidate
+**[Candidate 01 — Milo, Nia, Finn identity sheet](s01e01-trio-neutral-candidate-01.png)** · 1448×1086 PNG · Git blob `aeb4fcf6cef5ca354bd3be495ea1226081f26604`.
 
-- [Full-resolution trio reference sheet](s01e01-trio-neutral-candidate-01.png), **1448 × 1086 PNG**, 2,438,208 bytes.
-- [Compact review preview](.review/trio-neutral-preview-512.jpg), auto-generated **640 × 480 JPEG**.
-- [Verified source metadata (JSON)](.review/trio-neutral-metadata.json).
-- [Assessment and decision tracker](TRIO_CANDIDATE_01.md).
+The project owner explicitly said **PASS** on 2026-10-08. These character **faces, hair silhouettes, outfits, colors and age proportions** are the visual identity v1. This sheet is a reference, **not** transparent game-ready sprites. Source provenance/rights and small-size sprite readability remain to be checked.
 
-GitHub Actions preview validator: [run #37731077246](https://github.com/edisontw/wondervale/actions/runs/37731077246) **SUCCESS**. It verified image signature/decode, dimensions, committed blob hash and SHA256, and generated an accessible preview **without altering the original PNG**.
+[Candidate 01 verification metadata](.review/trio-neutral-metadata.json) · [GitHub Actions verification PASS](https://github.com/edisontw/wondervale/actions/runs/37731077246) · [identity approval record](TRIO_CANDIDATE_01.md).
 
-**Reviewer recommendation:** character sheet appears coherent and is worth retaining as a **candidate**. User appearance sign-off is outstanding; exact source prompt/generator/right-to-use is not yet documented. Do not call any art here `reference_approved`.
+## Later manually uploaded turnaround attempts: not identity-approved
 
-**Next decision:** owner accepts this Milo/Nia/Finn identity or requests specific changes. Upon approval, record in E01 reference contract and asset manifest, then move to the Town Square master reference in the prescribed sequence.
+- [Candidate 02 — no goggles](s01e01-trio-turnaround-candidate-02-no-goggles.png): **REVISE**, useful turnaround/expressions **layout** only; hairstyles/outfits differ from the accepted trio.
+- [Candidate 03 — goggles](s01e01-trio-turnaround-candidate-03-goggles.png): **REJECT as identity**, additionally gives Finn oversized goggles and overalls.
+- [Verification and visual mismatch report](TRIO_TURNAROUND_REVIEW.md) (both full-resolution uploads verified; no corruption).
 
-## Technical workflow
+**Rule:** approved Candidate 01 identity **overrides** both 02/03. Do not use 02/03 as a character image reference in downstream generation.
 
-The included `.github/workflows/wondervale-reference-preview.yml` and `scripts/make_art_preview.py` constitute a tested **GitHub-hosted readback bridge** for files over the connector's ~1MB inline-content limit. Original image is uploaded once on GitHub, GitHub Actions generates a small committed preview plus dimensions/checksums, and the GitHub connector can fetch and render that preview for visual QA. Reuse carefully for further images; only reviewed references become approved.
+## Next steps
 
-This is **not** the old 48×30 upload smoke test. Do not use a technical thumbnail or combined reference sheet as game-ready sprite art.
+1. Regenerate **one** C01-anchored turnaround sheet by passing Candidate 01 as an **actual reference image**; [prompt 27](../../../prompts/season-01/e01/27-trio-turnaround-identity-locked.md).
+2. Review the candidate for **same faces/hair/clothes**, back/side angle logic and phone-size readability. Accept only if identities remain stable.
+3. Then produce the shared Town Square reference using the **same** approved trio, approved E01 Square topology and `docs/VISUAL_STYLE_BIBLE.md`.
+4. Keep production sprite extraction, rights/provenance, accessibility, scene art and app integration as separate future gates.
+
+### Technical workflow
+
+`.github/workflows/wondervale-reference-preview.yml` and `scripts/make_art_preview.py` verified the uploaded first original by decoding it on GitHub Actions and generating a small preview plus metadata; source PNG remained unchanged. Candidate 02/03 were verified against their source-file hashes; the current GitHub Actions script only targets candidate 01. Only candidate 01 is **identity-approved**.
