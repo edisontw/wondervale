@@ -37,6 +37,59 @@ async function finishPath(p,{choice='A',order=['line','blank_shape'],anchorOrder
  assert.equal((await ledger(p)).filter(x=>x===events.complete[0]).length,1);
 }
 try{
+ // Real browser regression: saved mid-episode recap must offer explicit, reversible reset.
+ const resetContext=await browser.newContext({viewport:{width:1366,height:900}});
+ await resetContext.addInitScript(({key,save})=>{if(localStorage.getItem(key)===null)localStorage.setItem(key,JSON.stringify(save));},{key:KEY,save:fixture('map')});
+ const resetPage=await resetContext.newPage();
+ resetPage.on('pageerror',e=>errors.push(e.message));
+ await resetPage.goto(base,{waitUntil:'networkidle'});
+ await resetPage.getByRole('dialog',{name:'Story so far'}).waitFor();
+ const savedProgress=await resetPage.evaluate(key=>localStorage.getItem(key),KEY);
+ await resetPage.getByRole('dialog',{name:'Story so far'}).getByRole('button',{name:'Start new adventure'}).click();
+ await resetPage.getByRole('dialog',{name:'Confirm new adventure'}).getByRole('button',{name:'Keep my progress'}).click();
+ assert.equal(await resetPage.getByRole('dialog',{name:'Story so far'}).count(),1);
+ assert.equal(await resetPage.evaluate(key=>localStorage.getItem(key),KEY),savedProgress);
+ pass('RESET-01','Cancelling new adventure from resumed recap leaves all existing progress intact.');
+ await resetPage.getByRole('dialog',{name:'Story so far'}).getByRole('button',{name:'Start new adventure'}).click();
+ await resetPage.getByRole('dialog',{name:'Confirm new adventure'}).getByRole('button',{name:'Erase progress and restart'}).click();
+ assert.equal(await resetPage.evaluate(key=>localStorage.getItem(key),KEY),null);
+ assert.equal(await resetPage.getByRole('dialog').count(),0);
+ assert.equal(await resetPage.getByRole('button',{name:'Begin',exact:true}).count(),1);
+ await resetPage.reload({waitUntil:'networkidle'});
+ assert.equal(await resetPage.getByRole('dialog',{name:'Story so far'}).count(),0);
+ assert.equal(await resetPage.getByRole('button',{name:'Begin',exact:true}).count(),1);
+ pass('RESET-02','Confirmed erase clears only Wondervale progress and reload remains a fresh adventure.');
+ await resetContext.close();
+ // Completed progress and E02 unlocks must also be reset on touch-sized screens.
+ const mobileResetContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ await mobileResetContext.addInitScript(({key,save})=>{if(localStorage.getItem(key)===null)localStorage.setItem(key,JSON.stringify(save));},{key:KEY,save:fixture('later')});
+ const mobileResetPage=await mobileResetContext.newPage();
+ mobileResetPage.on('pageerror',e=>errors.push(e.message));
+ await mobileResetPage.goto(base,{waitUntil:'networkidle'});
+ assert.ok((await ledger(mobileResetPage)).includes('episode_completed:s01e01'));
+ await mobileResetPage.getByRole('button',{name:'Parent',exact:true}).click();
+ await mobileResetPage.locator('.parent').getByRole('button',{name:'Start new adventure'}).click();
+ await mobileResetPage.getByRole('dialog',{name:'Confirm new adventure'}).getByRole('button',{name:'Erase progress and restart'}).click();
+ assert.equal(await mobileResetPage.evaluate(key=>localStorage.getItem(key),KEY),null);
+ await mobileResetPage.reload({waitUntil:'networkidle'});
+ assert.equal(await mobileResetPage.getByRole('button',{name:'Begin',exact:true}).count(),1);
+ pass('RESET-03','Mobile Parent View erases completed story and future unlocks only after confirmation.','Chromium emulated touch 390×844');
+ await mobileResetContext.close();
+ // A denied storage write must never falsely claim the previous progress was erased.
+ const deniedContext=await browser.newContext({viewport:{width:1366,height:900}});
+ await deniedContext.addInitScript(({key,save})=>{if(localStorage.getItem(key)===null)localStorage.setItem(key,JSON.stringify(save));},{key:KEY,save:fixture('map')});
+ const deniedPage=await deniedContext.newPage();
+ deniedPage.on('pageerror',e=>errors.push(e.message));
+ await deniedPage.goto(base,{waitUntil:'networkidle'});
+ await deniedPage.getByRole('dialog',{name:'Story so far'}).getByRole('button',{name:'Start new adventure'}).click();
+ await deniedPage.evaluate(()=>{Storage.prototype.removeItem=function(){throw new DOMException('Storage denied','SecurityError');};});
+ await deniedPage.getByRole('dialog',{name:'Confirm new adventure'}).getByRole('button',{name:'Erase progress and restart'}).click();
+ assert.equal(await deniedPage.getByRole('alert').count(),1);
+ assert.notEqual(await deniedPage.evaluate(key=>localStorage.getItem(key),KEY),null);
+ await deniedPage.getByRole('dialog',{name:'Confirm new adventure'}).getByRole('button',{name:'Keep my progress'}).click();
+ assert.equal(await deniedPage.getByRole('dialog',{name:'Story so far'}).count(),1);
+ pass('RESET-04','Storage failure preserves the original checkpoint and shows a clear warning.');
+ await deniedContext.close();
  const {c,p}=await context();
  await p.screenshot({path:`${out}/desktop-opening.png`,fullPage:true});
  assert.equal(await p.getByRole('dialog').count(),0);await click(p,'Begin');await drain(p);
