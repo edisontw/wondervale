@@ -32,6 +32,8 @@ Production specification:
 
 Current episode production:
 
+- `docs/WORK_HANDOFF_2026-10-08.md` — current pause point and Work-mode asset-pipeline handoff (read before new image production)
+
 - `content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md` — approved_for_script
 - `content/season-01/s01e01/DETAILED_SCRIPT.md` — approved v1
 - `content/season-01/s01e01/INTERACTION_SPEC.md` — approved v1
