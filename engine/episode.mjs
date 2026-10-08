@@ -1,6 +1,63 @@
 export const VERSION = 's01e01-script-v1';
 export const KEY = 'wondervale-progress-v1';
 export const locations = {board:[.14,.63], fountain:[.45,.59], large_tree:[.73,.54], marker:[.92,.61], bench:[.78,.70]};
+
+/**
+ * Town Square's walkable route network. Coordinates are normalized against the
+ * 1672×941 Square art. All named destinations are reachable from this network.
+ * Free-pointer/keyboard travel snaps to the nearest segment instead of letting
+ * characters stand on the fountain, greenery, buildings or foreground props.
+ */
+const roadNodes = [
+ [.34,.77], // opening path
+ [.39,.68], // Square junction
+ [.28,.66], // board approach
+ locations.board,
+ locations.fountain,
+ [.60,.58], // path past the fountain
+ locations.large_tree,
+ [.83,.59], // exit path
+ locations.marker,
+ locations.bench
+];
+const roadEdges = [[0,1],[1,2],[2,3],[1,4],[4,5],[5,6],[6,7],[7,8],[7,9]];
+function roadProjection(x,y){
+ if(!Number.isFinite(x)||!Number.isFinite(y))return {point:[.34,.77],edge:0,t:0};
+ let best=null;
+ roadEdges.forEach(([a,b],edge)=>{
+  const p=roadNodes[a],q=roadNodes[b],dx=q[0]-p[0],dy=q[1]-p[1];
+  const t=Math.max(0,Math.min(1,((x-p[0])*dx+(y-p[1])*dy)/(dx*dx+dy*dy)));
+  const point=[p[0]+t*dx,p[1]+t*dy],distance=(x-point[0])**2+(y-point[1])**2;
+  if(!best||distance<best.distance)best={point,edge,t,distance};
+ });
+ return best;
+}
+export const constrainToRoad=(x,y)=>roadProjection(x,y).point;
+const roadDistance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+export function roadRoute(from,to){
+ const a=roadProjection(from[0],from[1]),b=roadProjection(to[0],to[1]);
+ const n=roadNodes.length,source=n,target=n+1;
+ const adj=Array.from({length:n+2},()=>[]);
+ const link=(i,j,weight)=>{adj[i].push([j,weight]);adj[j].push([i,weight]);};
+ roadEdges.forEach(([i,j])=>link(i,j,roadDistance(roadNodes[i],roadNodes[j])));
+ for(const [projection,vertex] of [[a,source],[b,target]]){
+  const [i,j]=roadEdges[projection.edge];
+  link(vertex,i,roadDistance(projection.point,roadNodes[i]));
+  link(vertex,j,roadDistance(projection.point,roadNodes[j]));
+ }
+ if(a.edge===b.edge)link(source,target,roadDistance(a.point,b.point));
+ const dist=Array(n+2).fill(Infinity),prev=Array(n+2).fill(-1),used=Array(n+2).fill(false);dist[source]=0;
+ for(let k=0;k<n+2;k++){
+  let u=-1;for(let i=0;i<n+2;i++)if(!used[i]&&(u<0||dist[i]<dist[u]))u=i;
+  if(u<0||dist[u]===Infinity||u===target)break;
+  used[u]=true;for(const [v,w] of adj[u])if(dist[u]+w<dist[v]){dist[v]=dist[u]+w;prev[v]=u;}
+ }
+ const result=[];let at=target;
+ while(at>=0){result.push(at===source?a.point:at===target?b.point:roadNodes[at]);at=prev[at];}
+ result.reverse();
+ return result.filter((p,i)=>i===0||roadDistance(p,result[i-1])>1e-8);
+}
+
 const id = (who,n) => `S01E01-${who}-${String(n).padStart(3,'0')}`;
 const ids = (...pairs) => pairs.map(([who,n])=>id(who,n));
 const range = (who,a,b) => Array.from({length:b-a+1},(_,i)=>id(who,a+i));
@@ -66,7 +123,7 @@ export function dispatch(state,action) {
  if(action.type==='replayLine') {return s;} // presentation only, handled by audio adapter
  if(action.type==='move') {
   if(!['square_explore','square_compare','marker_search'].includes(s.phase))return s;
-  s.position=action.target?locations[action.target]||s.position:[Math.min(.96,Math.max(.07,action.x)),Math.min(.86,Math.max(.46,action.y))];
+  s.position=action.target?locations[action.target]||s.position:constrainToRoad(action.x,action.y);
   s.location=Object.keys(locations).find(x=>near(s,x))||null;return s;
  }
  if(s.queue.length)return s;
@@ -117,6 +174,7 @@ export function restore(saved) {
  if(!saved||saved.schemaVersion!==1||saved.contentVersion!==VERSION||!Array.isArray(saved.ledger))return fresh();
  const s={...fresh(),...structuredClone(saved.checkpoint),ledger:[...new Set(saved.ledger)],mode:'first_play',queue:[],after:null};
  s.safe=structuredClone(saved.checkpoint);
+ s.position=constrainToRoad(s.position?.[0],s.position?.[1]);
  if(s.phase==='opening'){s.queue=[...groups.opening];s.after='opening';}
  if(s.markerRevealed&&s.phase==='marker_search'){scene(s,'chronicle_close',6);s.chroniclePresented=true;}
  if(s.started&&s.phase!=='completed') {
