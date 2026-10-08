@@ -32,16 +32,16 @@ Production specification:
 
 Current episode production:
 
-- `docs/WORK_HANDOFF_2026-10-08.md` — current pause point and Work-mode asset-pipeline handoff (read before new image production)
+- `docs/WORK_HANDOFF_2026-10-08.md` — historical bootstrap handoff; see E01_RUNTIME_QA_2026-10-08.md for current runtime checkpoint
 
 - `content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md` — approved_for_script
 - `content/season-01/s01e01/DETAILED_SCRIPT.md` — approved v1
 - `content/season-01/s01e01/INTERACTION_SPEC.md` — approved v1
-- `content/season-01/s01e01/INTERACTION_TEST_MATRIX.md` — design plan, not executed
-- `prompts/season-01/e01/00-README.md` — approved derived prompt pack; no media yet
+- `content/season-01/s01e01/INTERACTION_TEST_MATRIX.md` — actual prototype core/browser execution; dated QA record governs status
+- `prompts/season-01/e01/00-README.md` — approved prompt pack; references and first actor media now committed
 - `docs/VISUAL_STYLE_BIBLE.md` — selected illustrated living diorama visual grammar v1
 - `docs/VISUAL_STYLE_DECISION.md` — three-way comparison and decision record
-- `content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md` — approved C01 trio identity and Square topology + stable mystery-symbol design; location refs pending
+- `content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md` — approved C01 trio identity and Square topology + stable mystery-symbol design; V1 references owner-passed
 - `docs/IMAGE_ASSET_UPLOAD_WORKFLOW.md` — tested PNG GitHub transfer/readback and manual high-resolution fallback
 - `prompts/season-01/e01/26-trio-reference-manual.md` — narrow reference-A prompt for next window/manual transfer
 - `docs/ART_REFERENCE_PROGRESS.md` — C01 trio identity **approved**; C02/C03 rejected as identity; source/provenance and game sprites still pending

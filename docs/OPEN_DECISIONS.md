@@ -239,11 +239,15 @@ Both later manually uploaded full-resolution PNGs passed file integrity verifica
 
 Neither later image can be used as a character identity reference. The next image generation must use **C01 image input** to recreate the same three children at new camera angles; do not just mention "same characters" in text. Retain C02/C03 only for audit/composition. Source licensing, final sprites, and all environment references remain open.
 
-## Next focused design layer
+### 16. V1 reference gate and first playable runtime (2026-10-08)
 
-### S01E01 visual reference candidate set — C01-anchored turnaround next
+Owner passed the reviewed V1 reference set and delegated ordinary creative/technical selection. Recovered exact turnaround blob `9e6ac0dcde86820ccc55b620497024805887348f`; C01 remains identity authority. Square reused from imported original ZIP; corrected board/plate have no baked destination; glyph geometry unchanged. See [approval record](VISUAL_REFERENCE_APPROVAL_2026-10-08.md).
 
-Using the approved [visual grammar](VISUAL_STYLE_BIBLE.md) and [E01 reference contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md), continue the **small** controlled reference set in dependency order: **C01-anchored corrective turnaround**; Square master scene; unlabelled symbol at multiple sizes; board and marker state pairs; one Chronicle reuse check. Review phone-scale readability, storybook/living-scene coherence and clue safety, record provenance and approve/revise references. Do not generate large scene/pose batches yet.
+Static ES modules are selected for the first playable slice. All 121 exact script/TSV lines remain unchanged. Runtime has SC00–SC06, two locked interactions, separate parent text, atomic local save/event ledger, read-only historical replay, derived marker/unlock state and Chronicle. ChatGPT generated original transparent actors are committed with exact hashes; neutral still poses are not a completed animation set. Browser speech is explicitly a prototype, not recorded performance.
+
+## Next focused production layer
+
+Finish runtime evidence/release review, then prepare the MN4 preview and run real-device/family acceptance. Recorded voices, music/SFX, additional coherent actor poses and rights provenance remain open. Do not reopen Season architecture, EFL weave or canonical dialogue. See [runtime QA](E01_RUNTIME_QA_2026-10-08.md).
 
 ## Can defer until after the connected MVP
 

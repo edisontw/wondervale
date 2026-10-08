@@ -3,11 +3,11 @@
 ```yaml
 episode_id: s01e01
 visual_reference_contract_version: 1
-status: trio_identity_visual_ref_approved_square_symbol_marker_pending
+status: V1_reference_gate_owner_passed_2026_10_08
 style: wondervale-illustrated-living-diorama@1
 character_identity_images: ref-wv-trio-neutral-v1 (C01 approved)
-town_square_master_image: pending
-mystery_symbol_rendered_reference: pending
+town_square_master_image: ref-wv-town-square-v1
+mystery_symbol_rendered_reference: s01-missing-place-glyph-v1
 ```
 
 ## Scope
@@ -22,7 +22,7 @@ The user explicitly approved the appearance of **Candidate 01** on 2026-10-08. I
 
 **Do not use** [Candidate 02/03](../../../assets/reference-candidates/s01e01/TRIO_TURNAROUND_REVIEW.md) as identity anchors; they show substantially different hair and clothes, and C03 adds Finn's oversized goggles. Candidate 02 can inspire only the multi-angle **layout**, not character art.
 
-Next: one corrected [identity-locked turnaround sheet](../../../prompts/season-01/e01/27-trio-turnaround-identity-locked.md) using C01 as an image reference, and then a Square master scene consistent with the approved trio and the topology below. The **Square, mystery mark, board/plate and Chronicle visuals remain unapproved**.
+The exact owner-approved turnaround was recovered and verified. The owner passed the V1 Square, glyph and revised board/plate reference review on 2026-10-08 and delegated ordinary production choices. See [approval record](../../../docs/VISUAL_REFERENCE_APPROVAL_2026-10-08.md). Chronicle assembly is verified in runtime QA; final media/family acceptance is tracked separately.
 
 ## 1. Town Square topology — locked
 
@@ -94,7 +94,7 @@ stroke: single dark contour, rounded ends, no fill
 
 The outline begins at (25,34) and ends at (25,69), **leaving an open lower-left gap** between the ends. The slightly off-center dash makes it distinct from ordinary round fountain or tree symbols.
 
-The path is a **reference recipe**, not yet an approved rendered vector file. The actual rendered candidate must be checked for readability, accidental icon/letter resemblance and reproducibility. If a minor geometric revision is needed after the first reference test, update this contract **before** generating other media from it; never diverge in individual prompts.
+The path is now the **owner-passed V1 rendered vector**, preserved as `public/art/glyph.svg`. The actual rendered candidate must be checked for readability, accidental icon/letter resemblance and reproducibility. If a minor geometric revision is needed after the first reference test, update this contract **before** generating other media from it; never diverge in individual prompts.
 
 ### Semantic firewall
 
@@ -128,7 +128,7 @@ Reference IDs required before bulk image generation:
 - `ref-wv-board-plate-v1` — front/old paper and dirty/clean plate state comparisons.
 - `ref-wv-chronicle-v1` — concept layout reusing source geometry (can follow first four).
 
-These are reference registry IDs. **Only `ref-wv-trio-neutral-v1` has an approved visual identity PNG** at present; Square, glyph, plate and Chronicle images remain pending.
+These are reference registry IDs. The V1 trio, recovered turnaround, Square, glyph and board/plate references passed owner review. Runtime uses one shared glyph and a derived Chronicle; see the dated runtime QA record for validation and limits.
 
 Minimum reviewer checks:
 
@@ -141,4 +141,4 @@ Minimum reviewer checks:
 
 ## 5. Allowed next production step
 
-Next produce a **small and controlled reference candidate set** (not all E01 assets) and review it. Reference generation may be done from this approved direction; **bulk/scene image generation remains blocked until the references are accepted**. Do not revise the story, characters' roles, mystery meaning, or interaction guards during reference production.
+The V1 reference gate is accepted. Proceed through bounded production/runtime layers using the approved references; additional material identity/canon changes still need owner approval. Do not revise the story, characters' roles, mystery meaning, or interaction guards during reference production.
