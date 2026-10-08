@@ -1,6 +1,6 @@
 # S01E01 Working Asset Registry
 
-**All IDs below are prospective production IDs, not additional canonical story events.** Images/audio are **not yet generated**. “Pending” means requirement recorded, not approved asset.
+**All IDs below are prospective production IDs, not additional canonical story events.** Images/audio are **not yet generated**. Visual style `wondervale-illustrated-living-diorama@1` and E01 topology/mystery glyph recipe are design-locked in `docs/VISUAL_STYLE_BIBLE.md` and `content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md`; actual **media references are still pending**. “Pending” means requirement recorded, not approved asset.
 
 | Working ID | Class | Need/state | Reusable? | Approval gate | Current |
 |---|---|---|---|---|---|
@@ -31,3 +31,15 @@ At generation time (not before), record: stable asset ID, scene/state IDs, relev
 Status progression: `pending → proposed/reference_candidate → reference_approved → generated_candidate → approved_asset → integrated`. No future status can be assumed because a prompt exists.
 
 Keep **same** Town Square layout and trio silhouettes across storybook, living scene, map and Chronicle; produce before/after overlays instead of independent incompatible backgrounds. The mystery symbol must be identical across E01's fragment/sketch/Chronicle and future payoff reference without interpreting it. Critical text remains app-rendered, not image-only.
+
+## Immediate reference candidate tasks (not production assets)
+
+| Reference ID | Dependency | Reviewer checks | Status |
+|---|---|---|---|
+| `ref-wv-trio-neutral-v1` | style v1, Core Trio | small silhouettes, identities, common scale | pending candidate |
+| `ref-wv-town-square-v1` | style, E01 topology | fountain/tree/board/exit layout, mobile navigation | pending candidate |
+| `ref-wv-map-symbol-v1` | `s01-missing-place-glyph-v1` geometry | non-color-dependent, consistent, non-spoiling | pending candidate |
+| `ref-wv-board-plate-v1` | Square layout, same map ref | old paper intact, dirty state hides RIVERSIDE, clean has editable overlay | pending candidate |
+| `ref-wv-chronicle-v1` | first four refs accepted | reuse before/after evidence, no new canon | pending candidate |
+
+See [Reference Candidate Prompt](25-visual-reference-set.md). These entries are **not evidence that files exist**.

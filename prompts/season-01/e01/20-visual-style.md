@@ -1,6 +1,6 @@
-# VISUAL STYLE MINI-PASS — Next Focused Task
+# VISUAL STYLE MINI-PASS — Completed Decision Record / Revisit Prompt
 
-**Runnable now for a style decision only; no final images generated in this step.**
+**Decision completed:** Selected `wondervale-illustrated-living-diorama@1`. See `docs/VISUAL_STYLE_BIBLE.md`, `docs/VISUAL_STYLE_DECISION.md` and E01 `VISUAL_REFERENCE_CONTRACT.md`. Retain this original prompt as the review/revision template; **do not rerun it as if no decision existed**. Next work is actual *small reference candidates*, not re-comparing visual systems. No final images were generated in this step.
 
 **Inputs:** master context, `docs/CORE_TRIO.md`, `docs/CHARACTER_WORLD_BIBLE.md` visual/world sections, E01 EPB §2–5/§13, relevant SC01–SC06 script, interaction spec input constraints and `ASSET_MANIFEST.md`.
 
@@ -15,4 +15,4 @@
 >
 > Produce a recommended style-system draft and an explicit accept/reject checklist. Distinguish your **proposal** from already approved canon. Do not generate final character/background/prop assets until the chosen style and reference rules are approved and written back to GitHub.
 
-**Exit gate:** one approved style mini-bible, stable trio identity/proportions at small size, shared Town Square layout anchors, approved non-spoiling symbol reference, reusable asset variant strategy, mobile/readability QA rubric. If not approved, all image prompts 21–24 remain blocked.
+**Original exit gate (style-grammar portion reached; media references still pending):** one approved style mini-bible, stable trio identity/proportions at small size, shared Town Square layout anchors, approved non-spoiling symbol reference, reusable asset variant strategy, mobile/readability QA rubric. If not approved, all image prompts 21–24 remain blocked.

@@ -1,6 +1,6 @@
 # Animation and Scene Transition Prompt
 
-**BLOCKED:** Requires approved consistent character/location/prop references; this is a motion-production specification, not a rendered video.
+**BLOCKED for final animation:** visual grammar is approved but actual character/location/prop reference images remain pending. This is still a motion-production specification, not a rendered video.
 
 **Inputs:** master context, E01 script/interaction spec, approved visual system and asset references, asset manifest.
 

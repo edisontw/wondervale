@@ -1,6 +1,6 @@
 # Town Square / Location Background Prompt
 
-**BLOCKED:** Requires approved visual mini-bible **and** coherent location layout reference.
+**STATUS:** visual grammar and Town Square **topology** approved. A small layout **reference candidate** may be made using `25-visual-reference-set.md`; bulk backgrounds/state production remains BLOCKED until the actual layout reference is reviewed.
 
 **Inputs:** master context, E01 EPB geography/scenes, script SC01–SC06, interaction SC02–SC05, asset register, approved character silhouettes and style.
 
