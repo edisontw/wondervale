@@ -1,0 +1,41 @@
+name: Wondervale E01 reference image preview
+
+on:
+  push:
+    branches:
+      - art/s01e01-reference-candidates
+    paths:
+      - assets/reference-candidates/s01e01/s01e01-trio-neutral-candidate-01.png
+      - scripts/make_art_preview.py
+      - .github/workflows/wondervale-reference-preview.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  create-review-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pillow
+        run: python -m pip install --disable-pip-version-check 'Pillow>=10,<13'
+      - name: Verify committed PNG and generate reduced review preview
+        run: python scripts/make_art_preview.py
+      - name: Commit small preview and metadata back to the candidate branch
+        run: |
+          git config user.name "wondervale-preview-bot"
+          git config user.email "wondervale-preview-bot@users.noreply.github.com"
+          git add assets/reference-candidates/s01e01/.review/
+          if git diff --cached --quiet; then
+            echo "Preview unchanged."
+          else
+            git commit -m "art: record verified PNG metadata and low-res review preview"
+            git push origin HEAD:art/s01e01-reference-candidates
+          fi
