@@ -4,14 +4,14 @@
 visual_style_id: wondervale-illustrated-living-diorama
 visual_style_version: 1
 direction_status: locked_for_e01_reference_production
-actual_visual_reference_assets: pending
-generated_images: 0
+actual_visual_reference_assets: trio_identity_approved_remaining_references_pending
+generated_media: 3_trio_reference_candidates_no_game_assets
 source_project: edisontw/wondervale
 ```
 
 ## Purpose and approval boundary
 
-This document locks the **shared visual production direction** for the first Wondervale vertical slice and establishes a reusable baseline for later episodes. It does not claim that character models, images, animations, visual prototypes, or phone previews already exist or have passed review. Production **reference sheets** must be generated and approved in a separate next stage before batch/scene asset production.
+This document locks the **shared visual production direction** for the first Wondervale vertical slice and establishes a reusable baseline for later episodes. Reference A trio identity sheet is **visually approved** by the project owner (Candidate 01, see `docs/ART_REFERENCE_PROGRESS.md`); two subsequent turnarounds are not identity-approved. This does not approve game-ready sprites, animation, environment reference art or phone-runtime performance. Remaining production **reference sheets** still require review before batch/scene asset production.
 
 Canon remains governed by the current project documents and E01 EPB/script/interaction specification. This mini-bible cannot change trio ages/roles, scene/landmark geography, mystery meaning or gameplay logic.
 
@@ -77,6 +77,12 @@ Canonical ages/behavior: Milo ~8, Nia ~8, Finn ~9, as in `docs/CORE_TRIO.md`. Al
 A neutral **front, profile, three-quarter** sheet of the trio at common relative scale must precede any action-pose batch. An 80–120 px approximate on-screen-height silhouette check is an initial **reference review suggestion**, not a hard runtime camera size. Test grayscale and small-size recognition and allow outline/pose improvement before locking generated identity.
 
 Character consistency across storybook portraits and in-scene sprites requires the same approved shape language, facial structure, accessories **if later approved**, clothing pattern, palette relationship and expression/pose references. Avoid per-image redesign and excessive generated outfit variants.
+
+### Approved trio identity reference v1
+
+On 2026-10-08 the user approved the **actual** [Candidate 01 reference sheet](../assets/reference-candidates/s01e01/s01e01-trio-neutral-candidate-01.png) as the visual identity anchor for Milo, Nia and Finn. See [C01 decision](../assets/reference-candidates/s01e01/TRIO_CANDIDATE_01.md) and [turnaround comparison](../assets/reference-candidates/s01e01/TRIO_TURNAROUND_REVIEW.md). The image is authoritative for hair/face/outfit/proportions: Milo brown tousled hair/red jacket/shorts; Nia dark curly hair/green jacket/blue trousers; Finn blond side-swept hair/blue jacket/tan trousers. **Never use uploaded C02/C03 as substitute identity sources.** They change faces/hair/clothing, and C03 introduces goggles.
+
+New character images **must actually reference C01 as an image**, not simply this text. Character sprite/expression/turnaround output remains gated by same-identity review and production/rights QA.
 
 ### Player visual priority
 

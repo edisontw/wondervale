@@ -128,15 +128,15 @@ E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTIO
 
 **S01E01 interaction specification:** [approved v1](../content/season-01/s01e01/INTERACTION_SPEC.md); [acceptance test plan](../content/season-01/s01e01/INTERACTION_TEST_MATRIX.md) — designed, not executed.
 
-**S01E01 derived prompt pack:** [approved v1](../prompts/season-01/e01/00-README.md), including 121 exact voice-text records. No visual, audio or runtime assets have been generated.
+**S01E01 derived prompt pack:** [approved v1](../prompts/season-01/e01/00-README.md), including 121 exact voice-text records. Three visual **reference candidate** PNGs now exist (one identity-approved, two not); no production-ready character sprites, environment art, audio or runtime assets have been made.
 
-**S01E01 visual mini-pass:** [Visual Style Bible v1](VISUAL_STYLE_BIBLE.md) and [E01 Visual Reference Contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md) — visual direction and topology/symbol design **locked**, actual reference images **not yet made/approved**.
+**S01E01 visual mini-pass:** [Visual Style Bible v1](VISUAL_STYLE_BIBLE.md) and [E01 Visual Reference Contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md) — visual direction and topology/symbol design **locked**, C01 trio **identity reference approved**; Town Square, glyph, plate, Chronicle and production sprites **not yet approved**.
 
 **Reference-generation/upload smoke test:** [test record](../experiments/s01e01/2026-10-08-image-upload/README.md); Canva/ChatGPT generation succeeded, GitHub PNG blob upload and base64 readback/CRC passed. **Full-resolution direct transfer remains open**: see [upload runbook](IMAGE_ASSET_UPLOAD_WORKFLOW.md).
 
-**S01E01 Reference A upload & technical validation:** [PR #12](https://github.com/edisontw/wondervale/pull/12) contains an original 1448×1086 PNG; GitHub Actions validation and small preview [PASS](ART_REFERENCE_PROGRESS.md). First visual review recommends retaining the trio as a **candidate**, but character identity remains unapproved pending project-owner sign-off and source/provenance confirmation.
+**S01E01 Reference A is identity-APPROVED:** the user explicitly PASSED C01 and [PR #12](https://github.com/edisontw/wondervale/pull/12) was merged. [Verified original / decision record](ART_REFERENCE_PROGRESS.md). Two separately uploaded 1448×1086 turnarounds were integrity-checked and compared: **C02 layout only (not approved appearance); C03 rejected appearance**. C01 is the only identity authority; exact source/provenance, sprite, mobile checks remain open.
 
-**Next focused task: decide/approve or revise Milo, Nia and Finn Reference A**, then proceed to Town Square master reference. Bulk scene asset generation remains blocked.
+**Next focused task: regenerate ONE trio turnaround using C01 as a real image reference**, [Prompt 27](../prompts/season-01/e01/27-trio-turnaround-identity-locked.md). Check identity drift before Town Square master. Do not batch-produce scene art.
 
 Only E01 is taken through the whole production pipeline first.
 

@@ -21,7 +21,7 @@ Do not add villain, treasure confirmation, magic, timed task, pixel hunt, forced
 
 ```text
 APPROVED_VISUAL_STYLE = wondervale-illustrated-living-diorama@1 (LOCKED in docs/VISUAL_STYLE_BIBLE.md)
-APPROVED_CHARACTER_REFS = UNSET
+APPROVED_CHARACTER_REFS = C01 identity approved (ref-wv-trio-neutral-v1), exact uploaded PNG at assets/reference-candidates/s01e01/s01e01-trio-neutral-candidate-01.png; C02/C03 NOT identity references
 APPROVED_TOWN_SQUARE_LAYOUT = topology/design LOCKED in E01 VISUAL_REFERENCE_CONTRACT.md; rendered master ref PENDING
 APPROVED_SYMBOL_REFERENCE = glyph geometric recipe LOCKED: s01-missing-place-glyph-v1; actual vector/media candidate PENDING and meaning UNKNOWN
 APPROVED_AUDIO_DIRECTION = UNSET
