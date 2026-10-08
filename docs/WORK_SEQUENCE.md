@@ -134,7 +134,9 @@ E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTIO
 
 **Reference-generation/upload smoke test:** [test record](../experiments/s01e01/2026-10-08-image-upload/README.md); Canva/ChatGPT generation succeeded, GitHub PNG blob upload and base64 readback/CRC passed. **Full-resolution direct transfer remains open**: see [upload runbook](IMAGE_ASSET_UPLOAD_WORKFLOW.md).
 
-**Next focused task: S01E01 visual reference set** — review/download full-resolution trio candidate first, upload via tested bytes path or manual branch PR, then proceed to Square + map/plate references. Bulk scene images remain blocked.
+**S01E01 Reference A upload & technical validation:** [PR #12](https://github.com/edisontw/wondervale/pull/12) contains an original 1448×1086 PNG; GitHub Actions validation and small preview [PASS](ART_REFERENCE_PROGRESS.md). First visual review recommends retaining the trio as a **candidate**, but character identity remains unapproved pending project-owner sign-off and source/provenance confirmation.
+
+**Next focused task: decide/approve or revise Milo, Nia and Finn Reference A**, then proceed to Town Square master reference. Bulk scene asset generation remains blocked.
 
 Only E01 is taken through the whole production pipeline first.
 
