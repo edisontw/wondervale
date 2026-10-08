@@ -102,4 +102,4 @@ See [Work Sequence](docs/WORK_SEQUENCE.md).
 
 ## First playable E01
 
-Run `npm run build`, then `python3 scripts/package_static.py`; serve `dist/wondervale-e01-static` on a static server. Deploy that runtime-only folder to MN4 when host access is available. It contains no future-episode source documents. See [runtime contract](docs/E01_RUNTIME_IMPLEMENTATION.md) and [actual QA evidence](docs/E01_RUNTIME_QA_2026-10-08.md). Recorded voices/music, full pose animation, real-device and family acceptance remain separate work.
+Run `npm run build`, then `python3 scripts/package_static.py` to produce the runtime-only static release. The first playable S01E01 is deployed for HTTPS preview on MN4 at `https://wondervale.pepepow.net/` (reported build `20261008-e01-reset1`; see deployment record). The release contains no future-episode source documents. See [runtime contract](docs/E01_RUNTIME_IMPLEMENTATION.md) and [actual QA evidence](docs/E01_RUNTIME_QA_2026-10-08.md). Recorded voices/music, full pose animation, real-device and family acceptance remain separate work.
