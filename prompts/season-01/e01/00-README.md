@@ -35,6 +35,7 @@ Start with `01-master-context.md`, then load **only one relevant task prompt** a
 | Shared prompt/context and provenance | `01-master-context.md` | ready |
 | Script maintenance and EFL/parent review | `10-script-review.md`, `11-learning-parent.md` | review only; exact text locked |
 | Visual direction mini-pass | `20-visual-style.md` | **COMPLETED:** see `docs/VISUAL_STYLE_BIBLE.md` |
+| **Small visual reference candidate set** | `25-visual-reference-set.md` | **NEXT:** allowed candidates, not batch assets |
 | Character, location, prop/UI and animation | `21-character-art.md`, `22-location-art.md`, `23-prop-ui-art.md`, `24-animation.md` | **REFERENCE CANDIDATES NEXT:** grammar locked; bulk/scene art blocked until actual reference approval |
 | Music family, SFX | `30-music.md`, `31-sfx.md` | direction planning only; no audio yet |
 | Voice | `40-voice-production.md`, `40-voice-lines.tsv` | text export only, no recording |

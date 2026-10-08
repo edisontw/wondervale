@@ -1,6 +1,6 @@
 # Old Map, Marker, Chronicle, and UI Prop Prompt
 
-**BLOCKED:** Needs approved style, Town Square layout and unlabelled symbol reference (meaning remains UNKNOWN).
+**STATUS:** shared style, Square topology and mystery-symbol geometric **recipe** approved. Small symbol/plate **reference candidates** may be created with `25-visual-reference-set.md`. Bulk prop/UI generation remains BLOCKED until actual visual references pass legibility/spoiler review; meaning remains UNKNOWN.
 
 **Inputs:** master context; E01 EPB mystery props; approved SC02–SC06 script and interaction guards; approved visual mini-bible + symbol; `ASSET_MANIFEST.md`.
 

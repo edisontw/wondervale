@@ -1,8 +1,8 @@
 # Character Art Prompt — reusable layered recipe
 
-**BLOCKED:** Requires approved visual mini-bible and reference model-sheet direction; do not use as standalone ungated generation.
+**STATUS:** visual grammar v1 is approved. **SMALL REFERENCE CANDIDATES ARE NOW ALLOWED** via `25-visual-reference-set.md`; generating many character poses/episode assets remains BLOCKED until actual shared trio model sheet is reviewed.
 
-**Inputs:** master context; approved style and reference IDs; Core Trio canon; E01 EPB visual needs; script SC01–SC06; asset manifest.
+**Inputs:** master context; `docs/VISUAL_STYLE_BIBLE.md`; E01 `VISUAL_REFERENCE_CONTRACT.md`; approved character reference media **once available**; Core Trio canon; E01 EPB; script SC01–SC06; asset manifest.
 
 **Prompt:**
 > Produce one coherent character **reference family**, not four uncoordinated illustrations. Milo around 8: action-oriented curious playable hero. Nia around 8: observant/sketching/communicative. Finn around 9: inventive, playful, examines physical clues. Adult steward: helpful practical civilian, no omniscient authority or new biography. Distinct silhouettes at small size; consistent approximate size and recognizable identities across living scene and storybook portraits.
