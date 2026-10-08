@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "contentVersion": "s01e01-script-v1",
-  "buildId": "20261008-e01-slice1",
+  "buildId": "20261008-e01-slice2",
   "voiceSourceSha256": "c676223dd94fd35ec1f07f51f87511fa4663e332eb46c87258c1f70e7196eb8c",
   "lines": {
     "S01E01-NARRATOR-001": {
@@ -1111,6 +1111,31 @@
     "wonder": [
       "What does the empty shape mean?",
       "Where did the old line go?"
+    ]
+  },
+  "ids": {
+    "scenes": [
+      "s01e01-sc00",
+      "s01e01-sc01",
+      "s01e01-sc02",
+      "s01e01-sc03",
+      "s01e01-sc04",
+      "s01e01-sc05",
+      "s01e01-sc06"
+    ],
+    "interactions": [
+      "s01e01-int01-observe-before-guess",
+      "s01e01-int02-map-to-place-and-marker"
+    ],
+    "parentCue": "s01e01-cue-01",
+    "events": [
+      "s01e01_old_map_fragment_documented",
+      "s01e01_blank_place_symbol_seen",
+      "s01_missing_place_mystery_open",
+      "s01e01_old_route_matches_town_square",
+      "s01e01_town_square_old_marker_revealed",
+      "s01e01_old_route_points_toward_riverside",
+      "episode_completed:s01e01"
     ]
   },
   "mediaStatus": {

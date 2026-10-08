@@ -25,12 +25,19 @@ jobs:
         run: npm install --ignore-scripts --package-lock=false
       - name: Install actual Chromium
         run: npx playwright install --with-deps chromium
+      - name: Package runtime-only static release
+        run: python3 scripts/package_static.py
       - name: Run actual desktop, touch, keyboard, save and replay paths
         run: |
-          python3 -m http.server 4173 > /tmp/wondervale-test-server.log 2>&1 &
+          python3 -m http.server 4173 --directory dist/wondervale-e01-static > /tmp/wondervale-test-server.log 2>&1 &
           npm run test:browser
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: e01-runtime-evidence
           path: test-results/
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: wondervale-e01-static
+          path: dist/wondervale-e01-static/

@@ -238,3 +238,7 @@ Examples:
 - engineering shell work can proceed independently where it does not invent content decisions.
 
 Avoid parallelizing two tasks that both need to decide the same underlying fact.
+
+## 2026-10-08 focused checkpoint
+
+Owner passed V1 references and delegated ordinary production/technical choices. C01 remains identity authority; the recovered turnaround is approved support. First playable E01 is assembled from locked 121-line source, approved images and two original ChatGPT generated transparent actor candidates. Continue from runtime QA/release packaging, then recorded media and family acceptance; do not restart approved planning. See E01_RUNTIME_QA_2026-10-08.md.

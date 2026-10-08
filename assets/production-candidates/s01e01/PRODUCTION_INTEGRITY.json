@@ -1,0 +1,93 @@
+{
+  "assets": [
+    {
+      "path": "public/art/town-square-master.webp",
+      "bytes": 432416,
+      "sha256": "d8ed0d1244bc8f56f7622bbea808ecdd3178de1c1410f4396984aa2abc2e8403",
+      "git_blob": "a9dc99a817fa60ff66acc1e506b2884010ac57a4",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "alpha": null
+    },
+    {
+      "path": "public/art/trio-sprites.webp",
+      "bytes": 330666,
+      "sha256": "44505c8bd83f980feb6c34420108232471195e09feb94ce71e962dc6e1fdad25",
+      "git_blob": "19f4762a2be2741155d6689e4a1d28bae1dbabfa",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "alpha": [
+        0,
+        254
+      ]
+    },
+    {
+      "path": "public/art/noticeboard-reference.webp",
+      "bytes": 265150,
+      "sha256": "868b63652a465b7602383d175b0e5cd403f9b6bd643a46f406504e6c0b6351ec",
+      "git_blob": "1f52c9b35b2cf07a24ab8fe5f47416e250f203a3",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "alpha": null
+    },
+    {
+      "path": "public/art/marker-reference.webp",
+      "bytes": 263094,
+      "sha256": "9b51311988c98c9daf95ebc3e92e292ab2b9c14421f5c30227a0adc4d41d70b2",
+      "git_blob": "d6a9cf66952d833e686b2ed108768d40aa1673ac",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "alpha": null
+    },
+    {
+      "path": "public/art/steward.webp",
+      "bytes": 173080,
+      "sha256": "743b55016ebe262cbdf9b45af653fa3ef64c21e319f73ed3965f2219e1cc5101",
+      "git_blob": "28e279c434ffc0b239cebb01abe53fe21eae96cd",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "alpha": [
+        0,
+        254
+      ]
+    },
+    {
+      "path": "assets/production-candidates/s01e01/steward-original.png",
+      "bytes": 1785329,
+      "sha256": "ec3e0b8fb68d9a65dfe761939b79a556c05b2dda4a378d79016f468084ef236b",
+      "git_blob": "261064d2067a2d6d6265c9544142c563e5d663cf",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "alpha": [
+        0,
+        254
+      ]
+    },
+    {
+      "path": "assets/production-candidates/s01e01/trio-sprites-original.png",
+      "bytes": 2318747,
+      "sha256": "8fe50b5529af80fec54c4b58b5621c6f1b2a909f5c5cadb469d64f1e89211193",
+      "git_blob": "bb0f5ccae0bfc5d331c7f2a9b8f06ac7fd00fc83",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "alpha": [
+        0,
+        254
+      ]
+    }
+  ]
+}

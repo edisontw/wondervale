@@ -16,7 +16,7 @@ for row in rows:
     assert row['exact_text'] == script_lines[row['line_id']], row['line_id']
 content = {
     'schemaVersion': 1, 'contentVersion': 's01e01-script-v1',
-    'buildId': '20261008-e01-slice1',
+    'buildId': '20261008-e01-slice2',
     'voiceSourceSha256': hashlib.sha256(source.read_bytes()).hexdigest(),
     'lines': {x['line_id']: x for x in rows},
     'parent': {
@@ -31,6 +31,7 @@ content = {
         'found': ['An old map behind the board.', 'A round fountain and big tree.', 'A clean old mark: RIVERSIDE →.'],
         'wonder': ['What does the empty shape mean?', 'Where did the old line go?']
     },
+    'ids': {'scenes': [f's01e01-sc0{i}' for i in range(7)], 'interactions': ['s01e01-int01-observe-before-guess', 's01e01-int02-map-to-place-and-marker'], 'parentCue': 's01e01-cue-01', 'events': ['s01e01_old_map_fragment_documented','s01e01_blank_place_symbol_seen','s01_missing_place_mystery_open','s01e01_old_route_matches_town_square','s01e01_town_square_old_marker_revealed','s01e01_old_route_points_toward_riverside','episode_completed:s01e01']},
     'mediaStatus': {'voices': 'browser_synthetic_prototype_only', 'music': 'not_produced', 'sprites': 'production_candidate'}
 }
 out = root / 'public/episode.json'
