@@ -133,6 +133,46 @@ try{
  assert.ok(Math.hypot(feet[0]-projected[0],feet[1]-projected[1])<1e-6);
  pass('FIELD-QA-04','Off-road pointer click projects Milo to the walking route.');
  await rc.close();
+
+ // Regression: Repeated clicks near fountain area move Milo without locking
+ const {c:fc1,p:fp1}=await context({stage:'square'});
+ await click(fp1,'Fountain');
+ const worldBox=await fp1.locator('#world').boundingBox();
+ for(let i=0;i<3;i++){
+  const before=await fp1.locator('.actor.milo').evaluate(el=>[parseFloat(el.style.left)/100,parseFloat(el.style.top)/100]);
+  await fp1.locator('#world').click({position:{x:worldBox.width*0.46,y:worldBox.height*0.64}});
+  const after=await fp1.locator('.actor.milo').evaluate(el=>[parseFloat(el.style.left)/100,parseFloat(el.style.top)/100]);
+  assert.ok(Math.hypot(after[0]-before[0],after[1]-before[1])>0.01,'Milo moved on repeated fountain click');
+ }
+ pass('FIELD-QA-05-BROWSER','Repeated clicks near the fountain area always move Milo without locking.');
+ await fc1.close();
+
+ // Regression: Movement after comparison UI is visible
+ const {c:cc1,p:cp1}=await context({stage:'observed'});
+ assert.equal(await cp1.getByRole('button',{name:'Compare the round mark'}).count(),1);
+ const worldBoxCp=await cp1.locator('#world').boundingBox();
+ await cp1.locator('#world').click({position:{x:worldBoxCp.width*0.73,y:worldBoxCp.height*0.56}});
+ const cpFeet=await cp1.locator('.actor.milo').evaluate(el=>[parseFloat(el.style.left)/100,parseFloat(el.style.top)/100]);
+ assert.ok(Math.hypot(cpFeet[0]-0.73,cpFeet[1]-0.56)<0.05);
+ assert.equal(await cp1.getByRole('button',{name:'Compare the round mark'}).count(),1);
+ await click(cp1,'Compare the tree mark');
+ assert.equal(await cp1.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-FINN-013');
+ await drain(cp1);
+ pass('FIELD-QA-06-BROWSER','Milo can move freely when comparison UI is visible, and compare buttons remain usable.');
+ await cc1.close();
+
+ // Regression: Actor, companion, label, and marker layers do not block world clicks
+ const {c:lc1,p:lp1}=await context({stage:'square'});
+ const miloBox=await lp1.locator('.actor.milo').boundingBox();
+ await lp1.mouse.click(miloBox.x+miloBox.width/2,miloBox.y+miloBox.height/2);
+ const miloAfter=await lp1.locator('.actor.milo').evaluate(el=>[parseFloat(el.style.left)/100,parseFloat(el.style.top)/100]);
+ assert.ok(miloAfter.every(Number.isFinite));
+ const actorPe=await lp1.locator('.actor.milo').evaluate(el=>getComputedStyle(el).pointerEvents);
+ const labelPe=await lp1.locator('.milo-label').evaluate(el=>getComputedStyle(el).pointerEvents);
+ assert.equal(actorPe,'none');
+ assert.equal(labelPe,'none');
+ pass('FIELD-QA-07-BROWSER','Decorative actor sprite and name label layers do not block world clicks.');
+ await lc1.close();
  const {c:mc,p:mp}=await context({mobile:true});await mp.screenshot({path:`${out}/mobile-opening.png`,fullPage:true});await finishPath(mp,{mobile:true,choice:'C',anchorOrder:['fountain','large_tree']});assert.ok(await mp.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));pass('UX-01/UX-02/UX-04/UX-05','Audio off, reduced motion, touch actions and explicit assisted travel complete E01; no horizontal page overflow.','Chromium emulated touch 390×844');await mc.close();
  const {c:pc,p:pp}=await context({mobile:true,stage:'map'});await tap(pp,'Look at the line');await drain(pp);await tap(pp,'Parent');assert.equal(await pp.getByText(content.parent.cue,{exact:true}).count(),1);await tap(pp,'Back to Child View');assert.equal(await pp.getByRole('button',{name:'Look at the line',exact:true}).getAttribute('aria-pressed'),'true');await tap(pp,'Parent');await tap(pp,'Back to Child View');pass('INT-20/UX-08','Repeated Parent/Child switches preserve inspection; cue remains single.','Chromium emulated touch 390×844');await pc.close();
  for(const [stage,id,expected] of [['square','SAV-01','012'],['map','SAV-02','014'],['observed','SAV-03','014'],['anchors','SAV-04','014'],['marker','SAV-05','016']]){const {c,p}=await context({stage});await p.reload({waitUntil:'networkidle'});assert.equal(await p.getByRole('dialog').count(),1);assert.equal(await p.locator('.dialog [data-line-id]').first().getAttribute('data-line-id'),`S01E01-NARRATOR-${expected}`);await click(p,'Continue the story');assert.equal(await p.getByRole('dialog').count(),0);pass(id,'Resume presents exactly one state-appropriate optional recap.');await c.close();}

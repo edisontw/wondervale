@@ -1,6 +1,6 @@
 export const VERSION = 's01e01-script-v1';
 export const KEY = 'wondervale-progress-v1';
-export const locations = {board:[.14,.63], fountain:[.45,.59], large_tree:[.73,.54], marker:[.92,.61], bench:[.78,.70]};
+export const locations = {board:[.14,.63], fountain:[.46,.64], large_tree:[.73,.56], marker:[.92,.61], bench:[.78,.70]};
 
 /**
  * Town Square's walkable route network. Coordinates are normalized against the
@@ -14,9 +14,9 @@ const roadNodes = [
  [.28,.66], // board approach
  locations.board,
  locations.fountain,
- [.60,.58], // path past the fountain
+ [.60,.63], // path past the fountain
  locations.large_tree,
- [.83,.59], // exit path
+ [.83,.60], // exit path
  locations.marker,
  locations.bench
 ];
@@ -34,6 +34,21 @@ function roadProjection(x,y){
 }
 export const constrainToRoad=(x,y)=>roadProjection(x,y).point;
 const roadDistance=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+export function walkableTarget(current,x,y){
+ if(!Number.isFinite(x)||!Number.isFinite(y)){x=current?current[0]:roadNodes[0][0];y=current?current[1]:roadNodes[0][1];}
+ const projected=constrainToRoad(x,y);
+ if(!current)return projected;
+ if(roadDistance(current,projected)>=0.02)return projected;
+ let best=null;
+ roadNodes.forEach(node=>{
+  const dFromCurrent=roadDistance(current,node);
+  if(dFromCurrent>=0.03){
+   const dFromClick=Math.hypot(x-node[0],y-node[1]);
+   if(!best||dFromClick<best.dist)best={point:node,dist:dFromClick};
+  }
+ });
+ return best?best.point:projected;
+}
 export function roadRoute(from,to){
  const a=roadProjection(from[0],from[1]),b=roadProjection(to[0],to[1]);
  const n=roadNodes.length,source=n,target=n+1;
@@ -123,7 +138,7 @@ export function dispatch(state,action) {
  if(action.type==='replayLine') {return s;} // presentation only, handled by audio adapter
  if(action.type==='move') {
   if(!['square_explore','square_compare','marker_search'].includes(s.phase))return s;
-  s.position=action.target?locations[action.target]||s.position:constrainToRoad(action.x,action.y);
+  s.position=action.target?locations[action.target]||s.position:walkableTarget(s.position,action.x,action.y);
   s.location=Object.keys(locations).find(x=>near(s,x))||null;return s;
  }
  if(s.queue.length)return s;

@@ -36,7 +36,7 @@ test('FIELD-QA-01: free travel is constrained to walkable Square routes',()=>{
  const probes=[[0,0],[.01,.99],[.5,.01],[.65,.83],[.95,.95],[.31,.7]];
  for(const [x,y] of probes){
   s=dispatch(s,{type:'move',x,y});
-  assert.ok(Math.hypot(...s.position.map((v,i)=>v-constrainToRoad(x,y)[i]))<1e-8);
+  assert.ok(Math.hypot(...s.position.map((v,i)=>v-constrainToRoad(...s.position)[i]))<1e-8);
   assert.ok(s.position.every(Number.isFinite));
  }
  for(const target of Object.keys(locations)){
@@ -54,4 +54,26 @@ test('FIELD-QA-02: rendered character route keeps waypoints on the path',()=>{
   assert.deepEqual(route.at(-1),to);
   for(const p of route)assert.ok(Math.hypot(...p.map((v,i)=>v-constrainToRoad(...p)[i]))<1e-8);
  }
+});
+test('FIELD-QA-05: repeated clicks near fountain always produce valid movement without locking',()=>{
+ let s=go(drain(dispatch(fresh(),{type:'begin'})),'fountain');
+ assert.deepEqual(s.position,locations.fountain);
+ const fountainClicks=[[.46,.64],[.45,.63],[.46,.62],[.47,.65],[.44,.60],[.46,.64]];
+ for(const [x,y] of fountainClicks){
+  const prev=s.position;
+  s=dispatch(s,{type:'move',x,y});
+  assert.ok(Math.hypot(...s.position.map((v,i)=>v-constrainToRoad(...s.position)[i]))<1e-8);
+  assert.ok(Math.hypot(s.position[0]-prev[0],s.position[1]-prev[1])>0.02,'Milo moved from previous position');
+ }
+});
+test('FIELD-QA-06: comparison phase UI permits movement away from landmarks',()=>{
+ let s=observe();
+ assert.equal(s.phase,'square_compare');
+ s=go(s,'fountain');
+ assert.deepEqual(s.position,locations.fountain);
+ s=dispatch(s,{type:'move',x:.65,y:.62});
+ assert.notDeepEqual(s.position,locations.fountain);
+ assert.ok(Math.hypot(...s.position.map((v,i)=>v-constrainToRoad(...s.position)[i]))<1e-8);
+ s=dispatch(s,{type:'compare',symbol:'fountain'});
+ assert.deepEqual(s.anchors,[]);
 });
