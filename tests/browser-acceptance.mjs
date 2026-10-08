@@ -168,12 +168,13 @@ try{
 
  // Regression: Movement after comparison UI is visible
  const {c:cc1,p:cp1}=await context({stage:'observed'});
- assert.equal(await cp1.getByRole('button',{name:'Compare the round mark'}).count(),1);
+ assert.equal(await cp1.getByRole('button',{name:'Compare the round mark'}).count(),0);
  const worldBoxCp=await cp1.locator('#world').boundingBox();
  await cp1.locator('#world').click({position:{x:worldBoxCp.width*0.73,y:worldBoxCp.height*0.56}});
  const cpFeet=await cp1.locator('.actor.milo').evaluate(el=>[parseFloat(el.style.left)/100,parseFloat(el.style.top)/100]);
  assert.ok(Math.hypot(cpFeet[0]-0.73,cpFeet[1]-0.56)<0.05);
- assert.equal(await cp1.getByRole('button',{name:'Compare the round mark'}).count(),1);
+ assert.equal(await cp1.getByRole('button',{name:'Compare the round mark'}).count(),0);
+ assert.equal(await cp1.getByRole('button',{name:'Compare the tree mark'}).count(),1);
  await click(cp1,'Compare the tree mark');
  assert.equal(await cp1.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-FINN-013');
  await drain(cp1);
