@@ -134,7 +134,7 @@ E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTIO
 
 **Full-resolution transfer:** original-byte access, bounded byte-to-connector transport, exact Git blob/SHA-256/dimensions/PNG CRC and CI checkout validation succeeded. See [intake checkpoint](WORK_CHECKPOINT_2026-10-08.md) and production integrity report; no regeneration needed for usable imported Square art.
 
-**Playable assembly:** SC00–SC06, parent/child views, deliberate map/place comparison, gated editable marker, atomic save/ledger, historical replay, derived world state, Chronicle and offline-after-install are implemented. Runtime-only release verified. MN4 deployment is not claimed; [next preview procedure](MN4_E01_PREVIEW.md). Final voices/music/SFX, richer poses, source rights provenance and real-device/family acceptance remain open.
+**Playable assembly:** SC00–SC06, parent/child views, deliberate map/place comparison, gated editable marker, atomic save/ledger, historical replay, derived world state, Chronicle and offline-after-install are implemented. Runtime-only release verified. MN4 HTTPS preview deployment is reported and documented ([current deployment record](MN4_E01_PREVIEW.md)); the first live-play field QA reset fix reached build `20261008-e01-reset1` (GitHub `main` `22f611493187d8a5117a3b40b70ea1fb3aecf83c`). Physical-device and family acceptance still remain open. Final voices/music/SFX, richer poses, source rights provenance and real-device/family acceptance remain open.
 
 Only E01 is taken through the whole production pipeline first.
 
