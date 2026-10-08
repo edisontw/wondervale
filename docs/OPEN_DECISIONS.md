@@ -192,7 +192,7 @@ Locked by this production-preparation layer:
 - **image-generation gate:** choose and approve one visual style system, trio references, Town Square layout and stable unnamed mystery-symbol reference before any final art;
 - no assumption of generated music/SFX/voice, working website, or runtime PASS.
 
-Still open: chosen cross-episode visual style, actual character/location references, physical layout/compositions, symbol depiction (its narrative meaning stays unknown), final media files and voice casting, runtime technical details, and executed acceptance/family test results.
+Updated by decision #12: cross-episode visual grammar and Square topology/symbol **design** are now selected. Still open: actual character/location reference media, approved rendered symbol, final composition/camera, production assets, voice casting, runtime details, and executed acceptance/family tests.
 
 ### 12. Visual Mini-Pass — selected style direction v1
 

@@ -137,7 +137,7 @@ prompts/
       60-qa-review.md
 ```
 
-The first real derived pack is [`prompts/season-01/e01/00-README.md`](../prompts/season-01/e01/00-README.md). It contains task-specific source contracts rather than duplicated giant context prompts, a requirement-only asset register and an exact 121-line **voice text** TSV (not audio). Visual generation remains blocked until a cross-episode style and references are approved. The exact paths can change after E01 validates the workflow.
+The first real derived pack is [`prompts/season-01/e01/00-README.md`](../prompts/season-01/e01/00-README.md). It contains task-specific source contracts rather than duplicated giant context prompts, a requirement-only asset register and an exact 121-line **voice text** TSV (not audio). Visual **grammar** is now locked as `wondervale-illustrated-living-diorama@1` in [`VISUAL_STYLE_BIBLE.md`](VISUAL_STYLE_BIBLE.md), with E01 layout/glyph design in the [reference contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md). A **small reference-candidate set** is allowed next; full scene/pose asset generation remains blocked until actual reference images are approved. The exact paths can change after E01 validates the workflow.
 
 ## Story/script prompt
 
