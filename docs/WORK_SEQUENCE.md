@@ -132,7 +132,9 @@ E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTIO
 
 **S01E01 visual mini-pass:** [Visual Style Bible v1](VISUAL_STYLE_BIBLE.md) and [E01 Visual Reference Contract](../content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md) — visual direction and topology/symbol design **locked**, actual reference images **not yet made/approved**.
 
-**Next focused task: S01E01 visual reference set** — generate/review a small, coherent trio + Square + map/plate reference set; only then produce batch images.
+**Reference-generation/upload smoke test:** [test record](../experiments/s01e01/2026-10-08-image-upload/README.md); Canva/ChatGPT generation succeeded, GitHub PNG blob upload and base64 readback/CRC passed. **Full-resolution direct transfer remains open**: see [upload runbook](IMAGE_ASSET_UPLOAD_WORKFLOW.md).
+
+**Next focused task: S01E01 visual reference set** — review/download full-resolution trio candidate first, upload via tested bytes path or manual branch PR, then proceed to Square + map/plate references. Bulk scene images remain blocked.
 
 Only E01 is taken through the whole production pipeline first.
 

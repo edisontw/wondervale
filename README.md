@@ -76,6 +76,7 @@ See [Work Sequence](docs/WORK_SEQUENCE.md).
 - [S01E01 Interaction Test Matrix](content/season-01/s01e01/INTERACTION_TEST_MATRIX.md)
 - [S01E01 Prompt Pack](prompts/season-01/e01/00-README.md)
 - [Visual Style Bible](docs/VISUAL_STYLE_BIBLE.md)
+- [Image Generation & GitHub Upload Workflow](docs/IMAGE_ASSET_UPLOAD_WORKFLOW.md)
 - [Visual Style Decision](docs/VISUAL_STYLE_DECISION.md)
 - [S01E01 Visual Reference Contract](content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md)
 - [Parent Guide System](docs/PARENT_GUIDE_SYSTEM.md)
