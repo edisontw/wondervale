@@ -1,39 +1,22 @@
-# S01E01 — Reference Candidate Intake
+# S01E01 — Candidate Images (Draft Review Area)
 
-**Branch:** `art/s01e01-reference-candidates`  
-**Status:** Awaiting original full-resolution candidate upload and visual review.  
-**Visual style:** `wondervale-illustrated-living-diorama@1` (style grammar approved; actual character design unapproved).  
-**Current target:** `ref-wv-trio-neutral-v1` — shared Milo / Nia / Finn identity sheet.
+This branch holds **unapproved** visual references, separate from game-ready asset paths. The original PNG upload succeeded and was verified on GitHub.
 
-This is the **candidate area**, not the approved production asset folder. Keeping candidates in a draft PR prevents unreviewed character faces/wardrobes from becoming canon.
+## Current first candidate
 
-## One action to complete the upload
+- [Full-resolution trio reference sheet](s01e01-trio-neutral-candidate-01.png), **1448 × 1086 PNG**, 2,438,208 bytes.
+- [Compact review preview](.review/trio-neutral-preview-512.jpg), auto-generated **640 × 480 JPEG**.
+- [Verified source metadata (JSON)](.review/trio-neutral-metadata.json).
+- [Assessment and decision tracker](TRIO_CANDIDATE_01.md).
 
-1. Download the **original resolution** of the Canva three-character image, *not* its 200-pixel thumbnail. Its recorded generated dimensions are 1536 × 1024. If the actual image is disappointing, instead generate and download a replacement with [Reference A prompt](../../../prompts/season-01/e01/26-trio-reference-manual.md).
-2. On GitHub **switch to this branch**, open this directory and select **Add file → Upload files**.
-3. Upload the original image as `s01e01-trio-neutral-candidate-01.jpg` or `.png` **according to the file's real format**. Do not simply rename a JPEG as PNG. Commit to `art/s01e01-reference-candidates`, not `main`.
-4. The draft PR will automatically include the added image. Request review in ChatGPT after committing it; verify actual SHA, dimensions and contents and then decide `approve`, `revise` or `reject`.
+GitHub Actions preview validator: [run #37731077246](https://github.com/edisontw/wondervale/actions/runs/37731077246) **SUCCESS**. It verified image signature/decode, dimensions, committed blob hash and SHA256, and generated an accessible preview **without altering the original PNG**.
 
-**Never substitute** the old 48×30 smoke-test PNG, the old Riverside-revealing scene illustration, a 200×133 Canva thumbnail, or an expiring CDN link. All four are **not usable** as the authoritative trio sheet.
+**Reviewer recommendation:** character sheet appears coherent and is worth retaining as a **candidate**. User appearance sign-off is outstanding; exact source prompt/generator/right-to-use is not yet documented. Do not call any art here `reference_approved`.
 
-## Grounded current source candidates
+**Next decision:** owner accepts this Milo/Nia/Finn identity or requests specific changes. Upon approval, record in E01 reference contract and asset manifest, then move to the Town Square master reference in the prescribed sequence.
 
-- **Canva image generated 2026-10-08**, media ID `MAHXYFZZA0A`, recorded `1536×1024`. This is a **candidate only**; content has not been viewed at full resolution or visually accepted. Open the saved media within the connected Canva account to download the original.
-- **Prior ChatGPT wide scene image** is **REJECT for use as E01 Reference A**: includes premature `RIVERSIDE` signage and visual direction/props that conflict with the fixed Reference A goal. It is a scene illustration, *not a neutral trio model sheet*.
-- **GitHub binary smoke-test PNGs** are verified transport tests only.
+## Technical workflow
 
-## Acceptance gate, after file is committed
+The included `.github/workflows/wondervale-reference-preview.yml` and `scripts/make_art_preview.py` constitute a tested **GitHub-hosted readback bridge** for files over the connector's ~1MB inline-content limit. Original image is uploaded once on GitHub, GitHub Actions generates a small committed preview plus dimensions/checksums, and the GitHub connector can fetch and render that preview for visual QA. Reuse carefully for further images; only reviewed references become approved.
 
-1. Original resolution/actual encoding and committed Git blob verified.
-2. Milo, Nia, Finn are three separately readable children ~8, ~8, ~9, same style/scale with full bodies; no scene, no text, no final world facts.
-3. Characters distinguishable in grayscale and reduced phone-size silhouette views.
-4. Milo as active protagonist; Nia thoughtful observation; Finn practical playful challenge; no huge goggles/tool stereotype.
-5. Illustrated 2.5D painterly storybook grammar, not generic glossy 3D film still; usable as source for front/side/3/4 reference sheets.
-6. Source, generation model if available, tool, date, prompt/version, review status and license/usage notes recorded.
-7. Only after actual character reference approval may E01 Square and further scene/pose references proceed.
-
-Review authority: `docs/CORE_TRIO.md`, `docs/VISUAL_STYLE_BIBLE.md`, `content/season-01/s01e01/VISUAL_REFERENCE_CONTRACT.md`, `prompts/season-01/e01/25-visual-reference-set.md`. This folder and PR do **not** change the character canon or open E01 bulk production.
-
-### The remaining limitation
-
-The connected GitHub tool accepts real binary Base64 blobs but cannot directly read `/mnt/data` files in the separate image-generation/container runtime. Full-resolution generation-to-GitHub transport has **not** yet been verified automatically. For this one reference image, browser/manual upload on the prepared branch is the safest available route.
+This is **not** the old 48×30 upload smoke test. Do not use a technical thumbnail or combined reference sheet as game-ready sprite art.

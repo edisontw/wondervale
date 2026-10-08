@@ -36,10 +36,17 @@ Keep **same** Town Square layout and trio silhouettes across storybook, living s
 
 | Reference ID | Dependency | Reviewer checks | Status |
 |---|---|---|---|
-| `ref-wv-trio-neutral-v1` | style v1, Core Trio | small silhouettes, identities, common scale | pending candidate |
+| `ref-wv-trio-neutral-v1` | style v1, Core Trio | small silhouettes, identities, common scale | **candidate uploaded; PNG verified; pending owner visual approval/provenance** |
 | `ref-wv-town-square-v1` | style, E01 topology | fountain/tree/board/exit layout, mobile navigation | pending candidate |
 | `ref-wv-map-symbol-v1` | `s01-missing-place-glyph-v1` geometry | non-color-dependent, consistent, non-spoiling | pending candidate |
 | `ref-wv-board-plate-v1` | Square layout, same map ref | old paper intact, dirty state hides RIVERSIDE, clean has editable overlay | pending candidate |
 | `ref-wv-chronicle-v1` | first four refs accepted | reuse before/after evidence, no new canon | pending candidate |
 
 See [Reference Candidate Prompt](25-visual-reference-set.md). These entries are **not evidence that files exist**.
+
+## Reference A actual candidate review
+
+- [Reference 01 source & verification](../../../assets/reference-candidates/s01e01/TRIO_CANDIDATE_01.md)
+- 1448×1086 original PNG, Git blob `aeb4fcf6cef5ca354bd3be495ea1226081f26604`, GitHub Actions PNG validation PASS.
+- Actual character reference **candidate** reviewed from GitHub-generated 640×480 preview; recommended for user consideration, **not yet identity/reference locked**.
+- Do not count the original reference sheet as a set of transparent sprites. Side/back/neutral model directions still require separate production planning.
