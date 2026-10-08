@@ -1,6 +1,6 @@
 # S01E01 Interaction Test Matrix
 
-**Status:** design-reviewed test plan only; **not executed**.  
+**Status:** actual core/browser execution has begun; see [dated evidence](../../../docs/E01_RUNTIME_QA_2026-10-08.md). UX-11/UX-12 remain human acceptance pending.  
 **Source:** [INTERACTION_SPEC.md](INTERACTION_SPEC.md), [DETAILED_SCRIPT.md](DETAILED_SCRIPT.md), and [EPISODE_PRODUCTION_BRIEF.md](EPISODE_PRODUCTION_BRIEF.md).
 
 ## Test execution rule

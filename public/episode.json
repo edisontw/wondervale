@@ -1,0 +1,1146 @@
+{
+  "schemaVersion": 1,
+  "contentVersion": "s01e01-script-v1",
+  "buildId": "20261008-e01-slice4",
+  "voiceSourceSha256": "c676223dd94fd35ec1f07f51f87511fa4663e332eb46c87258c1f70e7196eb8c",
+  "lines": {
+    "S01E01-NARRATOR-001": {
+      "line_id": "S01E01-NARRATOR-001",
+      "scene_id": "s01e01-sc01",
+      "speaker": "NARRATOR",
+      "exact_text": "The fountain splashes in Town Square.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-002": {
+      "line_id": "S01E01-NARRATOR-002",
+      "scene_id": "s01e01-sc01",
+      "speaker": "NARRATOR",
+      "exact_text": "A big tree gives cool shade.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-003": {
+      "line_id": "S01E01-NARRATOR-003",
+      "scene_id": "s01e01-sc01",
+      "speaker": "NARRATOR",
+      "exact_text": "But one paper will not stay still.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-001": {
+      "line_id": "S01E01-MILO-001",
+      "scene_id": "s01e01-sc01",
+      "speaker": "MILO",
+      "exact_text": "It's waving at us!",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-001": {
+      "line_id": "S01E01-FINN-001",
+      "scene_id": "s01e01-sc01",
+      "speaker": "FINN",
+      "exact_text": "That paper is very friendly.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-001": {
+      "line_id": "S01E01-NIA-001",
+      "scene_id": "s01e01-sc01",
+      "speaker": "NIA",
+      "exact_text": "Its corner is loose.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-STEWARD-001": {
+      "line_id": "S01E01-STEWARD-001",
+      "scene_id": "s01e01-sc01",
+      "speaker": "STEWARD",
+      "exact_text": "Oh! Not again.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "kind practical non-expository",
+      "pronunciation_note": "none"
+    },
+    "S01E01-STEWARD-002": {
+      "line_id": "S01E01-STEWARD-002",
+      "scene_id": "s01e01-sc01",
+      "speaker": "STEWARD",
+      "exact_text": "I can fix this corner.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "kind practical non-expository",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-002": {
+      "line_id": "S01E01-MILO-002",
+      "scene_id": "s01e01-sc01",
+      "speaker": "MILO",
+      "exact_text": "Can we help?",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-STEWARD-003": {
+      "line_id": "S01E01-STEWARD-003",
+      "scene_id": "s01e01-sc01",
+      "speaker": "STEWARD",
+      "exact_text": "Yes. Please hold the paper.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "kind practical non-expository",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-004": {
+      "line_id": "S01E01-NARRATOR-004",
+      "scene_id": "s01e01-sc01",
+      "speaker": "NARRATOR",
+      "exact_text": "Milo walks into the square.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-003": {
+      "line_id": "S01E01-MILO-003",
+      "scene_id": "s01e01-sc02",
+      "speaker": "MILO",
+      "exact_text": "I love that splash.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-002": {
+      "line_id": "S01E01-FINN-002",
+      "scene_id": "s01e01-sc02",
+      "speaker": "FINN",
+      "exact_text": "I can hear it from here.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-002": {
+      "line_id": "S01E01-NIA-002",
+      "scene_id": "s01e01-sc02",
+      "speaker": "NIA",
+      "exact_text": "This tree gives us shade.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-004": {
+      "line_id": "S01E01-MILO-004",
+      "scene_id": "s01e01-sc02",
+      "speaker": "MILO",
+      "exact_text": "And a good place to sit.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-STEWARD-004": {
+      "line_id": "S01E01-STEWARD-004",
+      "scene_id": "s01e01-sc02",
+      "speaker": "STEWARD",
+      "exact_text": "Hold here, please.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "kind practical non-expository",
+      "pronunciation_note": "none"
+    },
+    "S01E01-UI-001": {
+      "line_id": "S01E01-UI-001",
+      "scene_id": "s01e01-sc02",
+      "speaker": "UI",
+      "exact_text": "Help hold the paper.",
+      "playback_condition": "essential_ui_text_optional_readaloud",
+      "delivery_direction": "neutral clear optional",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-005": {
+      "line_id": "S01E01-MILO-005",
+      "scene_id": "s01e01-sc02",
+      "speaker": "MILO",
+      "exact_text": "Got it!",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-STEWARD-005": {
+      "line_id": "S01E01-STEWARD-005",
+      "scene_id": "s01e01-sc02",
+      "speaker": "STEWARD",
+      "exact_text": "Thanks. One little clip…",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "kind practical non-expository",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-003": {
+      "line_id": "S01E01-FINN-003",
+      "scene_id": "s01e01-sc02",
+      "speaker": "FINN",
+      "exact_text": "Wait. There's paper behind it.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-003": {
+      "line_id": "S01E01-NIA-003",
+      "scene_id": "s01e01-sc02",
+      "speaker": "NIA",
+      "exact_text": "I see another map.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-006": {
+      "line_id": "S01E01-MILO-006",
+      "scene_id": "s01e01-sc02",
+      "speaker": "MILO",
+      "exact_text": "Behind this one?",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-STEWARD-006": {
+      "line_id": "S01E01-STEWARD-006",
+      "scene_id": "s01e01-sc02",
+      "speaker": "STEWARD",
+      "exact_text": "I didn't know it was there.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "kind practical non-expository",
+      "pronunciation_note": "none"
+    },
+    "S01E01-STEWARD-007": {
+      "line_id": "S01E01-STEWARD-007",
+      "scene_id": "s01e01-sc02",
+      "speaker": "STEWARD",
+      "exact_text": "Please don't pull the old paper.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "kind practical non-expository",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-004": {
+      "line_id": "S01E01-NIA-004",
+      "scene_id": "s01e01-sc02",
+      "speaker": "NIA",
+      "exact_text": "We can draw what we see.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-007": {
+      "line_id": "S01E01-MILO-007",
+      "scene_id": "s01e01-sc02",
+      "speaker": "MILO",
+      "exact_text": "Now I'm really curious.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-005": {
+      "line_id": "S01E01-NIA-005",
+      "scene_id": "s01e01-sc02",
+      "speaker": "NIA",
+      "exact_text": "The old map is still here.",
+      "playback_condition": "repeat_on_request",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-008": {
+      "line_id": "S01E01-MILO-008",
+      "scene_id": "s01e01-sc03",
+      "speaker": "MILO",
+      "exact_text": "An old map!",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-009": {
+      "line_id": "S01E01-MILO-009",
+      "scene_id": "s01e01-sc03",
+      "speaker": "MILO",
+      "exact_text": "Where does it go?",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-006": {
+      "line_id": "S01E01-NIA-006",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "Let's see what's really there.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-UI-002": {
+      "line_id": "S01E01-UI-002",
+      "scene_id": "s01e01-sc03",
+      "speaker": "UI",
+      "exact_text": "Look closely at the old map.",
+      "playback_condition": "essential_ui_text_optional_readaloud",
+      "delivery_direction": "neutral clear optional",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-010": {
+      "line_id": "S01E01-MILO-010",
+      "scene_id": "s01e01-sc03",
+      "speaker": "MILO",
+      "exact_text": "I see a long line.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-007": {
+      "line_id": "S01E01-NIA-007",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "It goes across the map.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-008": {
+      "line_id": "S01E01-NIA-008",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "I'll draw that line.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-004": {
+      "line_id": "S01E01-FINN-004",
+      "scene_id": "s01e01-sc03",
+      "speaker": "FINN",
+      "exact_text": "What's this shape?",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-009": {
+      "line_id": "S01E01-NIA-009",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "It has no name here.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-011": {
+      "line_id": "S01E01-MILO-011",
+      "scene_id": "s01e01-sc03",
+      "speaker": "MILO",
+      "exact_text": "Maybe it's something special.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-005": {
+      "line_id": "S01E01-FINN-005",
+      "scene_id": "s01e01-sc03",
+      "speaker": "FINN",
+      "exact_text": "Look at these little holes.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-006": {
+      "line_id": "S01E01-FINN-006",
+      "scene_id": "s01e01-sc03",
+      "speaker": "FINN",
+      "exact_text": "They're under the new paper.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-010": {
+      "line_id": "S01E01-NIA-010",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "This paper looks much older.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-012": {
+      "line_id": "S01E01-MILO-012",
+      "scene_id": "s01e01-sc03",
+      "speaker": "MILO",
+      "exact_text": "I have an idea.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-011": {
+      "line_id": "S01E01-NIA-011",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "Tell us your guess.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-013": {
+      "line_id": "S01E01-MILO-013",
+      "scene_id": "s01e01-sc03",
+      "speaker": "MILO",
+      "exact_text": "Maybe it's a treasure map!",
+      "playback_condition": "guess_A",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-007": {
+      "line_id": "S01E01-FINN-007",
+      "scene_id": "s01e01-sc03",
+      "speaker": "FINN",
+      "exact_text": "Maybe. Let's check first.",
+      "playback_condition": "guess_A",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-014": {
+      "line_id": "S01E01-MILO-014",
+      "scene_id": "s01e01-sc03",
+      "speaker": "MILO",
+      "exact_text": "Maybe it's our town.",
+      "playback_condition": "guess_B",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-012": {
+      "line_id": "S01E01-NIA-012",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "We can look outside.",
+      "playback_condition": "guess_B",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-015": {
+      "line_id": "S01E01-MILO-015",
+      "scene_id": "s01e01-sc03",
+      "speaker": "MILO",
+      "exact_text": "I'm not sure yet.",
+      "playback_condition": "guess_C",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-008": {
+      "line_id": "S01E01-FINN-008",
+      "scene_id": "s01e01-sc03",
+      "speaker": "FINN",
+      "exact_text": "Good. We can check.",
+      "playback_condition": "guess_C",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-009": {
+      "line_id": "S01E01-FINN-009",
+      "scene_id": "s01e01-sc03",
+      "speaker": "FINN",
+      "exact_text": "These holes are under the paper.",
+      "playback_condition": "only_if_layer_holes_uninspected",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-013": {
+      "line_id": "S01E01-NIA-013",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "So this map was here before.",
+      "playback_condition": "only_if_layer_holes_uninspected",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-014": {
+      "line_id": "S01E01-NIA-014",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "See? We have a line.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-015": {
+      "line_id": "S01E01-NIA-015",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "And a shape with no name.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-010": {
+      "line_id": "S01E01-FINN-010",
+      "scene_id": "s01e01-sc03",
+      "speaker": "FINN",
+      "exact_text": "But is this our square?",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-016": {
+      "line_id": "S01E01-MILO-016",
+      "scene_id": "s01e01-sc03",
+      "speaker": "MILO",
+      "exact_text": "Let's find out!",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-016": {
+      "line_id": "S01E01-NIA-016",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "We can look again.",
+      "playback_condition": "repeat_on_request",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-UI-003": {
+      "line_id": "S01E01-UI-003",
+      "scene_id": "s01e01-sc03",
+      "speaker": "UI",
+      "exact_text": "Look for lines and shapes.",
+      "playback_condition": "help_ui_text_optional_readaloud",
+      "delivery_direction": "neutral clear optional",
+      "pronunciation_note": "none"
+    },
+    "S01E01-UI-004": {
+      "line_id": "S01E01-UI-004",
+      "scene_id": "s01e01-sc03",
+      "speaker": "UI",
+      "exact_text": "Try another part of the map.",
+      "playback_condition": "help_ui_text_optional_readaloud",
+      "delivery_direction": "neutral clear optional",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-017": {
+      "line_id": "S01E01-NIA-017",
+      "scene_id": "s01e01-sc03",
+      "speaker": "NIA",
+      "exact_text": "What can we see right here?",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-011": {
+      "line_id": "S01E01-FINN-011",
+      "scene_id": "s01e01-sc04",
+      "speaker": "FINN",
+      "exact_text": "There's a round mark here.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-018": {
+      "line_id": "S01E01-NIA-018",
+      "scene_id": "s01e01-sc04",
+      "speaker": "NIA",
+      "exact_text": "And look: a big tree.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-017": {
+      "line_id": "S01E01-MILO-017",
+      "scene_id": "s01e01-sc04",
+      "speaker": "MILO",
+      "exact_text": "We have both!",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-012": {
+      "line_id": "S01E01-FINN-012",
+      "scene_id": "s01e01-sc04",
+      "speaker": "FINN",
+      "exact_text": "Let's check the real places.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-UI-005": {
+      "line_id": "S01E01-UI-005",
+      "scene_id": "s01e01-sc04",
+      "speaker": "UI",
+      "exact_text": "Find both places in the square.",
+      "playback_condition": "essential_ui_text_optional_readaloud",
+      "delivery_direction": "neutral clear optional",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-018": {
+      "line_id": "S01E01-MILO-018",
+      "scene_id": "s01e01-sc04",
+      "speaker": "MILO",
+      "exact_text": "This fountain is round.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-019": {
+      "line_id": "S01E01-NIA-019",
+      "scene_id": "s01e01-sc04",
+      "speaker": "NIA",
+      "exact_text": "The round mark fits here.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-013": {
+      "line_id": "S01E01-FINN-013",
+      "scene_id": "s01e01-sc04",
+      "speaker": "FINN",
+      "exact_text": "That's one very big tree.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-020": {
+      "line_id": "S01E01-NIA-020",
+      "scene_id": "s01e01-sc04",
+      "speaker": "NIA",
+      "exact_text": "The tree mark fits here.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-019": {
+      "line_id": "S01E01-MILO-019",
+      "scene_id": "s01e01-sc04",
+      "speaker": "MILO",
+      "exact_text": "One place fits!",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-021": {
+      "line_id": "S01E01-NIA-021",
+      "scene_id": "s01e01-sc04",
+      "speaker": "NIA",
+      "exact_text": "Let's check the other one.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-014": {
+      "line_id": "S01E01-FINN-014",
+      "scene_id": "s01e01-sc04",
+      "speaker": "FINN",
+      "exact_text": "Hmm. That shape is different.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-020": {
+      "line_id": "S01E01-MILO-020",
+      "scene_id": "s01e01-sc04",
+      "speaker": "MILO",
+      "exact_text": "Let's keep looking.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-022": {
+      "line_id": "S01E01-NIA-022",
+      "scene_id": "s01e01-sc04",
+      "speaker": "NIA",
+      "exact_text": "Both marks fit our square.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-015": {
+      "line_id": "S01E01-FINN-015",
+      "scene_id": "s01e01-sc04",
+      "speaker": "FINN",
+      "exact_text": "So this map shows this place.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-021": {
+      "line_id": "S01E01-MILO-021",
+      "scene_id": "s01e01-sc04",
+      "speaker": "MILO",
+      "exact_text": "But there's another line.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-023": {
+      "line_id": "S01E01-NIA-023",
+      "scene_id": "s01e01-sc04",
+      "speaker": "NIA",
+      "exact_text": "It goes past the tree.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-022": {
+      "line_id": "S01E01-MILO-022",
+      "scene_id": "s01e01-sc04",
+      "speaker": "MILO",
+      "exact_text": "Then let's follow it!",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-UI-006": {
+      "line_id": "S01E01-UI-006",
+      "scene_id": "s01e01-sc04",
+      "speaker": "UI",
+      "exact_text": "Look at the two map shapes.",
+      "playback_condition": "help_ui_text_optional_readaloud",
+      "delivery_direction": "neutral clear optional",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-024": {
+      "line_id": "S01E01-NIA-024",
+      "scene_id": "s01e01-sc04",
+      "speaker": "NIA",
+      "exact_text": "Find the round fountain first.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-UI-007": {
+      "line_id": "S01E01-UI-007",
+      "scene_id": "s01e01-sc04",
+      "speaker": "UI",
+      "exact_text": "You can visit either place first.",
+      "playback_condition": "help_ui_text_optional_readaloud",
+      "delivery_direction": "neutral clear optional",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-016": {
+      "line_id": "S01E01-FINN-016",
+      "scene_id": "s01e01-sc05",
+      "speaker": "FINN",
+      "exact_text": "The line goes this way.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-023": {
+      "line_id": "S01E01-MILO-023",
+      "scene_id": "s01e01-sc05",
+      "speaker": "MILO",
+      "exact_text": "Near the edge of the square?",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-025": {
+      "line_id": "S01E01-NIA-025",
+      "scene_id": "s01e01-sc05",
+      "speaker": "NIA",
+      "exact_text": "There's something on that post.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-024": {
+      "line_id": "S01E01-MILO-024",
+      "scene_id": "s01e01-sc05",
+      "speaker": "MILO",
+      "exact_text": "It's covered in dirt.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-STEWARD-008": {
+      "line_id": "S01E01-STEWARD-008",
+      "scene_id": "s01e01-sc05",
+      "speaker": "STEWARD",
+      "exact_text": "That old plate is safe to clean.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "kind practical non-expository",
+      "pronunciation_note": "none"
+    },
+    "S01E01-STEWARD-009": {
+      "line_id": "S01E01-STEWARD-009",
+      "scene_id": "s01e01-sc05",
+      "speaker": "STEWARD",
+      "exact_text": "I've got a soft cloth.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "kind practical non-expository",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-017": {
+      "line_id": "S01E01-FINN-017",
+      "scene_id": "s01e01-sc05",
+      "speaker": "FINN",
+      "exact_text": "Those holes look familiar.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-018": {
+      "line_id": "S01E01-FINN-018",
+      "scene_id": "s01e01-sc05",
+      "speaker": "FINN",
+      "exact_text": "Like the ones behind the board.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-025": {
+      "line_id": "S01E01-MILO-025",
+      "scene_id": "s01e01-sc05",
+      "speaker": "MILO",
+      "exact_text": "Let's see what it says.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-UI-008": {
+      "line_id": "S01E01-UI-008",
+      "scene_id": "s01e01-sc05",
+      "speaker": "UI",
+      "exact_text": "Clean the old plate.",
+      "playback_condition": "essential_ui_text_optional_readaloud",
+      "delivery_direction": "neutral clear optional",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-005": {
+      "line_id": "S01E01-NARRATOR-005",
+      "scene_id": "s01e01-sc05",
+      "speaker": "NARRATOR",
+      "exact_text": "A little dirt comes away.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-006": {
+      "line_id": "S01E01-NARRATOR-006",
+      "scene_id": "s01e01-sc05",
+      "speaker": "NARRATOR",
+      "exact_text": "A mark appears under it.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-026": {
+      "line_id": "S01E01-MILO-026",
+      "scene_id": "s01e01-sc05",
+      "speaker": "MILO",
+      "exact_text": "Riverside!",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "review Riverside consistency"
+    },
+    "S01E01-NIA-026": {
+      "line_id": "S01E01-NIA-026",
+      "scene_id": "s01e01-sc05",
+      "speaker": "NIA",
+      "exact_text": "So this way led there.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-019": {
+      "line_id": "S01E01-FINN-019",
+      "scene_id": "s01e01-sc05",
+      "speaker": "FINN",
+      "exact_text": "The old mark is real.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-027": {
+      "line_id": "S01E01-MILO-027",
+      "scene_id": "s01e01-sc05",
+      "speaker": "MILO",
+      "exact_text": "Then the map isn't just a guess.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-027": {
+      "line_id": "S01E01-NIA-027",
+      "scene_id": "s01e01-sc05",
+      "speaker": "NIA",
+      "exact_text": "It shows places we know.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-020": {
+      "line_id": "S01E01-FINN-020",
+      "scene_id": "s01e01-sc05",
+      "speaker": "FINN",
+      "exact_text": "But look at the old line.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-021": {
+      "line_id": "S01E01-FINN-021",
+      "scene_id": "s01e01-sc05",
+      "speaker": "FINN",
+      "exact_text": "It keeps going past here.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-028": {
+      "line_id": "S01E01-MILO-028",
+      "scene_id": "s01e01-sc05",
+      "speaker": "MILO",
+      "exact_text": "Isn't that way a dead end?",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-028": {
+      "line_id": "S01E01-NIA-028",
+      "scene_id": "s01e01-sc05",
+      "speaker": "NIA",
+      "exact_text": "Maybe the town changed.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-UI-009": {
+      "line_id": "S01E01-UI-009",
+      "scene_id": "s01e01-sc05",
+      "speaker": "UI",
+      "exact_text": "Look near the path out.",
+      "playback_condition": "help_ui_text_optional_readaloud",
+      "delivery_direction": "neutral clear optional",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-029": {
+      "line_id": "S01E01-NIA-029",
+      "scene_id": "s01e01-sc05",
+      "speaker": "NIA",
+      "exact_text": "Check the old line again.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-UI-010": {
+      "line_id": "S01E01-UI-010",
+      "scene_id": "s01e01-sc05",
+      "speaker": "UI",
+      "exact_text": "Hold to clean the plate.",
+      "playback_condition": "help_ui_text_optional_readaloud",
+      "delivery_direction": "neutral clear optional",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-029": {
+      "line_id": "S01E01-MILO-029",
+      "scene_id": "s01e01-sc05",
+      "speaker": "MILO",
+      "exact_text": "The Riverside mark is still here.",
+      "playback_condition": "repeat_on_request",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "review Riverside consistency"
+    },
+    "S01E01-NARRATOR-007": {
+      "line_id": "S01E01-NARRATOR-007",
+      "scene_id": "s01e01-sc06",
+      "speaker": "NARRATOR",
+      "exact_text": "The old map stays safe.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-008": {
+      "line_id": "S01E01-NARRATOR-008",
+      "scene_id": "s01e01-sc06",
+      "speaker": "NARRATOR",
+      "exact_text": "The old mark is clear now.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NIA-030": {
+      "line_id": "S01E01-NIA-030",
+      "scene_id": "s01e01-sc06",
+      "speaker": "NIA",
+      "exact_text": "I'll keep our drawing here.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-030": {
+      "line_id": "S01E01-MILO-030",
+      "scene_id": "s01e01-sc06",
+      "speaker": "MILO",
+      "exact_text": "The fountain and tree match.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-022": {
+      "line_id": "S01E01-FINN-022",
+      "scene_id": "s01e01-sc06",
+      "speaker": "FINN",
+      "exact_text": "And the plate says Riverside.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "review Riverside consistency"
+    },
+    "S01E01-NIA-031": {
+      "line_id": "S01E01-NIA-031",
+      "scene_id": "s01e01-sc06",
+      "speaker": "NIA",
+      "exact_text": "But this shape has no name.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "observant calm natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-MILO-031": {
+      "line_id": "S01E01-MILO-031",
+      "scene_id": "s01e01-sc06",
+      "speaker": "MILO",
+      "exact_text": "Maybe we'll find out there!",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "curious energetic natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-FINN-023": {
+      "line_id": "S01E01-FINN-023",
+      "scene_id": "s01e01-sc06",
+      "speaker": "FINN",
+      "exact_text": "Only one way to check.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "inventive playful natural",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-009": {
+      "line_id": "S01E01-NARRATOR-009",
+      "scene_id": "s01e01-sc06",
+      "speaker": "NARRATOR",
+      "exact_text": "One small mark changed the square.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-010": {
+      "line_id": "S01E01-NARRATOR-010",
+      "scene_id": "s01e01-sc06",
+      "speaker": "NARRATOR",
+      "exact_text": "One big question is still open.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-011": {
+      "line_id": "S01E01-NARRATOR-011",
+      "scene_id": "s01e01-sc06",
+      "speaker": "NARRATOR",
+      "exact_text": "Next time, we can visit Riverside.",
+      "playback_condition": "script_trigger",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "review Riverside consistency"
+    },
+    "S01E01-NARRATOR-012": {
+      "line_id": "S01E01-NARRATOR-012",
+      "scene_id": "resume-only",
+      "speaker": "NARRATOR",
+      "exact_text": "We were helping at the noticeboard.",
+      "playback_condition": "resume_only",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-013": {
+      "line_id": "S01E01-NARRATOR-013",
+      "scene_id": "resume-only",
+      "speaker": "NARRATOR",
+      "exact_text": "Let's see what needs fixing.",
+      "playback_condition": "resume_only",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-014": {
+      "line_id": "S01E01-NARRATOR-014",
+      "scene_id": "resume-only",
+      "speaker": "NARRATOR",
+      "exact_text": "We found an old map.",
+      "playback_condition": "resume_only",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-015": {
+      "line_id": "S01E01-NARRATOR-015",
+      "scene_id": "resume-only",
+      "speaker": "NARRATOR",
+      "exact_text": "What can it show us?",
+      "playback_condition": "resume_only",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    },
+    "S01E01-NARRATOR-016": {
+      "line_id": "S01E01-NARRATOR-016",
+      "scene_id": "resume-only",
+      "speaker": "NARRATOR",
+      "exact_text": "The old plate points to Riverside.",
+      "playback_condition": "resume_only",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "review Riverside consistency"
+    },
+    "S01E01-NARRATOR-017": {
+      "line_id": "S01E01-NARRATOR-017",
+      "scene_id": "resume-only",
+      "speaker": "NARRATOR",
+      "exact_text": "Let's save what we found.",
+      "playback_condition": "resume_only",
+      "delivery_direction": "warm clear storybook",
+      "pronunciation_note": "none"
+    }
+  },
+  "parent": {
+    "preview": "Today Milo, Nia, and Finn find something unusual in Town Square. Let your child look before you explain. If they call it a treasure map, ask what they see; do not confirm or deny the guess. No map knowledge is needed.",
+    "cue": "What can you see before we decide what it means?",
+    "followup": "Which part made you notice that?",
+    "fallback": "Can you point to a line or shape?",
+    "reflection": "What do we know for sure? What are we still guessing?"
+  },
+  "chronicle": {
+    "title": "Our First Old Map",
+    "found": [
+      "An old map behind the board.",
+      "A round fountain and big tree.",
+      "A clean old mark: RIVERSIDE →."
+    ],
+    "wonder": [
+      "What does the empty shape mean?",
+      "Where did the old line go?"
+    ]
+  },
+  "ids": {
+    "scenes": [
+      "s01e01-sc00",
+      "s01e01-sc01",
+      "s01e01-sc02",
+      "s01e01-sc03",
+      "s01e01-sc04",
+      "s01e01-sc05",
+      "s01e01-sc06"
+    ],
+    "interactions": [
+      "s01e01-int01-observe-before-guess",
+      "s01e01-int02-map-to-place-and-marker"
+    ],
+    "parentCue": "s01e01-cue-01",
+    "events": [
+      "s01e01_old_map_fragment_documented",
+      "s01e01_blank_place_symbol_seen",
+      "s01_missing_place_mystery_open",
+      "s01e01_old_route_matches_town_square",
+      "s01e01_town_square_old_marker_revealed",
+      "s01e01_old_route_points_toward_riverside",
+      "episode_completed:s01e01"
+    ]
+  },
+  "mediaStatus": {
+    "voices": "browser_synthetic_prototype_only",
+    "music": "not_produced",
+    "sprites": "production_candidate"
+  }
+}

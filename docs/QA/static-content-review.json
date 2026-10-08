@@ -1,0 +1,47 @@
+{
+  "build": "20261008-e01-slice4",
+  "method": "compiler and engine assertions, runtime source review, actual Chromium evidence and visual inspection",
+  "checks": [
+    {
+      "id": "DOC-01",
+      "status": "PASS",
+      "evidence": "Compiler verifies exactly 121 unique script/TSV IDs and matching text; engine resolves all referenced dialogue groups."
+    },
+    {
+      "id": "DOC-02",
+      "status": "PASS",
+      "evidence": "Spoken/read-aloud text always uses locked line IDs; script and voice TSV absent from changed-file list."
+    },
+    {
+      "id": "DOC-03",
+      "status": "PASS",
+      "evidence": "Compiled registry asserts SC00\u2013SC06, exact two approved interaction IDs and one parent cue ID."
+    },
+    {
+      "id": "DOC-04",
+      "status": "PASS",
+      "evidence": "Compiled seven semantic event IDs equal engine event arrays; marker/unlock are ledger projections."
+    },
+    {
+      "id": "DOC-05",
+      "status": "PASS",
+      "evidence": "Actual browser assertions check no RIVERSIDE before clean/reveal; shared unnamed glyph has no meaning label, compass, bridge or confirmed treasure."
+    },
+    {
+      "id": "DOC-06",
+      "status": "PASS",
+      "evidence": "Required accessible buttons, deliberate compare, no precision/timed challenge or parent gate; keyboard and touch paths complete."
+    },
+    {
+      "id": "DOC-07",
+      "status": "PASS",
+      "evidence": "Child lines and parent copy are separate content fields; caption IDs/text verified, browser speech reads those same fields."
+    },
+    {
+      "id": "DOC-08",
+      "status": "PASS",
+      "evidence": "Desktop/map/dirty marker/mobile Chronicle screenshots inspected; audio-off/reduced-motion/mobile browser paths preserve information."
+    }
+  ],
+  "scope": "prototype content/accessibility checks; not final media, real-device or family acceptance"
+}

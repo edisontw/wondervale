@@ -51,7 +51,7 @@ World/character state is derived from an event/progress ledger rather than being
 2. Season 1 story architecture — **approved**
 3. Season 1 learning weave — **approved**
 4. Episode Production Brief format — **approved**
-5. E01 full vertical slice — **in progress: C01 trio identity locked; recovered approved turnaround; remaining visual reference review next**
+5. E01 full vertical slice — **in progress: V1 references owner-approved; first playable static E01 assembled; browser acceptance and production media tracked below**
 6. E02–E04 connected MVP
 7. Season 1 production
 
@@ -98,4 +98,8 @@ See [Work Sequence](docs/WORK_SEQUENCE.md).
 
 ## Status
 
-**E01 vertical slice in progress.** Core trio, Season 1 story architecture, learning weave, and the Episode Production Brief standard are approved. S01E01's Production Brief and detailed script are approved; the S01E01 task-specific prompt pack and 121-line voice-text export are prepared. The illustrated living diorama visual style v1 and E01 reference contract are locked; the core trio C01 visual identity has been accepted. The matching owner-approved turnaround has been recovered and verified. Original Square art and non-spoiling clue reference candidates are preserved; see [Work reference gate review](assets/reference-candidates/s01e01/WORK_REFERENCE_GATE_REVIEW.md). Next approve the bounded reference set before production sprite assets and runtime.
+**E01 vertical slice in progress.** Core trio, Season 1 story architecture, learning weave, and the Episode Production Brief standard are approved. S01E01's Production Brief and detailed script are approved; the S01E01 task-specific prompt pack and 121-line voice-text export are prepared. The illustrated living diorama visual style v1 and E01 reference contract are locked; the core trio C01 visual identity has been accepted. The matching owner-approved turnaround has been recovered and verified. Original Square art and non-spoiling clue reference candidates are preserved; see [Work reference gate review](assets/reference-candidates/s01e01/WORK_REFERENCE_GATE_REVIEW.md). V1 references are now owner-passed; the first playable runtime and source actors are assembled. See the dated runtime QA record for executed results and remaining production/family work.
+
+## First playable E01
+
+Run `npm run build`, then `python3 scripts/package_static.py`; serve `dist/wondervale-e01-static` on a static server. Deploy that runtime-only folder to MN4 when host access is available. It contains no future-episode source documents. See [runtime contract](docs/E01_RUNTIME_IMPLEMENTATION.md) and [actual QA evidence](docs/E01_RUNTIME_QA_2026-10-08.md). Recorded voices/music, full pose animation, real-device and family acceptance remain separate work.

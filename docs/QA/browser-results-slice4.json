@@ -1,0 +1,383 @@
+{
+  "build": "20261008-e01-slice4",
+  "contentVersion": "s01e01-script-v1",
+  "results": [
+    {
+      "id": "INT-01",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Preview skipped; controllable world entered without Parent View."
+    },
+    {
+      "id": "INT-02",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Preview skipped; controllable world entered without Parent View."
+    },
+    {
+      "id": "INT-19",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Preview skipped; controllable world entered without Parent View."
+    },
+    {
+      "id": "INT-03",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Ambient inspections do not verify map anchors."
+    },
+    {
+      "id": "INT-04",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Tap hold saves intact map-exposure checkpoint."
+    },
+    {
+      "id": "INT-09",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Repeated region does not unlock speculation."
+    },
+    {
+      "id": "UX-07",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Nonblocking first-observation parent cue in desktop side panel."
+    },
+    {
+      "id": "INT-05",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "A/B observations, A guess, C physical fallback converge."
+    },
+    {
+      "id": "INT-15",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "No early clean control or destination disclosure."
+    },
+    {
+      "id": "INT-12",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Unrelated object gives friendly mismatch without completion."
+    },
+    {
+      "id": "INT-13",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Arrival alone never verifies landmarks."
+    },
+    {
+      "id": "INT-11",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Tree then fountain both confirmed in the world."
+    },
+    {
+      "id": "INT-14",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Broad exit marker accessible only after both anchors; dirty destination hidden."
+    },
+    {
+      "id": "INT-16",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Single click clean reveals text/arrow before Riverside caption."
+    },
+    {
+      "id": "INT-17",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Repeat marker inspect leaves ledger unchanged."
+    },
+    {
+      "id": "INT-18",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Chronicle finishes without reflection; E02 unlocked once."
+    },
+    {
+      "id": "SAV-07",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Completed reload and present Square retain clear marker/completion without unfinished recap."
+    },
+    {
+      "id": "SAV-08",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Full replay and exit preserve present ledger."
+    },
+    {
+      "id": "INT-06",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Reordered observations converge; no duplicate C fallback."
+    },
+    {
+      "id": "INT-07",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Reordered observations converge; no duplicate C fallback."
+    },
+    {
+      "id": "INT-08",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Reordered observations converge; no duplicate C fallback."
+    },
+    {
+      "id": "UX-01",
+      "status": "PASS",
+      "platform": "Chromium emulated touch 390×844",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Audio off, reduced motion, touch actions and explicit assisted travel complete E01; no horizontal page overflow."
+    },
+    {
+      "id": "UX-02",
+      "status": "PASS",
+      "platform": "Chromium emulated touch 390×844",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Audio off, reduced motion, touch actions and explicit assisted travel complete E01; no horizontal page overflow."
+    },
+    {
+      "id": "UX-04",
+      "status": "PASS",
+      "platform": "Chromium emulated touch 390×844",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Audio off, reduced motion, touch actions and explicit assisted travel complete E01; no horizontal page overflow."
+    },
+    {
+      "id": "UX-05",
+      "status": "PASS",
+      "platform": "Chromium emulated touch 390×844",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Audio off, reduced motion, touch actions and explicit assisted travel complete E01; no horizontal page overflow."
+    },
+    {
+      "id": "INT-20",
+      "status": "PASS",
+      "platform": "Chromium emulated touch 390×844",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Repeated Parent/Child switches preserve inspection; cue remains single."
+    },
+    {
+      "id": "UX-08",
+      "status": "PASS",
+      "platform": "Chromium emulated touch 390×844",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Repeated Parent/Child switches preserve inspection; cue remains single."
+    },
+    {
+      "id": "SAV-01",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Resume presents exactly one state-appropriate optional recap."
+    },
+    {
+      "id": "SAV-02",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Resume presents exactly one state-appropriate optional recap."
+    },
+    {
+      "id": "SAV-03",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Resume presents exactly one state-appropriate optional recap."
+    },
+    {
+      "id": "SAV-04",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Resume presents exactly one state-appropriate optional recap."
+    },
+    {
+      "id": "SAV-05",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Resume presents exactly one state-appropriate optional recap."
+    },
+    {
+      "id": "SAV-09",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Later-season fixture unchanged after partial replay/exit."
+    },
+    {
+      "id": "UX-03",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Keyboard Tab/Enter alone completes required exploration, observation, comparison and cleaning."
+    },
+    {
+      "id": "INT-10",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "All three exact line pairs converge to identical canonical event arrays."
+    },
+    {
+      "id": "SAV-11",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Close/reopen map three times retains the deliberately inspected region and ledger."
+    },
+    {
+      "id": "SAV-06",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Double clean and pauses before/after reveal persist one complete marker event."
+    },
+    {
+      "id": "SAV-10",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Failed atomic write shows warning and reloads coherent pre-reveal checkpoint, without orphan event."
+    },
+    {
+      "id": "INT-16-SWIPE",
+      "status": "PASS",
+      "platform": "Chromium emulated touch 390×844; Chromium touch input",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Broad touch pointer swipe reaches the same one-time reveal as button and keyboard."
+    },
+    {
+      "id": "UX-06",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "On-demand support escalation uses exact locked lines; reread/skip does not emit progress."
+    },
+    {
+      "id": "UX-09",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "On-demand support escalation uses exact locked lines; reread/skip does not emit progress."
+    },
+    {
+      "id": "UX-10",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Solo observation receives approved support without response input, scoring or guessed interpretation."
+    },
+    {
+      "id": "UX-05-MOTOR",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Motor assistance enabled: deliberate single-action travel, comparison and clean complete E01."
+    },
+    {
+      "id": "MOTION-01",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "Normal motion plus pause during travel recovers without locking required action."
+    },
+    {
+      "id": "OFFLINE-01",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "After one online cache install, offline reload and play work."
+    },
+    {
+      "id": "RUNTIME-01",
+      "status": "PASS",
+      "platform": "Chromium desktop 1366×900",
+      "build": "20261008-e01-slice4",
+      "contentVersion": "s01e01-script-v1",
+      "observed": "No page exceptions or HTTP asset errors across all browser paths."
+    }
+  ],
+  "errors": [],
+  "humanPending": [
+    "UX-11",
+    "UX-12"
+  ],
+  "mediaPending": [
+    "recorded_voices",
+    "music"
+  ]
+}

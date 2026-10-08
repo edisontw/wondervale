@@ -1,0 +1,65 @@
+{
+  "build": "20261008-e01-slice4",
+  "files": [
+    {
+      "path": "index.html",
+      "bytes": 409,
+      "sha256": "4aae12e41ba7e30cd3b776d2b1e17c8775a05818dd41aa58b5bd42f279502da2"
+    },
+    {
+      "path": "sw.js",
+      "bytes": 894,
+      "sha256": "a0e0cbfe3d97b61cde1293ef2d7451d724c11252ac632f05639135dc23851bfe"
+    },
+    {
+      "path": "app/main.mjs",
+      "bytes": 17115,
+      "sha256": "e049059b831dc71cfa6fc21687115be5bbf5a95a210781cf41a9392d76a7a46d"
+    },
+    {
+      "path": "app/style.css",
+      "bytes": 7585,
+      "sha256": "94c2884ce08a5e29de5bdb97e2ccfdfebc27a680db8c199ab5a9812f83214041"
+    },
+    {
+      "path": "engine/episode.mjs",
+      "bytes": 8740,
+      "sha256": "142c6127a18a68231d7d2d63188ed555bf90b4ee4d6244116773f07e884b3093"
+    },
+    {
+      "path": "public/episode.json",
+      "bytes": 39835,
+      "sha256": "f9f1828abd5dfb66a17266bd8ccee5ad8e5ed1adaf81fb1812a016d06ebf25a9"
+    },
+    {
+      "path": "public/art/marker-reference.webp",
+      "bytes": 263094,
+      "sha256": "9b51311988c98c9daf95ebc3e92e292ab2b9c14421f5c30227a0adc4d41d70b2"
+    },
+    {
+      "path": "public/art/noticeboard-reference.webp",
+      "bytes": 265150,
+      "sha256": "868b63652a465b7602383d175b0e5cd403f9b6bd643a46f406504e6c0b6351ec"
+    },
+    {
+      "path": "public/art/steward.webp",
+      "bytes": 173080,
+      "sha256": "743b55016ebe262cbdf9b45af653fa3ef64c21e319f73ed3965f2219e1cc5101"
+    },
+    {
+      "path": "public/art/town-square-master.webp",
+      "bytes": 432416,
+      "sha256": "d8ed0d1244bc8f56f7622bbea808ecdd3178de1c1410f4396984aa2abc2e8403"
+    },
+    {
+      "path": "public/art/trio-sprites.webp",
+      "bytes": 330666,
+      "sha256": "44505c8bd83f980feb6c34420108232471195e09feb94ce71e962dc6e1fdad25"
+    },
+    {
+      "path": "public/art/glyph.svg",
+      "bytes": 253,
+      "sha256": "06c1d64b0d275668c2778b0c1aef712a4104a65a523c4b64331bf3d529dc1106"
+    }
+  ]
+}
