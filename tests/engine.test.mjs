@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {fresh,dispatch,restore,payload,projection,groups,events,locations} from '../engine/episode.mjs';
+import {fresh,dispatch,restore,payload,projection,groups,events,locations,constrainToRoad,roadRoute} from '../engine/episode.mjs';
 const drain=s=>{let guard=0;while(s.queue.length){s=dispatch(s,{type:'next'});assert.ok(++guard<300);}return s;};
 const go=(s,target)=>dispatch(s,{type:'move',target});
 function map(){let s=drain(dispatch(fresh(),{type:'begin'}));s=go(s,'board');return drain(dispatch(s,{type:'hold'}));}
@@ -30,3 +30,28 @@ test('SAV-10: interruption before durable reveal returns entirely dirty checkpoi
 test('SAV-11: map overlay/presentation state cannot append events',()=>{const s=map();const before=payload(s);assert.deepEqual(payload(dispatch(s,{type:'replayLine'})),before);});
 test('DOC-01/02/03/04/07: exact content, stable interactions and semantic IDs',()=>{const c=JSON.parse(readFileSync(new URL('../public/episode.json',import.meta.url)));assert.equal(Object.keys(c.lines).length,121);assert.equal(c.ids.scenes.length,7);assert.deepEqual(c.ids.interactions,['s01e01-int01-observe-before-guess','s01e01-int02-map-to-place-and-marker']);assert.equal(c.ids.parentCue,'s01e01-cue-01');assert.deepEqual(c.ids.events,Object.values(events).flat());for(const group of Object.values(groups))for(const id of group)assert.ok(c.lines[id],id);assert.equal(c.parent.cue,'What can you see before we decide what it means?');assert.equal(c.contentVersion,'s01e01-script-v1');assert.equal(events.marker[0],'s01e01_town_square_old_marker_revealed');});
 test('UX-06: support does not score or advance/inspect automatically',()=>{let s=map();for(let i=0;i<5;i++)s=drain(dispatch(s,{type:'help'}));assert.equal(s.phase,'map_observe');assert.equal(s.inspected.length,0);assert.deepEqual(s.ledger,[]);assert.equal('score'in s,false);});
+
+test('FIELD-QA-01: free travel is constrained to walkable Square routes',()=>{
+ let s=drain(dispatch(fresh(),{type:'begin'}));
+ const probes=[[0,0],[.01,.99],[.5,.01],[.65,.83],[.95,.95],[.31,.7]];
+ for(const [x,y] of probes){
+  s=dispatch(s,{type:'move',x,y});
+  assert.ok(Math.hypot(...s.position.map((v,i)=>v-constrainToRoad(x,y)[i]))<1e-8);
+  assert.ok(s.position.every(Number.isFinite));
+ }
+ for(const target of Object.keys(locations)){
+  s=go(s,target);
+  assert.deepEqual(s.position,locations[target]);
+  assert.ok(Math.hypot(...s.position.map((v,i)=>v-constrainToRoad(...s.position)[i]))<1e-8);
+ }
+});
+test('FIELD-QA-02: rendered character route keeps waypoints on the path',()=>{
+ const from=[.34,.77];
+ for(const to of Object.values(locations)){
+  const route=roadRoute(from,to);
+  assert.ok(route.length>=2);
+  assert.deepEqual(route[0],from);
+  assert.deepEqual(route.at(-1),to);
+  for(const p of route)assert.ok(Math.hypot(...p.map((v,i)=>v-constrainToRoad(...p)[i]))<1e-8);
+ }
+});
