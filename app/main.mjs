@@ -170,7 +170,8 @@ function rubPoint(event){
 root.addEventListener('pointerdown',event=>{
  if(event.target.id!=='plate-rub'||!rubbingCanvas||state.markerRevealed||state.queue.length||ui.rubReady)return;
  event.preventDefault();rubbingPointer=event.pointerId;rubbingLast=null;
- if(event.isTrusted){try{rubbingCanvas.setPointerCapture(event.pointerId);}catch{}}
+ // Native touch already has implicit capture. An explicit capture could swallow
+ // a subsequent tap on Finish cleaning on mobile Chromium.
  rubPoint(event);
 });
 root.addEventListener('pointermove',event=>{
