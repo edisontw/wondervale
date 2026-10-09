@@ -173,6 +173,26 @@ function rubPoint(event){
   if(finish){finish.disabled=false;finish.focus({preventScroll:true});}
  }
 }
+// Some touch devices synthesize pointerdown/up on a focused button but omit
+// the subsequent click after a canvas scrubbing gesture. Accept a short,
+// deliberate touch release on Finish cleaning without relying on that click.
+let finishTouch=null;
+root.addEventListener('pointerdown',event=>{
+ const target=event.target.closest('[data-action="rub-finish"]');
+ if(event.pointerType==='touch'&&target&&!target.disabled)
+  finishTouch={pointerId:event.pointerId,x:event.clientX,y:event.clientY};
+});
+root.addEventListener('pointerup',event=>{
+ if(!finishTouch||finishTouch.pointerId!==event.pointerId)return;
+ const wasTap=Math.hypot(event.clientX-finishTouch.x,event.clientY-finishTouch.y)<22;
+ finishTouch=null;
+ if(wasTap&&event.target.closest('[data-action="rub-finish"]')&&ui.rubReady&&!state.queue.length){
+  event.preventDefault();act({type:'clean'});
+ }
+});
+root.addEventListener('pointercancel',event=>{
+ if(finishTouch?.pointerId===event.pointerId)finishTouch=null;
+});
 root.addEventListener('pointerdown',event=>{
  if(event.target.id!=='plate-rub'||!rubbingCanvas||state.markerRevealed||state.queue.length||ui.rubReady)return;
  event.preventDefault();rubbingPointer=event.pointerId;rubbingLast=null;
