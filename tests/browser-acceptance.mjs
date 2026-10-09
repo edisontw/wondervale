@@ -178,7 +178,7 @@ try{
    if(canvas.isConnected)fire('pointerup',230,y);
   }
  });
- assert.equal(await rubPage.locator('#plate-rub').count(),0,'Actual pointer gesture should complete rubbing, not need a direct clean click');
+ assert.equal(await rubPage.locator('#plate-rub').count(),0,'Pointer gesture did not finish rubbing; status: '+await rubPage.locator('#rub-status').innerText());
  await click(rubPage,'Continue');await click(rubPage,'Continue');
  assert.equal((await ledger(rubPage)).filter(x=>x===events.marker[0]).length,1);
  assert.equal(await rubPage.locator('.plate-text').count(),1);
