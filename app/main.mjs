@@ -125,9 +125,9 @@ function rubAt(e){
  const previous=rubLast;rubCtx.moveTo(previous?previous[0]:x,previous?previous[1]:y);rubCtx.lineTo(x,y);rubCtx.stroke();
  const sample=(px,py)=>{const cx=Math.max(0,Math.min(11,Math.floor(px/20))),cy=Math.max(0,Math.min(14,Math.floor(py/20)));for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(cx+dx>=0&&cx+dx<12&&cy+dy>=0&&cy+dy<15)rubCells.add((cy+dy)*12+cx+dx);};
  const from=previous||[x,y];for(let i=0;i<=24;i++){const t=i/24;sample(from[0]+(x-from[0])*t,from[1]+(y-from[1])*t);}rubLast=[x,y];
- const n=rubCells.size,percent=Math.min(100,Math.round(n/40*100));
+ const n=rubCells.size,percent=Math.min(100,Math.round(n/35*100));
  const status=root.querySelector('#rub-status');if(status)status.textContent='Plate cleaned: '+percent+'%. Keep rubbing.';
- if(n>=40){rubDown=false;rubPointer=null;rubLast=null;act({type:'clean'});}
+ if(n>=35){rubDown=false;rubPointer=null;rubLast=null;act({type:'clean'});}
 }
 root.addEventListener('pointerdown',e=>{if(e.target.id!=='plate-rub-canvas')return;e.preventDefault();rubDown=true;rubPointer=e.pointerId;rubLast=null;e.target.setPointerCapture?.(e.pointerId);rubAt(e);});
 root.addEventListener('pointermove',e=>{if(!rubDown||e.pointerId!==rubPointer)return;e.preventDefault();rubAt(e);});
