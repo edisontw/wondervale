@@ -186,6 +186,56 @@ try{
  assert.equal(await mapSheetPage.locator('.scene-map-sheet.map-task').count(),1);
  pass('FIELD-QA-SHELL-02','Required map investigation remains in same scene and can be closed/reopened without a new page.');
  await mapSheetCtx.close();
+ // Real-world mobile field QA: the original fixed 760px scene and clipped
+ // 44dvh viewport could hide the entire trio or cut off the town's lower half.
+ // Keep the full approved 1672:941 composition visible at common phone widths.
+ const {c:mobileFitCtx,p:mobileFitPage}=await context({mobile:true,stage:'square'});
+ for(const [width,height] of [[320,568],[360,780],[390,844],[430,932],[667,375]]){
+  await mobileFitPage.setViewportSize({width,height});
+  const geometry=await mobileFitPage.evaluate(()=>{
+   const r=el=>{const a=el.getBoundingClientRect();return {x:a.x,y:a.y,width:a.width,height:a.height,right:a.right,bottom:a.bottom,top:a.top};};
+   const viewport=document.querySelector('#viewport'),world=document.querySelector('#world');
+   const actors=[...document.querySelectorAll('#world .actor')].map(e=>({name:e.className,box:r(e)}));
+   return {world:r(world),viewport:r(viewport),actors,overflowX:viewport.scrollWidth-viewport.clientWidth,
+    scrollHeight:document.documentElement.scrollHeight,screenHeight:innerHeight};
+  });
+  assert.ok(Math.abs(geometry.world.width-geometry.viewport.width)<=2,
+   'All mobile World artwork must fit screen width: '+JSON.stringify({width,height,geometry}));
+  assert.ok(Math.abs(geometry.world.height/geometry.world.width-941/1672)<.012,
+   'Town Square lower half must not be vertically clipped: '+JSON.stringify({width,height,geometry}));
+  assert.ok(Math.abs(geometry.viewport.height-geometry.world.height)<=2,
+   'Viewport must expose the complete painted Square: '+JSON.stringify({width,height,geometry}));
+  assert.ok(geometry.overflowX<=2,
+   'Mobile scene must not require horizontal panning to locate characters: '+JSON.stringify({width,height,geometry}));
+  assert.equal(geometry.actors.length,4);
+  for(const actor of geometry.actors){
+   assert.ok(actor.box.x>=geometry.world.x-2&&actor.box.right<=geometry.world.right+2&&
+    actor.box.y>=geometry.world.y-2&&actor.box.bottom<=geometry.world.bottom+2,
+    'Character must remain inside world image: '+JSON.stringify({width,height,actor,world:geometry.world}));
+  }
+  if(width>=360&&height>=780){
+   const scene=await mobileFitPage.locator('.scene-card').boundingBox();
+   assert.ok(geometry.world.bottom<=scene.y+scene.height+3,
+    'Entire Town Square/trio should be visible without scene scrolling in normal portrait: '+JSON.stringify({width,height,world:geometry.world,scene}));
+  }
+ }
+ await mobileFitPage.setViewportSize({width:390,height:844});
+ await mobileFitPage.screenshot({path:`${out}/mobile-full-town-square.png`,fullPage:true});
+ pass('FIELD-QA-MOBILE-WORLD-01','Phone widths 320/360/390/430 and landscape 667 retain complete 1672:941 art with all actors inside and no horizontal viewport crop.','Chromium emulated touch');
+ await mobileFitCtx.close();
+ const {c:mobileExploreCtx,p:mobileExplorePage}=await context({mobile:true,stage:'observed'});
+ await mobileExplorePage.setViewportSize({width:390,height:844});
+ await tap(mobileExplorePage,'Big tree');
+ const nearTree=await mobileExplorePage.evaluate(()=>{
+  const actor=document.querySelector('.actor.milo').getBoundingClientRect();
+  const world=document.querySelector('#world').getBoundingClientRect();
+  return {actorX:actor.x,actorRight:actor.right,worldX:world.x,worldRight:world.right};
+ });
+ assert.ok(nearTree.actorX>=nearTree.worldX-3&&nearTree.actorRight<=nearTree.worldRight+3,
+  'Travel to right-side landmark should not push Milo out of mobile frame: '+JSON.stringify(nearTree));
+ await mobileExplorePage.screenshot({path:`${out}/mobile-tree-actors.png`,fullPage:true});
+ pass('FIELD-QA-MOBILE-WORLD-02','Milo remains in visible responsive frame after mobile landmark travel.','Chromium emulated touch 390x844');
+ await mobileExploreCtx.close();
  const {c:mobileShellCtx,p:mobileShellPage}=await context({mobile:true,stage:'observed'});
  const sizeMobile=await mobileShellPage.evaluate(()=>({page:document.documentElement.scrollHeight,window:innerHeight,root:document.getElementById('app').getBoundingClientRect().height}));
  assert.ok(sizeMobile.page<=sizeMobile.window+3,'Mobile document should fit one viewport: '+JSON.stringify(sizeMobile));
