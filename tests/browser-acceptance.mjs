@@ -379,6 +379,7 @@ try{
  assert.equal(await rubPage.locator('.plate-text').count(),0);
  assert.equal(await rubPage.locator('#plate-ink-preview').count(),1,'Hidden ink canvas is below dirty picture, without early DOM spoiler');
  assert.equal(await rubPage.getByRole('button',{name:'Finish cleaning'}).isDisabled(),true);
+ assert.equal(await rubPage.locator('#rub-meter').evaluate(el=>String(el.value)),'0');
  await rubPage.locator('#plate-rub').evaluate(canvas=>{
   const rect=canvas.getBoundingClientRect(),pid=731;
   const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/240,clientY:rect.top+y*rect.height/300}));
@@ -390,17 +391,37 @@ try{
  });
  assert.equal(await rubPage.locator('#plate-rub').count(),1,'Early rubs must not make the plate jump away');
  assert.equal(await rubPage.getByRole('button',{name:'Finish cleaning'}).isDisabled(),true);
+ assert.equal(await rubPage.locator('#rub-meter').evaluate(el=>String(el.value)),'0',
+  'Scratching only the upper roof does not mean the hidden writing is clearer');
  assert.equal((await ledger(rubPage)).includes(events.marker[0]),false);
+ // Deliberately rub the lower wood: it must erase visually but not advance the
+ // writing-specific progress meter.
  await rubPage.locator('#plate-rub').evaluate(canvas=>{
-  const rect=canvas.getBoundingClientRect(),pid=732;
-  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/240,clientY:rect.top+y*rect.height/300}));
-  for(let row=2;row<14&&canvas.isConnected;row++){
-   const y=22+row*21;fire('pointerdown',18,y);
+  const b=canvas.getBoundingClientRect(),pid=739;
+  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:b.left+x*b.width/240,clientY:b.top+y*b.height/300}));
+  for(const y of [221,245,268]){
+   fire('pointerdown',18,y);
    for(let x=18;x<=230;x+=8)fire('pointermove',x,y);
    fire('pointerup',230,y);
   }
  });
- assert.equal(await rubPage.getByRole('button',{name:'Finish cleaning'}).isEnabled(),true);
+ assert.equal(await rubPage.locator('#rub-meter').evaluate(el=>String(el.value)),'0','Scratching the lower wood must not count as reading the plaque');
+ await rubPage.locator('#plate-rub').evaluate(canvas=>{
+  const rect=canvas.getBoundingClientRect(),pid=732;
+  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/240,clientY:rect.top+y*rect.height/300}));
+  for(const y of [102,122,142,162]){
+   if(!canvas.isConnected)break;
+   fire('pointerdown',84,y);
+   for(let x=84;x<=152;x+=4)fire('pointermove',x,y);
+   fire('pointerup',152,y);
+  }
+ });
+ assert.equal(await rubPage.getByRole('button',{name:'Finish cleaning'}).isEnabled(),true,
+  'Cleaning the central word (without cleaning all of the post) should allow Finish');
+ assert.equal(await rubPage.locator('#rub-meter').evaluate(el=>String(el.value)),'100','Legible central RIVERSIDE means 100% completion');
+ assert.match(await rubPage.locator('#rub-status').innerText(),/Writing uncovered: 100%/);
+ const peripheralAlpha=await rubPage.locator('#plate-rub').evaluate(canvas=>canvas.getContext('2d').getImageData(20,250,1,1).data[3]);
+ assert.equal(peripheralAlpha,0,'Only physically scratched peripheral pixels are removed'); 
  assert.equal(await rubPage.locator('#plate-rub').count(),1,'Dust stays in place until Finish cleaning');
  assert.equal((await ledger(rubPage)).includes(events.marker[0]),false);
  // A central swipe erases the original art and reveals the underlying word
@@ -571,14 +592,15 @@ try{
  await sp.locator('#plate-rub').scrollIntoViewIfNeeded();
  const box=await sp.locator('#plate-rub').boundingBox(),ts=await sc.newCDPSession(sp);
  await sp.locator('.plate-rub-wrap.rubbing-active').waitFor();
- for(let row=0;row<14;row++){
+ for(let row=0;row<5;row++){
   if(await sp.getByRole('button',{name:'Finish cleaning'}).isEnabled())break;
-  const y=box.y+22+row*19,start=box.x+18,end=box.x+box.width-18;
+  const y=box.y+102+row*20,start=box.x+84,end=box.x+152;
   await ts.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:start,y}]});
   for(let i=1;i<=18;i++)await ts.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:start+(end-start)*i/18,y}]});
   await ts.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  }
- assert.equal(await sp.getByRole('button',{name:'Finish cleaning'}).isEnabled(),true,'Touch should become ready after deliberate strokes');
+ assert.equal(await sp.getByRole('button',{name:'Finish cleaning'}).isEnabled(),true,'Central touch strokes should make the writing readable and ready');
+ assert.equal(await sp.locator('#rub-meter').evaluate(el=>String(el.value)),'100','Central touch cleaning should yield 100%, even with untouched wood');
  assert.equal(await sp.locator('#plate-rub').count(),1,'No automatic scene change while rubbing');
  await sp.evaluate(()=>{
   globalThis.__rubTapEvents=[];
