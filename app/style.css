@@ -173,3 +173,63 @@ html,body{height:100%;overflow:hidden}
  .layout .caption .caption-actions{grid-column:2;display:flex;flex-wrap:wrap;margin:0;gap:5px}
  .layout .caption .caption-actions button{flex:1 1 auto;min-height:40px}
 }
+
+/* E01 map-to-place comparison: the old paper is a floating translucent
+   object inside the live scene, NOT a replacement for or decal on the town.
+   Preserve the separate paper's orientation, unnamed glyph and legible ink. */
+@media (min-width:1100px){
+ .scene-map-sheet{
+  inset:60px auto 12px 13px;
+  width:min(49%,520px);
+  max-height:calc(100% - 72px);
+ }
+}
+@media (min-width:761px) and (max-width:1099px){
+ .scene-map-sheet{
+  inset:50px auto 9px 9px;
+  width:min(66%,460px);
+  max-height:calc(100% - 59px);
+ }
+}
+@media (min-width:761px){
+ .scene-map-sheet .map-art{
+  min-height:110px;
+  max-height:min(37dvh,310px);
+ }
+ .scene-map-sheet .evidence-actions{gap:6px;flex-wrap:wrap}
+ .scene-map-sheet .evidence-actions button{flex:1 1 120px;min-width:105px}
+ .scene-map-sheet .choices button{min-width:155px;flex:1 1 auto}
+}
+.scene-map-sheet{
+ background:rgba(247,234,205,.87);
+ border:2px solid rgba(125,91,53,.72);
+ box-shadow:2px 8px 22px rgba(35,44,37,.37);
+ backdrop-filter:blur(1px);
+ -webkit-backdrop-filter:blur(1px);
+}
+.scene-map-sheet .sheet-heading{
+ position:sticky;top:0;z-index:1;
+ padding:4px 6px;border-radius:9px;
+ background:rgba(251,244,227,.96);
+ color:#273e45;
+}
+.scene-map-sheet .map-art>path:first-child{
+ fill:rgba(234,217,177,.69);
+}
+/* Keep symbols, stamps, clue holes and buttons readable over live artwork. */
+.scene-map-sheet .map-art .line{opacity:.95}
+.scene-map-sheet button{background:#fffaf0;color:#263d48}
+.scene-map-sheet button.primary{background:#355f51;color:#fff}
+.scene-map-sheet button:focus-visible{outline:3px solid #174f72}
+@media (max-width:760px){
+ .scene-map-sheet{
+  inset:42px 8px auto 8px;
+  width:calc(100% - 16px);
+  max-height:min(68%,400px);
+  border-radius:12px;
+  padding:8px;
+ }
+ .scene-map-sheet .map-art{min-height:115px;max-height:24dvh}
+ .scene-map-sheet .sheet-heading{gap:5px}
+ .scene-map-sheet .evidence-actions button,.scene-map-sheet .choices button{min-height:44px}
+}
