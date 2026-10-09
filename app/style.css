@@ -506,3 +506,67 @@ html,body{height:100%;overflow:hidden}
  .layout .caption .caption-actions button{font-size:11px}
  .layout .caption .caption-actions button[data-action="next"]{font-size:14px}
 }
+
+
+/* Accepted E01 Old post cleanup: the approved sprite sheet contains an entire
+   post in each dirty/clean frame. Keep ONE fixed dirty post and swap ONLY its
+   inscription inset. Align the two atlas halves at the same physical position.
+   240×300 close-up: inset x=87..145, y=96..171; screws/frame are untouched. */
+.plate-close,
+.plate-close.clean{
+ background-position:18% 50%;
+ overflow:hidden;
+}
+.plate-close .plate-clean-surface{
+ position:absolute;
+ inset:0;
+ pointer-events:none;
+ background:url('../public/art/marker-reference.webp') no-repeat 99% 50% / 205% auto;
+ clip-path:inset(32% 39.58% 43% 36.25%);
+ -webkit-clip-path:inset(32% 39.58% 43% 36.25%);
+}
+.plate-close .plate-text{
+ position:absolute;
+ left:36.25%;
+ top:32%;
+ width:24.17%;
+ height:25%;
+ display:flex;
+ flex-direction:column;
+ justify-content:center;
+ align-items:center;
+ gap:2px;
+ padding:4px 1px;
+ margin:0;
+ overflow:hidden;
+ box-sizing:border-box;
+ color:#493b29;
+ background:transparent;
+ font:700 11px/1.08 system-ui,sans-serif;
+ letter-spacing:-.35px;
+ text-align:center;
+ white-space:nowrap;
+ text-shadow:0 1px 0 rgba(250,234,197,.45);
+ pointer-events:none;
+}
+.plate-close .plate-word{display:flex;flex-direction:column;align-items:center;max-width:100%;gap:2px}
+.plate-close .plate-word span{display:block;max-width:100%}
+.plate-close .plate-text .arrow{font-size:18px;line-height:1;margin:0}
+#plate-rub{
+ left:36.25%;
+ top:32%;
+ width:24.17%;
+ height:25%;
+ right:auto;
+ bottom:auto;
+ cursor:crosshair;
+ touch-action:none;
+ user-select:none;
+ -webkit-user-select:none;
+}
+/* Chronicle uses smaller copies of the same geometry. Never let caption ink
+   leak onto its surrounding wood, metal bolts, or adjacent comparison panel. */
+.memory-pair .plate-close .plate-text{font-size:8px;padding:3px 1px;gap:1px}
+.memory-pair .plate-close .plate-word{gap:1px}
+.memory-pair .plate-close .plate-text .arrow{font-size:12px}
+.marker-original-ink{overflow:hidden;white-space:nowrap}

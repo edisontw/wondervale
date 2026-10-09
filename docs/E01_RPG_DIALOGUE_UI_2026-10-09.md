@@ -32,3 +32,7 @@ Still open: genuine iOS Safari/Android Chrome and OS scaling tests, real visual 
 ## Build
 
 `20261009-e01-rpg-dialogue1` with incremented service-worker cache, preserving static-only release and reload behavior.
+
+## Owner feedback — 2026-10-09
+
+The owner reported that the implemented **desktop and mobile RPG dialogue presentation is substantially better**. Promote this as the accepted **E01 UI baseline and reusable cross-episode presentation rule** (portrait isolated by speaker, live text in an anchored bottom parchment dialogue panel, one-time pre-Begin introduction, desktop parent-side panel, mobile Child/Parent switching). Do not revert to detached stacked caption boxes or large overlay HUD/mockup art. This is visual/interaction direction acceptance, **not** final physical-device/family QA or production asset sign-off.

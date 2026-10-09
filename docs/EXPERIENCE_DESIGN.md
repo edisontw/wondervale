@@ -235,3 +235,9 @@ A strong episode ending should usually do at least two things:
 - leave a small unanswered question, changed world detail, or future possibility.
 
 This creates continuation without cliffhanger pressure.
+
+## Accepted desktop and mobile RPG dialogue grammar (2026-10-09)
+
+Wondervale's accepted dialogue baseline is **scene-first, with an integrated bottom RPG dialogue dock** rather than a long scrolling page or a separate generic chat card. Render a *single, isolated portrait of the current speaker* to the left of readable, selectable, replayable narration/text; identify the speaker with a clear nameplate. Use real accessible buttons (Continue, Read again, optional non-critical Skip), not baked-in buttons in scenery. The introduction explains how to start **only on the initial preview**, then disappears on Begin; required opening lines still advance one at a time, without Skip introduction.
+
+Responsive treatments are **distinct rather than scaled screenshots**: on desktop place the wide story panel along the lower edge of the active scene and keep a quieter side-by-side Parent View; on mobile place a compact portrait/text panel near the scene's lower edge, keep the approved Town Square artwork and characters in frame, place touch-sized actions on their own row, and retain separate Child / Parent views. Prevent other characters bleeding into cropped portraits. Keep the scene, map and controls in a bounded viewport, with overflow scoped to necessary internal content. Reuse this grammar in later episodes without importing example mockup currencies/menus/lore. See [E01 exact implementation and owner feedback](E01_RPG_DIALOGUE_UI_2026-10-09.md).
