@@ -145,6 +145,26 @@ try{
  await captionCtx.close();
  const {c:viewportCtx,p:viewportPage}=await context({stage:'observed'});
  assert.equal(await viewportPage.locator('.scene-map-sheet,.map-inset').count(),0,'Landmark stage must not show a map automatically');
+ await click(viewportPage,'Map');
+ const desktopMap=await viewportPage.evaluate(()=>{
+  const sheet=document.querySelector('.scene-map-sheet'),world=document.querySelector('#world'),art=sheet.querySelector('.map-art'),ink=art.querySelector('.line');
+  const rect=sheet.getBoundingClientRect(),base=world.getBoundingClientRect();
+  const bg=getComputedStyle(sheet).backgroundColor,fill=getComputedStyle(art.firstElementChild).fill;
+  const close=sheet.querySelector('[data-action="map"]'),cr=close.getBoundingClientRect();
+  return {sheetWidth:rect.width,worldWidth:base.width,sheetRight:rect.right,worldRight:base.right,
+   background:bg,paperFill:fill,inkStroke:getComputedStyle(ink).stroke,
+   closeHeight:cr.height,closeHit:close.contains(document.elementFromPoint(cr.left+cr.width/2,cr.top+cr.height/2)),
+   worldPresent:!!document.querySelector('.world')};
+ });
+ const alphaOf=s=>Number(s.match(/rgba?\\([^)]*,\\s*([0-9.]+)\\s*\\)$/)?.[1]??1);
+ assert.ok(desktopMap.sheetWidth<desktopMap.worldWidth*.59,'Most of desktop town must remain visible: '+JSON.stringify(desktopMap));
+ assert.ok(alphaOf(desktopMap.background)<.95&&alphaOf(desktopMap.background)>.68,'Translucent paper must still be legible: '+desktopMap.background);
+ assert.ok(alphaOf(desktopMap.paperFill)<.85,'SVG paper face must not be fully opaque: '+desktopMap.paperFill);
+ assert.ok(desktopMap.closeHeight>=44&&desktopMap.closeHit,'Close map remains easy to activate');
+ assert.ok(desktopMap.worldPresent,'The live Town Square must stay behind the old map');
+ await click(viewportPage,'Close map');
+ pass('FIELD-QA-MAP-OVERLAY-01','Translucent old paper is bounded to one side over Town Square with visible art, crisp map ink and accessible close action.');
+
  for(let n=0;n<3;n++){
   await click(viewportPage,'Map');
   assert.equal(await viewportPage.locator('.scene-map-sheet .map-art').count(),1,'Manual Map opens one copy, not two');
@@ -171,6 +191,14 @@ try{
  assert.ok(sizeMobile.page<=sizeMobile.window+3,'Mobile document should fit one viewport: '+JSON.stringify(sizeMobile));
  await tap(mobileShellPage,'Map');
  assert.equal(await mobileShellPage.locator('.scene-map-sheet .map-art').count(),1);
+ const mobileMap=await mobileShellPage.evaluate(()=>{
+  const e=document.querySelector('.scene-map-sheet'),r=e.getBoundingClientRect(),c=document.querySelector('.scene-card').getBoundingClientRect();
+  return {width:r.width,height:r.height,cardWidth:c.width,cardHeight:c.height,opacity:getComputedStyle(e).backgroundColor,
+   button:e.querySelector('[data-action="map"]').getBoundingClientRect().height};
+ });
+ assert.ok(mobileMap.width<=mobileMap.cardWidth+2&&mobileMap.height<=mobileMap.cardHeight*.76,'Mobile paper must stay inside the scene, leaving visual Town Square context: '+JSON.stringify(mobileMap));
+ assert.ok(mobileMap.button>=40,'Mobile close control retains a large tap target');
+
  await tap(mobileShellPage,'Close map');
  assert.equal(await mobileShellPage.locator('.scene-map-sheet').count(),0);
  pass('FIELD-QA-SHELL-03','Mobile viewport uses one page; optional map is an in-scene sheet without page-length growth.','Chromium touch 390×844');
