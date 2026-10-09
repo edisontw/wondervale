@@ -105,7 +105,7 @@ try{
  await click(firstVisit,'Skip introduction');
  assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),1);
  await click(firstVisit,'Fountain');
- assert.ok((await cp(firstVisit)).position[0]>0.4,'fresh first visitor can explore after intro');
+ assert.ok(await firstVisit.locator('.actor.milo').evaluate(el=>parseFloat(el.style.left)>40),'fresh first visitor can explore after intro');
  pass('FIELD-QA-FIRST-01','Fresh private browser starts with separated trio, visible Begin/Continue, and working exploration after intro.');
  await firstVisitCtx.close();
  const {c,p}=await context();
