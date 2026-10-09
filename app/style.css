@@ -11,3 +11,13 @@
 .marker-world-plate.revealed{background-position:99% 50%}
 .marker-world-lettering{position:absolute;left:26%;top:35%;width:48%;text-align:center;font:bold clamp(4px,.65vw,11px) system-ui;color:#263d48;line-height:1.15;white-space:nowrap;letter-spacing:-.03em}
 .marker-world-lettering span{display:block;font-size:1.8em}
+
+/* E01 discovery and plate-touch affordances */
+.map-checked circle{fill:#e6f0d6;stroke:#345f43;stroke-width:3}
+.map-checked path{fill:none;stroke:#286446;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+.plate-rub-target{width:240px;height:300px;margin:5px auto;position:relative}
+.plate-rub-target .plate-close{margin:0}
+#plate-rub-canvas{position:absolute;inset:0;width:240px;height:300px;cursor:crosshair;touch-action:none;user-select:none;border-radius:4px}
+.rub-instruction{text-align:center;font:17px/1.5 system-ui}
+#rub-status{text-align:center;font:14px system-ui;color:#355f51}
+.clean-accessible{display:block;margin:14px auto}
