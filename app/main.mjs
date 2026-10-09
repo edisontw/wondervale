@@ -107,9 +107,9 @@ function sceneBody(){const p=state.phase;
  if(['chronicle_close','completed'].includes(p))return `<div class="chronicle"><span class="eyebrow">Wondervale Chronicle</span><h2>${content.chronicle.title}</h2>${mapArt()}<div class="chronicle-columns"><div><h3>What we found</h3><ul>${content.chronicle.found.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div><h3>What we wonder</h3><ul>${content.chronicle.wonder.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div><div class="memory-pair">${plate(false)}${plate(true)}</div>${p==='completed'?`<p class="notice">Town Square remembers. The old mark stays clear.</p><div class="row">${button('Visit Town Square','present')}${button('Replay this memory','replay')}</div>`:actions()}</div>`;
  let title={opening:'A normal day in Town Square',square_explore:'Walk with Milo',square_compare:line(short('UI',5)).exact_text,marker_search:state.plateFound?line(short('UI',8)).exact_text:line(short('UI',9)).exact_text}[p];
  return `<div class="scene-heading"><span class="eyebrow">Town Square</span><h1>${esc(title)}</h1></div>${world()}${state.phase==='square_compare'?`<p class="comparison-progress" role="status">Old map clues: Fountain ${state.anchors.includes('fountain')?'✓':'○'} · Big tree ${state.anchors.includes('large_tree')?'✓':'○'}. Walk to each place, then select Map to check the paper.</p>`:''}${actions()}${p==='square_explore'&&groups.board.indexOf(state.queue[0])>=5?`<div class="close-panel"><div class="board-close" role="img" aria-label="Old paper preserved behind the current notice"></div></div>`:''}${p==='marker_search'&&state.plateFound?`<div class="close-panel" id="plate-swipe">
-<p class="rub-guide">${state.queue.length?(ui.rubCompleted?'Dust cleared. Continue the story to uncover the old writing.':'Listen to the story first. Then you can rub the plate.'):state.markerRevealed?'The old writing is clear.':ui.rubCompleted?'The dust is gone. Continue the story to reveal the writing.':'Rub across the old post picture to uncover the hidden word.'}</p>
+<p class="rub-guide">${state.queue.length?(ui.rubCompleted?'Dust cleared. Continue the story to uncover the old writing.':'Listen to the story first. Then you can rub the plate.'):state.markerRevealed?'The old writing is clear.':ui.rubCompleted?'The dust is gone. Continue the story to reveal the writing.':'Rub the middle of the post until the hidden writing is clear.'}</p>
 <div class="plate-rub-wrap ${!state.queue.length&&!state.markerRevealed&&!ui.rubCompleted?'rub-loading':''}">${plate(state.markerRevealed,ui.rubCompleted||(!state.queue.length&&!state.markerRevealed),ui.rubCompleted&&!state.markerRevealed)}${!state.queue.length&&!state.markerRevealed&&!ui.rubCompleted?'<canvas id="plate-ink-preview" width="240" height="300" aria-hidden="true"></canvas><canvas id="plate-rub" width="240" height="300" role="img" aria-label="Old post: rub the picture to reveal the writing beneath"></canvas>':''}</div>
-${state.queue.length?`<div class="rub-next" role="status"><p>Read the next line to continue.</p>${button('Continue story','next','class="primary"')}</div>`:!state.markerRevealed&&!ui.rubCompleted?`<div class="rub-progress"><p id="rub-status" role="status">Dust cleared: 0%. Keep rubbing until the plate is ready.</p><progress id="rub-meter" max="100" value="0" aria-label="Dust cleared"></progress><div class="rub-actions">${button('Finish cleaning','rub-finish','class="primary" disabled')}${button('Clean without rubbing','clean','class="secondary"')}</div></div>`:state.markerRevealed?'<p class="rub-guide" role="status">The old writing has been revealed.</p>':'<p class="rub-guide" role="status">Dust cleared. Continue the story to uncover the mark.</p>'}
+${state.queue.length?`<div class="rub-next" role="status"><p>Read the next line to continue.</p>${button('Continue story','next','class="primary"')}</div>`:!state.markerRevealed&&!ui.rubCompleted?`<div class="rub-progress"><p id="rub-status" role="status">Writing uncovered: 0%. Rub over the hidden writing.</p><progress id="rub-meter" max="100" value="0" aria-label="Writing uncovered"></progress><div class="rub-actions">${button('Finish cleaning','rub-finish','class="primary" disabled')}${button('Clean without rubbing','clean','class="secondary"')}</div></div>`:state.markerRevealed?'<p class="rub-guide" role="status">The old writing has been revealed.</p>':'<p class="rub-guide" role="status">Dust cleared. Continue the story to uncover the mark.</p>'}
 </div>`:''}${ui.map?`<section class="scene-map-sheet map-optional" role="region" aria-label="Old map"><div class="sheet-heading"><strong>Old map</strong>${button('Close map','map','class="primary"')}</div>${mapArt()}</section>`:''}`;
 }
 function caption(){const q=state.queue[0];if(!q)return '';const l=line(q);return `<section class="caption" aria-label="Story dialogue" aria-live="polite" aria-atomic="true"><div class="portrait portrait-${esc(l.speaker.toLowerCase())}">${portrait(l.speaker)}</div><div class="caption-message"><div class="speaker">${esc(l.speaker==='NARRATOR'?'Story':l.speaker==='UI'?'Look & play':l.speaker[0]+l.speaker.slice(1).toLowerCase())}</div><p class="text" data-line-id="${q}">${esc(l.exact_text)}</p>${ui.reread?.scope==='caption'?`<p role="status" class="reread-status">${esc(ui.reread.message)}</p>`:''}</div><div class="caption-actions" role="group" aria-label="Story dialogue controls">${button('Continue','next','class="primary"')}${button('Read again','read')}${state.phase==='opening'?'':button('Skip dialogue','skip','class="secondary"')}</div></section>`;}
@@ -144,7 +144,10 @@ if(event.target.id==='world'&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','w
 // paint rectangle, and wiping it reveals the clean original with RIVERSIDE
 // already drawn underneath. Both images stay aligned throughout the gesture.
 // No canonical discovery is saved until explicit Finish cleaning / clean bypass.
-const RUB={width:240,height:300,cols:12,rows:15,needed:126,brush:16};
+// The hit surface remains the whole original picture, but "done" describes
+// whether the central writing can be read, not whether unrelated wood/roof has
+// been erased. 6×8 evenly spaced witness cells cover the inscription and arrow.
+const RUB={width:240,height:300,brush:16,ink:{x:88,y:96,w:58,h:80,cols:6,rows:8,needed:36}};
 let rubbingCanvas=null,rubbingCtx=null,rubbingPointer=null,rubbingLast=null,rubbingCells=null;
 function initPlateRub(){
  const canvas=root.querySelector('#plate-rub');
@@ -189,20 +192,25 @@ function rubPoint(event){
  ctx.globalCompositeOperation='destination-out';
  ctx.lineWidth=RUB.brush*2;ctx.lineCap='round';ctx.lineJoin='round';
  ctx.beginPath();ctx.moveTo(prev[0],prev[1]);ctx.lineTo(x,y);ctx.stroke();
- const distance=Math.hypot(x-prev[0],y-prev[1]),steps=Math.max(1,Math.ceil(distance/5));
+ // Only count genuinely rubbed points over the plaque inscription. Strokes
+ // on the roof or wooden post still erase the artwork, but do not inflate the
+ // meter; otherwise RIVERSIDE can be legible with the meter stuck at ~50%.
+ const target=RUB.ink;
+ const distance=Math.hypot(x-prev[0],y-prev[1]),steps=Math.max(1,Math.ceil(distance/4));
  for(let i=0;i<=steps;i++){
   const px=prev[0]+(x-prev[0])*i/steps,py=prev[1]+(y-prev[1])*i/steps;
-  const minCol=Math.max(0,Math.floor((px-RUB.brush)/20)),maxCol=Math.min(11,Math.floor((px+RUB.brush)/20));
-  const minRow=Math.max(0,Math.floor((py-RUB.brush)/20)),maxRow=Math.min(14,Math.floor((py+RUB.brush)/20));
-  for(let row=minRow;row<=maxRow;row++)for(let col=minCol;col<=maxCol;col++)
-   if(Math.hypot((col+.5)*20-px,(row+.5)*20-py)<=RUB.brush)rubbingCells.add(row*RUB.cols+col);
+  for(let row=0;row<target.rows;row++)for(let col=0;col<target.cols;col++){
+   const cx=target.x+(col+.5)*target.w/target.cols;
+   const cy=target.y+(row+.5)*target.h/target.rows;
+   if(Math.hypot(cx-px,cy-py)<=RUB.brush)rubbingCells.add(row*target.cols+col);
+  }
  }
  rubbingLast=[x,y];
- const progress=Math.min(100,Math.round(rubbingCells.size/RUB.needed*100));
+ const progress=Math.min(100,Math.round(rubbingCells.size/target.needed*100));
  const status=root.querySelector('#rub-status'),meter=root.querySelector('#rub-meter');
  if(meter)meter.value=progress;
- if(status)status.textContent='Dust cleared: '+progress+'%. '+(progress<100?'Keep rubbing. The hidden word appears where the dirt is gone.':'Ready! Select Finish cleaning to continue.');
- if(rubbingCells.size>=RUB.needed){
+ if(status)status.textContent='Writing uncovered: '+progress+'%. '+(progress<100?'Rub over the middle writing.':'Ready! Select Finish cleaning to continue.');
+ if(rubbingCells.size>=RUB.ink.needed){
   ui.rubReady=true;
   const finish=root.querySelector('[data-action="rub-finish"]');
   if(finish){finish.disabled=false;finish.focus({preventScroll:true});}
