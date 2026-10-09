@@ -180,7 +180,7 @@ try{
   assert.ok(mark.markWidth<=20&&mark.markHeight<=20,'Visible icon is small and nonobstructing: '+JSON.stringify(mark));
   assert.equal(mark.background,'rgba(0, 0, 0, 0)','Tap target itself is invisible over artwork');
  }
- await hotspotsPage.locator('[data-action="walk:fountain"]').click();
+ await hotspotsPage.locator('.spot[data-action="walk:fountain"]').click();
  assert.ok(await hotspotsPage.locator('.actor.milo').count());
  pass('FIELD-QA-SPOT-01','Landmark symbols are small translucent marks while their labeled 44px hit targets still navigate.');
  await hotspotsCtx.close();
