@@ -7,11 +7,11 @@ let ui={parent:false,parentCollapsed:false,map:false,pause:false,storageError:fa
 const short=(who,n)=>`S01E01-${who}-${String(n).padStart(3,'0')}`;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const button=(label,action,attrs='')=>`<button data-action="${action}" ${attrs}>${esc(label)}</button>`;
-const char=(name)=>['MILO','NIA','FINN'].includes(name)?`<svg aria-hidden="true" viewBox="${({MILO:'40 0 520 1024',NIA:'550 0 480 1024',FINN:'1030 0 500 1024'})[name]}"><image href="public/art/trio-sprites.webp" width="1536" height="1024"/></svg>`:name==='STEWARD'?'<img src="public/art/steward.webp" alt="">':'<span aria-hidden="true" style="font-size:38px">❧</span>';
+const char=(name)=>['MILO','NIA','FINN'].includes(name)?`<svg aria-hidden="true" viewBox="${({MILO:'60 0 465 1024',NIA:'545 0 450 1024',FINN:'1025 0 485 1024'})[name]}"><image href="public/art/trio-sprites.webp" width="1536" height="1024"/></svg>`:name==='STEWARD'?'<img src="public/art/steward.webp" alt="">':'<span aria-hidden="true" style="font-size:38px">❧</span>';
 // The scene uses the approved full-body trio atlas. Dialogue portraits instead
 // crop a single speaker to safe, non-overlapping atlas regions. No new identity art.
 const portrait=(name)=>{
- const crops={MILO:'105 55 315 420',NIA:'625 55 330 420',FINN:'1110 55 315 420'};
+ const crops={MILO:'95 12 425 474',NIA:'555 18 435 474',FINN:'1045 18 445 474'};
  return crops[name]
   ? `<svg class="portrait-art" aria-hidden="true" viewBox="${crops[name]}" preserveAspectRatio="xMidYMid slice"><image href="public/art/trio-sprites.webp" width="1536" height="1024"/></svg>`
   : '<span class="portrait-mark" aria-hidden="true">✦</span>';
