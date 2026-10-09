@@ -297,3 +297,58 @@ html,body{height:100%;overflow:hidden}
  .layout .scene-heading h1{font-size:18px}
  .layout .caption{padding:7px 8px}
 }
+
+/* Field QA: hotspots remain easy to tap, but must not cover town landmarks.
+   Make only the small pictogram visible; the 44px hit area stays transparent. */
+.world button.spot,
+.layout .world button.spot{
+ display:grid;
+ place-items:center;
+ width:44px;min-width:44px;
+ height:44px;min-height:44px;
+ padding:0;
+ border:0;
+ border-radius:50%;
+ box-shadow:none;
+ background:transparent;
+ color:var(--ink);
+ font:inherit;
+}
+.world button.spot:hover,.layout .world button.spot:hover{background:transparent}
+.world button.spot .spot-symbol{
+ display:grid;
+ place-items:center;
+ width:19px;height:19px;
+ border:1px solid rgba(63,88,71,.63);
+ border-radius:50%;
+ background:rgba(255,250,239,.50);
+ color:#2e5c46;
+ box-shadow:0 1px 2px rgba(29,36,30,.15);
+ font:700 12px/1 system-ui;
+ opacity:.88;
+ pointer-events:none;
+}
+.world button.spot:hover .spot-symbol,
+.world button.spot:focus-visible .spot-symbol{
+ width:24px;height:24px;
+ background:rgba(255,250,239,.94);
+ opacity:1;
+}
+.world button.spot:focus-visible{outline:2px solid #145c77;outline-offset:0}
+.opening-guide{
+ max-width:570px;
+ margin:5px 0 0;
+ padding:5px 10px;
+ background:rgba(237,233,215,.65);
+ border-radius:9px;
+}
+.opening-guide p{margin:0;font:14px/1.4 system-ui}
+@media(max-width:760px){
+ .opening-guide{padding:4px 7px}
+ .opening-guide p{font:12px/1.35 system-ui}
+ .layout .world button.spot{
+  width:44px;min-width:44px;
+  height:44px;min-height:44px;
+  font-size:inherit;
+ }
+}
