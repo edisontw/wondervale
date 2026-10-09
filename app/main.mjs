@@ -131,11 +131,11 @@ function rubAt(e){
 }
 root.addEventListener('pointerdown',e=>{if(e.target.id!=='plate-rub-canvas')return;e.preventDefault();rubDown=true;rubPointer=e.pointerId;rubLast=null;e.target.setPointerCapture?.(e.pointerId);rubAt(e);});
 root.addEventListener('pointermove',e=>{if(!rubDown||e.pointerId!==rubPointer)return;e.preventDefault();rubAt(e);});
-root.addEventListener('pointerup',e=>{if(e.pointerId===rubPointer){rubDown=false;rubPointer=null;rubLast=null;}});
+root.addEventListener('pointerup',e=>{if(e.pointerId===rubPointer){if(rubDown)rubAt(e);rubDown=false;rubPointer=null;rubLast=null;}});
 root.addEventListener('pointercancel',e=>{if(e.pointerId===rubPointer){rubDown=false;rubPointer=null;rubLast=null;}});
 root.addEventListener('touchstart',e=>{if(e.target.id!=='plate-rub-canvas')return;e.preventDefault();rubDown=true;rubLast=null;const t=e.touches[0];if(t)rubAt(t);},{passive:false});
 root.addEventListener('touchmove',e=>{if(!rubDown||!e.target.closest('#plate-rub-canvas'))return;e.preventDefault();const t=e.touches[0];if(t)rubAt(t);},{passive:false});
-root.addEventListener('touchend',e=>{if(e.target.id==='plate-rub-canvas'){rubDown=false;rubLast=null;}});
+root.addEventListener('touchend',e=>{if(e.target.id==='plate-rub-canvas'){const t=e.changedTouches[0];if(rubDown&&t)rubAt(t);rubDown=false;rubLast=null;}});
 
 document.addEventListener('visibilitychange',()=>{if(document.hidden){globalThis.speechSynthesis?.cancel();save();}});
 render();if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
