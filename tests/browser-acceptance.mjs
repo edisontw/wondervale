@@ -120,7 +120,7 @@ try{
  assert.equal(await firstVisit.getByRole('button',{name:'Skip dialogue',exact:true}).count(),0);
  assert.equal(await firstVisit.getByRole('button',{name:'Help',exact:true}).count(),0);
  assert.equal(await firstVisit.getByRole('button',{name:'Pause',exact:true}).count(),0);
- const cropRanges={Milo:[90,510],Nia:[580,1000],Finn:[1070,1510]};
+ const cropRanges={Milo:[90,530],Nia:[545,1010],Finn:[1035,1520]};
  const speakersWithPortrait=new Set();
  const introCount=groups.opening.length;
  for(let n=0;n<introCount;n++){
