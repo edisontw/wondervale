@@ -81,3 +81,14 @@ html,body{height:100%;overflow:hidden}
  .layout .scene-heading{padding:5px 12px}
  .layout .navigation{padding:4px 10px}
 }
+
+/* Confirmed map evidence is a visible, non-spoiling hand-drawn stamp. */
+.map-confirmed circle{fill:#e5ebd9;stroke:#315940;stroke-width:3}
+.map-confirmed path{fill:none;stroke:#235e3b;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+/* Actual mouse, pen and finger scratch surface; cursor and touch behavior stay
+   scoped to the removable dust layer so the rest of the world can still pan. */
+.plate-rub-wrap{position:relative;width:240px;height:300px;max-width:100%;margin:8px auto}
+.plate-rub-wrap .plate-close{position:absolute;inset:0;margin:0}
+#plate-rub{position:absolute;inset:0;display:block;width:100%;height:100%;cursor:crosshair;touch-action:none;user-select:none;-webkit-user-select:none}
+.rub-guide,#rub-status{text-align:center;font:15px/1.5 system-ui;margin:8px auto}
+#plate-swipe button[data-action=clean]{display:block;margin:10px auto}
