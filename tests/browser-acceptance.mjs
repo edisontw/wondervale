@@ -10,7 +10,18 @@ const browser=await chromium.launch({headless:true});
 const drainState=s=>{while(s.queue.length)s=dispatch(s,{type:'next'});return s;};
 function fixture(stage){let s=drainState(dispatch(fresh(),{type:'begin'}));if(stage==='square')return payload(s,{motion:false});s=drainState(dispatch(dispatch(s,{type:'move',target:'board'}),{type:'hold'}));if(stage==='map')return payload(s,{motion:false});for(const r of ['line','blank_shape'])s=drainState(dispatch(s,{type:'inspect',region:r}));s=drainState(dispatch(s,{type:'guess',choice:'A'}));if(stage==='observed')return payload(s,{motion:false});for(const t of ['fountain','large_tree'])s=drainState(dispatch(dispatch(s,{type:'move',target:t}),{type:'compare',symbol:t}));if(stage==='anchors')return payload(s,{motion:false});s=drainState(dispatch(dispatch(s,{type:'move',target:'marker'}),{type:'findPlate'}));s=drainState(dispatch(s,{type:'clean'}));if(stage==='marker')return payload(s,{motion:false});s=drainState(dispatch(s,{type:'finish'}));if(stage==='later')s.ledger.push('episode_completed:s01e03');return payload(s,{motion:false});}
 async function context({mobile=false,stage=null,motion=false}={}){const c=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1366,height:900},isMobile:mobile,hasTouch:mobile,reducedMotion:motion?'no-preference':'reduce'});if(stage)await c.addInitScript(({key,save})=>{if(localStorage.getItem(key)===null)localStorage.setItem(key,JSON.stringify(save));},{key:KEY,save:fixture(stage)});const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)errors.push(`${r.status()} ${r.url()}`);});await p.goto(base,{waitUntil:'networkidle'});await p.locator('.brand').waitFor();if(await p.getByRole('button',{name:'Continue the story',exact:true}).count())await p.getByRole('button',{name:'Continue the story',exact:true}).click();return {c,p};}
-async function drain(p){let n=0;while(await p.getByRole('button',{name:'Skip dialogue',exact:true}).count()){await p.getByRole('button',{name:'Skip dialogue',exact:true}).click();assert.ok(++n<20);} }
+async function drain(p){
+ let n=0;
+ while(true){
+  if(await p.getByRole('button',{name:'Skip dialogue',exact:true}).count()){
+   await p.getByRole('button',{name:'Skip dialogue',exact:true}).click();
+  }else if(await p.getByRole('heading',{name:'A normal day in Town Square',exact:true}).count() &&
+    await p.getByRole('button',{name:'Continue',exact:true}).count()){
+   await p.getByRole('button',{name:'Continue',exact:true}).click();
+  }else break;
+  assert.ok(++n<25,'Dialogue remained stuck while advancing lines');
+ }
+}
 async function click(p,name){await p.getByRole('button',{name,exact:true}).click();}
 async function tap(p,name){await p.getByRole('button',{name,exact:true}).tap();}
 async function ledger(p){return p.evaluate(key=>JSON.parse(localStorage.getItem(key))?.ledger||[],KEY);}
@@ -101,14 +112,24 @@ try{
  for(let i=0;i<introFeet.length;i++)for(let j=0;j<i;j++)assert.ok(Math.hypot(introFeet[i][0]-introFeet[j][0],introFeet[i][1]-introFeet[j][1])>9,'opening trio should stand apart');
  await click(firstVisit,'Begin');
  assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),0);
- assert.equal(await firstVisit.getByRole('button',{name:'Continue story',exact:true}).count(),1);
- await click(firstVisit,'Continue story');
- assert.ok((await cp(firstVisit)).started,'introduction can advance');
- await click(firstVisit,'Skip introduction');
+ assert.equal(await firstVisit.getByRole('button',{name:'Continue story',exact:true}).count(),0,'No duplicate top Continue');
+ assert.equal(await firstVisit.getByRole('button',{name:'Skip introduction',exact:true}).count(),0);
+ assert.equal(await firstVisit.getByRole('button',{name:'Skip dialogue',exact:true}).count(),0);
+ assert.equal(await firstVisit.getByRole('button',{name:'Help',exact:true}).count(),0);
+ assert.equal(await firstVisit.getByRole('button',{name:'Pause',exact:true}).count(),0);
+ assert.match(await firstVisit.locator('.opening-guide').innerText(),/Read the opening story/);
+ const introCount=groups.opening.length;
+ for(let n=0;n<introCount;n++){
+  assert.equal(await firstVisit.getByRole('button',{name:'Continue',exact:true}).count(),1);
+  assert.equal(await firstVisit.getByRole('button',{name:'Skip dialogue',exact:true}).count(),0);
+  if(n<introCount-1)assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),0);
+  await click(firstVisit,'Continue');
+ }
  assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),1);
+ assert.equal(await firstVisit.locator('.opening-guide').count(),0);
  await click(firstVisit,'Fountain');
- assert.ok(await firstVisit.locator('.actor.milo').evaluate(el=>parseFloat(el.style.left)>40),'fresh first visitor can explore after intro');
- pass('FIELD-QA-FIRST-01','Fresh private browser starts with separated trio, visible Begin/Continue, and working exploration after intro.');
+ assert.ok(await firstVisit.locator('.actor.milo').evaluate(el=>parseFloat(el.style.left)>40),'first visitor explores only after full intro');
+ pass('FIELD-QA-FIRST-01','Mandatory introduction requires every approved line via one lower Continue; no header Help/Pause or intro skip.');
  await firstVisitCtx.close();
 
 
@@ -129,7 +150,7 @@ try{
      return {name:button.textContent,top:r.top,bottom:r.bottom,height:r.height,width:r.width,hit:hit===button||button.contains(hit)};
     })};
   });
-  assert.equal(positions.controls.length,3);
+  assert.equal(positions.controls.length,2,'Opening has Continue and Read again; no Skip dialogue');
   assert.ok(positions.documentHeight<=h+3,'Entire desktop document should fit: '+JSON.stringify({w,h,positions}));
   assert.equal(positions.caption.overflow,'visible','Desktop caption must never require internal scroll to reach actions');
   for(const c of positions.controls){
@@ -141,7 +162,7 @@ try{
  const firstCaption=await captionPage.locator('.caption [data-line-id]').getAttribute('data-line-id');
  await click(captionPage,'Continue');
  assert.notEqual(await captionPage.locator('.caption [data-line-id]').getAttribute('data-line-id'),firstCaption);
- pass('FIELD-QA-CAPTION-01','Desktop Continue, Read again and Skip dialogue stay large, visible and hit-testable at 1366x900, 1024x720 and 800x600 without scrolling.');
+ pass('FIELD-QA-CAPTION-01','Opening Continue and Read again stay large and hit-testable at 1366x900, 1024x720 and 800x600.');
  await captionCtx.close();
  const {c:viewportCtx,p:viewportPage}=await context({stage:'observed'});
  assert.equal(await viewportPage.locator('.scene-map-sheet,.map-inset').count(),0,'Landmark stage must not show a map automatically');
