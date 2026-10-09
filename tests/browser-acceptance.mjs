@@ -156,7 +156,7 @@ try{
    closeHeight:cr.height,closeHit:close.contains(document.elementFromPoint(cr.left+cr.width/2,cr.top+cr.height/2)),
    worldPresent:!!document.querySelector('.world')};
  });
- const alphaOf=s=>Number(s.match(/rgba?\\([^)]*,\\s*([0-9.]+)\\s*\\)$/)?.[1]??1);
+ const alphaOf=s=>s.startsWith('rgba(')?parseFloat(s.split(',').at(-1)):1;
  assert.ok(desktopMap.sheetWidth<desktopMap.worldWidth*.59,'Most of desktop town must remain visible: '+JSON.stringify(desktopMap));
  assert.ok(alphaOf(desktopMap.background)<.95&&alphaOf(desktopMap.background)>.68,'Translucent paper must still be legible: '+desktopMap.background);
  assert.ok(alphaOf(desktopMap.paperFill)<.85,'SVG paper face must not be fully opaque: '+desktopMap.paperFill);
