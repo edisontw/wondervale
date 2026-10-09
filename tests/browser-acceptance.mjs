@@ -109,6 +109,38 @@ try{
  pass('FIELD-QA-FIRST-01','Fresh private browser starts with separated trio, visible Begin/Continue, and working exploration after intro.');
  await firstVisitCtx.close();
 
+
+ // The owner could not comfortably click the old dialogue actions at the foot
+ // of desktop screen. Geometry must prove all three controls remain visible and
+ // hit-testable, without scrolling the dialogue box or full browser document.
+ const {c:captionCtx,p:captionPage}=await context();
+ await click(captionPage,'Begin');
+ for(const [w,h] of [[1366,900],[1024,720],[800,600]]){
+  await captionPage.setViewportSize({width:w,height:h});
+  const positions=await captionPage.evaluate(()=>{
+   const cap=document.querySelector('.caption'),actions=[...cap.querySelectorAll('.caption-actions button')];
+   const box=cap.getBoundingClientRect();
+   return {windowHeight:innerHeight,documentHeight:document.documentElement.scrollHeight,
+    caption:{top:box.top,bottom:box.bottom,overflow:getComputedStyle(cap).overflowY},
+    controls:actions.map(button=>{
+     const r=button.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+     return {name:button.textContent,top:r.top,bottom:r.bottom,height:r.height,width:r.width,hit:hit===button||button.contains(hit)};
+    })};
+  });
+  assert.equal(positions.controls.length,3);
+  assert.ok(positions.documentHeight<=h+3,'Entire desktop document should fit: '+JSON.stringify({w,h,positions}));
+  assert.equal(positions.caption.overflow,'visible','Desktop caption must never require internal scroll to reach actions');
+  for(const c of positions.controls){
+   assert.ok(c.top>=0&&c.bottom<=h-3, 'Dialogue action outside viewport '+JSON.stringify({w,h,c,positions}));
+   assert.ok(c.height>=44&&c.width>=65&&c.hit,'Dialogue action hard to click '+JSON.stringify({w,h,c}));
+  }
+  assert.ok(positions.controls[0].height>=54,'Continue must be a large primary target');
+ }
+ const firstCaption=await captionPage.locator('.caption [data-line-id]').getAttribute('data-line-id');
+ await click(captionPage,'Continue');
+ assert.notEqual(await captionPage.locator('.caption [data-line-id]').getAttribute('data-line-id'),firstCaption);
+ pass('FIELD-QA-CAPTION-01','Desktop Continue, Read again and Skip dialogue stay large, visible and hit-testable at 1366x900, 1024x720 and 800x600 without scrolling.');
+ await captionCtx.close();
  const {c:viewportCtx,p:viewportPage}=await context({stage:'observed'});
  assert.equal(await viewportPage.locator('.scene-map-sheet,.map-inset').count(),0,'Landmark stage must not show a map automatically');
  for(let n=0;n<3;n++){

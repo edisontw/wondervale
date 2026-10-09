@@ -104,3 +104,66 @@ html,body{height:100%;overflow:hidden}
 .rub-actions button{flex:1 1 auto;min-width:145px}
 .rub-actions button:disabled{opacity:.48}
 .rub-next button{min-width:145px}
+
+/* Desktop dialogue must be reachable without scrolling an entire caption panel.
+   Keep the read-only line left of a large, always-visible action dock on the right. */
+@media (min-width:761px){
+ .layout .caption{
+  display:grid;
+  grid-template-columns:50px minmax(0,1fr) minmax(185px,226px);
+  align-items:center;
+  gap:12px;
+  flex:0 0 auto;
+  min-height:118px;
+  max-height:min(174px,29dvh);
+  overflow:visible;
+  padding:11px 14px;
+  margin-top:8px;
+ }
+ .layout .caption .portrait{height:66px;width:49px;align-self:center}
+ .layout .caption .caption-message{
+  min-width:0;
+  max-height:min(146px,25dvh);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+ }
+ .layout .caption .speaker{margin-bottom:3px}
+ .layout .caption .text{font-size:clamp(17px,1.45vw,22px);line-height:1.35;margin:0}
+ .layout .caption .reread-status{margin:5px 0 0;font-size:13px}
+ .layout .caption .caption-actions{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  align-self:center;
+  gap:7px;
+  margin:0;
+  min-width:0;
+ }
+ .layout .caption .caption-actions button{
+  min-width:0;
+  min-height:44px;
+  padding:7px 5px;
+  font:600 13px/1.25 system-ui;
+  text-align:center;
+ }
+ .layout .caption .caption-actions button[data-action="next"]{
+  grid-column:1/-1;
+  min-height:54px;
+  font:700 19px/1.2 system-ui;
+  box-shadow:0 2px 4px #183b2d33;
+ }
+}
+@media (min-width:761px) and (max-width:950px){
+ .layout .caption{grid-template-columns:43px minmax(0,1fr) 180px;gap:9px;padding:8px 10px}
+ .layout .caption .portrait{height:58px;width:43px}
+ .layout .caption .caption-actions{gap:4px}
+ .layout .caption .caption-actions button{font-size:12px}
+}
+@media (max-width:760px){
+ .layout .caption{display:grid;grid-template-columns:40px minmax(0,1fr);gap:5px 10px;align-content:center}
+ .layout .caption .portrait{grid-row:1 / 3}
+ .layout .caption .caption-message{min-width:0;max-height:15dvh;overflow-y:auto;overscroll-behavior:contain}
+ .layout .caption .caption-message .text{margin:0 0 4px}
+ .layout .caption .caption-actions{grid-column:2;display:flex;flex-wrap:wrap;margin:0;gap:5px}
+ .layout .caption .caption-actions button{flex:1 1 auto;min-height:40px}
+}
