@@ -570,3 +570,30 @@ html,body{height:100%;overflow:hidden}
 .memory-pair .plate-close .plate-word{gap:1px}
 .memory-pair .plate-close .plate-text .arrow{font-size:12px}
 .marker-original-ink{overflow:hidden;white-space:nowrap}
+
+/* 2026-10-09 owner correction supersedes the small 58×75 rub area above.
+   The complete 240×300 approved dirty post is the scratch cover; beneath it,
+   the aligned original clean post and ephemeral Riverside ink are uncovered
+   wherever the child brushes. The saved reveal is still a separate event. */
+.plate-close .plate-clean-surface{
+ clip-path:none;
+ -webkit-clip-path:none;
+}
+.plate-rub-wrap.rub-loading:not(.rubbing-active) .plate-clean-surface,
+.plate-rub-wrap.rub-loading:not(.rubbing-active) #plate-ink-preview{
+ visibility:hidden;
+}
+#plate-ink-preview,
+#plate-rub{
+ position:absolute;
+ inset:0;
+ display:block;
+ left:0;
+ top:0;
+ right:0;
+ bottom:0;
+ width:100%;
+ height:100%;
+}
+#plate-ink-preview{z-index:1;pointer-events:none}
+#plate-rub{z-index:2;cursor:crosshair;touch-action:none;user-select:none;-webkit-user-select:none}
