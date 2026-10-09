@@ -107,8 +107,8 @@ if(type==='walk')act({type:'move',target:value});else if(type==='inspect')act({t
 root.addEventListener('change',event=>{const setting=event.target.dataset.setting;if(!setting)return;prefs[setting]=event.target.checked;save();render();});
 root.addEventListener('keydown',event=>{if(event.key==='Escape'){if(ui.resetConfirm){ui.resetConfirm=false;ui.resetError=false;}else{ui.pause=false;ui.map=false;ui.parent=false;ui.parentPreview=false;}render();return;}if(event.target.closest('.dialog')){if(event.key==='Tab'){const list=[...event.target.closest('.dialog').querySelectorAll('button')];if(event.shiftKey&&event.target===list[0]){event.preventDefault();list.at(-1).focus();}else if(!event.shiftKey&&event.target===list.at(-1)){event.preventDefault();list[0].focus();}}return;}
 if(event.target.id==='world'&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','w','a','s','d'].includes(event.key)){event.preventDefault();const x=state.position[0],y=state.position[1];act({type:'move',x:x+(['ArrowRight','d'].includes(event.key)?.05:['ArrowLeft','a'].includes(event.key)?-.05:0),y:y+(['ArrowDown','s'].includes(event.key)?.04:['ArrowUp','w'].includes(event.key)?-.04:0)});}});
-let swipeStart=null;root.addEventListener('pointerdown',e=>{if(e.target.closest('#plate-swipe')){swipeStart=[e.clientX,e.clientY];root.setPointerCapture(e.pointerId);}});root.addEventListener('pointerup',e=>{if(swipeStart&&Math.hypot(e.clientX-swipeStart[0],e.clientY-swipeStart[1])>25)act({type:'clean'});swipeStart=null;});
-root.addEventListener('pointercancel',()=>{swipeStart=null;});
+// Previous single-swipe clean shortcut removed: it intercepted scratch events
+// and could reveal the plate before sufficient rubbing.
 // Ephemeral rubbing pixels are presentation only. The only durable outcome is
 // the approved one-time clean event in the engine; no destination text is shown early.
 let rubbingCanvas=null,rubbingCtx=null,rubbingPointer=null,rubbingLast=null,rubbingCells=null;
