@@ -152,7 +152,7 @@ function rubPoint(event){
 root.addEventListener('pointerdown',event=>{
  if(event.target.id!=='plate-rub'||!rubbingCanvas||state.markerRevealed)return;
  event.preventDefault();rubbingPointer=event.pointerId;rubbingLast=null;
- try{rubbingCanvas.setPointerCapture(event.pointerId);}catch{}
+ if(event.isTrusted){try{rubbingCanvas.setPointerCapture(event.pointerId);}catch{}}
  rubPoint(event);
 });
 root.addEventListener('pointermove',event=>{
