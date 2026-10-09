@@ -10,7 +10,18 @@ const browser=await chromium.launch({headless:true});
 const drainState=s=>{while(s.queue.length)s=dispatch(s,{type:'next'});return s;};
 function fixture(stage){let s=drainState(dispatch(fresh(),{type:'begin'}));if(stage==='square')return payload(s,{motion:false});s=drainState(dispatch(dispatch(s,{type:'move',target:'board'}),{type:'hold'}));if(stage==='map')return payload(s,{motion:false});for(const r of ['line','blank_shape'])s=drainState(dispatch(s,{type:'inspect',region:r}));s=drainState(dispatch(s,{type:'guess',choice:'A'}));if(stage==='observed')return payload(s,{motion:false});for(const t of ['fountain','large_tree'])s=drainState(dispatch(dispatch(s,{type:'move',target:t}),{type:'compare',symbol:t}));if(stage==='anchors')return payload(s,{motion:false});s=drainState(dispatch(dispatch(s,{type:'move',target:'marker'}),{type:'findPlate'}));s=drainState(dispatch(s,{type:'clean'}));if(stage==='marker')return payload(s,{motion:false});s=drainState(dispatch(s,{type:'finish'}));if(stage==='later')s.ledger.push('episode_completed:s01e03');return payload(s,{motion:false});}
 async function context({mobile=false,stage=null,motion=false}={}){const c=await browser.newContext({viewport:mobile?{width:390,height:844}:{width:1366,height:900},isMobile:mobile,hasTouch:mobile,reducedMotion:motion?'no-preference':'reduce'});if(stage)await c.addInitScript(({key,save})=>{if(localStorage.getItem(key)===null)localStorage.setItem(key,JSON.stringify(save));},{key:KEY,save:fixture(stage)});const p=await c.newPage();p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)errors.push(`${r.status()} ${r.url()}`);});await p.goto(base,{waitUntil:'networkidle'});await p.locator('.brand').waitFor();if(await p.getByRole('button',{name:'Continue the story',exact:true}).count())await p.getByRole('button',{name:'Continue the story',exact:true}).click();return {c,p};}
-async function drain(p){let n=0;while(await p.getByRole('button',{name:'Skip dialogue',exact:true}).count()){await p.getByRole('button',{name:'Skip dialogue',exact:true}).click();assert.ok(++n<20);} }
+async function drain(p){
+ let n=0;
+ while(true){
+  if(await p.getByRole('button',{name:'Skip dialogue',exact:true}).count()){
+   await p.getByRole('button',{name:'Skip dialogue',exact:true}).click();
+  }else if(await p.getByRole('heading',{name:'A normal day in Town Square',exact:true}).count() &&
+    await p.getByRole('button',{name:'Continue',exact:true}).count()){
+   await p.getByRole('button',{name:'Continue',exact:true}).click();
+  }else break;
+  assert.ok(++n<25,'Dialogue remained stuck while advancing lines');
+ }
+}
 async function click(p,name){await p.getByRole('button',{name,exact:true}).click();}
 async function tap(p,name){await p.getByRole('button',{name,exact:true}).tap();}
 async function ledger(p){return p.evaluate(key=>JSON.parse(localStorage.getItem(key))?.ledger||[],KEY);}
@@ -101,14 +112,24 @@ try{
  for(let i=0;i<introFeet.length;i++)for(let j=0;j<i;j++)assert.ok(Math.hypot(introFeet[i][0]-introFeet[j][0],introFeet[i][1]-introFeet[j][1])>9,'opening trio should stand apart');
  await click(firstVisit,'Begin');
  assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),0);
- assert.equal(await firstVisit.getByRole('button',{name:'Continue story',exact:true}).count(),1);
- await click(firstVisit,'Continue story');
- assert.ok((await cp(firstVisit)).started,'introduction can advance');
- await click(firstVisit,'Skip introduction');
+ assert.equal(await firstVisit.getByRole('button',{name:'Continue story',exact:true}).count(),0,'No duplicate top Continue');
+ assert.equal(await firstVisit.getByRole('button',{name:'Skip introduction',exact:true}).count(),0);
+ assert.equal(await firstVisit.getByRole('button',{name:'Skip dialogue',exact:true}).count(),0);
+ assert.equal(await firstVisit.getByRole('button',{name:'Help',exact:true}).count(),0);
+ assert.equal(await firstVisit.getByRole('button',{name:'Pause',exact:true}).count(),0);
+ assert.match(await firstVisit.locator('.opening-guide').innerText(),/Read the opening story/);
+ const introCount=groups.opening.length;
+ for(let n=0;n<introCount;n++){
+  assert.equal(await firstVisit.getByRole('button',{name:'Continue',exact:true}).count(),1);
+  assert.equal(await firstVisit.getByRole('button',{name:'Skip dialogue',exact:true}).count(),0);
+  if(n<introCount-1)assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),0);
+  await click(firstVisit,'Continue');
+ }
  assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),1);
+ assert.equal(await firstVisit.locator('.opening-guide').count(),0);
  await click(firstVisit,'Fountain');
- assert.ok(await firstVisit.locator('.actor.milo').evaluate(el=>parseFloat(el.style.left)>40),'fresh first visitor can explore after intro');
- pass('FIELD-QA-FIRST-01','Fresh private browser starts with separated trio, visible Begin/Continue, and working exploration after intro.');
+ assert.ok(await firstVisit.locator('.actor.milo').evaluate(el=>parseFloat(el.style.left)>40),'first visitor explores only after full intro');
+ pass('FIELD-QA-FIRST-01','Mandatory introduction requires every approved line via one lower Continue; no header Help/Pause or intro skip.');
  await firstVisitCtx.close();
 
 
@@ -129,7 +150,7 @@ try{
      return {name:button.textContent,top:r.top,bottom:r.bottom,height:r.height,width:r.width,hit:hit===button||button.contains(hit)};
     })};
   });
-  assert.equal(positions.controls.length,3);
+  assert.equal(positions.controls.length,2,'Opening has Continue and Read again; no Skip dialogue');
   assert.ok(positions.documentHeight<=h+3,'Entire desktop document should fit: '+JSON.stringify({w,h,positions}));
   assert.equal(positions.caption.overflow,'visible','Desktop caption must never require internal scroll to reach actions');
   for(const c of positions.controls){
@@ -141,8 +162,28 @@ try{
  const firstCaption=await captionPage.locator('.caption [data-line-id]').getAttribute('data-line-id');
  await click(captionPage,'Continue');
  assert.notEqual(await captionPage.locator('.caption [data-line-id]').getAttribute('data-line-id'),firstCaption);
- pass('FIELD-QA-CAPTION-01','Desktop Continue, Read again and Skip dialogue stay large, visible and hit-testable at 1366x900, 1024x720 and 800x600 without scrolling.');
+ pass('FIELD-QA-CAPTION-01','Opening Continue and Read again stay large and hit-testable at 1366x900, 1024x720 and 800x600.');
  await captionCtx.close();
+
+ const {c:hotspotsCtx,p:hotspotsPage}=await context({stage:'square'});
+ const marks=await hotspotsPage.locator('#world button.spot').evaluateAll(btns=>btns.map(b=>{
+  const d=b.getBoundingClientRect(),icon=b.querySelector('.spot-symbol'),p=icon?.getBoundingClientRect();
+  const cs=getComputedStyle(b),badge=getComputedStyle(icon),background=cs.backgroundColor;
+  return {action:b.dataset.action,aria:b.getAttribute('aria-label'),hitWidth:d.width,hitHeight:d.height,
+    markWidth:p?.width,markHeight:p?.height,markAlpha:badge.opacity,background,
+    centerHit:b.contains(document.elementFromPoint(d.left+d.width/2,d.top+d.height/2))};
+ }));
+ assert.equal(marks.length,4);
+ for(const mark of marks){
+  assert.ok(mark.aria?.startsWith('Walk to'),'Clickable landmark remains accessible: '+JSON.stringify(mark));
+  assert.ok(mark.hitWidth>=44&&mark.hitHeight>=44&&mark.centerHit,'Tap area is at least 44px: '+JSON.stringify(mark));
+  assert.ok(mark.markWidth<=20&&mark.markHeight<=20,'Visible icon is small and nonobstructing: '+JSON.stringify(mark));
+  assert.equal(mark.background,'rgba(0, 0, 0, 0)','Tap target itself is invisible over artwork');
+ }
+ await hotspotsPage.locator('.spot[data-action="walk:fountain"]').click();
+ assert.ok(await hotspotsPage.locator('.actor.milo').count());
+ pass('FIELD-QA-SPOT-01','Landmark symbols are small translucent marks while their labeled 44px hit targets still navigate.');
+ await hotspotsCtx.close();
  const {c:viewportCtx,p:viewportPage}=await context({stage:'observed'});
  assert.equal(await viewportPage.locator('.scene-map-sheet,.map-inset').count(),0,'Landmark stage must not show a map automatically');
  await click(viewportPage,'Map');
@@ -434,7 +475,17 @@ try{
  const branchLedgers=[];
  for(const choice of ['A','B','C']){const {c,p}=await context({stage:'map'});for(const r of ['Look at the line','Look at the shape']){await click(p,r);await drain(p);}await p.screenshot({path:`${out}/desktop-map.png`,fullPage:true});await click(p,content.lines[`S01E01-MILO-${({A:'013',B:'014',C:'015'})[choice]}`].exact_text);assert.equal(await p.locator('[data-line-id]').getAttribute('data-line-id'),groups[choice][0]);await click(p,'Continue');assert.equal(await p.locator('[data-line-id]').getAttribute('data-line-id'),groups[choice][1]);await drain(p);branchLedgers.push(await ledger(p));await c.close();}assert.deepEqual(branchLedgers[0],branchLedgers[1]);assert.deepEqual(branchLedgers[1],branchLedgers[2]);pass('INT-10','All three exact line pairs converge to identical canonical event arrays.');
  const {c:mapc,p:mapp}=await context({stage:'map'});await click(mapp,'Look at the paper');await drain(mapp);const mapLedger=await ledger(mapp);for(let i=0;i<3;i++){await click(mapp,'Back to Square');await click(mapp,'Open the old map');assert.equal(await mapp.getByRole('button',{name:'Look at the paper',exact:true}).getAttribute('aria-pressed'),'true');}assert.deepEqual(await ledger(mapp),mapLedger);pass('SAV-11','Close/reopen map three times retains the deliberately inspected region and ledger.');await mapc.close();
- const {c:dc,p:dp}=await context({stage:'anchors'});await click(dp,'Old post');await click(dp,'Look at the old post');await drain(dp);await dp.evaluate(()=>{const b=document.querySelector('[data-action="clean"]');b.click();b.click();});await click(dp,'Pause');assert.equal(await dp.locator('.plate-text').count(),0);await click(dp,'Return to the story');await click(dp,'Continue');await click(dp,'Continue');await click(dp,'Pause');assert.equal((await ledger(dp)).filter(x=>x===events.marker[0]).length,1);await click(dp,'Return to the story');await dp.reload({waitUntil:'networkidle'});await click(dp,'Continue the story');assert.equal((await ledger(dp)).filter(x=>x===events.marker[0]).length,1);pass('SAV-06','Double clean and pauses before/after reveal persist one complete marker event.');await dc.close();
+ const {c:dc,p:dp}=await context({stage:'anchors'});
+ await click(dp,'Old post');await click(dp,'Look at the old post');await drain(dp);
+ await dp.evaluate(()=>{const b=document.querySelector('[data-action="clean"]');b.click();b.click();});
+ assert.equal(await dp.locator('.plate-text').count(),0,'Marker hidden until story reveals it');
+ await click(dp,'Continue');await click(dp,'Continue');
+ assert.equal((await ledger(dp)).filter(x=>x===events.marker[0]).length,1);
+ await dp.reload({waitUntil:'networkidle'});
+ await click(dp,'Continue the story');
+ assert.equal((await ledger(dp)).filter(x=>x===events.marker[0]).length,1);
+ pass('SAV-06','Double clean and reload preserve one completed event without a Pause control.');
+ await dc.close();
  const {c:fc,p:fp}=await context({stage:'anchors'});await click(fp,'Old post');await click(fp,'Look at the old post');await drain(fp);await fp.evaluate(()=>{const original=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(k==='wondervale-progress-v1'&&JSON.parse(v).ledger.includes('s01e01_town_square_old_marker_revealed'))throw new DOMException('Simulated quota','QuotaExceededError');return original.call(this,k,v);};});await click(fp,'Clean without rubbing');await click(fp,'Continue');await click(fp,'Continue');assert.equal(await fp.getByRole('alert').count(),1);assert.equal((await ledger(fp)).includes(events.marker[0]),false);await fp.reload({waitUntil:'networkidle'});await click(fp,'Continue the story');assert.equal(await fp.locator('.plate-text').count(),0);assert.equal((await ledger(fp)).includes(events.marker[0]),false);pass('SAV-10','Failed atomic write shows warning and reloads coherent pre-reveal checkpoint, without orphan event.');await fc.close();
  const {c:sc,p:sp}=await context({mobile:true,stage:'anchors'});
  await tap(sp,'Old post');await tap(sp,'Look at the old post');await drain(sp);
@@ -460,10 +511,31 @@ try{
  assert.equal((await ledger(sp)).filter(x=>x===events.marker[0]).length,1);
  pass('INT-16-SWIPE','Touch rubbing needs genuine coverage and an explicit Finish, then original reveal completes once.','Chromium emulated touch 390×844');
  await sc.close();
- for(const stage of ['square','map','observed','anchors']){const {c,p}=await context({stage});const start=await ledger(p);for(let i=0;i<3;i++){await click(p,'Help');const id=await p.locator('[data-line-id]').getAttribute('data-line-id');assert.ok(content.lines[id]);assert.equal(await p.locator('[data-line-id]').innerText(),content.lines[id].exact_text);await click(p,'Read again');assert.deepEqual(await ledger(p),start);await drain(p);}await c.close();}const {c:hc,p:hp}=await context({stage:'anchors'});await click(hp,'Old post');await click(hp,'Look at the old post');await drain(hp);await click(hp,'Help');assert.equal(await hp.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-UI-010');await drain(hp);assert.equal((await ledger(hp)).includes(events.marker[0]),false);await hc.close();pass('UX-06/UX-09','On-demand support escalation uses exact locked lines; reread/skip does not emit progress.');
+ for(const stage of ['square','map','observed','anchors']){
+  const {c,p}=await context({stage});
+  assert.equal(await p.getByRole('button',{name:'Help',exact:true}).count(),0);
+  assert.equal(await p.getByRole('button',{name:'Pause',exact:true}).count(),0);
+  await c.close();
+ }
+ const {c:hc,p:hp}=await context({stage:'map'});
+ await click(hp,'Look at the line');
+ const beforeReread=await ledger(hp);
+ const exactId=await hp.locator('.caption [data-line-id]').getAttribute('data-line-id');
+ await click(hp,'Read again');
+ assert.equal(await hp.locator('.caption [data-line-id]').getAttribute('data-line-id'),exactId);
+ assert.equal(await hp.locator('.caption [data-line-id]').innerText(),content.lines[exactId].exact_text);
+ assert.deepEqual(await ledger(hp),beforeReread,'Read again never advances or writes an event');
+ await hc.close();
+ pass('UX-06/UX-09','No header Help/Pause across stages; canonical Read again remains available without changing progress.');
  const {c:solo,p:solop}=await context({stage:'map'});await click(solop,'Look at the shape');assert.equal(await solop.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-FINN-004');await drain(solop);assert.equal(await solop.locator('.child input,.child textarea').count(),0);assert.equal(await solop.getByRole('button',{name:"Maybe it's a treasure map!",exact:true}).count(),0);pass('UX-10','Solo observation receives approved support without response input, scoring or guessed interpretation.');await solo.close();
  const {c:motor,p:motorp}=await context({stage:'square'});await motorp.getByLabel('Single-action assistance').check();assert.equal(await motorp.evaluate(key=>JSON.parse(localStorage.getItem(key)).preferences.motor,KEY),true);await finishPath(motorp);pass('UX-05-MOTOR','Motor assistance enabled: deliberate single-action travel, comparison and clean complete E01.');await motor.close();
- const {c:wc,p:wp}=await context({motion:true});await click(wp,'Begin');await drain(wp);await click(wp,'Noticeboard');await click(wp,'Pause');await click(wp,'Return to the story');await wp.getByRole('button',{name:'Help hold the paper.',exact:true}).waitFor();await click(wp,'Help hold the paper.');await drain(wp);assert.equal((await cp(wp)).phase,'map_observe');pass('MOTION-01','Normal motion plus pause during travel recovers without locking required action.');await wc.close();
+ const {c:wc,p:wp}=await context({motion:true});
+ await click(wp,'Begin');await drain(wp);await click(wp,'Noticeboard');
+ await wp.getByRole('button',{name:'Help hold the paper.',exact:true}).waitFor();
+ await click(wp,'Help hold the paper.');await drain(wp);
+ assert.equal((await cp(wp)).phase,'map_observe');
+ pass('MOTION-01','Normal-motion travel reaches noticeboard and interaction without Help/Pause controls.');
+ await wc.close();
  const {c:oc,p:op}=await context();await op.evaluate(async()=>{await navigator.serviceWorker.ready;});await op.reload({waitUntil:'networkidle'});await oc.setOffline(true);await op.reload({waitUntil:'networkidle'});assert.equal(await op.locator('.brand').innerText(),'Wondervale');await click(op,'Begin');await drain(op);pass('OFFLINE-01','After one online cache install, offline reload and play work.');await oc.close();
  assert.deepEqual(errors,[]);
  pass('RUNTIME-01','No page exceptions or HTTP asset errors across all browser paths.');
