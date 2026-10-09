@@ -237,8 +237,8 @@ try{
  // Emulated mobile DOM retains the pointer interaction; Chromium CDP rapid touch
  // batches coalesce moves, so use Playwright's paced genuine mouse gestures for
  // coverage-based reveal, and a separate real-device finger QA gate.
- for(let row=0;row<11;row++){
-  const y=box.y+12+row*25;
+ for(let row=0;row<16;row++){
+  const y=box.y+12+row*18;
   await sp.mouse.move(box.x+12,y);
   await sp.mouse.down();
   await sp.mouse.move(box.x+box.width-12,y,{steps:15});
