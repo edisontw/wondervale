@@ -337,8 +337,12 @@ try{
  }
  assert.equal(await sp.getByRole('button',{name:'Finish cleaning'}).isEnabled(),true,'Touch should become ready after deliberate strokes');
  assert.equal(await sp.locator('#plate-rub').count(),1,'No automatic scene change while rubbing');
+ await sp.evaluate(()=>{
+  globalThis.__rubTapEvents=[];
+  for(const name of ['pointerdown','pointerup','touchstart','touchend','click'])document.addEventListener(name,e=>globalThis.__rubTapEvents.push({type:name,tag:e.target.tagName,id:e.target.id||'',action:e.target.dataset?.action||''}),{capture:true,once:false});
+ });
  await tap(sp,'Finish cleaning');
- const mobileStatus=await sp.evaluate(()=>({buttons:[...document.querySelectorAll('#plate-swipe [data-action]')].map(el=>({action:el.dataset.action,text:el.textContent,disabled:el.disabled})),caption:document.querySelector('.caption [data-line-id]')?.getAttribute('data-line-id'),rub:document.querySelector('#rub-status')?.textContent,cleaned:!!document.querySelector('#plate-rub')}));
+ const mobileStatus=await sp.evaluate(()=>{const b=document.querySelector('[data-action="rub-finish"]'),r=b?.getBoundingClientRect();return {buttons:[...document.querySelectorAll('#plate-swipe [data-action]')].map(el=>({action:el.dataset.action,text:el.textContent,disabled:el.disabled})),caption:document.querySelector('.caption [data-line-id]')?.getAttribute('data-line-id'),rub:document.querySelector('#rub-status')?.textContent,cleaned:!!document.querySelector('#plate-rub'),events:globalThis.__rubTapEvents,hit:r?document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)?.outerHTML.slice(0,180):null};});
  assert.equal(await sp.getByRole('button',{name:'Continue story'}).count(),1,'After mobile Finish cleaning: '+JSON.stringify(mobileStatus));
  await tap(sp,'Continue story');await tap(sp,'Continue story');
  assert.equal((await ledger(sp)).filter(x=>x===events.marker[0]).length,1);
