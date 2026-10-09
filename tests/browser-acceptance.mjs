@@ -338,7 +338,8 @@ try{
  assert.equal(await sp.getByRole('button',{name:'Finish cleaning'}).isEnabled(),true,'Touch should become ready after deliberate strokes');
  assert.equal(await sp.locator('#plate-rub').count(),1,'No automatic scene change while rubbing');
  await tap(sp,'Finish cleaning');
- assert.equal(await sp.getByRole('button',{name:'Continue story'}).count(),1);
+ const mobileStatus=await sp.evaluate(()=>({buttons:[...document.querySelectorAll('#plate-swipe [data-action]')].map(el=>({action:el.dataset.action,text:el.textContent,disabled:el.disabled})),caption:document.querySelector('.caption [data-line-id]')?.getAttribute('data-line-id'),rub:document.querySelector('#rub-status')?.textContent,cleaned:!!document.querySelector('#plate-rub')}));
+ assert.equal(await sp.getByRole('button',{name:'Continue story'}).count(),1,'After mobile Finish cleaning: '+JSON.stringify(mobileStatus));
  await tap(sp,'Continue story');await tap(sp,'Continue story');
  assert.equal((await ledger(sp)).filter(x=>x===events.marker[0]).length,1);
  pass('INT-16-SWIPE','Touch rubbing needs genuine coverage and an explicit Finish, then original reveal completes once.','Chromium emulated touch 390×844');
