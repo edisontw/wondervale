@@ -110,16 +110,30 @@ try{
  const introFeet=await firstVisit.locator('.actor.milo, .actor.companion').evaluateAll(els=>els.map(el=>[parseFloat(el.style.left),parseFloat(el.style.top)]));
  assert.equal(introFeet.length,3);
  for(let i=0;i<introFeet.length;i++)for(let j=0;j<i;j++)assert.ok(Math.hypot(introFeet[i][0]-introFeet[j][0],introFeet[i][1]-introFeet[j][1])>9,'opening trio should stand apart');
+ assert.match(await firstVisit.locator('.scene-heading').innerText(),/Press Begin, then read every story line/);
  await click(firstVisit,'Begin');
+ assert.equal(await firstVisit.locator('.opening-guide').count(),0,'Intro instructions dismissed on Begin');
+ assert.doesNotMatch(await firstVisit.locator('.scene-heading').innerText(),/Press Begin, then read every story line/);
  assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),0);
  assert.equal(await firstVisit.getByRole('button',{name:'Continue story',exact:true}).count(),0,'No duplicate top Continue');
  assert.equal(await firstVisit.getByRole('button',{name:'Skip introduction',exact:true}).count(),0);
  assert.equal(await firstVisit.getByRole('button',{name:'Skip dialogue',exact:true}).count(),0);
  assert.equal(await firstVisit.getByRole('button',{name:'Help',exact:true}).count(),0);
  assert.equal(await firstVisit.getByRole('button',{name:'Pause',exact:true}).count(),0);
- assert.match(await firstVisit.locator('.opening-guide').innerText(),/Read the opening story/);
+ const cropRanges={Milo:[90,510],Nia:[580,1000],Finn:[1070,1510]};
+ const speakersWithPortrait=new Set();
  const introCount=groups.opening.length;
  for(let n=0;n<introCount;n++){
+  const speaker=await firstVisit.locator('.caption .speaker').innerText();
+  if(cropRanges[speaker]){
+   const crop=await firstVisit.locator('.caption .portrait svg').getAttribute('viewBox');
+   const [x,y,width,height]=crop.trim().split(/\s+/).map(Number);
+   assert.ok(x>=cropRanges[speaker][0]&&x+width<=cropRanges[speaker][1],
+     'Portrait must exclude neighboring people: '+JSON.stringify({speaker,crop}));
+   assert.ok(y>=0&&height<600,'Portrait must be a head/shoulder crop');
+   assert.equal(await firstVisit.locator('.caption .portrait image').count(),1);
+   speakersWithPortrait.add(speaker);
+  }else assert.equal(await firstVisit.locator('.caption .portrait image').count(),0);
   assert.equal(await firstVisit.getByRole('button',{name:'Continue',exact:true}).count(),1);
   assert.equal(await firstVisit.getByRole('button',{name:'Skip dialogue',exact:true}).count(),0);
   if(n<introCount-1)assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),0);
@@ -127,6 +141,7 @@ try{
  }
  assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),1);
  assert.equal(await firstVisit.locator('.opening-guide').count(),0);
+ assert.ok(speakersWithPortrait.size>=1,'At least one speaker-specific atlas crop must be exercised');
  await click(firstVisit,'Fountain');
  assert.ok(await firstVisit.locator('.actor.milo').evaluate(el=>parseFloat(el.style.left)>40),'first visitor explores only after full intro');
  pass('FIELD-QA-FIRST-01','Mandatory introduction requires every approved line via one lower Continue; no header Help/Pause or intro skip.');
@@ -164,6 +179,31 @@ try{
  assert.notEqual(await captionPage.locator('.caption [data-line-id]').getAttribute('data-line-id'),firstCaption);
  pass('FIELD-QA-CAPTION-01','Opening Continue and Read again stay large and hit-testable at 1366x900, 1024x720 and 800x600.');
  await captionCtx.close();
+
+ // Mobile-specific touch geometry, without changing the locked scene image.
+ const {c:mobileCaptionCtx,p:mobileCaptionPage}=await context({mobile:true});
+ await tap(mobileCaptionPage,'Begin');
+ for(const [w,h] of [[390,844],[320,700]]){
+  await mobileCaptionPage.setViewportSize({width:w,height:h});
+  const geometry=await mobileCaptionPage.evaluate(()=>{
+   const cap=document.querySelector('.caption'),scene=document.querySelector('.scene-card'),
+     portrait=cap.querySelector('.portrait'),message=cap.querySelector('.caption-message');
+   const r=x=>{const b=x.getBoundingClientRect();return {x:b.x,y:b.y,right:b.right,bottom:b.bottom,width:b.width,height:b.height};};
+   return {cap:r(cap),scene:r(scene),portrait:r(portrait),message:r(message),
+    documentHeight:document.documentElement.scrollHeight,
+    controls:[...cap.querySelectorAll('.caption-actions button')].map(b=>{
+     const box=r(b),hit=document.elementFromPoint(box.x+box.width/2,box.y+box.height/2);
+     return {...box,text:b.textContent,hit:hit===b||b.contains(hit)};})};
+  });
+  assert.ok(geometry.cap.y>=0&&geometry.cap.bottom<=h,'Phone dialogue outside viewport '+JSON.stringify(geometry));
+  assert.ok(geometry.cap.y<geometry.scene.bottom,'Dialogue should overlap scene edge');
+  assert.ok(geometry.portrait.right<=geometry.message.x+2,'Portrait overlaps the text');
+  assert.ok(geometry.documentHeight<=h+3,'Phone document must fit the viewport');
+  for(const c of geometry.controls)assert.ok(c.height>=44&&c.hit&&c.bottom<=h,
+    'Mobile story button unreachable '+JSON.stringify({w,h,c}));
+ }
+ pass('FIELD-QA-RPG-MOBILE-01','Responsive RPG dialogue panel on 390px and 320px touch views, with isolated portrait and reachable actions.','Chromium emulated touch');
+ await mobileCaptionCtx.close();
 
  const {c:hotspotsCtx,p:hotspotsPage}=await context({stage:'square'});
  const marks=await hotspotsPage.locator('#world button.spot').evaluateAll(btns=>btns.map(b=>{
