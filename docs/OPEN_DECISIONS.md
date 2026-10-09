@@ -278,3 +278,8 @@ When choosing between alternatives, prefer the option that:
 ### 2026-10-09 UI experience boundary (owner-directed)
 
 E01 and upcoming episodes should present the story, world, essential dialogue and controls inside one bounded main viewport wherever screen dimensions allow, rather than expanding the browser document vertically. On desktop preserve side-by-side Parent View; on mobile preserve distinct Child/Parent modes. Use bounded internal scrolling for genuinely long parent or reflection copy rather than hiding any content. The map is an intentional investigation tool: the required first observation stays in-scene, but after that an old map must open **only on direct user request**, one copy at a time. Keep full canonical text and motor-accessible action targets. Real-device acceptance remains open; record exceptions if extremely small/mobile-landscape heights cannot fit without internal scrolling.
+
+
+### 2026-10-09 RPG dialogue presentation (owner-approved direction)
+
+Replace the long-lived on-screen introduction guidance with one-time pre-Begin instructions. Keep all unskippable opening lines. On both desktop and phone present one isolated speaker portrait and readable live text in a bottom RPG dialogue dock, with separate responsive layouts (desktop stays split with parent cue; phone retains Child/Parent toggle). Never allow atlas-neighbor portraits, huge fake navigation symbols, or images of the UI to replace current approved assets. Preserve accessibility and all E01 story/engine gates. See [implementation/QA contract](E01_RPG_DIALOGUE_UI_2026-10-09.md). Real-device crop/readability/family PASS remains open.
