@@ -168,12 +168,12 @@ try{
  assert.equal(await comparePage.getByRole('button',{name:'Compare the round mark'}).count(),0);
  assert.equal(await comparePage.getByRole('button',{name:'Compare the tree mark'}).count(),0);
  assert.match(await comparePage.locator('.comparison-guide').innerText(),/Walk to the Fountain or Big tree/);
- assert.match(await comparePage.locator('.notice').first().innerText(),/Fountain.*Not yet/);
+ assert.match(await comparePage.locator('.comparison-progress').innerText(),/Fountain.*○/);
  await click(comparePage,'Fountain'); 
  assert.equal(await comparePage.getByRole('button',{name:'Compare the round mark'}).count(),1);
  assert.equal(await comparePage.getByRole('button',{name:'Compare the tree mark'}).count(),0);
  await click(comparePage,'Compare the round mark');await drain(comparePage);
- assert.match(await comparePage.locator('.notice').first().innerText(),/Fountain.*Matched/);
+ assert.match(await comparePage.locator('.comparison-progress').innerText(),/Fountain.*✓/);
  assert.equal(await comparePage.getByRole('button',{name:'Compare the round mark'}).count(),0);
  await click(comparePage,'Big tree');
  assert.equal(await comparePage.getByRole('button',{name:'Compare the tree mark'}).count(),1);
