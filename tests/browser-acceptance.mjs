@@ -166,23 +166,46 @@ try{
  pass('FIELD-QA-MAP-02','Each landmark is visibly stamped only after confirmed physical comparison, and both marks persist into the next phase.');
  await mapMarksCtx.close();
  const {c:rubCtx,p:rubPage}=await context({stage:'anchors'});
- await click(rubPage,'Old post');await click(rubPage,'Look at the old post');await drain(rubPage);
+ await click(rubPage,'Old post');await click(rubPage,'Look at the old post');
+ assert.equal(await rubPage.locator('#plate-rub').count(),0,'Do not offer rubbing during queued dialogue');
+ assert.equal(await rubPage.getByRole('button',{name:'Clean without rubbing'}).count(),0);
+ assert.equal(await rubPage.getByRole('button',{name:'Continue story'}).count(),1);
+ await drain(rubPage);
  assert.equal(await rubPage.locator('#plate-rub').count(),1);
- assert.equal(await rubPage.locator('.plate-text').count(),0,'No destination spoiler is visible before the rubbing event');
+ assert.equal(await rubPage.locator('.plate-text').count(),0,'No early destination spoiler');
+ assert.equal(await rubPage.getByRole('button',{name:'Finish cleaning'}).isDisabled(),true);
  await rubPage.locator('#plate-rub').evaluate(canvas=>{
   const rect=canvas.getBoundingClientRect(),pid=731;
   const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/240,clientY:rect.top+y*rect.height/300}));
-  for(let row=0;row<10&&canvas.isConnected;row++){
-   const y=20+row*25;fire('pointerdown',18,y);
-   for(let x=18;x<=230&&canvas.isConnected;x+=8)fire('pointermove',x,y);
-   if(canvas.isConnected)fire('pointerup',230,y);
+  for(let row=0;row<2;row++){
+   const y=22+row*26;fire('pointerdown',18,y);
+   for(let x=18;x<=230;x+=9)fire('pointermove',x,y);
+   fire('pointerup',230,y);
   }
  });
- assert.equal(await rubPage.locator('#plate-rub').count(),0,'Pointer gesture did not finish rubbing; status: '+await rubPage.locator('#rub-status').innerText());
- await click(rubPage,'Continue');await click(rubPage,'Continue');
+ assert.equal(await rubPage.locator('#plate-rub').count(),1,'Early rubs must not make the plate jump away');
+ assert.equal(await rubPage.getByRole('button',{name:'Finish cleaning'}).isDisabled(),true);
+ assert.equal((await ledger(rubPage)).includes(events.marker[0]),false);
+ await rubPage.locator('#plate-rub').evaluate(canvas=>{
+  const rect=canvas.getBoundingClientRect(),pid=732;
+  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/240,clientY:rect.top+y*rect.height/300}));
+  for(let row=2;row<13&&canvas.isConnected;row++){
+   const y=22+row*21;fire('pointerdown',18,y);
+   for(let x=18;x<=230;x+=8)fire('pointermove',x,y);
+   fire('pointerup',230,y);
+  }
+ });
+ assert.equal(await rubPage.getByRole('button',{name:'Finish cleaning'}).isEnabled(),true);
+ assert.equal(await rubPage.locator('#plate-rub').count(),1,'Dust stays in place until Finish cleaning');
+ assert.equal((await ledger(rubPage)).includes(events.marker[0]),false);
+ await click(rubPage,'Finish cleaning');
+ assert.equal(await rubPage.locator('#plate-rub').count(),0);
+ assert.equal(await rubPage.getByRole('button',{name:'Continue story'}).count(),1);
+ assert.equal(await rubPage.locator('.plate-text').count(),0,'Reveal remains locked behind story dialogue');
+ await click(rubPage,'Continue story');await click(rubPage,'Continue story');
  assert.equal((await ledger(rubPage)).filter(x=>x===events.marker[0]).length,1);
  assert.equal(await rubPage.locator('.plate-text').count(),1);
- pass('FIELD-QA-RUB-01','Pointer scratching reveals plate only at threshold and writes canonical event exactly once.');
+ pass('FIELD-QA-RUB-01','Dialogue gates rubbing; deliberate strokes fill progress; explicit Finish cleaning reveals exactly once.');
  await rubCtx.close();
  const {c,p}=await context();
  await p.screenshot({path:`${out}/desktop-opening.png`,fullPage:true});
@@ -305,17 +328,20 @@ try{
  await tap(sp,'Old post');await tap(sp,'Look at the old post');await drain(sp);
  await sp.locator('#plate-rub').scrollIntoViewIfNeeded();
  const box=await sp.locator('#plate-rub').boundingBox(),ts=await sc.newCDPSession(sp);
- for(let row=0;row<10;row++){
-  if(await sp.locator('#plate-rub').count()===0)break;
-  const y=box.y+22+row*24,start=box.x+18,end=box.x+box.width-18;
+ for(let row=0;row<14;row++){
+  if(await sp.getByRole('button',{name:'Finish cleaning'}).isEnabled())break;
+  const y=box.y+18+row*20,start=box.x+17,end=box.x+box.width-17;
   await ts.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:start,y}]});
-  for(let i=1;i<=14;i++)await ts.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:start+(end-start)*i/14,y}]});
+  for(let i=1;i<=18;i++)await ts.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:start+(end-start)*i/18,y}]});
   await ts.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  }
- assert.equal(await sp.locator('#plate-rub').count(),0,'Touch rubbing did not clean plate; status '+await sp.locator('#rub-status').innerText());
- await click(sp,'Continue');await click(sp,'Continue');
+ assert.equal(await sp.getByRole('button',{name:'Finish cleaning'}).isEnabled(),true,'Touch should become ready after deliberate strokes');
+ assert.equal(await sp.locator('#plate-rub').count(),1,'No automatic scene change while rubbing');
+ await tap(sp,'Finish cleaning');
+ assert.equal(await sp.getByRole('button',{name:'Continue story'}).count(),1);
+ await tap(sp,'Continue story');await tap(sp,'Continue story');
  assert.equal((await ledger(sp)).filter(x=>x===events.marker[0]).length,1);
- pass('INT-16-SWIPE','Multiple touch drags scratch the dust and commit exactly one reveal, with no direct clean button.','Chromium emulated touch 390×844');
+ pass('INT-16-SWIPE','Touch rubbing needs genuine coverage and an explicit Finish, then original reveal completes once.','Chromium emulated touch 390×844');
  await sc.close();
  for(const stage of ['square','map','observed','anchors']){const {c,p}=await context({stage});const start=await ledger(p);for(let i=0;i<3;i++){await click(p,'Help');const id=await p.locator('[data-line-id]').getAttribute('data-line-id');assert.ok(content.lines[id]);assert.equal(await p.locator('[data-line-id]').innerText(),content.lines[id].exact_text);await click(p,'Read again');assert.deepEqual(await ledger(p),start);await drain(p);}await c.close();}const {c:hc,p:hp}=await context({stage:'anchors'});await click(hp,'Old post');await click(hp,'Look at the old post');await drain(hp);await click(hp,'Help');assert.equal(await hp.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-UI-010');await drain(hp);assert.equal((await ledger(hp)).includes(events.marker[0]),false);await hc.close();pass('UX-06/UX-09','On-demand support escalation uses exact locked lines; reread/skip does not emit progress.');
  const {c:solo,p:solop}=await context({stage:'map'});await click(solop,'Look at the shape');assert.equal(await solop.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-FINN-004');await drain(solop);assert.equal(await solop.locator('.child input,.child textarea').count(),0);assert.equal(await solop.getByRole('button',{name:"Maybe it's a treasure map!",exact:true}).count(),0);pass('UX-10','Solo observation receives approved support without response input, scoring or guessed interpretation.');await solo.close();
