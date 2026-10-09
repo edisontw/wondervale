@@ -352,3 +352,157 @@ html,body{height:100%;overflow:hidden}
   font-size:inherit;
  }
 }
+
+/* 2026-10-09 — RPG dialogue dock. This remains real text/buttons above the
+   approved living Town Square, not text baked into a generated mockup.
+   The overlapping edge makes one scene, while the independent scene/map scroll
+   keeps all map, rubbing and investigation controls reachable. */
+.layout .caption{
+ position:relative;
+ z-index:11;
+ border:2px solid #c6a679;
+ border-radius:16px;
+ background:linear-gradient(135deg,rgba(255,250,239,.99),rgba(243,229,201,.97));
+ box-shadow:0 6px 20px rgba(43,48,37,.22),inset 0 0 0 2px rgba(255,255,255,.45);
+ color:#3a2b24;
+}
+.layout .caption .portrait{
+ display:grid;
+ place-items:center;
+ overflow:hidden;
+ border:2px solid #c5a36b;
+ border-radius:11px;
+ background:linear-gradient(160deg,#d7e7db,#fbf0d8);
+ box-shadow:0 1px 5px #40332333;
+}
+.layout .caption .portrait svg{
+ display:block;
+ overflow:hidden;
+ width:100%;
+ height:100%;
+}
+.layout .caption .portrait-mark{font:42px/1 Georgia,serif;color:#92764a}
+.layout .caption .speaker{
+ width:max-content;
+ max-width:100%;
+ padding:4px 13px;
+ border:1px solid #b79657;
+ border-radius:8px;
+ background:#365c72;
+ color:#fff9e9;
+ font:700 14px/1.2 system-ui,sans-serif;
+ letter-spacing:.02em;
+ text-transform:none;
+ margin-bottom:6px;
+}
+.layout .caption .text{
+ color:#3a2b24;
+ font-family:Georgia,serif;
+ line-height:1.4;
+}
+.layout .caption .caption-actions button{
+ border-radius:10px;
+}
+.layout .caption .caption-actions button[data-action="next"]{
+ background:#355f51;
+ color:white;
+ border-color:#2a4c3f;
+ font-weight:700;
+}
+.layout .caption .caption-actions button[data-action="next"]:hover{background:#26493d}
+@media (min-width:761px){
+ .layout .caption{
+  grid-template-columns:clamp(65px,7vw,94px) minmax(0,1fr) minmax(145px,200px);
+  gap:13px;
+  align-items:center;
+  padding:12px 15px;
+  margin:-24px 12px 8px;
+  min-height:138px;
+  max-height:min(205px,35dvh);
+  overflow:visible;
+  flex:0 0 auto;
+ }
+ .layout .caption .portrait{
+  width:clamp(65px,7vw,94px);
+  height:clamp(82px,8.2vw,105px);
+  align-self:center;
+ }
+ .layout .caption .caption-message{
+  min-width:0;
+  max-height:min(159px,28dvh);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+ }
+ .layout .caption .text{font-size:clamp(17px,1.4vw,22px);margin:0}
+ .layout .caption .caption-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+ .layout .caption .caption-actions button{min-height:44px;min-width:0;padding:7px 5px}
+ .layout .caption .caption-actions button[data-action="next"]{
+  grid-column:1/-1;min-height:54px;font-size:18px;
+ }
+}
+@media (min-width:761px) and (max-width:950px){
+ .layout .caption{
+  grid-template-columns:65px minmax(0,1fr) 145px;
+  gap:9px;
+  padding:9px 11px;
+ }
+ .layout .caption .portrait{width:65px;height:82px}
+ .layout .caption .text{font-size:17px}
+ .layout .caption .caption-actions button{font-size:12px}
+ .layout .caption .caption-actions button[data-action="next"]{font-size:16px}
+}
+@media (max-width:760px){
+ .layout .caption{
+  display:grid;
+  grid-template-columns:62px minmax(0,1fr);
+  gap:7px 10px;
+  margin:-13px 6px 7px;
+  padding:10px;
+  min-height:149px;
+  max-height:min(34dvh,270px);
+  overflow:visible;
+  flex:0 0 auto;
+  align-content:center;
+ }
+ .layout .caption .portrait{
+  grid-row:1/3;
+  width:62px;
+  height:80px;
+  align-self:start;
+ }
+ .layout .caption .portrait-mark{font-size:35px}
+ .layout .caption .speaker{font-size:13px;padding:3px 10px;margin-bottom:4px}
+ .layout .caption .caption-message{
+  min-width:0;
+  max-height:min(18dvh,140px);
+  overflow-y:auto;
+  overscroll-behavior:contain;
+ }
+ .layout .caption .text{font-size:clamp(16px,4.35vw,19px);line-height:1.35;margin:0}
+ .layout .caption .caption-actions{
+  grid-column:1/-1;
+  display:flex;
+  flex-wrap:nowrap;
+  gap:6px;
+  margin:0;
+ }
+ .layout .caption .caption-actions button{
+  flex:1 1 0;
+  min-width:0;
+  min-height:44px;
+  padding:7px 5px;
+  font:600 12px/1.2 system-ui;
+ }
+ .layout .caption .caption-actions button[data-action="next"]{
+  min-height:48px;
+  font-size:15px;
+ }
+ .layout .scene-card{background:#f8f2e4}
+}
+@media (max-width:360px){
+ .layout .caption{grid-template-columns:52px minmax(0,1fr);gap:5px 8px;padding:8px}
+ .layout .caption .portrait{width:52px;height:72px}
+ .layout .caption .text{font-size:16px}
+ .layout .caption .caption-actions button{font-size:11px}
+ .layout .caption .caption-actions button[data-action="next"]{font-size:14px}
+}
