@@ -122,9 +122,9 @@ function rubAt(e){
  const r=rubCanvas.getBoundingClientRect(),x=(e.clientX-r.left)*rubCanvas.width/r.width,y=(e.clientY-r.top)*rubCanvas.height/r.height;
  if(!Number.isFinite(x)||!Number.isFinite(y))return;
  rubCtx.globalCompositeOperation='destination-out';rubCtx.lineWidth=35;rubCtx.lineCap='round';rubCtx.lineJoin='round';rubCtx.beginPath();
- rubCtx.moveTo(rubLast?rubLast[0]:x,rubLast?rubLast[1]:y);rubCtx.lineTo(x,y);rubCtx.stroke();rubLast=[x,y];
- const cellX=Math.max(0,Math.min(11,Math.floor(x/20))),cellY=Math.max(0,Math.min(14,Math.floor(y/20)));
- for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(cellX+dx>=0&&cellX+dx<12&&cellY+dy>=0&&cellY+dy<15)rubCells.add((cellY+dy)*12+cellX+dx);
+ const previous=rubLast;rubCtx.moveTo(previous?previous[0]:x,previous?previous[1]:y);rubCtx.lineTo(x,y);rubCtx.stroke();
+ const sample=(px,py)=>{const cx=Math.max(0,Math.min(11,Math.floor(px/20))),cy=Math.max(0,Math.min(14,Math.floor(py/20)));for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)if(cx+dx>=0&&cx+dx<12&&cy+dy>=0&&cy+dy<15)rubCells.add((cy+dy)*12+cx+dx);};
+ const from=previous||[x,y];for(let i=0;i<=24;i++){const t=i/24;sample(from[0]+(x-from[0])*t,from[1]+(y-from[1])*t);}rubLast=[x,y];
  const n=rubCells.size,percent=Math.min(100,Math.round(n/180*100));
  const status=root.querySelector('#rub-status');if(status)status.textContent='Plate cleaned: '+percent+'%. Keep rubbing.';
  if(n>=60){rubDown=false;rubPointer=null;rubLast=null;act({type:'clean'});}
