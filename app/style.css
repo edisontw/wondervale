@@ -7,7 +7,11 @@
    Only its editable destination text is revealed by the persistent marker event. */
 .marker-world-prop{position:absolute;left:88.3%;top:43%;width:9%;height:25%;z-index:2;pointer-events:none;transform:rotate(1deg);filter:drop-shadow(2px 4px 2px #382b2055)}
 .marker-world-post{position:absolute;left:44%;top:27%;width:14%;height:73%;background:linear-gradient(90deg,#654e31,#a08154 37%,#675035 100%);border:1px solid #4c3927;border-radius:2px;box-sizing:border-box}
-.marker-world-plate{position:absolute;left:0;top:0;width:100%;height:54%;z-index:1;background:url('../public/art/marker-reference.webp') no-repeat 1% 50% / 205% auto;border-radius:3px}
-.marker-world-plate.revealed{background-position:99% 50%}
+.marker-world-plate{position:absolute;left:0;top:0;width:100%;height:54%;z-index:1;background:linear-gradient(165deg,#766b55b8 0%,#9e8564 22%,#715b45 58%,#837258 100%);clip-path:polygon(5% 14%,83% 5%,94% 15%,100% 48%,94% 78%,84% 92%,7% 87%,0 72%,3% 42%);-webkit-clip-path:polygon(5% 14%,83% 5%,94% 15%,100% 48%,94% 78%,84% 92%,7% 87%,0 72%,3% 42%)}
+.marker-world-plate.revealed{background:linear-gradient(155deg,#d5c7a4,#eee0b9 45%,#bca989)}
 .marker-world-lettering{position:absolute;left:26%;top:35%;width:48%;text-align:center;font:bold clamp(4px,.65vw,11px) system-ui;color:#263d48;line-height:1.15;white-space:nowrap;letter-spacing:-.03em}
 .marker-world-lettering span{display:block;font-size:1.8em}
+
+/* Cutout plate: no rectangular raster backdrop spills over the painted Town Square. The clipped silhouette follows the original approved V1 plate without modifying that source or revealing future lettering. */
+
+/* The small in-world plate is painted in CSS, not sampled from the rectangular source atlas: its outside pixels are genuinely transparent. The approved high-resolution dirty/clean raster remains used only by the close-up plate interaction. */
