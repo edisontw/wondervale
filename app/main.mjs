@@ -80,9 +80,12 @@ function animateTravel(from,to){
  }catch{clearTimeout(timer);finish();}
 }
 function mapArt(){return `<svg class="map-art" viewBox="0 0 760 390" role="img" aria-label="Old paper with a faded line, an unnamed outlined shape, round fountain, large tree and old holes behind a newer paper"><path d="M25 23 L715 20 L735 358 L26 367 L18 170Z" fill="#ead9b1" stroke="#ac8e65" stroke-width="3"/><path class="line" d="M110 218 Q220 172 280 218 Q400 254 467 160 Q525 166 552 268 L650 293"/><g class="feature"><ellipse cx="282" cy="223" rx="44" ry="19"/><ellipse cx="282" cy="218" rx="32" ry="13" fill="none"/><path d="M282 207v-31m-12 5q12 8 24 0" fill="none"/><path d="M471 167v55m-10 0h20"/><path d="M438 151q-22-22 3-37q-10-32 26-31q22-28 40 2q36-2 32 31q27 20 0 39q-6 17-30 9q-30 18-50-2Z"/></g><image href="public/art/glyph.svg" x="572" y="65" width="112" height="112"/><g class="holes"><circle cx="220" cy="100" r="8"/><circle cx="244" cy="122" r="8"/><circle cx="219" cy="144" r="8"/></g><path d="M52 27H209L204 87L172 127L53 112Z" fill="#fff5db" stroke="#b5a48d" stroke-width="2"/><path d="M173 127l5-36 26-4" fill="#efdab2" stroke="#b5a48d" stroke-width="2"/>${state.sketch?'<path d="M90 324H640" stroke="#9f8663" stroke-width="1"/>':''}${state.anchors.includes('fountain')?'<g class="map-confirmed" role="img" aria-label="Fountain checked"><circle cx="282" cy="183" r="18"/><path d="M273 183l7 8 14-17"/></g>':''}${state.anchors.includes('large_tree')?'<g class="map-confirmed" role="img" aria-label="Big tree checked"><circle cx="484" cy="128" r="18"/><path d="M475 128l7 8 14-17"/></g>':''}</svg>`;}
-// The approved sprite sheet has two complete posts; only its inner plaque gets cleaned.
-function plate(clean,cleanFace=clean){
- return `<div class="plate-close ${clean?'clean':''}" role="img" aria-label="${clean?'Clean old plate with RIVERSIDE and a right arrow':'Old plate covered in dirt'}">${cleanFace?'<div class="plate-clean-surface" aria-hidden="true"></div>':''}${clean?'<div class="plate-text"><span class="plate-word"><span>RIVER</span><span>SIDE</span></span><span class="arrow" aria-hidden="true">→</span></div>':''}</div>`;
+// The atlas has two complete reference posts. During rubbing, an intact dirty
+// frame is erased to expose the clean frame + ink underneath; the underlying
+// canonical marker event is still committed only on Finish cleaning.
+function plate(clean,cleanFace=clean,pending=false){
+ const letters='<span class="plate-word"><span>RIVER</span><span>SIDE</span></span><span class="arrow" aria-hidden="true">→</span>';
+ return `<div class="plate-close ${clean?'clean':''}" role="img" aria-label="${clean?'Clean old plate with RIVERSIDE and a right arrow':'Old post awaiting cleaning'}">${cleanFace?'<div class="plate-clean-surface" aria-hidden="true"></div>':''}${clean||pending?`<div class="plate-text ${pending?'plate-preview-text':''}">${letters}</div>`:''}</div>`;
 }
 function world(){const nonInteractive=['preview','opening'].includes(state.phase);const pos=nonInteractive?[.34,.77]:constrainToRoad(...state.position);const nia=nonInteractive?[.48,.72]:constrainToRoad(pos[0]+.04,pos[1]+.035),finn=nonInteractive?[.23,.70]:constrainToRoad(pos[0]-.04,pos[1]+.025),steward=constrainToRoad(state.plateFound?.86:.22,state.plateFound?.63:.62);const show=state.markerRevealed||state.phase==='completed'&&projection(state.ledger).markerVisible;const stage=`<div class="viewport" id="viewport"><div class="world" id="world" ${nonInteractive?'aria-label="Town Square illustration. Begin or continue the story to explore."':'tabindex="0" aria-label="Town Square. Use arrow keys or choose a place to walk Milo."'}>${nonInteractive?'':Object.entries(locations).filter(([x])=>x!=='bench').map(([target,p])=>`<button class="spot" style="left:${p[0]*100}%;top:${(target==='fountain'?50:p[1]*100-9)}%" data-action="walk:${target}" aria-label="Walk to ${({board:'the noticeboard',fountain:'the fountain',large_tree:'the big tree',marker:'the old post'})[target]}" ><span class="spot-symbol" aria-hidden="true">${({board:'▤',fountain:'≈',large_tree:'♧',marker:'▯'})[target]}</span></button>`).join('')}${show?'<span class="marker-original-ink" role="img" aria-label="Original old post now reads RIVERSIDE and points right"><span>RIVER</span><span>SIDE</span><span class="ink-arrow">→</span></span>':''}<div class="actor steward" style="left:${steward[0]*100}%;top:${steward[1]*100}%">${char('STEWARD')}</div><div class="actor companion" style="left:${nia[0]*100}%;top:${nia[1]*100}%">${char('NIA')}</div><div class="actor companion" style="left:${finn[0]*100}%;top:${finn[1]*100}%">${char('FINN')}</div><div class="actor milo" style="left:${pos[0]*100}%;top:${pos[1]*100}%">${char('MILO')}<span class="milo-label">Milo</span></div></div></div>`;
 if(nonInteractive)return stage;return stage+`<div class="navigation" aria-label="Choose where Milo walks">${button('Noticeboard','walk:board')}${button('Fountain','walk:fountain')}${button('Big tree','walk:large_tree')}${button('Old post','walk:marker')}</div>`;}
@@ -104,8 +107,8 @@ function sceneBody(){const p=state.phase;
  if(['chronicle_close','completed'].includes(p))return `<div class="chronicle"><span class="eyebrow">Wondervale Chronicle</span><h2>${content.chronicle.title}</h2>${mapArt()}<div class="chronicle-columns"><div><h3>What we found</h3><ul>${content.chronicle.found.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div><h3>What we wonder</h3><ul>${content.chronicle.wonder.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div><div class="memory-pair">${plate(false)}${plate(true)}</div>${p==='completed'?`<p class="notice">Town Square remembers. The old mark stays clear.</p><div class="row">${button('Visit Town Square','present')}${button('Replay this memory','replay')}</div>`:actions()}</div>`;
  let title={opening:'A normal day in Town Square',square_explore:'Walk with Milo',square_compare:line(short('UI',5)).exact_text,marker_search:state.plateFound?line(short('UI',8)).exact_text:line(short('UI',9)).exact_text}[p];
  return `<div class="scene-heading"><span class="eyebrow">Town Square</span><h1>${esc(title)}</h1></div>${world()}${state.phase==='square_compare'?`<p class="comparison-progress" role="status">Old map clues: Fountain ${state.anchors.includes('fountain')?'✓':'○'} · Big tree ${state.anchors.includes('large_tree')?'✓':'○'}. Walk to each place, then select Map to check the paper.</p>`:''}${actions()}${p==='square_explore'&&groups.board.indexOf(state.queue[0])>=5?`<div class="close-panel"><div class="board-close" role="img" aria-label="Old paper preserved behind the current notice"></div></div>`:''}${p==='marker_search'&&state.plateFound?`<div class="close-panel" id="plate-swipe">
-<p class="rub-guide">${state.queue.length?(ui.rubCompleted?'Dust cleared. Continue the story to uncover the old writing.':'Listen to the story first. Then you can rub the plate.'):state.markerRevealed?'The old writing is clear.':ui.rubCompleted?'The dust is gone. Continue the story to reveal the writing.':'Rub across the dusty plate with your mouse or finger.'}</p>
-<div class="plate-rub-wrap">${plate(state.markerRevealed,ui.rubCompleted||(!state.queue.length&&!state.markerRevealed))}${!state.queue.length&&!state.markerRevealed&&!ui.rubCompleted?'<canvas id="plate-rub" width="58" height="75" role="img" aria-label="Dusty middle of the old plate: rub with mouse or finger"></canvas>':''}</div>
+<p class="rub-guide">${state.queue.length?(ui.rubCompleted?'Dust cleared. Continue the story to uncover the old writing.':'Listen to the story first. Then you can rub the plate.'):state.markerRevealed?'The old writing is clear.':ui.rubCompleted?'The dust is gone. Continue the story to reveal the writing.':'Rub across the old post picture to uncover the hidden word.'}</p>
+<div class="plate-rub-wrap ${!state.queue.length&&!state.markerRevealed&&!ui.rubCompleted?'rub-loading':''}">${plate(state.markerRevealed,ui.rubCompleted||(!state.queue.length&&!state.markerRevealed),ui.rubCompleted&&!state.markerRevealed)}${!state.queue.length&&!state.markerRevealed&&!ui.rubCompleted?'<canvas id="plate-ink-preview" width="240" height="300" aria-hidden="true"></canvas><canvas id="plate-rub" width="240" height="300" role="img" aria-label="Old post: rub the picture to reveal the writing beneath"></canvas>':''}</div>
 ${state.queue.length?`<div class="rub-next" role="status"><p>Read the next line to continue.</p>${button('Continue story','next','class="primary"')}</div>`:!state.markerRevealed&&!ui.rubCompleted?`<div class="rub-progress"><p id="rub-status" role="status">Dust cleared: 0%. Keep rubbing until the plate is ready.</p><progress id="rub-meter" max="100" value="0" aria-label="Dust cleared"></progress><div class="rub-actions">${button('Finish cleaning','rub-finish','class="primary" disabled')}${button('Clean without rubbing','clean','class="secondary"')}</div></div>`:state.markerRevealed?'<p class="rub-guide" role="status">The old writing has been revealed.</p>':'<p class="rub-guide" role="status">Dust cleared. Continue the story to uncover the mark.</p>'}
 </div>`:''}${ui.map?`<section class="scene-map-sheet map-optional" role="region" aria-label="Old map"><div class="sheet-heading"><strong>Old map</strong>${button('Close map','map','class="primary"')}</div>${mapArt()}</section>`:''}`;
 }
@@ -136,55 +139,69 @@ if(type==='walk')act({type:'move',target:value});else if(type==='inspect')act({t
 root.addEventListener('change',event=>{const setting=event.target.dataset.setting;if(!setting)return;prefs[setting]=event.target.checked;save();render();});
 root.addEventListener('keydown',event=>{if(event.key==='Escape'){if(ui.resetConfirm){ui.resetConfirm=false;ui.resetError=false;}else{ui.pause=false;ui.map=false;ui.parent=false;ui.parentPreview=false;}render();return;}if(event.target.closest('.dialog')){if(event.key==='Tab'){const list=[...event.target.closest('.dialog').querySelectorAll('button')];if(event.shiftKey&&event.target===list[0]){event.preventDefault();list.at(-1).focus();}else if(!event.shiftKey&&event.target===list.at(-1)){event.preventDefault();list[0].focus();}}return;}
 if(event.target.id==='world'&&['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','w','a','s','d'].includes(event.key)){event.preventDefault();const x=state.position[0],y=state.position[1];act({type:'move',x:x+(['ArrowRight','d'].includes(event.key)?.05:['ArrowLeft','a'].includes(event.key)?-.05:0),y:y+(['ArrowDown','s'].includes(event.key)?.04:['ArrowUp','w'].includes(event.key)?-.04:0)});}});
-// Previous single-swipe clean shortcut removed: it intercepted scratch events
-// and could reveal the plate before sufficient rubbing.
-// Ephemeral rubbing pixels are presentation only. The only durable outcome is
-// the approved one-time clean event in the engine; no destination text is shown early.
-// Scratching is limited to the central 58×75 plaque (not wood/roof/bolts).
-// The event ledger remains the only persistent source of reveal truth.
-const RUB={width:58,height:75,cols:6,rows:8,needed:34,brush:7};
+// Whole-post 240x300 rubbing restored at the owner's request. The scratch
+// layer is a *copy of the approved dirty original image* rather than a flat
+// paint rectangle, and wiping it reveals the clean original with RIVERSIDE
+// already drawn underneath. Both images stay aligned throughout the gesture.
+// No canonical discovery is saved until explicit Finish cleaning / clean bypass.
+const RUB={width:240,height:300,cols:12,rows:15,needed:126,brush:16};
 let rubbingCanvas=null,rubbingCtx=null,rubbingPointer=null,rubbingLast=null,rubbingCells=null;
 function initPlateRub(){
  const canvas=root.querySelector('#plate-rub');
  if(!canvas||canvas===rubbingCanvas)return;
  rubbingCanvas=canvas;rubbingCtx=canvas.getContext('2d');rubbingCells=new Set();rubbingLast=null;rubbingPointer=null;
  if(!rubbingCtx)return;
- const ctx=rubbingCtx;
- ctx.globalCompositeOperation='source-over';
- const dirt=ctx.createLinearGradient(0,0,RUB.width,RUB.height);
- dirt.addColorStop(0,'rgba(101,80,57,.92)');
- dirt.addColorStop(.5,'rgba(136,106,66,.91)');
- dirt.addColorStop(1,'rgba(93,76,55,.94)');
- ctx.fillStyle=dirt;ctx.fillRect(0,0,RUB.width,RUB.height);
- ctx.fillStyle='rgba(218,186,128,.4)';
- for(let y=3;y<RUB.height;y+=9)for(let x=2+(y%4);x<RUB.width;x+=11)
-  ctx.fillRect(x,y,Math.min(4,RUB.width-x),2);
+ const ink=root.querySelector('#plate-ink-preview'),inkCtx=ink?.getContext('2d');
+ if(inkCtx){
+  inkCtx.clearRect(0,0,RUB.width,RUB.height);
+  inkCtx.textAlign='center';inkCtx.textBaseline='middle';
+  inkCtx.fillStyle='#493b29';
+  inkCtx.font='700 11px system-ui, sans-serif';inkCtx.fillText('RIVER',116,117);
+  inkCtx.fillText('SIDE',116,133);
+  inkCtx.font='700 18px system-ui, sans-serif';inkCtx.fillText('→',116,153);
+ }
+ // Avoid briefly showing the clean reference/letters before the original
+ // cover has loaded. A disabled scratch target remains over the dirty base.
+ const image=new Image();
+ image.onload=()=>{
+  if(!canvas.isConnected||rubbingCanvas!==canvas)return;
+  const ctx=rubbingCtx;ctx.globalCompositeOperation='source-over';ctx.clearRect(0,0,RUB.width,RUB.height);
+  const drawnWidth=RUB.width*2.05,drawnHeight=drawnWidth*image.naturalHeight/image.naturalWidth;
+  ctx.drawImage(image,(RUB.width-drawnWidth)*.18,(RUB.height-drawnHeight)/2,drawnWidth,drawnHeight);
+  canvas.closest('.plate-rub-wrap')?.classList.add('rubbing-active');
+ };
+ image.onerror=()=>{
+  if(!canvas.isConnected||rubbingCanvas!==canvas)return;
+  rubbingCtx.globalCompositeOperation='source-over';
+  rubbingCtx.fillStyle='rgba(116,90,62,.94)';
+  rubbingCtx.fillRect(0,0,RUB.width,RUB.height);
+  canvas.closest('.plate-rub-wrap')?.classList.add('rubbing-active');
+ };
+ image.src='public/art/marker-reference.webp';
 }
 function rubPoint(event){
  const canvas=rubbingCanvas,ctx=rubbingCtx;
- if(!canvas?.isConnected||!ctx||!rubbingCells||state.queue.length||ui.rubCompleted||ui.rubReady)return;
- const b=canvas.getBoundingClientRect();
- if(b.width<1||b.height<1)return;
- const x=(event.clientX-b.left)*RUB.width/b.width;
- const y=(event.clientY-b.top)*RUB.height/b.height;
- if(x<0||x>RUB.width||y<0||y>RUB.height){rubbingLast=null;return;}
+ if(!canvas?.isConnected||!canvas.closest('.rubbing-active')||!ctx||!rubbingCells||state.queue.length||ui.rubCompleted||ui.rubReady)return;
+ const b=canvas.getBoundingClientRect();if(b.width<1||b.height<1)return;
+ const x=Math.max(0,Math.min(RUB.width-1,(event.clientX-b.left)*RUB.width/b.width));
+ const y=Math.max(0,Math.min(RUB.height-1,(event.clientY-b.top)*RUB.height/b.height));
  const prev=rubbingLast||[x,y];
  ctx.globalCompositeOperation='destination-out';
  ctx.lineWidth=RUB.brush*2;ctx.lineCap='round';ctx.lineJoin='round';
  ctx.beginPath();ctx.moveTo(prev[0],prev[1]);ctx.lineTo(x,y);ctx.stroke();
- const distance=Math.hypot(x-prev[0],y-prev[1]),steps=Math.max(1,Math.ceil(distance/3));
+ const distance=Math.hypot(x-prev[0],y-prev[1]),steps=Math.max(1,Math.ceil(distance/5));
  for(let i=0;i<=steps;i++){
   const px=prev[0]+(x-prev[0])*i/steps,py=prev[1]+(y-prev[1])*i/steps;
-  for(let row=0;row<RUB.rows;row++)for(let col=0;col<RUB.cols;col++){
-   const cx=(col+.5)*RUB.width/RUB.cols,cy=(row+.5)*RUB.height/RUB.rows;
-   if(Math.hypot(cx-px,cy-py)<=RUB.brush)rubbingCells.add(row*RUB.cols+col);
-  }
+  const minCol=Math.max(0,Math.floor((px-RUB.brush)/20)),maxCol=Math.min(11,Math.floor((px+RUB.brush)/20));
+  const minRow=Math.max(0,Math.floor((py-RUB.brush)/20)),maxRow=Math.min(14,Math.floor((py+RUB.brush)/20));
+  for(let row=minRow;row<=maxRow;row++)for(let col=minCol;col<=maxCol;col++)
+   if(Math.hypot((col+.5)*20-px,(row+.5)*20-py)<=RUB.brush)rubbingCells.add(row*RUB.cols+col);
  }
  rubbingLast=[x,y];
  const progress=Math.min(100,Math.round(rubbingCells.size/RUB.needed*100));
  const status=root.querySelector('#rub-status'),meter=root.querySelector('#rub-meter');
  if(meter)meter.value=progress;
- if(status)status.textContent='Dust cleared: '+progress+'%. '+(progress<100?'Keep rubbing.':'Ready! Select Finish cleaning to continue.');
+ if(status)status.textContent='Dust cleared: '+progress+'%. '+(progress<100?'Keep rubbing. The hidden word appears where the dirt is gone.':'Ready! Select Finish cleaning to continue.');
  if(rubbingCells.size>=RUB.needed){
   ui.rubReady=true;
   const finish=root.querySelector('[data-action="rub-finish"]');

@@ -36,3 +36,7 @@ Still open: genuine iOS Safari/Android Chrome and OS scaling tests, real visual 
 ## Owner feedback — 2026-10-09
 
 The owner reported that the implemented **desktop and mobile RPG dialogue presentation is substantially better**. Promote this as the accepted **E01 UI baseline and reusable cross-episode presentation rule** (portrait isolated by speaker, live text in an anchored bottom parchment dialogue panel, one-time pre-Begin introduction, desktop parent-side panel, mobile Child/Parent switching). Do not revert to detached stacked caption boxes or large overlay HUD/mockup art. This is visual/interaction direction acceptance, **not** final physical-device/family QA or production asset sign-off.
+
+## Current Old post behavior after user feedback
+
+The accepted desktop/mobile RPG dialogue layout is unchanged. The 2026-10-09 owner correction restores the **large whole-picture Old post rubbing gesture** because the inset-only surface was impractical. `RIVERSIDE` must visibly emerge under the finger/mouse during center rubbing and remain visible after Finish while dialogue proceeds. The permanent in-town destination and Chronicle event still require the canonical story completion. This new interaction overrides the intermediate plaque-only scratching details recorded for audit in earlier documentation.

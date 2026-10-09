@@ -39,7 +39,8 @@ async function finishPath(p,{choice='A',order=['line','blank_shape'],anchorOrder
  assert.equal((await p.locator('body').innerText()).includes('RIVERSIDE'),false);
  await action(p,'Old post');await action(p,'Look at the old post');await drain(p);
  await action(p,'Clean without rubbing');
- assert.equal((await p.locator('body').innerText()).includes('RIVERSIDE'),false);
+ assert.equal(await p.locator('.plate-preview-text').count(),1,'After deliberate Clean the lettering stays visible during the story response');
+ assert.equal(await p.locator('.marker-original-ink').count(),0,'The persistent town destination still needs the accepted reveal event');
  await click(p,'Continue');await click(p,'Continue');
  assert.equal(await p.locator('.plate-text').count(),1);assert.equal(await p.locator('.marker-original-ink').count(),1,'Destination ink should appear on original post only after reveal');const inkBounds=await p.locator('.marker-original-ink').evaluate(el=>{const a=el.getBoundingClientRect(),b=document.getElementById('world').getBoundingClientRect();return {x:(a.left-b.left)/b.width,y:(a.top-b.top)/b.height,w:a.width/b.width,h:a.height/b.height,background:getComputedStyle(el).backgroundColor}});
  assert.ok(inkBounds.x>0.90&&inkBounds.x<0.94&&inkBounds.y>0.44&&inkBounds.y<0.49&&inkBounds.w<0.04&&inkBounds.h<0.11,'Reveal only inside original painted Old post: '+JSON.stringify(inkBounds));
@@ -370,16 +371,21 @@ try{
   const p=document.querySelector('.plate-rub-wrap').getBoundingClientRect(),canvas=document.querySelector('#plate-rub'),c=canvas.getBoundingClientRect();
   return {x:(c.left-p.left)/p.width,y:(c.top-p.top)/p.height,w:c.width/p.width,h:c.height/p.height,canvasW:canvas.width,canvasH:canvas.height};
  });
- assert.ok(Math.abs(geometry.x-.3625)<.01&&Math.abs(geometry.y-.32)<.01&&geometry.w<.26&&geometry.h<.26
-  &&geometry.canvasW===58&&geometry.canvasH===75,'Scratch must stay inside plaque: '+JSON.stringify(geometry));
+ assert.ok(Math.abs(geometry.x)<.01&&Math.abs(geometry.y)<.01&&Math.abs(geometry.w-1)<.01&&Math.abs(geometry.h-1)<.01
+  &&geometry.canvasW===240&&geometry.canvasH===300,'Whole original picture must be scratchable: '+JSON.stringify(geometry));
+ await rubPage.locator('.plate-rub-wrap.rubbing-active').waitFor();
+ const opaque=await rubPage.locator('#plate-rub').evaluate(c=>c.getContext('2d').getImageData(116,133,1,1).data[3]);
+ assert.equal(opaque,255,'The original dirty picture must fully cover the hidden writing before rubbing');
+ assert.equal(await rubPage.locator('.plate-text').count(),0);
+ assert.equal(await rubPage.locator('#plate-ink-preview').count(),1,'Hidden ink canvas is below dirty picture, without early DOM spoiler');
  assert.equal(await rubPage.getByRole('button',{name:'Finish cleaning'}).isDisabled(),true);
  await rubPage.locator('#plate-rub').evaluate(canvas=>{
   const rect=canvas.getBoundingClientRect(),pid=731;
-  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/58,clientY:rect.top+y*rect.height/75}));
+  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/240,clientY:rect.top+y*rect.height/300}));
   for(let row=0;row<2;row++){
-   const y=8+row*8;fire('pointerdown',5,y);
-   for(let x=5;x<=53;x+=4)fire('pointermove',x,y);
-   fire('pointerup',53,y);
+   const y=22+row*26;fire('pointerdown',18,y);
+   for(let x=18;x<=230;x+=9)fire('pointermove',x,y);
+   fire('pointerup',230,y);
   }
  });
  assert.equal(await rubPage.locator('#plate-rub').count(),1,'Early rubs must not make the plate jump away');
@@ -387,21 +393,35 @@ try{
  assert.equal((await ledger(rubPage)).includes(events.marker[0]),false);
  await rubPage.locator('#plate-rub').evaluate(canvas=>{
   const rect=canvas.getBoundingClientRect(),pid=732;
-  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/58,clientY:rect.top+y*rect.height/75}));
-  for(const y of [28,39,50,61,69]){
-   if(!canvas.isConnected)break;
-   fire('pointerdown',5,y);
-   for(let x=5;x<=53;x+=4)fire('pointermove',x,y);
-   fire('pointerup',53,y);
+  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/240,clientY:rect.top+y*rect.height/300}));
+  for(let row=2;row<14&&canvas.isConnected;row++){
+   const y=22+row*21;fire('pointerdown',18,y);
+   for(let x=18;x<=230;x+=8)fire('pointermove',x,y);
+   fire('pointerup',230,y);
   }
  });
  assert.equal(await rubPage.getByRole('button',{name:'Finish cleaning'}).isEnabled(),true);
  assert.equal(await rubPage.locator('#plate-rub').count(),1,'Dust stays in place until Finish cleaning');
  assert.equal((await ledger(rubPage)).includes(events.marker[0]),false);
+ // A central swipe erases the original art and reveals the underlying word
+ // before any Finish action or permanent discovery.
+ await rubPage.locator('#plate-rub').evaluate(canvas=>{
+  const b=canvas.getBoundingClientRect(),pid=733;
+  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:b.left+x*b.width/240,clientY:b.top+y*b.height/300}));
+  fire('pointerdown',116,105);
+  for(let y=105;y<=160;y+=5)fire('pointermove',116,y);
+  fire('pointerup',116,160);
+ });
+ const revealPixel=await rubPage.locator('#plate-rub').evaluate(canvas=>canvas.getContext('2d').getImageData(116,133,1,1).data[3]);
+ assert.equal(revealPixel,0,'Central letters must become visible through actual erased pixels');
+ const liveInk=await rubPage.locator('#plate-ink-preview').evaluate(canvas=>canvas.getContext('2d').getImageData(116,133,1,1).data[3]);
+ assert.ok(liveInk>0,'RIVERSIDE must already be painted under the scratch canvas');
+ assert.equal(await rubPage.locator('.plate-text').count(),0,'No permanent spoiler text DOM until cleaning is confirmed');
  await click(rubPage,'Finish cleaning');
  assert.equal(await rubPage.locator('#plate-rub').count(),0);
  assert.equal(await rubPage.getByRole('button',{name:'Continue story'}).count(),1);
- assert.equal(await rubPage.locator('.plate-text').count(),0,'Reveal remains locked behind story dialogue');
+ assert.equal(await rubPage.locator('.plate-preview-text').count(),1,'RIVERSIDE must remain visible after Finish, while story lines finish');
+ assert.equal((await ledger(rubPage)).includes(events.marker[0]),false,'Canonical reveal not yet saved');
  await click(rubPage,'Continue story');await click(rubPage,'Continue story');
  assert.equal((await ledger(rubPage)).filter(x=>x===events.marker[0]).length,1);
  assert.equal(await rubPage.locator('.plate-text').count(),1);
@@ -417,7 +437,7 @@ try{
  for(const ink of [bounds.word,bounds.arrow])
   assert.ok(ink.left>=bounds.face.left-1&&ink.right<=bounds.face.right+1&&ink.top>=bounds.face.top-1&&ink.bottom<=bounds.face.bottom+1,
    'Riverside lettering exceeds inset: '+JSON.stringify(bounds));
- pass('FIELD-QA-RUB-01','Only the plaque scratches; RIVERSIDE stays inside its frame and the post is stable.');
+ pass('FIELD-QA-RUB-01','Full dirty picture scratches to reveal underlying RIVERSIDE immediately; Finish confirms the event; text fits plaque.');
  await rubCtx.close();
  const {c,p}=await context();
  await p.screenshot({path:`${out}/desktop-opening.png`,fullPage:true});
@@ -537,7 +557,7 @@ try{
  const {c:dc,p:dp}=await context({stage:'anchors'});
  await click(dp,'Old post');await click(dp,'Look at the old post');await drain(dp);
  await dp.evaluate(()=>{const b=document.querySelector('[data-action="clean"]');b.click();b.click();});
- assert.equal(await dp.locator('.plate-text').count(),0,'Marker hidden until story reveals it');
+ assert.equal(await dp.locator('.plate-preview-text').count(),1,'During the approved clean action the inscription remains visibly uncovered');
  await click(dp,'Continue');await click(dp,'Continue');
  assert.equal((await ledger(dp)).filter(x=>x===events.marker[0]).length,1);
  await dp.reload({waitUntil:'networkidle'});
@@ -550,9 +570,10 @@ try{
  await tap(sp,'Old post');await tap(sp,'Look at the old post');await drain(sp);
  await sp.locator('#plate-rub').scrollIntoViewIfNeeded();
  const box=await sp.locator('#plate-rub').boundingBox(),ts=await sc.newCDPSession(sp);
- for(let row=0;row<8;row++){
+ await sp.locator('.plate-rub-wrap.rubbing-active').waitFor();
+ for(let row=0;row<14;row++){
   if(await sp.getByRole('button',{name:'Finish cleaning'}).isEnabled())break;
-  const y=box.y+7+row*9,start=box.x+5,end=box.x+box.width-5;
+  const y=box.y+22+row*19,start=box.x+18,end=box.x+box.width-18;
   await ts.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:start,y}]});
   for(let i=1;i<=18;i++)await ts.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:start+(end-start)*i/18,y}]});
   await ts.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
