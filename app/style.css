@@ -233,3 +233,67 @@ html,body{height:100%;overflow:hidden}
  .scene-map-sheet .sheet-heading{gap:5px}
  .scene-map-sheet .evidence-actions button,.scene-map-sheet .choices button{min-height:44px}
 }
+
+/* Mobile world viewport, 2026-10-09 field QA.
+   The old 760px scene + 44dvh vertical clip showed only a corner of Town
+   Square and often panned Milo, Nia or Finn entirely off screen. Keep the
+   approved 1672:941 background, all actors and hotspots in one scaled frame. */
+@media (max-width:760px){
+ .layout .scene-card{overflow-x:hidden;overflow-y:auto}
+ .layout .viewport{
+  position:relative;
+  display:block;
+  width:100%;
+  height:auto;
+  min-height:0;
+  max-height:none;
+  flex:0 0 auto;
+  overflow:visible;
+ }
+ .layout .world{
+  position:relative;
+  width:100%;
+  max-width:100%;
+  height:auto;
+  aspect-ratio:1672/941;
+  touch-action:manipulation;
+ }
+ /* Character dimensions are percentages of the same painted world.
+    Their feet keep the canonical world coordinates; only art scale changes. */
+ .layout .world .actor{width:9.21%;height:auto;aspect-ratio:70/137}
+ .layout .world .actor.companion{width:8.15%;height:auto;aspect-ratio:62/122}
+ .layout .world .actor.steward{width:10.26%;height:auto;aspect-ratio:78/158}
+ .layout .world .actor svg,.layout .world .actor img{
+  width:100%;height:100%;object-fit:contain
+ }
+ .layout .world .milo-label{
+  bottom:-11px;
+  padding:1px 5px;
+  font:10px/1.1 system-ui;
+ }
+ .layout .navigation{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:6px;
+  padding:7px 9px;
+ }
+ .layout .navigation button{
+  width:100%;
+  min-width:0;
+  min-height:44px;
+  padding:7px 6px;
+  font-size:13px;
+ }
+ .layout .scene-heading{padding:7px 11px 5px}
+ .layout .scene-heading p{font:13px/1.35 system-ui}
+ .layout .action-dock{padding:5px 9px 9px;gap:6px}
+}
+@media (max-width:360px){
+ .layout .world button.spot{
+  width:40px;min-width:40px;
+  height:40px;min-height:40px;
+  font-size:18px;
+ }
+ .layout .scene-heading h1{font-size:18px}
+ .layout .caption{padding:7px 8px}
+}
