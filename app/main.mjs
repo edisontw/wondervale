@@ -3,7 +3,7 @@ const content=await fetch('public/episode.json').then(r=>r.json());
 const root=document.getElementById('app');
 let saved=null;try{saved=JSON.parse(localStorage.getItem(KEY));}catch{}
 let state=restore(saved),prefs={audio:false,motion:!matchMedia('(prefers-reduced-motion: reduce)').matches,motor:false,...saved?.preferences};
-let ui={parent:false,parentCollapsed:false,map:false,pause:false,storageError:false,moving:false,mapClosed:false,recap:!!state.recap,reread:null,resetConfirm:false,resetError:false,parentPreview:false,rubCompleted:false};
+let ui={parent:false,parentCollapsed:false,map:false,pause:false,storageError:false,moving:false,mapClosed:false,recap:!!state.recap,reread:null,resetConfirm:false,resetError:false,parentPreview:false,rubCompleted:false,rubReady:false};
 const short=(who,n)=>`S01E01-${who}-${String(n).padStart(3,'0')}`;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const button=(label,action,attrs='')=>`<button data-action="${action}" ${attrs}>${esc(label)}</button>`;
@@ -44,7 +44,14 @@ function resetSavedAdventure(){
  render();
 }
 function save(){const p=payload(state,prefs);if(!p)return;try{localStorage.setItem(KEY,JSON.stringify(p));ui.storageError=false;}catch{ui.storageError=true;}}
-function act(action){if(ui.pause||ui.recap||ui.moving)return;if(action.type==='clean')ui.rubCompleted=true;ui.reread=null;const previous=state;state=dispatch(state,action);if(state.phase!==previous.phase){ui.map=false;ui.mapClosed=false;}save();ui.moving=action.type==='move'&&prefs.motion&&state.position.some((v,i)=>v!==previous.position[i]);render();if(state.queue[0]!==previous.queue[0])speak(state.queue[0]);if(ui.moving)animateTravel(previous.position,state.position);}
+function act(action){
+ if(ui.pause||ui.recap||ui.moving)return;
+ // Engine rejects cleaning while a dialogue queue is active; do not mark the
+ // on-screen dust removed until the engine actually accepts the action.
+ if(action.type==='clean'&&(state.queue.length||state.phase!=='marker_search'||!state.plateFound||state.markerRevealed))return;
+ ui.reread=null;
+ const previous=state;state=dispatch(state,action);
+ if(action.type==='clean'&&state.after==='reveal'){ui.rubCompleted=true;ui.rubReady=false;}if(state.phase!==previous.phase){ui.map=false;ui.mapClosed=false;}save();ui.moving=action.type==='move'&&prefs.motion&&state.position.some((v,i)=>v!==previous.position[i]);render();if(state.queue[0]!==previous.queue[0])speak(state.queue[0]);if(ui.moving)animateTravel(previous.position,state.position);}
 function animateTravel(from,to){
  const actor=root.querySelector('.actor.milo');
  if(!actor){ui.moving=false;return;}
@@ -85,12 +92,22 @@ function sceneBody(){const p=state.phase;
  if(p==='map_observe')return `<div class="scene-heading"><span class="eyebrow">Town Square · Old paper</span><h1>${line(short('UI',2)).exact_text}</h1></div>${world()}<div class="action-dock">${button('Open the old map','open-map','class="primary"')}</div><section class="scene-map-sheet map-task" role="region" aria-label="Study the old map"><div class="sheet-heading"><strong>Look closely at the old map</strong>${button('Back to Square','close-map')}</div>${mapArt()}<div class="evidence-actions">${['line','blank_shape','layer_holes'].map((r,i)=>button(['Look at the line','Look at the shape','Look at the paper'][i],`inspect:${r}`,`aria-pressed="${state.inspected.includes(r)}"`)).join('')}</div>${state.inspected.length>=2&&!state.queue.length?`<div class="choices" aria-label="Milo's guess">${['A','B','C'].map((c,i)=>button(line(short('MILO',13+i)).exact_text,`guess:${c}`)).join('')}</div>`:''}${state.sketch?'<p class="notice">Nia’s drawing keeps the line and unnamed shape.</p>':''}</section>`;
  if(['chronicle_close','completed'].includes(p))return `<div class="chronicle"><span class="eyebrow">Wondervale Chronicle</span><h2>${content.chronicle.title}</h2>${mapArt()}<div class="chronicle-columns"><div><h3>What we found</h3><ul>${content.chronicle.found.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div><div><h3>What we wonder</h3><ul>${content.chronicle.wonder.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div></div><div class="memory-pair">${plate(false)}${plate(true)}</div>${p==='completed'?`<p class="notice">Town Square remembers. The old mark stays clear.</p><div class="row">${button('Visit Town Square','present')}${button('Replay this memory','replay')}</div>`:actions()}</div>`;
  let title={opening:'A normal day in Town Square',square_explore:'Walk with Milo',square_compare:line(short('UI',5)).exact_text,marker_search:state.plateFound?line(short('UI',8)).exact_text:line(short('UI',9)).exact_text}[p];
- return `<div class="scene-heading"><span class="eyebrow">Town Square</span><h1>${esc(title)}</h1>${p==='opening'?`<div class="opening-guide" role="status"><p>The story is starting. Select Continue to hear the next line. You can explore after the introduction.</p>${button('Continue story','next','class="primary"')}${button('Skip introduction','skip')}</div>`:''}</div>${world()}${state.phase==='square_compare'?`<p class="comparison-progress" role="status">Old map clues: Fountain ${state.anchors.includes('fountain')?'✓':'○'} · Big tree ${state.anchors.includes('large_tree')?'✓':'○'}. Walk to each place, then select Map to check the paper.</p>`:''}${actions()}${p==='square_explore'&&groups.board.indexOf(state.queue[0])>=5?`<div class="close-panel"><div class="board-close" role="img" aria-label="Old paper preserved behind the current notice"></div></div>`:''}${p==='marker_search'&&state.plateFound?`<div class="close-panel" id="plate-swipe"><p class="rub-guide">Rub the dusty plate with your mouse or finger to clean it.</p><div class="plate-rub-wrap">${plate(state.markerRevealed)}${!state.markerRevealed&&!ui.rubCompleted?'<canvas id="plate-rub" width="240" height="300" role="img" aria-label="Dusty plate: rub with mouse or finger"></canvas>':''}</div>${!state.markerRevealed?ui.rubCompleted?'<p id="rub-status" role="status">Dust removed. Continue the story to see what is underneath.</p>':`<p id="rub-status" role="status">Rub across the plate to remove the dust.</p>${button('Clean without rubbing','clean','class="secondary"')}`:''}</div>`:''}${ui.map?`<section class="scene-map-sheet map-optional" role="region" aria-label="Old map"><div class="sheet-heading"><strong>Old map</strong>${button('Close map','map','class="primary"')}</div>${mapArt()}</section>`:''}`;
+ return `<div class="scene-heading"><span class="eyebrow">Town Square</span><h1>${esc(title)}</h1>${p==='opening'?`<div class="opening-guide" role="status"><p>The story is starting. Select Continue to hear the next line. You can explore after the introduction.</p>${button('Continue story','next','class="primary"')}${button('Skip introduction','skip')}</div>`:''}</div>${world()}${state.phase==='square_compare'?`<p class="comparison-progress" role="status">Old map clues: Fountain ${state.anchors.includes('fountain')?'✓':'○'} · Big tree ${state.anchors.includes('large_tree')?'✓':'○'}. Walk to each place, then select Map to check the paper.</p>`:''}${actions()}${p==='square_explore'&&groups.board.indexOf(state.queue[0])>=5?`<div class="close-panel"><div class="board-close" role="img" aria-label="Old paper preserved behind the current notice"></div></div>`:''}${p==='marker_search'&&state.plateFound?`<div class="close-panel" id="plate-swipe">
+<p class="rub-guide">${state.queue.length?(ui.rubCompleted?'Dust cleared. Continue the story to uncover the old writing.':'Listen to the story first. Then you can rub the plate.'):state.markerRevealed?'The old writing is clear.':ui.rubCompleted?'The dust is gone. Continue the story to reveal the writing.':'Rub across the dusty plate with your mouse or finger.'}</p>
+<div class="plate-rub-wrap">${plate(state.markerRevealed)}${!state.queue.length&&!state.markerRevealed&&!ui.rubCompleted?'<canvas id="plate-rub" width="240" height="300" role="img" aria-label="Dusty plate: rub with mouse or finger"></canvas>':''}</div>
+${state.queue.length?`<div class="rub-next" role="status"><p>Read the next line to continue.</p>${button('Continue story','next','class="primary"')}</div>`:!state.markerRevealed&&!ui.rubCompleted?`<div class="rub-progress"><p id="rub-status" role="status">Dust cleared: 0%. Keep rubbing until the plate is ready.</p><progress id="rub-meter" max="100" value="0" aria-label="Dust cleared"></progress><div class="rub-actions">${button('Finish cleaning','rub-finish','class="primary" disabled')}${button('Clean without rubbing','clean','class="secondary"')}</div></div>`:state.markerRevealed?'<p class="rub-guide" role="status">The old writing has been revealed.</p>':'<p class="rub-guide" role="status">Dust cleared. Continue the story to uncover the mark.</p>'}
+</div>`:''}${ui.map?`<section class="scene-map-sheet map-optional" role="region" aria-label="Old map"><div class="sheet-heading"><strong>Old map</strong>${button('Close map','map','class="primary"')}</div>${mapArt()}</section>`:''}`;
 }
 function caption(){const q=state.queue[0];if(!q)return '';const l=line(q);return `<section class="caption" aria-live="polite" aria-atomic="true"><div class="portrait">${char(l.speaker)}</div><div><div class="speaker">${esc(l.speaker==='NARRATOR'?'Story':l.speaker==='UI'?'Look & play':l.speaker)}</div><p class="text" data-line-id="${q}">${esc(l.exact_text)}</p><div class="caption-actions">${button('Continue','next','class="primary"')}${button('Read again','read')}${button('Skip dialogue','skip','class="secondary"')}</div>${ui.reread?.scope==='caption'?`<p role="status" class="reread-status">${esc(ui.reread.message)}</p>`:''}</div></section>`;}
 function parent(){const eligible=state.cueOffered;return `<aside class="parent ${ui.parent?'mobile-open':''}" aria-label="Parent View"><span class="eyebrow">Alongside your child</span><h2>Parent View</h2><div class="mobile-only">${button('Back to Child View','parent')}</div><p>${esc(content.parent.preview)}</p>${eligible?`<div class="notice" id="parent-cue"><h3>One question to share</h3><p>${esc(content.parent.cue)}</p><p>${esc(content.parent.followup)}</p><p>${esc(content.parent.fallback)}</p></div>`:'<p class="meta">A short question will be available after your child looks at the map.</p>'}${['chronicle_close','completed'].includes(state.phase)?`<h3>After the story</h3><p>${esc(content.parent.reflection)}</p>`:''}<h3>Comfort & support</h3><label><input type="checkbox" data-setting="audio" ${prefs.audio?'checked':''}>Read aloud</label><label><input type="checkbox" data-setting="motion" ${prefs.motion?'checked':''}>Gentle movement</label><label><input type="checkbox" data-setting="motor" ${prefs.motor?'checked':''}>Single-action assistance</label><p class="meta">Read-aloud uses this device’s synthetic English voice for the prototype. Recorded character performances and music are still in production.</p><p class="meta">Progress stays on this device. No account, microphone or child-response recording.</p><div class="restart-tools"><h3>Start over</h3><p class="meta">Erase this device’s Wondervale story progress and episode unlocks.</p>${button("Start new adventure","reset-request")}</div><p class="meta">Build ${content.buildId}</p></aside>`;}
-function render(){const focused=document.activeElement?.dataset?.action;root.className=prefs.motion?'':'motion-off';root.innerHTML=`<header><div><div class="brand">Wondervale</div><div class="episode-title">The Map Behind the Board</div></div><div class="tools">${button('Help','help')}${['square_compare','marker_search'].includes(state.phase)?button('Map','map',`aria-expanded="${ui.map}"`):''}${button('Pause','pause')}${button(state.cueOffered?'Parent •':'Parent','parent',`class="mobile-only" aria-expanded="${ui.parent}" aria-label="Parent"`)}${button(ui.parentCollapsed?'Show parent':'Hide parent','parent-collapse','class="desktop-only"')}</div></header><main class="layout ${ui.parentCollapsed?'parent-hidden':''}"><div class="child ${ui.parent?'mobile-hidden':''}"><section class="scene-card">${sceneBody()}</section>${caption()}${state.mode==='historical_replay'?`<div class="footer">Historical memory · present progress stays safe. ${button('Leave replay','exitReplay')}</div>`:''}${ui.storageError?'<p role="alert">Progress could not be saved. Keep this page open to continue.</p>':''}</div>${ui.parentCollapsed&&!ui.parent?'':parent()}</main><footer>Explore. Notice. Wonder together.</footer>${ui.pause&&!ui.resetConfirm?`<div class="overlay"><section class="dialog" role="dialog" aria-modal="true" aria-label="Paused"><h2>Take your time.</h2><div class="row">${button('Return to the story','unpause','class="primary"')}${button('Start new adventure','reset-request')}</div></section></div>`:''}${ui.recap&&!ui.resetConfirm?`<div class="overlay"><section class="dialog" role="dialog" aria-modal="true" aria-label="Story so far"><h2>Story so far</h2>${state.recap.map(id=>`<p data-line-id="${id}">${esc(line(id).exact_text)}</p>`).join('')}<div class="row">${button('Continue the story','dismiss-recap','class="primary"')}${button('Read again','read-recap')}${button('Start new adventure','reset-request')}</div>${ui.reread?.scope==='recap'?`<p role="status" class="reread-status">${esc(ui.reread.message)}</p>`:''}</section></div>`:''}${ui.parentPreview&&!ui.resetConfirm&&!ui.pause&&!ui.recap?`<div class="overlay"><section class="dialog" role="dialog" aria-modal="true" aria-label="Parent preview"><h2>Before your child begins</h2><p>${esc(content.parent.preview)}</p>${button('Back to the story','parent-preview-close','class="primary"')}</section></div>`:''}${ui.resetConfirm?`<div class="overlay reset-overlay"><section class="dialog" role="dialog" aria-modal="true" aria-label="Confirm new adventure"><h2>Start a new adventure?</h2><p>This will erase your Wondervale story progress, discoveries and episode unlocks on this device. You cannot undo this.</p><div class="row">${button('Keep my progress','reset-cancel','class="primary"')}${button('Erase progress and restart','reset-confirm','class="danger"')}</div>${ui.resetError?'<p role="alert">Progress could not be erased. Your saved adventure has not been changed.</p>':''}</section></div>`:''}`;
-root.removeAttribute('aria-busy');initPlateRub();if(focused)root.querySelector(`[data-action="${focused}"]`)?.focus({preventScroll:true});
+let lastRenderedPhase=null;
+function render(){const focused=document.activeElement?.dataset?.action;
+ const previousSceneScroll=lastRenderedPhase===state.phase?(root.querySelector('.scene-card')?.scrollTop||0):0;
+ root.className=prefs.motion?'':'motion-off';root.innerHTML=`<header><div><div class="brand">Wondervale</div><div class="episode-title">The Map Behind the Board</div></div><div class="tools">${button('Help','help')}${['square_compare','marker_search'].includes(state.phase)?button('Map','map',`aria-expanded="${ui.map}"`):''}${button('Pause','pause')}${button(state.cueOffered?'Parent •':'Parent','parent',`class="mobile-only" aria-expanded="${ui.parent}" aria-label="Parent"`)}${button(ui.parentCollapsed?'Show parent':'Hide parent','parent-collapse','class="desktop-only"')}</div></header><main class="layout ${ui.parentCollapsed?'parent-hidden':''}"><div class="child ${ui.parent?'mobile-hidden':''}"><section class="scene-card">${sceneBody()}</section>${caption()}${state.mode==='historical_replay'?`<div class="footer">Historical memory · present progress stays safe. ${button('Leave replay','exitReplay')}</div>`:''}${ui.storageError?'<p role="alert">Progress could not be saved. Keep this page open to continue.</p>':''}</div>${ui.parentCollapsed&&!ui.parent?'':parent()}</main><footer>Explore. Notice. Wonder together.</footer>${ui.pause&&!ui.resetConfirm?`<div class="overlay"><section class="dialog" role="dialog" aria-modal="true" aria-label="Paused"><h2>Take your time.</h2><div class="row">${button('Return to the story','unpause','class="primary"')}${button('Start new adventure','reset-request')}</div></section></div>`:''}${ui.recap&&!ui.resetConfirm?`<div class="overlay"><section class="dialog" role="dialog" aria-modal="true" aria-label="Story so far"><h2>Story so far</h2>${state.recap.map(id=>`<p data-line-id="${id}">${esc(line(id).exact_text)}</p>`).join('')}<div class="row">${button('Continue the story','dismiss-recap','class="primary"')}${button('Read again','read-recap')}${button('Start new adventure','reset-request')}</div>${ui.reread?.scope==='recap'?`<p role="status" class="reread-status">${esc(ui.reread.message)}</p>`:''}</section></div>`:''}${ui.parentPreview&&!ui.resetConfirm&&!ui.pause&&!ui.recap?`<div class="overlay"><section class="dialog" role="dialog" aria-modal="true" aria-label="Parent preview"><h2>Before your child begins</h2><p>${esc(content.parent.preview)}</p>${button('Back to the story','parent-preview-close','class="primary"')}</section></div>`:''}${ui.resetConfirm?`<div class="overlay reset-overlay"><section class="dialog" role="dialog" aria-modal="true" aria-label="Confirm new adventure"><h2>Start a new adventure?</h2><p>This will erase your Wondervale story progress, discoveries and episode unlocks on this device. You cannot undo this.</p><div class="row">${button('Keep my progress','reset-cancel','class="primary"')}${button('Erase progress and restart','reset-confirm','class="danger"')}</div>${ui.resetError?'<p role="alert">Progress could not be erased. Your saved adventure has not been changed.</p>':''}</section></div>`:''}`;
+root.removeAttribute('aria-busy');initPlateRub();
+ const scene=root.querySelector('.scene-card');if(scene&&lastRenderedPhase===state.phase)scene.scrollTop=previousSceneScroll;
+ lastRenderedPhase=state.phase;
+ if(focused)root.querySelector(`[data-action="${focused}"]`)?.focus({preventScroll:true});
  const viewport=root.querySelector('.viewport');if(viewport&&innerWidth<=760)viewport.scrollLeft=Math.max(0,state.position[0]*760-viewport.clientWidth/2);
  if(ui.parentPreview)setTimeout(()=>root.querySelector('.dialog button')?.focus(),0);if(ui.resetConfirm)setTimeout(()=>root.querySelector('.reset-overlay .dialog button')?.focus(),0);else if(ui.pause||ui.recap)setTimeout(()=>root.querySelector('.dialog button')?.focus(),0);
 }
@@ -99,9 +116,10 @@ const [type,value]=b.dataset.action.split(':');
 if(type==='reset-request'){ui.resetConfirm=true;ui.resetError=false;globalThis.speechSynthesis?.cancel();render();return;}
 if(type==='reset-cancel'){ui.resetConfirm=false;ui.resetError=false;render();return;}
 if(type==='reset-confirm'){resetSavedAdventure();return;}
+if(type==='rub-finish'){if(ui.rubReady&&!state.queue.length)act({type:'clean'});return;}
 if(ui.resetConfirm)return;
 if(type==='close-map'){ui.mapClosed=true;render();return;}if(type==='open-map'){ui.mapClosed=false;render();return;}if(type==='parent-preview'){ui.parentPreview=true;render();return;}if(type==='parent-preview-close'){ui.parentPreview=false;render();return;}if(type==='parent'){ui.parent=!ui.parent;render();return;}if(type==='parent-collapse'){ui.parentCollapsed=!ui.parentCollapsed;render();return;}if(type==='map'){ui.map=!ui.map;render();return;}if(type==='pause'){ui.pause=true;globalThis.speechSynthesis?.cancel();render();return;}if(type==='unpause'){ui.pause=false;render();return;}if(type==='dismiss-recap'){ui.recap=false;ui.reread=null;delete state.recap;render();return;}if(type==='read-recap'){reread(state.recap||[],'recap');return;}if(type==='read'){reread(state.queue.slice(0,1),'caption');return;}
-if(type==='replay'){state=fresh('historical_replay',state.ledger);ui.map=false;render();return;}if(type==='exitReplay'){state=restore(JSON.parse(localStorage.getItem(KEY)));ui.recap=!!state.recap;render();return;}if(type==='present'){ui.present=true;root.querySelector('.scene-card').innerHTML=`<div class="scene-heading"><h1>Town Square</h1></div>${world()}<div class="action-dock">${button('Back to the Chronicle','chronicle')}</div>`;return;}if(type==='chronicle'){ui.present=false;render();return;}
+if(type==='replay'){state=fresh('historical_replay',state.ledger);ui.map=false;ui.rubCompleted=false;ui.rubReady=false;render();return;}if(type==='exitReplay'){state=restore(JSON.parse(localStorage.getItem(KEY)));ui.recap=!!state.recap;ui.rubCompleted=false;ui.rubReady=false;render();return;}if(type==='present'){ui.present=true;root.querySelector('.scene-card').innerHTML=`<div class="scene-heading"><h1>Town Square</h1></div>${world()}<div class="action-dock">${button('Back to the Chronicle','chronicle')}</div>`;return;}if(type==='chronicle'){ui.present=false;render();return;}
 if(type==='walk')act({type:'move',target:value});else if(type==='inspect')act({type:'inspect',region:value});else if(type==='ambient')act({type:'ambient',target:value});else if(type==='guess')act({type:'guess',choice:value});else if(type==='compare')act({type:'compare',symbol:value});else act({type});
 });
 root.addEventListener('change',event=>{const setting=event.target.dataset.setting;if(!setting)return;prefs[setting]=event.target.checked;save();render();});
@@ -124,35 +142,62 @@ function initPlateRub(){
 }
 function rubPoint(event){
  const canvas=rubbingCanvas,ctx=rubbingCtx;
- if(!canvas?.isConnected||!ctx||!rubbingCells||!root.querySelector('#plate-rub'))return;
+ if(!canvas?.isConnected||!ctx||!rubbingCells||state.queue.length||ui.rubCompleted||ui.rubReady)return;
  const b=canvas.getBoundingClientRect();
  if(b.width<1||b.height<1)return;
  const x=Math.max(0,Math.min(239,(event.clientX-b.left)*240/b.width));
  const y=Math.max(0,Math.min(299,(event.clientY-b.top)*300/b.height));
  const prev=rubbingLast||[x,y];
- ctx.globalCompositeOperation='destination-out';ctx.strokeStyle='#000';ctx.lineWidth=39;ctx.lineCap='round';
+ const brushRadius=16;
+ ctx.globalCompositeOperation='destination-out';ctx.lineWidth=brushRadius*2;ctx.lineCap='round';ctx.lineJoin='round';
  ctx.beginPath();ctx.moveTo(prev[0],prev[1]);ctx.lineTo(x,y);ctx.stroke();
- const distance=Math.hypot(x-prev[0],y-prev[1]),steps=Math.max(1,Math.ceil(distance/6));
+ // Count genuinely cleaned patches near the brush, not an inflated 3x3
+ // neighbourhood. 126 of 180 patches must be cleared (70%).
+ const distance=Math.hypot(x-prev[0],y-prev[1]),steps=Math.max(1,Math.ceil(distance/5));
  for(let i=0;i<=steps;i++){
   const px=prev[0]+(x-prev[0])*i/steps,py=prev[1]+(y-prev[1])*i/steps;
-  const col=Math.min(11,Math.floor(px/20)),row=Math.min(14,Math.floor(py/20));
-  for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
-   if(col+dx>=0&&col+dx<12&&row+dy>=0&&row+dy<15)rubbingCells.add((row+dy)*12+col+dx);
+  const minCol=Math.max(0,Math.floor((px-brushRadius)/20)),maxCol=Math.min(11,Math.floor((px+brushRadius)/20));
+  const minRow=Math.max(0,Math.floor((py-brushRadius)/20)),maxRow=Math.min(14,Math.floor((py+brushRadius)/20));
+  for(let row=minRow;row<=maxRow;row++)for(let col=minCol;col<=maxCol;col++){
+   if(Math.hypot((col+.5)*20-px,(row+.5)*20-py)<=brushRadius)rubbingCells.add(row*12+col);
   }
  }
  rubbingLast=[x,y];
- const progress=Math.min(100,Math.round(rubbingCells.size/32*100));
- const status=root.querySelector('#rub-status');
- if(status)status.textContent='Cleaning the plate: '+progress+'%.';
- if(rubbingCells.size>=32){
-  rubbingPointer=null;rubbingLast=null;
-  act({type:'clean'});
+ const progress=Math.min(100,Math.round(rubbingCells.size/126*100));
+ const status=root.querySelector('#rub-status'),meter=root.querySelector('#rub-meter');
+ if(meter)meter.value=progress;
+ if(status)status.textContent='Dust cleared: '+progress+'%. '+(progress<100?'Keep rubbing.':'Ready! Select Finish cleaning to continue.');
+ if(rubbingCells.size>=126){
+  ui.rubReady=true;
+  const finish=root.querySelector('[data-action="rub-finish"]');
+  if(finish){finish.disabled=false;finish.focus({preventScroll:true});}
  }
 }
+// Some touch devices synthesize pointerdown/up on a focused button but omit
+// the subsequent click after a canvas scrubbing gesture. Accept a short,
+// deliberate touch release on Finish cleaning without relying on that click.
+let finishTouch=null;
 root.addEventListener('pointerdown',event=>{
- if(event.target.id!=='plate-rub'||!rubbingCanvas||state.markerRevealed)return;
+ const target=event.target.closest('[data-action="rub-finish"]');
+ if(event.pointerType==='touch'&&target&&!target.disabled)
+  finishTouch={pointerId:event.pointerId,x:event.clientX,y:event.clientY};
+});
+root.addEventListener('pointerup',event=>{
+ if(!finishTouch||finishTouch.pointerId!==event.pointerId)return;
+ const wasTap=Math.hypot(event.clientX-finishTouch.x,event.clientY-finishTouch.y)<22;
+ finishTouch=null;
+ if(wasTap&&event.target.closest('[data-action="rub-finish"]')&&ui.rubReady&&!state.queue.length){
+  event.preventDefault();act({type:'clean'});
+ }
+});
+root.addEventListener('pointercancel',event=>{
+ if(finishTouch?.pointerId===event.pointerId)finishTouch=null;
+});
+root.addEventListener('pointerdown',event=>{
+ if(event.target.id!=='plate-rub'||!rubbingCanvas||state.markerRevealed||state.queue.length||ui.rubReady)return;
  event.preventDefault();rubbingPointer=event.pointerId;rubbingLast=null;
- if(event.isTrusted){try{rubbingCanvas.setPointerCapture(event.pointerId);}catch{}}
+ // Native touch already has implicit capture. An explicit capture could swallow
+ // a subsequent tap on Finish cleaning on mobile Chromium.
  rubPoint(event);
 });
 root.addEventListener('pointermove',event=>{
