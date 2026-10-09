@@ -274,3 +274,7 @@ When choosing between alternatives, prefer the option that:
 4. keeps character/world continuity understandable;
 5. avoids unnecessary data collection;
 6. scales to many episodes without multiplying authoring complexity.
+
+### 2026-10-09 UI experience boundary (owner-directed)
+
+E01 and upcoming episodes should present the story, world, essential dialogue and controls inside one bounded main viewport wherever screen dimensions allow, rather than expanding the browser document vertically. On desktop preserve side-by-side Parent View; on mobile preserve distinct Child/Parent modes. Use bounded internal scrolling for genuinely long parent or reflection copy rather than hiding any content. The map is an intentional investigation tool: the required first observation stays in-scene, but after that an old map must open **only on direct user request**, one copy at a time. Keep full canonical text and motor-accessible action targets. Real-device acceptance remains open; record exceptions if extremely small/mobile-landscape heights cannot fit without internal scrolling.
