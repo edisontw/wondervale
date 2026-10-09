@@ -366,14 +366,20 @@ try{
  await drain(rubPage);
  assert.equal(await rubPage.locator('#plate-rub').count(),1);
  assert.equal(await rubPage.locator('.plate-text').count(),0,'No early destination spoiler');
+ const geometry=await rubPage.evaluate(()=>{
+  const p=document.querySelector('.plate-rub-wrap').getBoundingClientRect(),canvas=document.querySelector('#plate-rub'),c=canvas.getBoundingClientRect();
+  return {x:(c.left-p.left)/p.width,y:(c.top-p.top)/p.height,w:c.width/p.width,h:c.height/p.height,canvasW:canvas.width,canvasH:canvas.height};
+ });
+ assert.ok(Math.abs(geometry.x-.3625)<.01&&Math.abs(geometry.y-.32)<.01&&geometry.w<.26&&geometry.h<.26
+  &&geometry.canvasW===58&&geometry.canvasH===75,'Scratch must stay inside plaque: '+JSON.stringify(geometry));
  assert.equal(await rubPage.getByRole('button',{name:'Finish cleaning'}).isDisabled(),true);
  await rubPage.locator('#plate-rub').evaluate(canvas=>{
   const rect=canvas.getBoundingClientRect(),pid=731;
-  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/240,clientY:rect.top+y*rect.height/300}));
+  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/58,clientY:rect.top+y*rect.height/75}));
   for(let row=0;row<2;row++){
-   const y=22+row*26;fire('pointerdown',18,y);
-   for(let x=18;x<=230;x+=9)fire('pointermove',x,y);
-   fire('pointerup',230,y);
+   const y=8+row*8;fire('pointerdown',5,y);
+   for(let x=5;x<=53;x+=4)fire('pointermove',x,y);
+   fire('pointerup',53,y);
   }
  });
  assert.equal(await rubPage.locator('#plate-rub').count(),1,'Early rubs must not make the plate jump away');
@@ -381,11 +387,12 @@ try{
  assert.equal((await ledger(rubPage)).includes(events.marker[0]),false);
  await rubPage.locator('#plate-rub').evaluate(canvas=>{
   const rect=canvas.getBoundingClientRect(),pid=732;
-  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/240,clientY:rect.top+y*rect.height/300}));
-  for(let row=2;row<13&&canvas.isConnected;row++){
-   const y=22+row*21;fire('pointerdown',18,y);
-   for(let x=18;x<=230;x+=8)fire('pointermove',x,y);
-   fire('pointerup',230,y);
+  const fire=(type,x,y)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:pid,pointerType:'mouse',isPrimary:true,clientX:rect.left+x*rect.width/58,clientY:rect.top+y*rect.height/75}));
+  for(const y of [28,39,50,61,69]){
+   if(!canvas.isConnected)break;
+   fire('pointerdown',5,y);
+   for(let x=5;x<=53;x+=4)fire('pointermove',x,y);
+   fire('pointerup',53,y);
   }
  });
  assert.equal(await rubPage.getByRole('button',{name:'Finish cleaning'}).isEnabled(),true);
@@ -398,7 +405,19 @@ try{
  await click(rubPage,'Continue story');await click(rubPage,'Continue story');
  assert.equal((await ledger(rubPage)).filter(x=>x===events.marker[0]).length,1);
  assert.equal(await rubPage.locator('.plate-text').count(),1);
- pass('FIELD-QA-RUB-01','Dialogue gates rubbing; deliberate strokes fill progress; explicit Finish cleaning reveals exactly once.');
+ const bounds=await rubPage.locator('.plate-close.clean').evaluate(plate=>{
+  const face=plate.querySelector('.plate-text'),word=face.querySelector('.plate-word'),arrow=face.querySelector('.arrow');
+  const rect=el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};};
+  return {face:rect(face),word:rect(word),arrow:rect(arrow),
+   surface:!!plate.querySelector('.plate-clean-surface'),backgroundPosition:getComputedStyle(plate).backgroundPosition,text:face.textContent};
+ });
+ assert.equal(bounds.text,'RIVERSIDE→');
+ assert.ok(bounds.surface,'Only the original plaque interior gets clean');
+ assert.equal(bounds.backgroundPosition,'18% 50%','The physical post must not jump after rubbing');
+ for(const ink of [bounds.word,bounds.arrow])
+  assert.ok(ink.left>=bounds.face.left-1&&ink.right<=bounds.face.right+1&&ink.top>=bounds.face.top-1&&ink.bottom<=bounds.face.bottom+1,
+   'Riverside lettering exceeds inset: '+JSON.stringify(bounds));
+ pass('FIELD-QA-RUB-01','Only the plaque scratches; RIVERSIDE stays inside its frame and the post is stable.');
  await rubCtx.close();
  const {c,p}=await context();
  await p.screenshot({path:`${out}/desktop-opening.png`,fullPage:true});
@@ -531,9 +550,9 @@ try{
  await tap(sp,'Old post');await tap(sp,'Look at the old post');await drain(sp);
  await sp.locator('#plate-rub').scrollIntoViewIfNeeded();
  const box=await sp.locator('#plate-rub').boundingBox(),ts=await sc.newCDPSession(sp);
- for(let row=0;row<14;row++){
+ for(let row=0;row<8;row++){
   if(await sp.getByRole('button',{name:'Finish cleaning'}).isEnabled())break;
-  const y=box.y+18+row*20,start=box.x+17,end=box.x+box.width-17;
+  const y=box.y+7+row*9,start=box.x+5,end=box.x+box.width-5;
   await ts.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:start,y}]});
   for(let i=1;i<=18;i++)await ts.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:start+(end-start)*i/18,y}]});
   await ts.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
