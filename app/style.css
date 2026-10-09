@@ -92,3 +92,15 @@ html,body{height:100%;overflow:hidden}
 #plate-rub{position:absolute;inset:0;display:block;width:100%;height:100%;cursor:crosshair;touch-action:none;user-select:none;-webkit-user-select:none}
 .rub-guide,#rub-status{text-align:center;font:15px/1.5 system-ui;margin:8px auto}
 #plate-swipe button[data-action=clean]{display:block;margin:10px auto}
+
+/* Scrub only the dusty board, not the entire scene. Mobile players must still
+   be able to scroll the contained scene to its completion and story controls. */
+#plate-swipe{touch-action:auto}
+#plate-rub{touch-action:none}
+.rub-progress,.rub-next{max-width:340px;margin:8px auto;text-align:center}
+.rub-progress p,.rub-next p{margin:5px 0 8px;font:15px/1.45 system-ui}
+#rub-meter{display:block;width:100%;height:15px;accent-color:#426e56;margin:4px auto 12px}
+.rub-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin-top:8px}
+.rub-actions button{flex:1 1 auto;min-width:145px}
+.rub-actions button:disabled{opacity:.48}
+.rub-next button{min-width:145px}
