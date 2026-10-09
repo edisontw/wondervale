@@ -108,6 +108,39 @@ try{
  assert.ok(await firstVisit.locator('.actor.milo').evaluate(el=>parseFloat(el.style.left)>40),'fresh first visitor can explore after intro');
  pass('FIELD-QA-FIRST-01','Fresh private browser starts with separated trio, visible Begin/Continue, and working exploration after intro.');
  await firstVisitCtx.close();
+
+ const {c:viewportCtx,p:viewportPage}=await context({stage:'observed'});
+ assert.equal(await viewportPage.locator('.scene-map-sheet,.map-inset').count(),0,'Landmark stage must not show a map automatically');
+ for(let n=0;n<3;n++){
+  await click(viewportPage,'Map');
+  assert.equal(await viewportPage.locator('.scene-map-sheet .map-art').count(),1,'Manual Map opens one copy, not two');
+  await click(viewportPage,'Close map');
+  assert.equal(await viewportPage.locator('.scene-map-sheet,.map-inset').count(),0,'Closed map remains closed');
+ }
+ const sizeDesktop=await viewportPage.evaluate(()=>({page:document.documentElement.scrollHeight,window:innerHeight,root:document.getElementById('app').getBoundingClientRect().height}));
+ assert.ok(sizeDesktop.page<=sizeDesktop.window+3,'Desktop document should fit one viewport: '+JSON.stringify(sizeDesktop));
+ await click(viewportPage,'Fountain');await click(viewportPage,'Compare the round mark');await drain(viewportPage);
+ assert.equal(await viewportPage.locator('.scene-map-sheet').count(),0,'Map must not reopen after confirming a landmark');
+ pass('FIELD-QA-SHELL-01','Desktop E01 stays inside one viewport and Map opens only by explicit action, once per toggle.');
+ await viewportCtx.close();
+ const {c:mapSheetCtx,p:mapSheetPage}=await context({stage:'map'});
+ assert.equal(await mapSheetPage.locator('.scene-map-sheet.map-task').count(),1,'Required observation map remains available as an in-scene activity');
+ assert.equal(await mapSheetPage.locator('#world').count(),1,'Town Square scene remains mounted behind study map');
+ await click(mapSheetPage,'Back to Square');
+ assert.equal(await mapSheetPage.locator('.scene-map-sheet').count(),0);
+ await click(mapSheetPage,'Open the old map');
+ assert.equal(await mapSheetPage.locator('.scene-map-sheet.map-task').count(),1);
+ pass('FIELD-QA-SHELL-02','Required map investigation remains in same scene and can be closed/reopened without a new page.');
+ await mapSheetCtx.close();
+ const {c:mobileShellCtx,p:mobileShellPage}=await context({mobile:true,stage:'observed'});
+ const sizeMobile=await mobileShellPage.evaluate(()=>({page:document.documentElement.scrollHeight,window:innerHeight,root:document.getElementById('app').getBoundingClientRect().height}));
+ assert.ok(sizeMobile.page<=sizeMobile.window+3,'Mobile document should fit one viewport: '+JSON.stringify(sizeMobile));
+ await tap(mobileShellPage,'Map');
+ assert.equal(await mobileShellPage.locator('.scene-map-sheet .map-art').count(),1);
+ await tap(mobileShellPage,'Close map');
+ assert.equal(await mobileShellPage.locator('.scene-map-sheet').count(),0);
+ pass('FIELD-QA-SHELL-03','Mobile viewport uses one page; optional map is an in-scene sheet without page-length growth.','Chromium touch 390×844');
+ await mobileShellCtx.close();
  const {c,p}=await context();
  await p.screenshot({path:`${out}/desktop-opening.png`,fullPage:true});
  assert.equal(await p.getByRole('dialog').count(),0);await click(p,'Begin');await drain(p);
@@ -116,7 +149,7 @@ try{
  await click(p,'Noticeboard');await click(p,'Help hold the paper.');await drain(p);assert.equal((await cp(p)).checkpoint,'cp_map_exposed');pass('INT-04','Tap hold saves intact map-exposure checkpoint.');
  await click(p,'Look at the line');await drain(p);await click(p,'Look at the line');await drain(p);assert.equal(await p.getByRole('button',{name:"Maybe it's a treasure map!",exact:true}).count(),0);pass('INT-09','Repeated region does not unlock speculation.');
  assert.equal(await p.locator('#parent-cue').count(),1);pass('UX-07','Nonblocking first-observation parent cue in desktop side panel.');
- await click(p,'Look at the shape');await drain(p);await click(p,"Maybe it's a treasure map!");assert.equal(await p.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-MILO-013');await drain(p);assert.equal(await p.locator('.map-inset .map-art').count(),1);assert.equal(await p.locator('.map-inset image[href="public/art/glyph.svg"]').count(),1);assert.equal((await p.locator('body').innerText()).includes('${mapArt()}'),false);pass('INT-05','A/B observations, A guess, C physical fallback converge.');
+ await click(p,'Look at the shape');await drain(p);await click(p,"Maybe it's a treasure map!");assert.equal(await p.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-MILO-013');await drain(p);assert.equal(await p.locator('.scene-map-sheet').count(),0);await click(p,'Map');assert.equal(await p.locator('.scene-map-sheet .map-art').count(),1);assert.equal(await p.locator('.scene-map-sheet image[href="public/art/glyph.svg"]').count(),1);await click(p,'Close map');assert.equal(await p.locator('.scene-map-sheet').count(),0);assert.equal((await p.locator('body').innerText()).includes('${mapArt()}'),false);pass('INT-05','A/B observations, A guess, C physical fallback converge.');
  await click(p,'Old post');assert.equal(await p.getByRole('button',{name:'Clean the old plate.',exact:true}).count(),0);pass('INT-15','No early clean control or destination disclosure.');
  assert.equal(await p.getByRole('button',{name:'Bench',exact:true}).count(),0);assert.equal(await p.getByRole('button',{name:'Compare the round mark'}).count(),0);assert.equal(await p.getByRole('button',{name:'Compare the tree mark'}).count(),0);assert.deepEqual((await cp(p)).anchors,[]);pass('INT-12','Unrelated location does not present misleading comparison buttons or confirm either landmark.');
  await click(p,'Fountain');await click(p,'Big tree');assert.deepEqual((await cp(p)).anchors,[]);pass('INT-13','Arrival alone never verifies landmarks.');
@@ -135,12 +168,12 @@ try{
  assert.equal(await comparePage.getByRole('button',{name:'Compare the round mark'}).count(),0);
  assert.equal(await comparePage.getByRole('button',{name:'Compare the tree mark'}).count(),0);
  assert.match(await comparePage.locator('.comparison-guide').innerText(),/Walk to the Fountain or Big tree/);
- assert.match(await comparePage.locator('.notice').first().innerText(),/Fountain.*Not yet/);
+ assert.match(await comparePage.locator('.comparison-progress').innerText(),/Fountain.*○/);
  await click(comparePage,'Fountain'); 
  assert.equal(await comparePage.getByRole('button',{name:'Compare the round mark'}).count(),1);
  assert.equal(await comparePage.getByRole('button',{name:'Compare the tree mark'}).count(),0);
  await click(comparePage,'Compare the round mark');await drain(comparePage);
- assert.match(await comparePage.locator('.notice').first().innerText(),/Fountain.*Matched/);
+ assert.match(await comparePage.locator('.comparison-progress').innerText(),/Fountain.*✓/);
  assert.equal(await comparePage.getByRole('button',{name:'Compare the round mark'}).count(),0);
  await click(comparePage,'Big tree');
  assert.equal(await comparePage.getByRole('button',{name:'Compare the tree mark'}).count(),1);
