@@ -203,6 +203,11 @@ try{
   for(let i=0;i<children.length;i++)for(let j=0;j<i;j++)
    assert.ok(Math.abs(children[i].x-children[j].x)>=.10,
     'The child trio is stacking together at '+stage+': '+JSON.stringify(children));
+  for(const child of children){
+   const steward=people.find(p=>p.name==='Steward');
+   assert.ok(Math.hypot(child.x-steward.x,child.y-steward.y)>=.09,
+    'Steward and '+child.name+' must not stand on exactly the same spot: '+stage);
+  }
   return people;
  }
  await formation('initial square');
