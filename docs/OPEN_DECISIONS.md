@@ -335,3 +335,11 @@ E02-0 is now a **specific reviewable design** instead of an empty worksheet, rec
 - **Still explicitly OPEN:** owner acceptance of this *new physical/interaction composition*; EPB promotion to `approved_for_script`; downstream canonical line/script text, image/audio references, exact assets/camera/hitboxes, E02 save migration, runtime implementation and device/family tests. Avoid marking `approved_for_script` or producing assets in this design-only pass.
 
 **Next focused work:** owner reviews the E02-0 material design and either PASSes or requests adjustment. After acceptance, finish the EPB approval gate and separately draft E02 detailed script and interaction specification; E01 remains paused at its scoped user PASS.
+
+### 2026-10-10 E02-0 owner PASS → E02-1 brief approved for script
+
+The user explicitly responded **PASS** on 2026-10-10 to the [Riverside E02-0 material design](../content/season-01/s01e02/RIVERSIDE_E02_0_DESIGN.md). The prior section's **pending owner review is now resolved/superseded by this record**. The [E02 Production Brief rev 2](../content/season-01/s01e02/EPISODE_PRODUCTION_BRIEF.md) is **`approved_for_script`** after an E02-1 acceptance gate.
+
+**Locked:** same-bank current promenade, fenced old bridge approach and changed bank edge, aligned older stone footings with the present deck absent; existing signposted public path to protected overlook (discovered for revisit, not repaired/opened by breaking a closure); Milo's fence-only initial idea, child-visible disconfirming gap and non-punitive evidence-linked revision with unknown cause; Market Lane overlook marker after reflection; six authoring scenes `s01e02-sc00..sc05`, two substantial interactions `s01e02-int01..int02`, one parent cue `s01e02-cue-01`; E01 prerequisite and no E01 changes.
+
+**Open downstream:** full exact script and line IDs, behavior spec/test matrix, art master/phone composition/feet polygons, content schema and cross-episode save migration, recorded voice/music, device/MN4/family QA. Stable proposed event IDs are authoring references pending runtime compatibility validation. E01 playable build remains frozen at scoped owner PASS. Do not silently promote E02 to production_ready.
