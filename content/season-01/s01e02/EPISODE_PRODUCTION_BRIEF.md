@@ -1,8 +1,8 @@
 # S01E02 Episode Production Brief — The Bridge That Stops
 
-**Status: DRAFT — E02-0 TOPOLOGY / COUNTEREVIDENCE / INTERACTION DESIGN PROPOSED for owner review (2026-10-10). NOT `approved_for_script`; no final dialogue, art, audio or runtime.**
+**Status: APPROVED FOR SCRIPT (owner PASS, 2026-10-10).** E02-0 material design is accepted; this is the authoritative E02 story/learning/interaction-intent/continuity brief. **It is not a final script, finished voice/art, or implemented runtime.**
 
-**Detailed E02-0 design contract:** [Riverside topology, evidence, player agency and acceptance gates](RIVERSIDE_E02_0_DESIGN.md). This brief summarizes the proposed decisions; the linked design document contains the staging diagram, evidence/interaction detail and anti-regression tests. Any later script must preserve both after acceptance.
+**Owner-accepted E02-0 design contract:** [Riverside topology, evidence, player agency and acceptance gates](RIVERSIDE_E02_0_DESIGN.md). This brief summarizes the proposed decisions; the linked design document contains the staging diagram, evidence/interaction detail and anti-regression tests. Any later script must preserve both.
 
 ## Identity
 
@@ -11,8 +11,8 @@ episode_id: s01e02
 season_id: s01
 arc_id: s01a01
 working_title: "The Bridge That Stops"
-brief_revision: 1
-brief_status: draft # E02-0 design proposed; owner review pending
+brief_revision: 2
+brief_status: approved_for_script
 content_version: pre-release
 estimated_duration_min: 12 # provisional planning only; verify later with families
 estimated_duration_max: 20 # provisional planning only; verify later with families
@@ -45,9 +45,9 @@ estimated_duration_max: 20 # provisional planning only; verify later with famili
 | Finn | Alert to mounting/path structure | Notice a material/geometry feature that challenges Milo's idea; help reason about safe options | Build a bypass, jump/force the barrier, monopolize explanation |
 | Riverside locals/NPC | Not necessary for E02-0 | No new named speaking NPC; ambient passersby/ordinary Riverside life only, if desired after visual review | Deliver an omniscient history lecture or a mystery answer |
 
-## 3. Proposed scene / beat map — E02-0 coherent design
+## 3. Approved scene / beat map — E02-0 coherent design
 
-**Material design proposal, awaiting owner signoff; not final script IDs.** The scene IDs remain `s01e02-sc00`–`sc05`; `sc02` inspection is freely explorable, so scenes represent narrative jobs rather than forcibly sequential player movement.
+**Approved for downstream script.** The scene IDs remain `s01e02-sc00`–`sc05`; `sc02` inspection is freely explorable, so scenes represent narrative jobs rather than forcibly sequential player movement.
 
 | Scene | Mode / location | Required beat | Player agency / exit |
 |---|---|---|---|
@@ -60,7 +60,7 @@ estimated_duration_max: 20 # provisional planning only; verify later with famili
 
 **Route/sketch:** see the [design contract](RIVERSIDE_E02_0_DESIGN.md): Town Square enters from west → live near-bank promenade → old stone approach terminating at closure fence; across water an old matching landing, **no deck**, now-new near-bank retaining edge; independent public same-bank walkway to a protected overlook. Far bank/water/closed old spur beyond barrier are never traversable. The current Riverside remains functional.
 
-## 4. Proposed interaction contracts — distinct from E01
+## 4. Approved interaction intents — distinct from E01
 
 ### `s01e02-int01` — Walk to the viewpoint and see what changed
 
@@ -100,13 +100,13 @@ estimated_duration_max: 20 # provisional planning only; verify later with famili
 
 **Reasoning standard:** simple wording must not remove competing possible causes or conceal the contradiction from the child.
 
-## 6. Parent cue and supports — E02-0 proposal
+## 6. Parent cue and supports — approved intent
 
-**Proposed cue `s01e02-cue-01`:** after Milo offers his fence-only idea **and** the child has actually seen the lookout's missing-deck contradiction, and before/at the notebook evidence-link choice. Type: compare/challenge; importance: **recommended, skippable**. Draft: **“What can we see that doesn't fit Milo's first idea?”** Optional follow-up: “What do we know, and what do we still wonder?” The parent must not announce the missing bridge deck before it appears in the child's view, solve the cause, or tell the child where to click. Solo play stays complete.
+**Approved cue trigger `s01e02-cue-01`:** after Milo offers his fence-only idea **and** the child has actually seen the lookout's missing-deck contradiction, and before/at the notebook evidence-link choice. Type: compare/challenge; importance: **recommended, skippable**. Draft: **“What can we see that doesn't fit Milo's first idea?”** Optional follow-up: “What do we know, and what do we still wonder?” The parent must not announce the missing bridge deck before it appears in the child's view, solve the cause, or tell the child where to click. Solo play stays complete.
 
 Four distinct supports: language (heard/read `was / is / changed / maybe`), interaction (safe movement and tap-to-inspect demonstration), reasoning (first distinguish evidence of *then* from proof about *now*, next highlight lookout gap if requested), accessibility (equivalent keyboard/tap/one-action safe route, larger observation panels and audio-off captions). No mandatory parent gate; desktop parent pane and mobile Child/Parent views reuse E01 presentation.
 
-## 7. Continuity / ledger / replay — proposed IDs
+## 7. Continuity / ledger / replay — authoring IDs
 
 **Actual E01 prerequisites verified in `engine/episode.mjs`:** `episode_completed:s01e01`, `s01e01_town_square_old_marker_revealed` (and known `s01e01_old_route_points_toward_riverside`). E02 must leave all three and the E01 checkpoint unchanged.
 
@@ -120,7 +120,7 @@ Four distinct supports: language (heard/read `was / is / changed / maybe`), inte
 | `s01e02_market_lane_marker_recorded` | Canonical once, after intentional lookout-side mark inspection | E03 direction clue discovered |
 | `episode_completed:s01e02` | Canonical once, Chronicle/end gate | E03 eligible |
 
-These stable *design proposals* require schema/namespace lint before implementation. Overlook arrival may precede reflection; persist it immediately once and resume naturally. Source of truth remains the event ledger; E02 episode checkpoint cannot overwrite E01 save key/content version, replay is read-only, invalid/denied storage has clear recovery, reload retains prior events and note cards. No bridge-repaired event, no global mystery reveal, no canonical branch. Explicit E02 episode routing and E01→E02 state migration are engineering **OPEN** until E02-5.
+These IDs are stable **E02 authoring references** for script and interaction specification; a compiler/schema mapping and storage migration still require validation before runtime use. Do not rename without change control. Overlook arrival may precede reflection; persist it immediately once and resume naturally. Source of truth remains the event ledger; E02 episode checkpoint cannot overwrite E01 save key/content version, replay is read-only, invalid/denied storage has clear recovery, reload retains prior events and note cards. No bridge-repaired event, no global mystery reveal, no canonical branch. Explicit E02 episode routing and E01→E02 state migration are engineering **OPEN** until E02-5.
 
 ## 8. Chronicle — defined E02-0 memory
 
@@ -131,7 +131,7 @@ These stable *design proposals* require schema/namespace lint before implementat
 - **Future hook:** discover a nearby existing marker toward Market Lane. E03 is not solved in advance.
 - **Information design:** `THEN / NOW` or `WAS / IS` with captions and visuals, no scored answers or presumed culprit.
 
-## 9. Visual asset requirements / spoiler states — inventory only
+## 9. Visual asset requirements / spoiler states — approved inventory
 
 **Reuse unchanged:** accepted C01 trio identity, usable E01 portraits and name-tag grammar, bounded full scene on phones, desktop Parent View / mobile Child/Parent toggle, bottom RPG dock and `Listen`. **No art generation until E02-0 acceptance and reference gate.**
 
@@ -145,7 +145,7 @@ These stable *design proposals* require schema/namespace lint before implementat
 
 Reuse a restrained shared town/riverside music family rather than generating many unique tracks. Distinguish natural water/steps/wood/marker feedback where meaningful, with equivalent visible/text cues. Silence remains valid for reasoning moments. Voice requires a **new E02 canonical script and stable line IDs only after brief approval**, character-consistent pronunciation and neutral narrator, caption and manual Listen on every spoken line; browser TTS prototype ≠ accepted voice recordings.
 
-## 11. Episode-specific QA — proposed measurable gates
+## 11. Episode-specific QA — required measurable gates
 
 1. **Canon:** old route remains closed in all states; no cause/date/treasure/Common/North Hill reveal, repair event, new speaking NPC or E03 solution.
 2. **Geometry:** from every spawn/station to both paths, clicks/keyboard/assist/followers never cross fence/water/far bank; trying closed spur stops on near-bank paving; public overlook reachable directly and via keyboard on actual artwork.
@@ -156,12 +156,49 @@ Reuse a restrained shared town/riverside music family rather than generating man
 7. **Asset/privacy/access:** C01 source verified and no generated low-resolution placeholder accepted; every essential visual fact has caption/manual Listen; no precision drag or timer; screen captures confirm real geometry, not DOM-only checks.
 8. **Release (later):** current PR HEAD CI tests pass, packaged release integrity checked and live MN4 SHA/build independently confirmed. Human PASS is scoped; deferred broad family testing and recorded voices remain open.
 
-## 12. Remaining approval / downstream gate
+## 12. E02-1 acceptance and downstream limits — owner PASS
 
-**E02-0 material owner acceptance requested for:** (A) old bridge approach + matching footings + missing deck and newer stone edge, (B) signed existing **same-bank public path** and protected lookout, (C) child-controlled evidence-link correcting Milo's fence-only idea, (D) intentional Market Lane mark at the lookout. See [full design](RIVERSIDE_E02_0_DESIGN.md).
+**Accepted material choices, 2026-10-10:** (A) aligned older bridge footings, absent deck and changed current near-bank edge; (B) the same-bank signed **already public** safe route to a protected Riverside overlook, discovered as a persistent revisit; (C) Milo's **fence-only** initial hypothesis and the gap/new-edge counterevidence selected by the child; (D) intentional lookout-side surviving route mark toward Market Lane. The old blocked crossing **never reopens**. No new named speaking Riverside NPC is needed.
 
-**Resolved at design-proposal level:** coherent safe geography; two critical observation classes and exact contradiction; distinct player interactions, meaningful choice and no-fail recovery; parent-cue timing; working E02 scene/interaction IDs and proposed ledger names; Chronicle/state and screenshot QA invariants.
+### Stable authored IDs and pacing
 
-**Open before `approved_for_script`:** owner acceptance of material Riverside composition/mechanic; final E02 IDs/schema-compatibility review; exact scene pacing and EFL word/line budget; detailed production cost and asset reference approval. The eventual script/interaction spec will define exact player text/animation/voice timing; engineering must subsequently choose namespaced E02 storage and cross-episode routing without rewriting E01. No E02 art/audio/runtime at this stage.
+- Scenes `s01e02-sc00`–`s01e02-sc05`, main interactions `s01e02-int01` and `s01e02-int02`, and cue `s01e02-cue-01` are locked for the E02 authoring layer.
+- Evidence IDs `ev_e02_old_stones`, `ev_e02_changed_edge`, `ev_e02_new_edge` have distinct meanings. Only old stones and changed-edge/gap categories are required; `new_edge` strengthens the contradiction without adding a third scavenger-hunt gate.
+- E02 authoring local/canonical IDs in §7 are the naming contract for downstream script/spec. Actual runtime manifest/schema, unified saves and migrations require engineering review **before implementation**, not story redefinition.
+- Target 12–20 minutes is a **planning band only**, approximately: arrival/child movement 2–3; public path/observations 4–7; evidence notebook/revision 2–4; lookout mark/Chronicle 2–4, with no timer or forced clock pressure. Family QA may adjust timing without changing story facts.
+- EFL load: short natural utterances, normally one idea per line and familiar `same/different; was/is/changed; because; maybe/not sure`; keep **two distinguishable evidence claims** and uncertainty regardless of simplified language. Optional labels (e.g. `footing`, `lookout`) get picture/caption/read-aloud support; never require unfamiliar word recall to progress.
 
-**Next focused task:** receive owner PASS or revise material design, then promote EPB to `approved_for_script` and author detailed E02 script + interaction specification as a separate layer.
+### Asset / production manifest (requirements, not generated media)
+
+| Artifact | Required | Ownership / next gate | Status |
+|---|---|---|---|
+| E02 detailed English script and unique voice/caption line IDs | yes | narrative / E02-2 | pending |
+| E02 interaction spec, tests and accessibility alternatives | yes | interaction / E02-2 | pending |
+| Riverside topology-approved visual reference with near/far bank, walkable-foot masks, barrier standoff and safe ramp | yes | visual / E02-3 | pending |
+| Old stones, changed-edge overlook, route-mark pre/post reveal, Chronicle then/now state references | yes | visual / E02-3 | pending |
+| Identity-matched Milo/Nia/Finn portraits/sprites and existing RPG shell | reuse | visual / E02-3 QA | existing E01 authority; E02 staging untested |
+| Reusable Riverside ambience / restrained music cues and water/footstep/marker sound list | yes (design); audio optional in play | audio / E02-4 | pending |
+| Exact per-line voice export and later recorded audio | yes (export), recording deferred until approved text | audio / E02-4 | pending |
+| Namespaced content bundle, E01-safe save adapter, Riverside runtime, offline packaging | yes | engineering / E02-5 | pending |
+| Desktop/touch/keyboard/save/replay/real-device, family and MN4 checks | yes | QA / E02-6 | pending |
+
+### Voice, safety and acceptance
+
+- `NARRATOR`, `MILO`, `NIA`, `FINN`, and on-demand `UI` instructions are voiced/captioned by **exact stable line IDs** only after E02 script lock. Parent previews/cues are **separate non-voiced parent copy**. `Listen` manually replays an exact line; no silent state mutation from replay, and no mandatory audio.
+- Use the approved illustrated-living-diorama/E01 portrait **identity**, not E01 Town Square absolute foot coordinates or board/scratch mechanics. Present all factual cues via both observed image and true text. Reduced motion, motor-accessible routing, ordinary keyboard and large touch targets are mandatory; no timed action, precision rubbing, spoken-answer recognition, frightening fall, or unsafe crossing.
+- E01 completed/revealed marker event and Chronicle are prerequisites, never modified by E02. First safe overlook arrival remains durable even before E02 completion. E02 replay historical/read-only; old bridge remains closed. No presumed explanation/date for river changes or spoiler about the Common/North Hill.
+- All story, cognitive, EFL, parent, state, visual, safety and QA gates in §§1–11, plus the linked [Riverside design](RIVERSIDE_E02_0_DESIGN.md), are required. Later script cannot bypass observation to force a correct-sounding phrase.
+
+### Approval checklist
+
+- [x] Story purpose/resolution and required character beats align with approved Season canon.
+- [x] Six scene jobs and two substantive interactions are defined with real child agency.
+- [x] Season E02 learning targets and essential EFL functions supported without a quiz.
+- [x] A single sparse non-spoiling parent cue has an explicit evidence-based trigger.
+- [x] Existing E01 prerequisites, E02 stable authoring IDs, single-path continuity and Chronicle effects defined.
+- [x] Visual/audio/voice inventory, state-spoiler matrix and production manifest available.
+- [x] Accessibility, closed-route safety, idempotence and QA test conditions specified.
+- [x] Intentional remaining engineering/media questions are separately identified.
+- [x] Owner explicitly PASSed the E02-0 material design on 2026-10-10.
+
+**Status gate: `approved_for_script`.** Next E02-2 outputs: complete exact English dialogue with line IDs; interaction specification with scene/choice/observation state and executable-test expectations. **Still open:** final art composition, geometric collision polygons, production asset provenance, audio casting, browser implementation, episodic save migration, device/family validation. Do not change E01.
