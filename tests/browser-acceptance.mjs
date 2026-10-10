@@ -559,7 +559,7 @@ try{
  await drain(qp);
  await qp.reload({waitUntil:'networkidle'});
  assert.equal(await qp.getByRole('dialog',{name:'Story so far'}).count(),1);
- await click(qp,'Play voice');
+ await click(qp,'Play recap aloud');
  assert.equal(await qp.locator('.dialog [role="status"]').count(),1);
  assert.equal(await qp.locator('.dialog [data-line-id]').count(),2);
  await click(qp,'Continue the story');
