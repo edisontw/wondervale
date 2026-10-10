@@ -46,7 +46,7 @@ test('FIELD-QA-01: free travel is constrained to walkable Square routes',()=>{
  }
 });
 test('FIELD-QA-02: rendered character route keeps waypoints on the path',()=>{
- const from=[.34,.77];
+ const from=[.42,.77];
  for(const to of Object.values(locations)){
   const route=roadRoute(from,to);
   assert.ok(route.length>=2);
@@ -87,7 +87,7 @@ test('FIELD-QA-BOARD-01: noticeboard approach stops in front of the painted prop
  s=dispatch(s,{type:'move',target:'board'});
  assert.deepEqual(s.position,board);
  assert.equal(s.location,'board');
- const route=roadRoute([.34,.77],board);
+ const route=roadRoute([.42,.77],board);
  assert.deepEqual(route.at(-1),board);
  for(const p of route)assert.ok(p[0]>=.26,
   'Board path must not pass through painted wooden panel: '+JSON.stringify(route));
