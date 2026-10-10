@@ -120,7 +120,7 @@ A separate person/model could generate the episode assets and implementation wit
 
 ## Stage 5 — E01 full vertical slice
 
-**Status: in progress**
+**Status: playable prototype accepted by owner and paused (2026-10-10); final family/mobile breadth, recorded voices/music and animation remain open.** See [E01 reusable lessons](E01_LESSONS_LEARNED_2026-10-10.md). Do not reopen E01 during E02 brief work.
 
 E01 Production Brief: [S01E01 EPB](../content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md) — **approved_for_script**
 
@@ -157,6 +157,8 @@ Order:
 Do **not** batch-produce the rest of Season 1 art/audio before E01 is validated.
 
 ## Stage 6 — Connected MVP
+
+**E02 status: brief draft and kickoff prepared; no E02 script/art/audio/runtime approved.** See [E02 kickoff](E02_KICKOFF_2026-10-10.md) and [draft EPB](../content/season-01/s01e02/EPISODE_PRODUCTION_BRIEF.md). First resolve its physical Riverside topology, disconfirming evidence, child agency and safe overlook interaction before downstream production.
 
 Produce E02–E04 using the validated E01 workflow.
 
