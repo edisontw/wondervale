@@ -111,6 +111,15 @@ try{
  const introFeet=await firstVisit.locator('.actor.milo, .actor.companion').evaluateAll(els=>els.map(el=>[parseFloat(el.style.left),parseFloat(el.style.top)]));
  assert.equal(introFeet.length,3);
  for(let i=0;i<introFeet.length;i++)for(let j=0;j<i;j++)assert.ok(Math.hypot(introFeet[i][0]-introFeet[j][0],introFeet[i][1]-introFeet[j][1])>9,'opening trio should stand apart');
+ assert.ok(Math.abs(introFeet.find((_,i)=>i===2)[0]-.42*100)<.01,'Milo starts slightly right of Steward');
+ const introLayout=await firstVisit.locator('#world').evaluate(el=>{
+  const milo=el.querySelector('.actor.milo'),stewardLabel=el.querySelector('.actor.steward .actor-label');
+  const m=milo.getBoundingClientRect(),s=stewardLabel.getBoundingClientRect();
+  return {milo:{left:m.left,right:m.right},stewardLabel:{left:s.left,right:s.right},
+   characters:[...el.querySelectorAll('.actor')].map(a=>[a.dataset.character,a.style.left,a.style.top])};
+ });
+ assert.ok(introLayout.milo.left>=introLayout.stewardLabel.right-2,
+  'Steward nameplate must not be behind Milo in opening: '+JSON.stringify(introLayout));
  assert.match(await firstVisit.locator('.scene-heading').innerText(),/Press Begin, then read every story line/);
  await click(firstVisit,'Begin');
  assert.equal(await firstVisit.locator('.opening-guide').count(),0,'Intro instructions dismissed on Begin');
@@ -147,6 +156,9 @@ try{
   await click(firstVisit,'Continue');
  }
  assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),1);
+ const playStart=await firstVisit.locator('.actor.milo').evaluate(el=>[parseFloat(el.style.left)/100,parseFloat(el.style.top)/100]);
+ assert.ok(Math.abs(playStart[0]-.42)<1e-7&&Math.abs(playStart[1]-.77)<1e-7,
+  'Milo must not teleport left when the opening lines finish: '+JSON.stringify(playStart));
  assert.equal(await firstVisit.locator('.opening-guide').count(),0);
  assert.ok(['Milo','Nia','Finn','Steward'].every(name=>speakersWithPortrait.has(name)),
   'Every named speaker, including Steward, must have approved artwork');
