@@ -88,7 +88,7 @@ Only when the player chooses the large “Look across” affordance **from the p
 - [S01E02-FINN-006] “A path needs a way across.”
 - [S01E02-FINN-007] “But there is no deck.”
 - [S01E02-NIA-007] “The edge is different now.”
-- [S01E02-MILO-009] “That is more than a fence!”
+- [S01E02-MILO-009] “This looks different.”
 
 [state] The child has seen `ev_e02_changed_edge` (gap/absent deck); `ev_e02_new_edge` is visible as corroboration, without a third compulsory inspection. The child may see the view before the stones; the initial hypothesis was already delivered during SC01. Nia does not explain the gap's cause.
 
