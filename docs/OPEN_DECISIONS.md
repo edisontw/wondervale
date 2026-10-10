@@ -343,3 +343,13 @@ The user explicitly responded **PASS** on 2026-10-10 to the [Riverside E02-0 mat
 **Locked:** same-bank current promenade, fenced old bridge approach and changed bank edge, aligned older stone footings with the present deck absent; existing signposted public path to protected overlook (discovered for revisit, not repaired/opened by breaking a closure); Milo's fence-only initial idea, child-visible disconfirming gap and non-punitive evidence-linked revision with unknown cause; Market Lane overlook marker after reflection; six authoring scenes `s01e02-sc00..sc05`, two substantial interactions `s01e02-int01..int02`, one parent cue `s01e02-cue-01`; E01 prerequisite and no E01 changes.
 
 **Open downstream:** full exact script and line IDs, behavior spec/test matrix, art master/phone composition/feet polygons, content schema and cross-episode save migration, recorded voice/music, device/MN4/family QA. Stable proposed event IDs are authoring references pending runtime compatibility validation. E01 playable build remains frozen at scoped owner PASS. Do not silently promote E02 to production_ready.
+
+### 2026-10-10 E02-2 first full script/interaction drafts — authoring QA PENDING
+
+After owner acceptance of E02-0 and EPB rev 2 `approved_for_script`, E02-2 prepared three **draft-for-review** source documents:
+
+- [Full E02 English dialogue](../content/season-01/s01e02/DETAILED_SCRIPT.md) with 81 unique proposed line IDs, optional parent copy, observation-order branches, two recoverable notebook paths, Chronicle, hints and resume.
+- [E02 Interaction Spec](../content/season-01/s01e02/INTERACTION_SPEC.md) covering two E02-native mechanics, first-play/replay/ledger semantics, movement and evidence gates, explicit event triggers, line-binding and parent-cue conditions.
+- [E02 Test Matrix](../content/season-01/s01e02/INTERACTION_TEST_MATRIX.md) covering 30 **specified, NOT RUN** cases including safety, cognition, spoiler, mobile, E01 regression, storage, release and family UX.
+
+**Not accepted yet:** exact script/voice text or interaction behavior as production-locked; the files are drafts and no asset, audio or runtime code has been generated. Canon/EPB and E01 remain unchanged. After source QA and review, promote these two documents to approved for prompt pack, then proceed to visual reference gate E02-3. Engine event serialization/migration remains an engineering design decision; no premature E01 source modification.

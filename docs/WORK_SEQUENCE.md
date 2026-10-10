@@ -158,7 +158,7 @@ Do **not** batch-produce the rest of Season 1 art/audio before E01 is validated.
 
 ## Stage 6 — Connected MVP
 
-**E02 status (2026-10-10): Riverside E02-0 owner PASS; E02 Production Brief rev 2 `approved_for_script`.** See [E02 kickoff](E02_KICKOFF_2026-10-10.md), [approved brief](../content/season-01/s01e02/EPISODE_PRODUCTION_BRIEF.md) and [Riverside E02-0 design](../content/season-01/s01e02/RIVERSIDE_E02_0_DESIGN.md). Next: E02-2 detailed script and interaction specification. No E02 art/audio/runtime is approved; E01 remains paused.
+**E02 status (2026-10-10): Riverside E02-0 owner PASS; E02 Production Brief rev 2 `approved_for_script`.** See [E02 kickoff](E02_KICKOFF_2026-10-10.md), [approved brief](../content/season-01/s01e02/EPISODE_PRODUCTION_BRIEF.md) and [Riverside E02-0 design](../content/season-01/s01e02/RIVERSIDE_E02_0_DESIGN.md). E02-2 detailed script, interaction specification and unexecuted test matrix now exist as **drafts for review**, not approved voice/art/runtime. Next: cross-artifact authoring QA and script/spec acceptance, then E02-3 visual reference gate. E01 remains paused.
 
 Produce E02–E04 using the validated E01 workflow.
 
