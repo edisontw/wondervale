@@ -2,15 +2,15 @@
 
 - episode_id: s01e02
 - interaction_spec_revision: 1
-- status: draft_for_review
+- status: approved_for_prompt_pack
 - source_epb: content/season-01/s01e02/EPISODE_PRODUCTION_BRIEF.md
 - source_epb_revision: 2
 - source_script: content/season-01/s01e02/DETAILED_SCRIPT.md
 - source_script_revision: 1
-- script_dialogue_lock: not_yet_locked
+- script_dialogue_lock: v1
 - scope: E02-2 behavioral design, NOT executable runtime code
 
-**Authority:** Season canon → EPB rev 2 (owner-approved) + [accepted Riverside E02-0](RIVERSIDE_E02_0_DESIGN.md) → E02 script rev 1 (proposed exact dialogue) → this behavioral specification. If code/art cannot meet any contract, escalate to authoring layer instead of revising story facts silently. E01 game remains unchanged, with its own save and exactly 121 locked spoken lines.
+**Authority:** Season canon → EPB rev 2 (owner-approved) + [accepted Riverside E02-0](RIVERSIDE_E02_0_DESIGN.md) → E02 script rev 1 (locked dialogue v1) → this behavioral specification. If code/art cannot meet any contract, escalate to authoring layer instead of revising story facts silently. E01 game remains unchanged, with its own save and exactly 121 locked spoken lines.
 
 ## 1. Non-negotiable experience invariants
 
@@ -24,7 +24,7 @@
 8. The Market Lane readable mark is revealed by **intentional player inspection after the revision** at/near the lookout. No permanent spoiler baked into default background or old map.
 9. The child may ask for help, decline a parent cue, repeat speech or revisit views at any time; none of these fake inspection/completion.
 10. Persistence is ledger-based, idempotent, namespaced and read-only for historical replay. E01 marker and existing Chronicle remain intact, and E03 is not unlocked early.
-11. All spoken text originates from the proposed script's bracketed IDs, then from a separately locked revision before voice production. Do not invent extra lines in the engine.
+11. All spoken text originates from the locked script's bracketed IDs, which are now locked at dialogue v1. Do not invent extra lines in the engine.
 
 ## 2. Stable identities and stations
 
@@ -139,10 +139,10 @@ Only the new [E02 script](DETAILED_SCRIPT.md) owns exact line text. Required bin
 | Chronicle close | NARRATOR-005..008, NIA-015..017, MILO-023, FINN-014, UI-012 | Finish after record displayed |
 | Hints / recap | UI-013..014, NIA-018..019, FINN-015, NARRATOR-009..010 | On-demand/restore; no early clue |
 
-**Script status:** draft_for_review. The table is a binding proposal, **not** a claim voices have been exported, synthesized or locked. Implementation must preserve all voice/caption text and intentional line order once the script becomes approved.
+**Script status:** approved_for_interaction_spec, dialogue v1 locked. The table is a binding proposal, **not** a claim voices have been exported, synthesized or locked. Implementation must preserve all voice/caption text and intentional line order once the script becomes approved.
 
 ## 8. Acceptance matrix and handoff
 
 Episode-specific acceptance cases are in [E02 Interaction Test Matrix](INTERACTION_TEST_MATRIX.md). Narrative test cases must confirm the first guess remains meaningfully refutable; learning tests must prove that random hotspot tapping alone does not pass; visual tests must inspect the physical road barrier and lookout from true rendered camera views at phone size. Browser test must cover actual playback/save/replay, not source-only assertions.
 
-**E02-2 gate OPEN until:** script line sequence, this spec and matrix are reviewed together; any exact-text revisions are reconciled; owner/authorized review marks them approved for prompt pack. **No visual/audio/runtime production follows merely from creating these draft documents.** E01 remains paused at owner PASS.
+**E02-2 source gate PASSED:** script line sequence, this spec and matrix have been cross-checked and locked for the E02-3 visual-reference planning gate. **No media has been approved/generated and no E02 executable/runtime acceptance has been performed.** E01 remains paused at owner PASS.
