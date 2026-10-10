@@ -353,3 +353,7 @@ After owner acceptance of E02-0 and EPB rev 2 `approved_for_script`, E02-2 prepa
 - [E02 Test Matrix](../content/season-01/s01e02/INTERACTION_TEST_MATRIX.md) covering 30 **specified, NOT RUN** cases including safety, cognition, spoiler, mobile, E01 regression, storage, release and family UX.
 
 **Not accepted yet:** exact script/voice text or interaction behavior as production-locked; the files are drafts and no asset, audio or runtime code has been generated. Canon/EPB and E01 remain unchanged. After source QA and review, promote these two documents to approved for prompt pack, then proceed to visual reference gate E02-3. Engine event serialization/migration remains an engineering design decision; no premature E01 source modification.
+
+### 2026-10-10 E02-2 source lock and E02-3 visual gate
+
+The E02 detailed English script rev 1 (81 unique lines, dialogue lock `v1`) is now `approved_for_interaction_spec`; the E02 interaction spec rev 1 is `approved_for_prompt_pack` after source QA and correction of an early-spoken answer. These are downstream authoring approvals under the owner's E02-0 PASS, **not** independent owner testing. The E02 [visual reference contract](../content/season-01/s01e02/VISUAL_REFERENCE_CONTRACT.md) specifies a canonical same-bank Riverside composition, no-go geometry, phone/desktop crop checks and no early Market Lane spoiler. Rendered images, exact foot polygons and full-resolution asset QA remain OPEN; all 30 E02 runtime test cases remain NOT RUN. E01 remains frozen.

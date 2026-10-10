@@ -2,16 +2,16 @@
 
 - episode_id: s01e02
 - script_revision: 1
-- script_status: draft_for_review
+- script_status: approved_for_interaction_spec
 - source_brief: content/season-01/s01e02/EPISODE_PRODUCTION_BRIEF.md
 - source_brief_revision: 2
 - language: en
-- dialogue_lock: **NOT YET LOCKED**
+- dialogue_lock: v1
 - authoring_scope: full playable dialogue and captions; no audio files
 
-**Authority:** Owner-approved EPB rev 2 and Riverside E02-0 design determine story, evidence, safety, characters, scene states and world effects. This script proposes **exact English text with unique line IDs** for E02-2 review, not a released voice export. It must not change E01's 121 locked lines or introduce a speaking NPC.
+**Authority:** Owner-approved EPB rev 2 and Riverside E02-0 design determine story, evidence, safety, characters, scene states and world effects. This script locks **exact English text with unique line IDs** as E02 dialogue v1 following E02-2 authoring source QA. This is not a recorded voice or an executable E02. It must not change E01's 121 locked lines or introduce a speaking NPC.
 
-**Line rules:** A bracketed [S01E02-SPEAKER-###] prefix marks one exact proposed spoken/caption line. NARRATOR is story/Chronicle; MILO, NIA and FINN use existing core identities; UI is accessible player instruction with optional on-demand speech. [stage], [choice], [state] and Parent View copy **are not spoken lines**. Order-independent speech is emitted **once within this playthrough** when its observation is genuinely presented, except explicitly requested Listen replay; numeric IDs never force a visit order. All player-required text is true accessible caption text, not baked into background art.
+**Line rules (locked v1):** A bracketed [S01E02-SPEAKER-###] prefix marks one exact proposed spoken/caption line. NARRATOR is story/Chronicle; MILO, NIA and FINN use existing core identities; UI is accessible player instruction with optional on-demand speech. [stage], [choice], [state] and Parent View copy **are not spoken lines**. Order-independent speech is emitted **once within this playthrough** when its observation is genuinely presented, except explicitly requested Listen replay; numeric IDs never force a visit order. All player-required text is true accessible caption text, not baked into background art.
 
 ## SC00 — A short shared memory (parent preview and Begin)
 
@@ -205,6 +205,6 @@ All help is on-demand, not forced; number/order below is hint progression. A vis
 
 ## Line and content release gate
 
-- Do not export voices until these line IDs and exact texts pass narrative/EFL/interaction cross-check and are explicitly promoted to a locked script revision.
+- These 81 unique line IDs and exact texts have passed E02-2 authoring cross-check and are locked as dialogue v1. Future voice export must preserve exact text. Audio has not been generated.
 - `MARKET LANE` becomes an in-world discovery in SC04 only; earlier optional map and UI must not display the destination. `RIVERSIDE` is known from E01.
 - Draft script references [S01E02 Interaction Spec](INTERACTION_SPEC.md); any change to flow/evidence gates must be reconciled here and with EPB, not hidden in runtime.
