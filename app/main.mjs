@@ -95,8 +95,8 @@ function companionFeet(milo){
  const [x,y]=milo;
  const positions=x<.37
   ? [[x+.115,y+.02],[x+.23,y+.04]]
-  : x<.54
-  ? [[x+.12,y-.05],[x-.19,y-.07]] // opening layout continuity: Nia right, Finn left
+  : x<.44
+  ? [[x+.12,y-.05],[x-.19,y-.07]] // same trio side/order at the opening transition
   : x>.78
   ? [[x-.115,y+.02],[x-.23,y+.04]]
   : [[x-.115,y+.02],[x+.115,y+.04]];
