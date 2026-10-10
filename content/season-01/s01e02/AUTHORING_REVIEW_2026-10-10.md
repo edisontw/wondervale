@@ -1,6 +1,6 @@
 # E02-2 narrative / interaction authoring review — 2026-10-10
 
-**Scope:** source-level review only. E01 accepted runtime remains frozen. E02 files are **draft_for_review**, not recorded voices, approved art or executable E02.
+**Scope:** source-level review only. E01 accepted runtime remains frozen. E02 script/spec are **authoring-locked after source QA**, not recorded voices, approved art or executable E02.
 
 ## Reviewed source inputs
 
@@ -27,6 +27,6 @@
 
 ## Gate status
 
-**E02-2 authoring drafts prepared and source-consistency reviewed, but not yet promoted to `approved_for_prompt_pack`.** To lock exact script/behavior, review the first six scenes against the E02-0 owner PASS, decide if additional wording/cue changes are needed, and update the source status together with any affected spec/test cases. Then proceed to visual reference gate E02-3. No need to reopen upstream Riverside topology or E01.
+**E02-2 authoring source gate accepted:** exact dialogue v1 (81 lines) and interaction spec rev 1 have been cross-reviewed against owner-PASS E02-0 and EPB rev 2 and promoted to script `approved_for_interaction_spec` / spec `approved_for_prompt_pack`. This is **source approval only**; E02 test matrix cases remain NOT RUN. Proceed to visual reference gate E02-3. No need to reopen Riverside topology or E01.
 
-The user approved E02-0's material choices, not every new line of this downstream script. Source document acceptance must not be misrepresented as executed tests.
+The user approved E02-0's material creative choices; the downstream dialogue/spec lock is an ordinary delegated authoring decision based on the documented source review, not a claim of a separate user PASS on 81 lines or any executed runtime tests.
