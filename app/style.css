@@ -597,3 +597,40 @@ html,body{height:100%;overflow:hidden}
 }
 #plate-ink-preview{z-index:1;pointer-events:none}
 #plate-rub{z-index:2;cursor:crosshair;touch-action:none;user-select:none;-webkit-user-select:none}
+
+/* 2026-10-10: Speaker identities and party visibility. Keep four labels
+   anchored to each actor's FEET, not over the head or interactive landmarks.
+   Labels are visual annotations and never steal world pointer actions. */
+.layout .world .actor .actor-label{
+ position:absolute;
+ left:50%;
+ bottom:-19px;
+ transform:translateX(-50%);
+ display:block;
+ width:max-content;
+ max-width:94px;
+ min-width:0;
+ padding:2px 7px;
+ border:1px solid rgba(62,84,67,.48);
+ border-radius:11px;
+ background:rgba(255,250,237,.94);
+ color:#344653;
+ font:700 12px/1.1 system-ui,sans-serif;
+ text-align:center;
+ white-space:nowrap;
+ box-shadow:0 1px 3px rgba(34,35,32,.16);
+ z-index:8;
+ pointer-events:none;
+}
+.layout .world .actor.steward .actor-label{background:rgba(239,246,230,.94)}
+.layout .world .actor.milo .actor-label{background:rgba(247,238,204,.97)}
+.layout .caption .portrait-steward .portrait-art{width:100%;height:100%;display:block}
+.layout .caption [data-action="read"]{white-space:nowrap}
+@media(max-width:760px){
+ .layout .world .actor .actor-label{
+  bottom:-14px;
+  font:700 10px/1.05 system-ui,sans-serif;
+  padding:1px 4px;
+  border-width:1px;
+ }
+}
