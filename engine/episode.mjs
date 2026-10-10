@@ -1,17 +1,19 @@
 export const VERSION = 's01e01-script-v1';
 export const KEY = 'wondervale-progress-v1';
-export const locations = {board:[.14,.63], fountain:[.46,.64], large_tree:[.73,.56], marker:[.92,.61], bench:[.78,.70]};
+export const locations = {board:[.27,.735], fountain:[.46,.64], large_tree:[.73,.56], marker:[.92,.61], bench:[.78,.70]};
 
 /**
  * Town Square's walkable route network. Coordinates are normalized against the
  * 1672×941 Square art. All named destinations are reachable from this network.
  * Free-pointer/keyboard travel snaps to the nearest segment instead of letting
  * characters stand on the fountain, greenery, buildings or foreground props.
+ * The board destination is on the open paving in front of the board, not on
+ * the wooden panel; the original Town Square image and hotspots are unchanged.
  */
 const roadNodes = [
  [.34,.77], // opening path
  [.39,.68], // Square junction
- [.28,.66], // board approach
+ [.32,.70], // path in front of the noticeboard, never through its painted wood
  locations.board,
  locations.fountain,
  [.60,.63], // path past the fountain

@@ -134,6 +134,12 @@ try{
    assert.ok(y>=0&&height<600,'Portrait must be a head/shoulder crop');
    assert.equal(await firstVisit.locator('.caption .portrait image').count(),1);
    speakersWithPortrait.add(speaker);
+  }else if(speaker==='Steward'){
+   const portrait=firstVisit.locator('.caption .portrait-steward svg');
+   assert.equal(await portrait.count(),1,'Steward uses the approved portrait');
+   assert.equal(await portrait.locator('image').getAttribute('href'),'public/art/steward.webp');
+   assert.equal(await portrait.getAttribute('viewBox'),'175 20 550 660');
+   speakersWithPortrait.add('Steward');
   }else assert.equal(await firstVisit.locator('.caption .portrait image').count(),0);
   assert.equal(await firstVisit.getByRole('button',{name:'Continue',exact:true}).count(),1);
   assert.equal(await firstVisit.getByRole('button',{name:'Skip dialogue',exact:true}).count(),0);
@@ -142,7 +148,8 @@ try{
  }
  assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),1);
  assert.equal(await firstVisit.locator('.opening-guide').count(),0);
- assert.ok(speakersWithPortrait.size>=1,'At least one speaker-specific atlas crop must be exercised');
+ assert.ok(['Milo','Nia','Finn','Steward'].every(name=>speakersWithPortrait.has(name)),
+  'Every named speaker, including Steward, must have approved artwork');
  await click(firstVisit,'Fountain');
  assert.ok(await firstVisit.locator('.actor.milo').evaluate(el=>parseFloat(el.style.left)>40),'first visitor explores only after full intro');
  pass('FIELD-QA-FIRST-01','Mandatory introduction requires every approved line via one lower Continue; no header Help/Pause or intro skip.');
@@ -166,7 +173,7 @@ try{
      return {name:button.textContent,top:r.top,bottom:r.bottom,height:r.height,width:r.width,hit:hit===button||button.contains(hit)};
     })};
   });
-  assert.equal(positions.controls.length,2,'Opening has Continue and Read again; no Skip dialogue');
+  assert.equal(positions.controls.length,2,'Opening has Continue and Listen; no Skip dialogue');
   assert.ok(positions.documentHeight<=h+3,'Entire desktop document should fit: '+JSON.stringify({w,h,positions}));
   assert.equal(positions.caption.overflow,'visible','Desktop caption must never require internal scroll to reach actions');
   for(const c of positions.controls){
@@ -175,11 +182,53 @@ try{
   }
   assert.ok(positions.controls[0].height>=54,'Continue must be a large primary target');
  }
+ assert.equal(await captionPage.getByRole('button',{name:'Play voice'}).count(),1);
+ assert.equal(await captionPage.getByRole('button',{name:'Read again'}).count(),0);
  const firstCaption=await captionPage.locator('.caption [data-line-id]').getAttribute('data-line-id');
  await click(captionPage,'Continue');
  assert.notEqual(await captionPage.locator('.caption [data-line-id]').getAttribute('data-line-id'),firstCaption);
- pass('FIELD-QA-CAPTION-01','Opening Continue and Read again stay large and hit-testable at 1366x900, 1024x720 and 800x600.');
+ pass('FIELD-QA-CAPTION-01','Opening Continue and Listen stay large and hit-testable at 1366x900, 1024x720 and 800x600.');
  await captionCtx.close();
+
+ // Four readable labels, clearly separated children and paved board access.
+ const {c:partyCtx,p:partyPage}=await context({stage:'square'});
+ async function formation(stage){
+  const people=await partyPage.locator('#world .actor').evaluateAll(els=>els.map(el=>({
+   name:el.dataset.character,x:parseFloat(el.style.left)/100,
+   y:parseFloat(el.style.top)/100,label:el.querySelector('.actor-label')?.textContent?.trim()
+  })));
+  assert.deepEqual(people.map(p=>p.name).sort(),['Finn','Milo','Nia','Steward']);
+  for(const p of people)assert.equal(p.label,p.name,'Missing on-scene name for '+p.name);
+  const children=people.filter(p=>p.name!=='Steward');
+  for(let i=0;i<children.length;i++)for(let j=0;j<i;j++)
+   assert.ok(Math.abs(children[i].x-children[j].x)>=.10,
+    'The child trio is stacking together at '+stage+': '+JSON.stringify(children));
+  for(const child of children){
+   const steward=people.find(p=>p.name==='Steward');
+   assert.ok(Math.hypot(child.x-steward.x,child.y-steward.y)>=.09,
+    'Steward and '+child.name+' must not stand on exactly the same spot: '+stage);
+  }
+  return people;
+ }
+ await formation('initial square');
+ for(const target of ['Noticeboard','Fountain','Big tree','Old post']){
+  await click(partyPage,target);
+  const people=await formation(target);
+  if(target==='Noticeboard'){
+   const milo=people.find(p=>p.name==='Milo');
+   assert.ok(milo.x>=.26&&milo.y>=.70,
+    'Milo must stop on paved ground in front of the original board: '+JSON.stringify(milo));
+   assert.equal(await partyPage.getByRole('button',{name:'Help hold the paper.'}).count(),1);
+  }
+ }
+ await partyPage.setViewportSize({width:390,height:844});
+ await formation('390px phone');
+ const names=await partyPage.locator('#world .actor-label').evaluateAll(els=>els.map(el=>{
+  const r=el.getBoundingClientRect();return {name:el.textContent.trim(),visible:r.width>0&&r.height>0};
+ }));
+ assert.equal(names.filter(x=>x.visible).length,4,'All four name labels visible on phone');
+ pass('FIELD-QA-PARTY-01','Approved portrait and four labels; companions stay separated; Milo stops before the original board.','Desktop + phone 390px');
+ await partyCtx.close();
 
  // Mobile-specific touch geometry, without changing the locked scene image.
  const {c:mobileCaptionCtx,p:mobileCaptionPage}=await context({mobile:true});
@@ -504,13 +553,13 @@ try{
  await compareCtx.close();
  const {c:qr,p:qp}=await context({stage:'map'});
  await click(qp,'Look at the line');
- await click(qp,'Read again');
+ await click(qp,'Play voice');
  assert.equal(await qp.locator('.caption [role="status"]').count(),1);
  assert.match(await qp.locator('.caption [role="status"]').innerText(),/Reading aloud again|Audio unavailable/);
  await drain(qp);
  await qp.reload({waitUntil:'networkidle'});
  assert.equal(await qp.getByRole('dialog',{name:'Story so far'}).count(),1);
- await click(qp,'Read again');
+ await click(qp,'Play recap aloud');
  assert.equal(await qp.locator('.dialog [role="status"]').count(),1);
  assert.equal(await qp.locator('.dialog [data-line-id]').count(),2);
  await click(qp,'Continue the story');
@@ -623,12 +672,12 @@ try{
  await click(hp,'Look at the line');
  const beforeReread=await ledger(hp);
  const exactId=await hp.locator('.caption [data-line-id]').getAttribute('data-line-id');
- await click(hp,'Read again');
+ await click(hp,'Play voice');
  assert.equal(await hp.locator('.caption [data-line-id]').getAttribute('data-line-id'),exactId);
  assert.equal(await hp.locator('.caption [data-line-id]').innerText(),content.lines[exactId].exact_text);
- assert.deepEqual(await ledger(hp),beforeReread,'Read again never advances or writes an event');
+ assert.deepEqual(await ledger(hp),beforeReread,'Listen never advances or writes an event');
  await hc.close();
- pass('UX-06/UX-09','No header Help/Pause across stages; canonical Read again remains available without changing progress.');
+ pass('UX-06/UX-09','No header Help/Pause across stages; Listen audio control replays without changing progress.');
  const {c:solo,p:solop}=await context({stage:'map'});await click(solop,'Look at the shape');assert.equal(await solop.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-FINN-004');await drain(solop);assert.equal(await solop.locator('.child input,.child textarea').count(),0);assert.equal(await solop.getByRole('button',{name:"Maybe it's a treasure map!",exact:true}).count(),0);pass('UX-10','Solo observation receives approved support without response input, scoring or guessed interpretation.');await solo.close();
  const {c:motor,p:motorp}=await context({stage:'square'});await motorp.getByLabel('Single-action assistance').check();assert.equal(await motorp.evaluate(key=>JSON.parse(localStorage.getItem(key)).preferences.motor,KEY),true);await finishPath(motorp);pass('UX-05-MOTOR','Motor assistance enabled: deliberate single-action travel, comparison and clean complete E01.');await motor.close();
  const {c:wc,p:wp}=await context({motion:true});

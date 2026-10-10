@@ -40,3 +40,16 @@ The owner reported that the implemented **desktop and mobile RPG dialogue presen
 ## Current Old post behavior after user feedback
 
 The accepted desktop/mobile RPG dialogue layout is unchanged. The 2026-10-09 owner correction restores the **large whole-picture Old post rubbing gesture** because the inset-only surface was impractical. `RIVERSIDE` must visibly emerge under the finger/mouse during center rubbing and remain visible after Finish while dialogue proceeds. The permanent in-town destination and Chronicle event still require the canonical story completion. This new interaction overrides the intermediate plaque-only scratching details recorded for audit in earlier documentation.
+
+## 2026-10-10 owner field feedback: actor clarity (scope accepted scratch preserved)
+
+The owner **PASS**ed the existing whole-picture Old post rubbing and lettering-based finish gate. This slice must not reopen or alter that interaction, its art, voice lines or persistence.
+
+Four improvements are required for the accepted RPG dialogue grammar:
+
+1. The **Steward** speaks with the already-committed `public/art/steward.webp` artwork, cropped to a single head-and-shoulders portrait in the bottom caption. Narrator and UI remain neutral.
+2. **Milo, Nia, Finn and Steward** each show a small, readable character name beneath their on-scene sprite. These decorative labels must never intercept world-pointer or touch navigation.
+3. Change the ambiguous **Read again** button to **🔊 Listen**, with accessible names `Play voice` for current caption and `Play recap aloud` for the replayable recap. Manual browser speech remains available with automatic audio off; it never modifies the story ledger. Native/localized recorded voice is still future work.
+4. Scene-relative trio placement must preserve visible separation: Nia and Finn flank/trail Milo with different feet positions rather than both being road-projected onto the protagonist's segment. No three-child stack, while modest natural occlusion is acceptable. Existing opening staging remains deliberately spaced.
+
+See [runtime implementation](E01_RUNTIME_IMPLEMENTATION.md). The complete Town Square and sprite atlas identities remain authoritative; no new character artwork or unapproved UI widgets introduced. Browser QA tests these fixes; physical phone/desktop aesthetics remain open.

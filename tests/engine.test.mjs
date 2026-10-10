@@ -77,3 +77,20 @@ test('FIELD-QA-06: comparison phase UI permits movement away from landmarks',()=
  s=dispatch(s,{type:'compare',symbol:'fountain'});
  assert.deepEqual(s.anchors,[]);
 });
+
+test('FIELD-QA-BOARD-01: noticeboard approach stops in front of the painted prop',()=>{
+ const board=locations.board;
+ // Approved Town Square artwork: wooden board occupies the left foreground.
+ // Milo's feet are on the paving to the right / below that obstacle.
+ assert.ok(board[0]>=.26&&board[1]>=.70,'Board target must be on the paved approach');
+ let s=drain(dispatch(fresh(),{type:'begin'}));
+ s=dispatch(s,{type:'move',target:'board'});
+ assert.deepEqual(s.position,board);
+ assert.equal(s.location,'board');
+ const route=roadRoute([.34,.77],board);
+ assert.deepEqual(route.at(-1),board);
+ for(const p of route)assert.ok(p[0]>=.26,
+  'Board path must not pass through painted wooden panel: '+JSON.stringify(route));
+ s=dispatch(s,{type:'hold'});assert.ok(s.queue.length>0,
+  'Board must stay interactable from new approach');
+});
