@@ -32,6 +32,8 @@ Production specification:
 
 Current episode production:
 
+- **Current handoff (2026-10-10):** [E01 accepted prototype retrospective / reusable gates](E01_LESSONS_LEARNED_2026-10-10.md); [E02 kickoff and focused next task](E02_KICKOFF_2026-10-10.md); [E02 EPB (draft — not approved for script)](../content/season-01/s01e02/EPISODE_PRODUCTION_BRIEF.md). E01 first-playable is owner PASS / paused, not final media/family ready. Read these rather than reopening old E01 visual QA chats.
+
 - `docs/WORK_HANDOFF_2026-10-08.md` — historical bootstrap handoff; see E01_RUNTIME_QA_2026-10-08.md for current runtime checkpoint
 
 - `content/season-01/s01e01/EPISODE_PRODUCTION_BRIEF.md` — approved_for_script
