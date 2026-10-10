@@ -11,7 +11,7 @@ export const locations = {board:[.27,.735], fountain:[.46,.64], large_tree:[.73,
  * the wooden panel; the original Town Square image and hotspots are unchanged.
  */
 const roadNodes = [
- [.34,.77], // opening path
+ [.42,.77], // slightly right-shifted start: leave Steward nameplate unobstructed
  [.39,.68], // Square junction
  [.32,.70], // path in front of the noticeboard, never through its painted wood
  locations.board,
@@ -24,7 +24,7 @@ const roadNodes = [
 ];
 const roadEdges = [[0,1],[1,2],[2,3],[1,4],[4,5],[5,6],[6,7],[7,8],[7,9]];
 function roadProjection(x,y){
- if(!Number.isFinite(x)||!Number.isFinite(y))return {point:[.34,.77],edge:0,t:0};
+ if(!Number.isFinite(x)||!Number.isFinite(y))return {point:[.42,.77],edge:0,t:0};
  let best=null;
  roadEdges.forEach(([a,b],edge)=>{
   const p=roadNodes[a],q=roadNodes[b],dx=q[0]-p[0],dy=q[1]-p[1];
@@ -107,7 +107,7 @@ export const events = {
  complete:['episode_completed:s01e01']
 };
 export function fresh(mode='first_play', ledger=[]) {
- return {schemaVersion:1,contentVersion:VERSION,mode,phase:'preview',scene:'s01e01-sc00',ledger:[...ledger],checkpoint:'fresh',started:false,position:[.34,.77],location:null,inspected:[],physical:false,sketch:false,guess:null,anchors:[],cueOffered:false,cueCount:0,plateFound:false,markerRevealed:false,chroniclePresented:false,played:[],queue:[],after:null,hints:{},safe:null};
+ return {schemaVersion:1,contentVersion:VERSION,mode,phase:'preview',scene:'s01e01-sc00',ledger:[...ledger],checkpoint:'fresh',started:false,position:[.42,.77],location:null,inspected:[],physical:false,sketch:false,guess:null,anchors:[],cueOffered:false,cueCount:0,plateFound:false,markerRevealed:false,chroniclePresented:false,played:[],queue:[],after:null,hints:{},safe:null};
 }
 function checkpoint(s,key) {
  s.checkpoint=key;
