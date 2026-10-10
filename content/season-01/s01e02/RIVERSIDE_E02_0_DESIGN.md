@@ -1,6 +1,6 @@
 # S01E02 Riverside — topology, counterevidence and player-agency design (E02-0)
 
-**Design state:** E02-0 DESIGN PROPOSAL / pending owner acceptance. This is a complete, testable upstream proposal, **not** a final art reference, line-by-line script, approved EPB or runtime change.
+**Design state:** E02-0 OWNER PASS on 2026-10-10; accepted upstream design, now referenced by EPB rev 2 `approved_for_script`. This is **not** final art, line-by-line script or runtime.
 
 **Source baseline:** GitHub `main` `fd9943ba9e712db22e2719feed6f0f5fb5c41977` (2026-10-10). See [E02 brief](EPISODE_PRODUCTION_BRIEF.md), [kickoff](../../../docs/E02_KICKOFF_2026-10-10.md), [Season 1 canon](../../../docs/SEASON_1_ARCHITECTURE.md), [E02 weave](../../../docs/SEASON_1_LEARNING_WEAVE.md) and [E01 anti-regression lessons](../../../docs/E01_LESSONS_LEARNED_2026-10-10.md). E01 first-playable prototype remains owner-PASS and frozen.
 
@@ -111,6 +111,6 @@ Proposed IDs, to be validated at E02-1/E02-2 against the E01 state and compiler:
 
 ## 7. Decision gate and downstream boundaries
 
-**Ready for owner review:** approve/revise the **material E02-0 choices**: two-ended old bridge evidence + missing deck/new bank edge; public same-bank signposted path; notebook disconfirmation; Market Lane clue visible from lookout. Their narrative *function* is season canon; their **specific physical composition** is proposed here.
+**Owner PASS received (2026-10-10) for the **material E02-0 choices**: two-ended old bridge evidence + missing deck/new bank edge; public same-bank signposted path; notebook disconfirmation; Market Lane clue visible from lookout. Their narrative *function* is season canon; their **specific physical composition** is proposed here.
 
-**After E02-0 approval:** promote the Episode Production Brief to `approved_for_script` only after rechecking its full required fields and choosing final scene/interaction IDs, precise parent timing and event/schema compatibility. Then draft E02 detailed script and interaction specification. Do **not** generate final art, audio, voice text or runtime in this layer. Keep E01 frozen.
+**After E02-0 approval:** EPB rev 2 has been promoted to `approved_for_script` after checking its required fields and authoring IDs. Next draft E02 detailed script and interaction specification. Do **not** generate final art, audio, voice text or runtime in this layer. Keep E01 frozen.
