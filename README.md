@@ -93,12 +93,17 @@ See [Work Sequence](docs/WORK_SEQUENCE.md).
 - [Accessibility, Privacy & Safety](docs/ACCESSIBILITY_PRIVACY_SAFETY.md)
 - [Research & Validation](docs/RESEARCH_VALIDATION.md)
 - [Work Sequence](docs/WORK_SEQUENCE.md)
+- [E01 Lessons / Reusable Episode QA](docs/E01_LESSONS_LEARNED_2026-10-10.md)
+- [E02 Kickoff / Handoff](docs/E02_KICKOFF_2026-10-10.md)
+- [E02 Production Brief (draft)](content/season-01/s01e02/EPISODE_PRODUCTION_BRIEF.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Deployment](docs/DEPLOYMENT.md)
 
 ## Status
 
-**E01 vertical slice in progress.** Core trio, Season 1 story architecture, learning weave, and the Episode Production Brief standard are approved. S01E01's Production Brief and detailed script are approved; the S01E01 task-specific prompt pack and 121-line voice-text export are prepared. The illustrated living diorama visual style v1 and E01 reference contract are locked; the core trio C01 visual identity has been accepted. The matching owner-approved turnaround has been recovered and verified. Original Square art and non-spoiling clue reference candidates are preserved; see [Work reference gate review](assets/reference-candidates/s01e01/WORK_REFERENCE_GATE_REVIEW.md). V1 references are now owner-passed; the first playable runtime and source actors are assembled. See the dated runtime QA record for executed results and remaining production/family work.
+**E01 playable prototype is paused at owner-reported PASS (2026-10-10), not final public/recorded-voice/family QA complete; E02 preparation has started.** See [E01 retrospective and reusable prevention gates](docs/E01_LESSONS_LEARNED_2026-10-10.md), [E02 kickoff](docs/E02_KICKOFF_2026-10-10.md), and [S01E02 draft Production Brief](content/season-01/s01e02/EPISODE_PRODUCTION_BRIEF.md). The accepted E01 opening build is `20261010-e01-opening-spacing1`; do not reopen E01 behavior while drafting E02.
+
+Previous baseline: **E01 vertical slice in progress.** Core trio, Season 1 story architecture, learning weave, and the Episode Production Brief standard are approved. S01E01's Production Brief and detailed script are approved; the S01E01 task-specific prompt pack and 121-line voice-text export are prepared. The illustrated living diorama visual style v1 and E01 reference contract are locked; the core trio C01 visual identity has been accepted. The matching owner-approved turnaround has been recovered and verified. Original Square art and non-spoiling clue reference candidates are preserved; see [Work reference gate review](assets/reference-candidates/s01e01/WORK_REFERENCE_GATE_REVIEW.md). V1 references are now owner-passed; the first playable runtime and source actors are assembled. See the dated runtime QA record for executed results and remaining production/family work.
 
 ## First playable E01
 
