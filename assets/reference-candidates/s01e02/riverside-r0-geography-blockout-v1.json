@@ -1,0 +1,300 @@
+{
+  "schema": "wondervale-e02-geography-blockout-v1",
+  "status": "candidate_geometry_for_visual_review_NOT_RUNTIME",
+  "masterSvg": "assets/reference-candidates/s01e02/riverside-r0-geography-blockout-v1.svg",
+  "source": "Owner-approved E02-0 topology and E02-3 visual contract",
+  "canvas": {
+    "width": 1600,
+    "height": 900,
+    "ratio": "16:9",
+    "yDirection": "down"
+  },
+  "scene": {
+    "entry": "west-left",
+    "riverDirection": "west-east",
+    "nearBank": "south / bottom",
+    "farBank": "north / top",
+    "bridgeDeck": "ABSENT",
+    "oldCrossing": "CLOSED",
+    "sameBankLookout": "EXISTING PUBLIC PATH"
+  },
+  "walkablePolygons": {
+    "promenade": [
+      [
+        0,
+        730
+      ],
+      [
+        205,
+        704
+      ],
+      [
+        450,
+        709
+      ],
+      [
+        704,
+        706
+      ],
+      [
+        960,
+        700
+      ],
+      [
+        1180,
+        685
+      ],
+      [
+        1600,
+        725
+      ],
+      [
+        1600,
+        900
+      ],
+      [
+        0,
+        900
+      ]
+    ],
+    "oldSpurStandOff": [
+      [
+        669,
+        655
+      ],
+      [
+        829,
+        655
+      ],
+      [
+        829,
+        709
+      ],
+      [
+        669,
+        709
+      ]
+    ],
+    "sidePath": [
+      [
+        1070,
+        747
+      ],
+      [
+        1130,
+        696
+      ],
+      [
+        1245,
+        656
+      ],
+      [
+        1320,
+        642
+      ],
+      [
+        1455,
+        645
+      ],
+      [
+        1490,
+        692
+      ],
+      [
+        1390,
+        727
+      ],
+      [
+        1260,
+        746
+      ],
+      [
+        1140,
+        809
+      ]
+    ],
+    "lookout": [
+      [
+        1265,
+        620
+      ],
+      [
+        1486,
+        620
+      ],
+      [
+        1486,
+        689
+      ],
+      [
+        1265,
+        689
+      ]
+    ]
+  },
+  "forbiddenRegions": {
+    "river": {
+      "kind": "continuous water",
+      "bandY": [
+        402,
+        610
+      ],
+      "traversable": false
+    },
+    "farBank": {
+      "kind": "opposite bank",
+      "bandY": [
+        0,
+        402
+      ],
+      "traversable": false
+    },
+    "closureFence": {
+      "kind": "solid fence",
+      "segment": [
+        [
+          646,
+          647
+        ],
+        [
+          844,
+          647
+        ]
+      ],
+      "standOff": true
+    },
+    "oldNearFooting": {
+      "kind": "inspection_only",
+      "box": [
+        678,
+        586,
+        812,
+        632
+      ]
+    },
+    "farOldLanding": {
+      "kind": "inspection_only",
+      "box": [
+        681,
+        373,
+        808,
+        423
+      ]
+    }
+  },
+  "pathWaypoints": {
+    "spawn": [
+      170,
+      801
+    ],
+    "plaza": [
+      453,
+      786
+    ],
+    "oldSpurFork": [
+      746,
+      763
+    ],
+    "oldStones": [
+      748,
+      683
+    ],
+    "promenadeEast": [
+      1030,
+      772
+    ],
+    "publicSideFork": [
+      1120,
+      758
+    ],
+    "sidePathMiddle": [
+      1214,
+      711
+    ],
+    "lookoutEntry": [
+      1322,
+      676
+    ],
+    "lookoutView": [
+      1407,
+      667
+    ]
+  },
+  "graphEdges": [
+    [
+      "spawn",
+      "plaza"
+    ],
+    [
+      "plaza",
+      "oldSpurFork"
+    ],
+    [
+      "oldSpurFork",
+      "oldStones"
+    ],
+    [
+      "oldSpurFork",
+      "promenadeEast"
+    ],
+    [
+      "promenadeEast",
+      "publicSideFork"
+    ],
+    [
+      "publicSideFork",
+      "sidePathMiddle"
+    ],
+    [
+      "sidePathMiddle",
+      "lookoutEntry"
+    ],
+    [
+      "lookoutEntry",
+      "lookoutView"
+    ]
+  ],
+  "stations": {
+    "oldStones": {
+      "footWaypoint": "oldStones",
+      "evidence": [
+        "ev_e02_old_stones"
+      ],
+      "interactFromPaving": true
+    },
+    "changedEdge": {
+      "footWaypoint": "lookoutView",
+      "evidence": [
+        "ev_e02_changed_edge",
+        "ev_e02_new_edge"
+      ],
+      "interactFromProtectedView": true
+    },
+    "lookoutDiscovery": {
+      "footWaypoint": "lookoutView",
+      "event": "s01e02_riverside_overlook_accessible"
+    },
+    "marketMarker": {
+      "footWaypoint": "lookoutView",
+      "visibleOnlyAfter": "s01e02_old_connection_changed_confirmed",
+      "stateLayer": "NOT_INCLUDED_IN_R0"
+    }
+  },
+  "artworkSeparation": [
+    "environment_only",
+    "no_characters",
+    "no_dogs",
+    "no_baked_text",
+    "no_market_lane",
+    "no_complete_bridge",
+    "trio_C01_separate_layer",
+    "dynamic_sign_text_ui"
+  ],
+  "qa": {
+    "topologyCheck": "geometry-only candidate",
+    "renderedCrop": "NOT_RUN",
+    "C01Composite": "NOT_RUN",
+    "approval": "NOT_APPROVED",
+    "runtimeMasks": "NOT_IMPLEMENTED"
+  }
+}
