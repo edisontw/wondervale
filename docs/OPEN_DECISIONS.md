@@ -357,3 +357,7 @@ After owner acceptance of E02-0 and EPB rev 2 `approved_for_script`, E02-2 prepa
 ### 2026-10-10 E02-2 source lock and E02-3 visual gate
 
 The E02 detailed English script rev 1 (81 unique lines, dialogue lock `v1`) is now `approved_for_interaction_spec`; the E02 interaction spec rev 1 is `approved_for_prompt_pack` after source QA and correction of an early-spoken answer. These are downstream authoring approvals under the owner's E02-0 PASS, **not** independent owner testing. The E02 [visual reference contract](../content/season-01/s01e02/VISUAL_REFERENCE_CONTRACT.md) specifies a canonical same-bank Riverside composition, no-go geometry, phone/desktop crop checks and no early Market Lane spoiler. Rendered images, exact foot polygons and full-resolution asset QA remain OPEN; all 30 E02 runtime test cases remain NOT RUN. E01 remains frozen.
+
+### 2026-10-11 E02-3 image trials — NOT APPROVED
+
+Three 1536×1024 Riverside concept sheets were generated and visually reviewed; all **FAIL as master references** due to at least one of extra pet, premature Market Lane sign, intact background bridge or unverified C01 character identity / route topology. See [trial QA and original-file SHA-256](../content/season-01/s01e02/IMAGE_TRIAL_QA_2026-10-11.md). **No binary asset was written to GitHub, and no candidate is approved.** Next single visual task: generate environment-only topology master with no characters/text/distant bridges, then independently overlay C01 sprites, sign state and walkability masks. E01 remains frozen.
