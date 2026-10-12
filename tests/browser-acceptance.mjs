@@ -2,6 +2,7 @@ import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {fresh,dispatch,payload,groups,KEY,events,constrainToRoad} from '../engine/episode.mjs';
+import {e01Ready} from '../engine/s01e02.mjs';
 const base=process.env.TEST_BASE_URL||'http://127.0.0.1:4173';
 const out='test-results';await mkdir(out,{recursive:true});
 const content=JSON.parse(await readFile('public/episode.json'));
@@ -108,6 +109,7 @@ try{
  assert.equal(await firstVisit.getByRole('button',{name:'Fountain',exact:true}).count(),0);
  assert.equal(await firstVisit.getByRole('button',{name:'Big tree',exact:true}).count(),0);
  assert.equal(await firstVisit.getByRole('button',{name:'Begin',exact:true}).count(),1);
+ assert.equal(await firstVisit.getByRole('link',{name:'Continue to Episode 2 · Riverside →'}).count(),0,'E02 handoff must not appear before E01 completion');
  const introFeet=await firstVisit.locator('.actor.milo, .actor.companion').evaluateAll(els=>els.map(el=>[parseFloat(el.style.left),parseFloat(el.style.top)]));
  assert.equal(introFeet.length,3);
  for(let i=0;i<introFeet.length;i++)for(let j=0;j<i;j++)assert.ok(Math.hypot(introFeet[i][0]-introFeet[j][0],introFeet[i][1]-introFeet[j][1])>9,'opening trio should stand apart');
@@ -285,20 +287,52 @@ try{
  }
  pass('E01-LANDSCAPE-01','Landscape 667/844/932 touch view with complete Square and side dialogue.','Chromium emulated landscape touch');
  await landCtx.close();
- // Explicit fullscreen control: request a full-screen browser stage when
- // allowed, otherwise show a non-blocking fallback, never lose the episode.
+ // Fullscreen is optional. Unsupported and rejected mobile requests must not leave a dead button.
  const {c:fullscreenCtx,p:fullscreenPage}=await context({stage:'square'});
- await click(fullscreenPage,'Full screen');
- await fullscreenPage.waitForFunction(()=>!!document.fullscreenElement||!!document.querySelector('.fullscreen-notice'),null,{timeout:5000});
- const fs=await fullscreenPage.evaluate(()=>({active:!!document.fullscreenElement,notice:!!document.querySelector('.fullscreen-notice'),stage:!!document.querySelector('#world')}));
- assert.ok(fs.stage&&(fs.active||fs.notice),'Fullscreen must activate or fail gracefully: '+JSON.stringify(fs));
- if(fs.active){
-  await click(fullscreenPage,'Exit full screen');
-  await fullscreenPage.waitForFunction(()=>!document.fullscreenElement,null,{timeout:5000});
-  assert.equal(await fullscreenPage.evaluate(()=>!!document.fullscreenElement),false);
+ if(await fullscreenPage.getByRole('button',{name:'Full screen',exact:true}).count()){
+  await click(fullscreenPage,'Full screen');
+  await fullscreenPage.waitForFunction(()=>!!document.fullscreenElement||!document.querySelector('[data-action="fullscreen"]'),null,{timeout:5000});
+  if(await fullscreenPage.evaluate(()=>!!document.fullscreenElement)){
+   await click(fullscreenPage,'Exit full screen');
+   await fullscreenPage.waitForFunction(()=>!document.fullscreenElement,null,{timeout:5000});
+  }
  }
- pass('E01-FULLSCREEN-01','Browser fullscreen toggles or falls back without hiding the story.');
+ assert.equal(await fullscreenPage.locator('.fullscreen-notice').count(),0);
+ assert.equal(await fullscreenPage.locator('#world').count(),1);
+ pass('E01-FULLSCREEN-01','Supported fullscreen opens/exits or rejected requests quietly hide the control.');
  await fullscreenCtx.close();
+ const absentCtx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ await absentCtx.addInitScript(()=>Object.defineProperty(document,'fullscreenEnabled',{configurable:true,get:()=>false}));
+ const absentPage=await absentCtx.newPage();
+ await absentPage.goto(base,{waitUntil:'networkidle'});
+ assert.equal(await absentPage.getByRole('button',{name:'Full screen',exact:true}).count(),0);
+ assert.equal(await absentPage.locator('.fullscreen-notice').count(),0);
+ assert.equal(await absentPage.locator('#world').count(),1);
+ pass('E01-FULLSCREEN-02','Unsupported mobile browsers show the fitted scene without a dead fullscreen button.','Simulated unsupported Chromium mobile');
+ await absentCtx.close();
+ const {c:rejectedCtx,p:rejectedPage}=await context({stage:'square'});
+ if(await rejectedPage.getByRole('button',{name:'Full screen',exact:true}).count()){
+  await rejectedPage.evaluate(()=>{document.documentElement.requestFullscreen=()=>Promise.reject(new Error('Denied by browser'));});
+  await click(rejectedPage,'Full screen');
+  await rejectedPage.waitForFunction(()=>!document.querySelector('[data-action="fullscreen"]'),null,{timeout:5000});
+ }
+ assert.equal(await rejectedPage.locator('.fullscreen-notice').count(),0);
+ assert.equal(await rejectedPage.locator('#world').count(),1);
+ pass('E01-FULLSCREEN-03','A rejected fullscreen request silently removes the dead button and keeps E01 visible.','Simulated Chromium permission rejection');
+ await rejectedCtx.close();
+ // The new chapter action must be reachable immediately, before long Chronicle content.
+ const {c:handoffCtx,p:handoffPage}=await context({mobile:true,stage:'later'});
+ for(const [width,height] of [[390,844],[667,375]]){
+  await handoffPage.setViewportSize({width,height});
+  const g=await handoffPage.evaluate(()=>{
+   const scene=document.querySelector('.scene-card').getBoundingClientRect(),link=document.querySelector('.episode-next-link')?.getBoundingClientRect();
+   return {sceneTop:scene.top,sceneBottom:scene.bottom,linkTop:link?.top,linkBottom:link?.bottom,linkWidth:link?.width,scrollWidth:document.documentElement.scrollWidth};
+  });
+  assert.ok(g.linkTop>=g.sceneTop&&g.linkBottom<=g.sceneBottom&&g.linkWidth>170,'Next chapter must be visible without scroll: '+JSON.stringify(g));
+  assert.ok(g.scrollWidth<=width+3,'Handoff overflows the phone: '+JSON.stringify(g));
+ }
+ pass('E01-E02-HANDOFF-MOBILE','The E02 chapter action is visible above the Chronicle on portrait and landscape phone.','Chromium emulated touch 390x844 and 667x375');
+ await handoffCtx.close();
  const {c:hotspotsCtx,p:hotspotsPage}=await context({stage:'square'});
  const marks=await hotspotsPage.locator('#world button.spot').evaluateAll(btns=>btns.map(b=>{
   const d=b.getBoundingClientRect(),icon=b.querySelector('.spot-symbol'),p=icon?.getBoundingClientRect();
@@ -575,6 +609,12 @@ try{
  await p.screenshot({path:`${out}/desktop-chronicle.png`,fullPage:true});await click(p,'Finish this page');await drain(p);pass('INT-18','Chronicle finishes without reflection; E02 unlocked once.');
  const complete=await ledger(p);await p.reload({waitUntil:'networkidle'});assert.deepEqual(await ledger(p),complete);assert.equal(await p.getByRole('dialog').count(),0);await click(p,'Visit Town Square');assert.equal(await p.locator('.marker-original-ink').count(),1);await click(p,'Back to the Chronicle');pass('SAV-07','Completed reload and present Square retain reveal ink on original marker and completion without unfinished recap.');
  await click(p,'Replay this memory');await finishPath(p);assert.deepEqual(await ledger(p),complete);await click(p,'Leave replay');assert.deepEqual(await ledger(p),complete);pass('SAV-08','Full replay and exit preserve present ledger.');
+ const handoff=p.getByRole('link',{name:'Continue to Episode 2 · Riverside →',exact:true});
+ assert.equal(await handoff.count(),1);
+ assert.equal(await handoff.getAttribute('href'),'e02/');
+ assert.ok(e01Ready(await p.evaluate(key=>JSON.parse(localStorage.getItem(key)),KEY)),'Real E01 completion ledger must unlock E02');
+ await p.screenshot({path:`${out}/desktop-e01-e02-handoff.png`,fullPage:true});
+ pass('E01-E02-HANDOFF-01','Real E01 completion and reload expose E02 with the original saved events.');
  await c.close();
  for(const [id,order,choice] of [['INT-06',['blank_shape','layer_holes'],'B'],['INT-07',['line','layer_holes'],'C'],['INT-08',['layer_holes','blank_shape','line'],'B']]){const {c,p}=await context({stage:'map'});for(const r of order){await click(p,({line:'Look at the line',blank_shape:'Look at the shape',layer_holes:'Look at the paper'})[r]);await drain(p);}await click(p,content.lines[`S01E01-MILO-${({A:'013',B:'014',C:'015'})[choice]}`].exact_text);await drain(p);assert.equal((await cp(p)).phase,'square_compare');assert.equal((await cp(p)).played.includes('S01E01-FINN-009'),false);pass(id,'Reordered observations converge; no duplicate C fallback.');await c.close();}
  const {c:compareCtx,p:comparePage}=await context({stage:'observed'});

@@ -33,6 +33,21 @@ try{
   assert.equal(await p.getByRole('button',{name:'Begin Riverside adventure'}).count(),0);
   await ctx.close();passed('E02-N02','E01 prerequisite truly gates the episode');
  }
+ // The completed Town Square must hand off to E02 on the same origin, without losing progress.
+ {const handoffCtx=await browser.newContext({viewport:{width:667,height:375},hasTouch:true,isMobile:true,reducedMotion:'reduce'});
+  await handoffCtx.addInitScript(data=>{localStorage.setItem('wondervale-progress-v1',JSON.stringify(data));},fakeE01);
+  const handoffPage=await handoffCtx.newPage();
+  handoffPage.on('pageerror',e=>errors.push(e.message));
+  await handoffPage.goto(base+'/',{waitUntil:'networkidle'});
+  const next=handoffPage.getByRole('link',{name:'Continue to Episode 2 · Riverside →',exact:true});
+  assert.equal(await next.count(),1);
+  await next.click();
+  await handoffPage.waitForURL('**/e02/');
+  await handoffPage.getByRole('button',{name:'Begin Riverside adventure'}).waitFor();
+  assert.deepEqual(await handoffPage.evaluate(()=>JSON.parse(localStorage.getItem('wondervale-progress-v1')).ledger),fakeE01.ledger);
+  await handoffCtx.close();
+  passed('E01-E02-REAL-LINK','Town Square completion links to unlocked E02 on same origin and preserves E01 ledger');
+ }
  const {ctx,p}=await open();
  assert.equal(await p.getByText('MARKET LANE →',{exact:true}).count(),0);
  await action(p,'Begin Riverside adventure');

@@ -682,7 +682,12 @@ html,body{height:100%;overflow:hidden}
 .options-dialog .restart-tools{margin:12px 0;padding-top:6px}
 .options-dialog .restart-tools p{font:14px/1.4 system-ui}
 .options-dialog>.primary{width:100%;margin-top:10px}
-.fullscreen-notice{position:fixed;z-index:19;right:12px;bottom:12px;max-width:260px;padding:9px;border-radius:8px;background:#fffaf0;border:1px solid #bfb19b;font:12px system-ui}
+.episode-handoff{max-width:780px;margin:0 auto 18px;padding:clamp(12px,2vw,22px);border:1px solid #c3ac7c;border-radius:17px;background:linear-gradient(130deg,#fff9e9,#e6eedf);text-align:center}
+.episode-handoff h2{margin:5px 0;font:700 clamp(22px,3vw,31px)/1.2 Georgia,serif}
+.episode-handoff p{max-width:590px;margin:7px auto 12px;font:clamp(14px,1.5vw,17px)/1.45 system-ui}
+.episode-next-link{display:inline-flex;min-height:48px;align-items:center;justify-content:center;max-width:100%;padding:10px 18px;border-radius:12px;background:#355f51;color:#fff;text-decoration:none;font:700 clamp(15px,1.6vw,19px)/1.25 system-ui;text-align:center}
+.episode-next-link:hover{background:#26493d}
+.episode-next-link:focus-visible{outline:3px solid #174f72;outline-offset:4px}
 @media(max-width:760px){
  #app>header{min-height:40px;padding:3px 6px}
  #app>header .brand{font-size:18px}

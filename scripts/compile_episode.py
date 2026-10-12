@@ -16,7 +16,7 @@ for row in rows:
     assert row['exact_text'] == script_lines[row['line_id']], row['line_id']
 content = {
     'schemaVersion': 1, 'contentVersion': 's01e01-script-v1',
-    'buildId': '20261012-e01-landscape-fullscreen1',
+    'buildId': '20261012-e01-handoff-fullscreen2',
     'voiceSourceSha256': hashlib.sha256(source.read_bytes()).hexdigest(),
     'lines': {x['line_id']: x for x in rows},
     'parent': {
