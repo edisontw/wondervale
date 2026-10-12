@@ -31,7 +31,8 @@ permissions:
 # Never race two symlink flips; latest pending run wins.
 concurrency:
   group: wondervale-mn4-e02-preview
-  cancel-in-progress: false
+  # During PR iteration only, cancel outdated validation. Never interrupt a main deployment.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   verify-and-package:
