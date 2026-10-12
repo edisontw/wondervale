@@ -634,3 +634,105 @@ html,body{height:100%;overflow:hidden}
   border-width:1px;
  }
 }
+
+/* E01 responsive redesign (2026-10-12): single child-owned screen;
+   parent's short prompts live in the chapter opener, not a play sidebar. */
+#app{width:100%;height:100vh;height:100dvh;max-width:none}
+#app>header{max-width:none;padding:5px clamp(7px,1vw,20px);gap:8px;min-height:46px}
+#app>header .site-id{display:flex;align-items:baseline;gap:14px;min-width:0}
+#app>header .brand{font-size:clamp(19px,2.1vw,26px);white-space:nowrap}
+#app>header .episode-title{font:14px/1.2 Georgia,serif;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#app>header .tools{flex:0 0 auto;flex-wrap:nowrap}
+#app>header button{min-height:40px;padding:5px 10px;font:600 13px/1.1 system-ui}
+#app>.layout{display:block;width:100%;max-width:none;padding:0 9px 7px;min-height:0}
+#app>.layout .child{width:100%;height:100%;display:flex;flex-direction:column;min-height:0}
+#app>.layout .scene-card{width:100%;flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;background:linear-gradient(145deg,#fffaf0,#edf0e5)}
+#app .viewport{width:100%;height:auto;min-height:0;max-height:none;display:flex;justify-content:center;overflow:hidden}
+#app .world{width:min(100%,calc((100dvh - 295px)*1.776833));max-width:100%;height:auto;aspect-ratio:1672/941;touch-action:manipulation}
+#app .world .actor{width:9.21%;height:auto;aspect-ratio:70/137}
+#app .world .actor.companion{width:8.15%;height:auto;aspect-ratio:62/122}
+#app .world .actor.steward{width:10.26%;height:auto;aspect-ratio:78/158}
+#app .world .actor svg,#app .world .actor img{width:100%;height:100%;object-fit:contain}
+#app .caption{flex:0 0 auto}
+#app .scene-heading{padding:6px 13px}
+#app .scene-heading h1{margin:2px 0;font-size:clamp(18px,1.5vw,23px)}
+#app .navigation{display:flex;flex-wrap:nowrap;gap:6px;padding:5px 9px}
+#app .navigation button{flex:1 1 0;min-width:0;min-height:44px;font:600 13px/1.1 system-ui;padding:7px 4px}
+#app .action-dock{padding:5px 10px 8px}
+#app .parent{display:none!important}
+.chapter-brief{display:grid;grid-template-columns:minmax(310px,40%) minmax(0,1fr);height:100%;min-height:0;overflow:hidden}
+.chapter-content{display:flex;flex-direction:column;min-width:0;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.chapter-content .scene-heading p{font:15px/1.4 system-ui;margin:5px 0}
+.chapter-parent{padding:5px 13px 10px;font:14px/1.42 system-ui}
+.chapter-parent h2{font:700 17px/1.25 system-ui;margin:6px 0}
+.chapter-parent h3{font:700 14px/1.3 system-ui;margin:11px 0 3px}
+.chapter-parent p{margin:5px 0}
+.chapter-parent .chapter-question{font-weight:700;color:#275046}
+.chapter-hint{font-size:12px;color:#506159}
+.chapter-actions{position:sticky;bottom:0;z-index:5;background:#fff9e9f2;border-top:1px solid #d4c5a9;padding:8px 13px;display:flex}
+.chapter-actions button{flex:1;min-height:48px}
+.chapter-world{min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.chapter-world .viewport{max-height:100%;height:auto}
+.chapter-world .world{width:min(100%,calc((100dvh - 85px)*1.776833))}
+.options-dialog{max-width:520px}
+.options-dialog h2{margin:0 0 10px}
+.options-dialog .options-toggles label{display:flex;align-items:center;gap:12px;margin:12px 0;font:16px/1.35 system-ui}
+.options-dialog .options-toggles input{width:22px;height:22px}
+.options-dialog .meta{font:13px/1.4 system-ui;color:#506159}
+.options-dialog .restart-tools{margin:12px 0;padding-top:6px}
+.options-dialog .restart-tools p{font:14px/1.4 system-ui}
+.options-dialog>.primary{width:100%;margin-top:10px}
+.fullscreen-notice{position:fixed;z-index:19;right:12px;bottom:12px;max-width:260px;padding:9px;border-radius:8px;background:#fffaf0;border:1px solid #bfb19b;font:12px system-ui}
+@media(max-width:760px){
+ #app>header{min-height:40px;padding:3px 6px}
+ #app>header .brand{font-size:18px}
+ #app>header .episode-title{display:none}
+ #app>header button{min-height:36px;font-size:12px;padding:4px 8px}
+ #app>.layout{padding:0 5px 5px}
+ #app .world{width:100%}
+ #app .navigation{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ #app .caption{margin:-10px 4px 5px}
+ .chapter-brief{display:flex;flex-direction:column;overflow-y:auto}
+ .chapter-content{flex:0 0 auto;overflow:visible}
+ .chapter-world{order:-1;flex:0 0 auto;max-height:30dvh}
+ .chapter-world .world{width:min(100%,calc(30dvh * 1.776833))}
+ .chapter-actions{position:sticky}
+}
+@media(orientation:landscape) and (max-height:520px) and (pointer:coarse){
+ #app>header{min-height:34px;padding:1px 6px}
+ #app>header .brand{font-size:17px}
+ #app>header button{min-height:32px;font-size:11px;padding:3px 7px}
+ #app>.layout{padding:0 4px 4px}
+ #app>.layout .child:has(.caption){display:grid;grid-template-columns:minmax(0,1fr) clamp(210px,34%,305px);gap:6px}
+ #app>.layout .child:has(.caption) .scene-card{height:100%;min-height:0;border-radius:10px}
+ #app>.layout .child:has(.caption) .caption{width:100%;height:100%;min-height:0;max-height:none;margin:0;padding:6px;gap:6px;align-content:start;grid-template-columns:43px minmax(0,1fr);overflow-y:auto;border-radius:10px}
+ #app .caption .portrait{width:43px;height:57px;grid-row:auto;align-self:start}
+ #app .caption .caption-message{max-height:none;overflow:visible}
+ #app .caption .speaker{font-size:12px;padding:2px 6px}
+ #app .caption .text{font-size:clamp(15px,2.1vw,19px);line-height:1.25}
+ #app .caption .caption-actions{grid-column:1/-1;display:flex;flex-direction:column;gap:5px}
+ #app .caption .caption-actions button{width:100%;min-height:44px;flex:0 0 auto;font-size:13px;padding:6px}
+ #app .caption .caption-actions button[data-action=next]{min-height:48px;font-size:15px}
+ #app .scene-heading{padding:3px 8px}
+ #app .scene-heading h1{font-size:17px}
+ #app .scene-heading .eyebrow{font-size:9px}
+ #app .world{width:min(100%,calc((100dvh - 135px)*1.776833))}
+ #app .navigation{display:flex;flex-wrap:nowrap;gap:3px;padding:4px}
+ #app .navigation button{min-height:40px;font-size:10px;padding:4px 2px}
+ #app .action-dock{padding:4px 5px;gap:4px}
+ #app .action-dock button{min-height:42px;font-size:12px;padding:5px}
+ #app .comparison-progress{font-size:11px}
+ #app .scene-map-sheet{inset:28px 4px 4px;width:calc(100% - 8px);max-height:calc(100% - 32px);padding:5px}
+ #app .scene-map-sheet .map-art{min-height:85px;max-height:none}
+ #app .scene-map-sheet .choices{max-height:25dvh}
+ #app .scene-map-sheet .choices button{min-height:44px}
+ #app .chapter-brief{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden}
+ #app .chapter-content{height:100%;overflow-y:auto}
+ #app .chapter-world{order:0;max-height:none}
+ #app .chapter-world .world{width:min(100%,calc((100dvh - 65px)*1.776833))}
+ #app .chapter-parent{padding:3px 9px 9px;font-size:12px}
+ #app .chapter-parent h2{font-size:14px}
+ #app .chapter-parent h3{font-size:12px}
+ #app .chapter-content .scene-heading p{font-size:12px}
+ #app .chapter-actions button{min-height:44px}
+}

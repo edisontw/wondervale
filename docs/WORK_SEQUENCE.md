@@ -256,3 +256,7 @@ The owner's six original PNG/WebP files are now present in GitHub `main` and mat
 ## 2026-10-12 E02 Gate 3 engineering preview (not yet deployed)
 
 The isolated [E02 first playable implementation](../content/season-01/s01e02/PLAYABLE_SLICE_QA_2026-10-12.md) is a separate `/e02/` browser route, with exact locked 81 E02 lines, owner-approved Riverside R0/R1/R2 artwork, approved C01 actor/portrait images, legitimate E01 prerequisites, separate E02 save/ledger, child-selected observation/revision and guarded later clue. Dedicated E02 route/state/Chromium tests and a separate E02 static preview package were added. Owner **art PASS** is retained, while **playable owner PASS and MN4 deploy are not established**; inspect actual browser screenshots and run genuine E01-to-E02/device validation before release. E01 accepted app/engine/save was not modified.
+
+## 2026-10-12 E01 reopened for display changes
+
+Following the owner's E02 live report, E01's accepted presentation was expressly reopened only for Parent View removal, chapter-opening guidance, landscape-first phones and dynamic full-window play. Script, world, art, state and E02 requirements stay locked. See [E01 presentation revision](E01_FULLSCREEN_LANDSCAPE_2026-10-12.md). The server-side E01 baseline remains intentionally frozen until separately promoted.
