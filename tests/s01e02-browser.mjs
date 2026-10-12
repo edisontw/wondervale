@@ -81,6 +81,13 @@ try{
  for(const width of [320,360,390,430]){
   const {ctx:c,p:page}=await open({width,height:width<390?700:844,authorized:true,touch:true});
   await action(page,'Begin Riverside adventure');await lines(page);
+  const labels=await page.locator('.actor-label').evaluateAll(els=>els.map(el=>({name:el.textContent,rect:el.getBoundingClientRect().toJSON()})));
+  assert.equal(labels.length,3);
+  for(let i=0;i<labels.length;i++)for(let j=i+1;j<labels.length;j++){
+   const a=labels[i].rect,b=labels[j].rect;
+   const overlaps=a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
+   assert.equal(overlaps,false,'Actor labels overlap on '+width+'px phone: '+labels[i].name+' / '+labels[j].name);
+  }
   await page.screenshot({path:'test-results/e02-phone-'+width+'.png',fullPage:true});
   assert.equal(await page.getByRole('button',{name:'Child / Parent View'}).count(),1);
   await action(page,'Child / Parent View');
