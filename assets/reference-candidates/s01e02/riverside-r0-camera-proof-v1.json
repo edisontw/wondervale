@@ -1,0 +1,92 @@
+{
+  "schema": "wondervale-e02-r0-camera-proof-v1",
+  "status": "VISUAL_CAMERA_STAGING_SOURCE_ONLY",
+  "sourceMaster": "assets/reference-candidates/s01e02/riverside-r0-geography-blockout-v2.svg",
+  "sourceGeometry": "assets/reference-candidates/s01e02/riverside-r0-geography-blockout-v1.json",
+  "masterSize": [
+    1600,
+    900
+  ],
+  "cameraRule": "mobile Child View clips/pans independently over 1600×900 source; do not scale entire scene into 360px and claim readable actor/evidence; C01 sprites overlaid by actual engine later",
+  "frameInsets": "candidate sample sizes only, not device chrome measurement",
+  "mobileStations": [
+    {
+      "id": "entry",
+      "xCenter": 285,
+      "mode": "living_scene",
+      "title": "Enter from Town Square",
+      "claim": "intro walkway; no bridge conclusion"
+    },
+    {
+      "id": "old_stones",
+      "xCenter": 748,
+      "mode": "living_scene",
+      "title": "Old bridge safe approach",
+      "claim": "aligned old stone base/gap visible only after explicit inspection"
+    },
+    {
+      "id": "lookout",
+      "xCenter": 1380,
+      "mode": "living_scene",
+      "title": "Public safe lookout",
+      "claim": "connected same-bank side path; discovery on legal arrival"
+    },
+    {
+      "id": "look_across",
+      "xCenter": 748,
+      "mode": "inspection_closeview_only",
+      "title": "Look across",
+      "claim": "camera cut/pan from safe lookout to historical alignment, never Milo move across water"
+    }
+  ],
+  "mobileLayouts": [
+    {
+      "device": "320x700",
+      "width": 320,
+      "height": 700,
+      "sceneHeight": 486,
+      "dockHeight": 214,
+      "visibleSourceWidth": 593
+    },
+    {
+      "device": "360x750",
+      "width": 360,
+      "height": 750,
+      "sceneHeight": 540,
+      "dockHeight": 210,
+      "visibleSourceWidth": 600
+    },
+    {
+      "device": "390x844",
+      "width": 390,
+      "height": 844,
+      "sceneHeight": 606,
+      "dockHeight": 238,
+      "visibleSourceWidth": 579
+    },
+    {
+      "device": "430x932",
+      "width": 430,
+      "height": 932,
+      "sceneHeight": 660,
+      "dockHeight": 272,
+      "visibleSourceWidth": 586
+    }
+  ],
+  "desktopSample": {
+    "width": 1366,
+    "height": 850,
+    "sceneWidth": 1024,
+    "sceneHeight": 668,
+    "parentWidth": 342,
+    "dockHeight": 182
+  },
+  "renderNotes": [
+    "Both bases visually enlarged and near footing drawn after near-bank ground in v2; v1 hid footing behind foreground.",
+    "Market Lane text excluded from both R0 versions; later post-revision mark needs separate gated layer.",
+    "No extra pets/people; use previously approved C01 trio sprites in separate identity QA.",
+    "R1 stones and R2 gap evidence require focus/inspect camera; one fixed 320px view cannot show lookout and historic stones simultaneously.",
+    "Screenshots are geometry/camera previews, not actual device E02 runtime screenshots or completed C01 sprite QA."
+  ],
+  "blocker": "owner visual PASS, actual original-byte render verified against GitHub v2, phone browser execution, C01 actor layering, painterly production master, final collision masks and E02 runtime NOT DONE"
+}

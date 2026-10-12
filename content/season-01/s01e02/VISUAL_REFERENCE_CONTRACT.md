@@ -42,3 +42,7 @@ The R0/R4 Market Lane text must be rendered from a separate semantically gated o
 7. Responsive desktop/phone screenshot review performed on actual assembled reference media, not only coordinate arithmetic.
 
 **Next deliverable:** create/approve **one Riverside topology/reference composition** plus phone readability proof. No new image/voice/audio or runtime is claimed here. After reference PASS, author the bounded E02 asset registry and generation prompt pack, then implement in a separate engineering layer that proves E01 regression.
+
+## 2026-10-12 rendered blockout handoff (not final art approval)
+
+A scene candidate [R0 SVG v2](../../../assets/reference-candidates/s01e02/riverside-r0-geography-blockout-v2.svg) now supersedes v1 **for visual composition only**: extended matched historical bases, near footing drawn above near-bank foreground, absent deck retained. [Mobile camera configuration](../../../assets/reference-candidates/s01e02/riverside-r0-camera-proof-v1.json) proves static focal coverage for 320/360/390/430 widths, not browser/device acceptance. The original v1 path and no-go graph remains an **authoring candidate**, not implemented runtime collision. From lookout, an explicit `Look across` inspect view must pan back to the aligned missing-deck evidence without moving Milo. See [QA limitations](RENDERED_CAMERA_QA_2026-10-12.md). Production visual reference and owner PASS remain OPEN.
