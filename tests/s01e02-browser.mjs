@@ -54,9 +54,9 @@ try{
  assert.equal(await p.getByText('MARKET LANE →',{exact:true}).count(),0);
  const parent=await p.locator('#parent').innerText();
  assert.ok(parent.includes("doesn't fit Milo's first idea"),'Parent cue now eligible');
- await action(p,'Old stones on both banks');await lines(p);
+ await p.locator('[data-a="fact-stones"]').click();await lines(p);
  assert.equal((await saved(p)).linked,false);
- await action(p,'No bridge deck today');await lines(p);
+ await p.locator('[data-a="fact-gap"]').click();await lines(p);
  assert.equal((await saved(p)).linked,true);
  passed('E02-I02/R01','Gap-first order and unscored old-stones recovery');
  await action(p,'I was wrong about only the fence.');await lines(p);
