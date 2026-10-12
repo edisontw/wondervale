@@ -320,6 +320,39 @@ try{
  assert.equal(await rejectedPage.locator('#world').count(),1);
  pass('E01-FULLSCREEN-03','A rejected fullscreen request silently removes the dead button and keeps E01 visible.','Simulated Chromium permission rejection');
  await rejectedCtx.close();
+ // iPhone Chrome fullscreen error occurred only after tapping Full screen.
+ // iPhone must offer Home Screen app-view guidance, not invoke a rejected native API.
+ const iosCtx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/154.0.0.0 Mobile/15E148 Safari/604.1'});
+ await iosCtx.addInitScript(()=>{
+  Object.defineProperty(document,'fullscreenEnabled',{configurable:true,get:()=>true});
+  document.documentElement.requestFullscreen=()=>Promise.reject(new Error('iOS Fullscreen rejected'));
+ });
+ const iosPage=await iosCtx.newPage();
+ await iosPage.goto(base,{waitUntil:'networkidle'});await iosPage.locator('.brand').waitFor();
+ assert.equal(await iosPage.getByRole('button',{name:'Full screen',exact:true}).count(),0);
+ await iosPage.getByRole('button',{name:'App view',exact:true}).click();
+ const guide=iosPage.getByRole('dialog',{name:'Play without browser bars'});
+ assert.equal(await guide.count(),1);
+ assert.match(await guide.innerText(),/Add to Home Screen/);
+ assert.match(await guide.innerText(),/separate saved progress/);
+ await guide.getByRole('button',{name:'Back to adventure'}).click();
+ assert.equal(await iosPage.locator('#world').count(),1);
+ const manifestURL=await iosPage.locator('link[rel="manifest"]').getAttribute('href');
+ assert.equal(manifestURL,'manifest.webmanifest');
+ const manifestResponse=await iosPage.request.get(new URL(manifestURL,base).toString());
+ assert.equal(manifestResponse.status(),200);
+ const installedManifest=await manifestResponse.json();
+ assert.equal(installedManifest.display,'standalone');
+ assert.equal(installedManifest.scope,'./');
+ pass('E01-IOS-APPVIEW-01','iPhone Chrome offers Home Screen standalone instructions and a valid root-scope manifest; no native fullscreen request.','Simulated iPhone Chrome UA on Chromium; real iOS owner test pending');
+ await iosCtx.close();
+ const iosInstalledCtx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 26_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/154.0.0.0 Mobile/15E148 Safari/604.1'});
+ await iosInstalledCtx.addInitScript(()=>Object.defineProperty(navigator,'standalone',{configurable:true,get:()=>true}));
+ const iosInstalledPage=await iosInstalledCtx.newPage();await iosInstalledPage.goto(base,{waitUntil:'networkidle'});
+ assert.equal(await iosInstalledPage.getByRole('button',{name:'App view',exact:true}).count(),0);
+ assert.equal(await iosInstalledPage.locator('#world').count(),1);
+ pass('E01-IOS-APPVIEW-02','Installed iOS standalone app does not show install guide.','Simulated iPhone standalone browser context; real iOS owner test pending');
+ await iosInstalledCtx.close();
  // The new chapter action must be reachable immediately, before long Chronicle content.
  const {c:handoffCtx,p:handoffPage}=await context({mobile:true,stage:'later'});
  for(const [width,height] of [[390,844],[667,375]]){

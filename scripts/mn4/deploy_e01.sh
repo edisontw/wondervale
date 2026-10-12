@@ -30,7 +30,7 @@ python3 - "$archive" "$stage" "$old" <<'PY'
 import hashlib,json,pathlib,posixpath,re,shutil,sys,tarfile
 archive, stage, current=sys.argv[1:]
 stage,current=pathlib.Path(stage),pathlib.Path(current)
-e01={"index.html","sw.js","app/main.mjs","app/style.css","engine/episode.mjs","public/episode.json","public/art/glyph.svg","public/art/town-square-master.webp","public/art/trio-sprites.webp","public/art/noticeboard-reference.webp","public/art/marker-reference.webp","public/art/steward.webp"}
+e01={"index.html","manifest.webmanifest","sw.js","app/main.mjs","app/style.css","engine/episode.mjs","public/episode.json","public/art/glyph.svg","public/art/town-square-master.webp","public/art/trio-sprites.webp","public/art/noticeboard-reference.webp","public/art/marker-reference.webp","public/art/steward.webp"}
 seen=set()
 with tarfile.open(archive,"r:gz") as tar:
  for member in tar:
@@ -116,6 +116,7 @@ verify_live() {
   rm -f "$tmp"
 }
 verify_live index.html "$newbase/index.html"
+verify_live manifest.webmanifest "$newbase/manifest.webmanifest"
 verify_live app/main.mjs "$newbase/app/main.mjs"
 verify_live public/episode.json "$newbase/public/episode.json"
 verify_live e02/index.html "$old/e02/index.html"
