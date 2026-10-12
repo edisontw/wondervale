@@ -8,6 +8,9 @@ on:
       - 'tests/s01e02.test.mjs'
       - 'tests/s01e02-browser.mjs'
       - 'scripts/package_e02.py'
+      - 'content/season-01/s01e02/**'
+      - 'docs/WORK_SEQUENCE.md'
+      - 'README.md'
       - '.github/workflows/wondervale-e02-preview.yml'
   push:
     branches: [main]
