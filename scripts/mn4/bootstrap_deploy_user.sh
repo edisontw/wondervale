@@ -23,6 +23,12 @@ import hashlib, json, pathlib, sys
 root=pathlib.Path(sys.argv[1])
 manifest=json.loads((root/"RELEASE_INTEGRITY.json").read_text())
 assert len(manifest["files"])>=12
+accepted="20261010-e01-opening-spacing1"
+assert manifest.get("build")==accepted, (
+    f"Current server E01 build {manifest.get('build')!r} is not the last owner-accepted {accepted!r}; "
+    "deploy the accepted E01 release first, then rerun bootstrap"
+)
+assert json.loads((root/"public/episode.json").read_text())["buildId"]==accepted
 for item in manifest["files"]:
     data=(root/item["path"]).read_bytes()
     assert len(data)==item["bytes"], item["path"]
