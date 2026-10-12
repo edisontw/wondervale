@@ -23,7 +23,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: wondervale-mn4-e02-preview
+  group: ${{ github.event_name == 'pull_request' && 'wondervale-e01-pr-validation' || 'wondervale-mn4-e02-preview' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   verify-and-package-e01:
