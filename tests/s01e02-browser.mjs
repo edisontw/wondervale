@@ -80,7 +80,7 @@ try{
  await ctx.close();
  for(const width of [320,360,390,430]){
   const {ctx:c,p:page}=await open({width,height:width<390?700:844,authorized:true,touch:true});
-  await action(page,'Begin Riverside adventure');await lines(page);
+  await page.getByRole('button',{name:'Begin Riverside adventure'}).tap();await lines(page);
   const labels=await page.locator('.actor-label').evaluateAll(els=>els.map(el=>({name:el.textContent,rect:el.getBoundingClientRect().toJSON()})));
   assert.equal(labels.length,3);
   for(let i=0;i<labels.length;i++)for(let j=i+1;j<labels.length;j++){
@@ -90,7 +90,7 @@ try{
   }
   await page.screenshot({path:'test-results/e02-phone-'+width+'.png',fullPage:true});
   assert.equal(await page.getByRole('button',{name:'Child / Parent View'}).count(),1);
-  await action(page,'Child / Parent View');
+  await page.getByRole('button',{name:'Child / Parent View'}).tap();
   assert.ok(await page.locator('#parent').evaluate(el=>getComputedStyle(el).display!=='none'));
   await c.close();
  }
