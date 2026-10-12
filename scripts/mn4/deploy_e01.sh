@@ -70,6 +70,9 @@ if [[ ! -e "$newbase" ]]; then
 else
   cmp -s "$stage/RELEASE_INTEGRITY.json" "$newbase/RELEASE_INTEGRITY.json"
 fi
+# mktemp source dirs are 0700; immutable release roots must be traversable
+# by the unprivileged HTTPS web server, unlike private staging dirs.
+chmod 0755 "$newbase"
 cp -a "$newbase/." "$candidate/"
 python3 - "$old" "$candidate" <<'PY'
 import hashlib,json,pathlib,shutil,sys
@@ -95,7 +98,8 @@ else
   cmp -s "$candidate/RELEASE_INTEGRITY.json" "$newcurrent/RELEASE_INTEGRITY.json"
   cmp -s "$candidate/E02_RELEASE_INTEGRITY.json" "$newcurrent/E02_RELEASE_INTEGRITY.json"
 fi
-ln -s "$newcurrent" "$root/.current-e01-next-$sha-$$"
+chmod 0755 "$newcurrent"
+ln -s "$newcurrent" "$root/.current-e01-next-$sha-$"
 mv -Tf "$root/.current-e01-next-$sha-$$" "$root/current"
 changed=1
 site=https://wondervale.pepepow.net
