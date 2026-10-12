@@ -99,8 +99,9 @@ else
   cmp -s "$candidate/E02_RELEASE_INTEGRITY.json" "$newcurrent/E02_RELEASE_INTEGRITY.json"
 fi
 chmod 0755 "$newcurrent"
-ln -s "$newcurrent" "$root/.current-e01-next-$sha-$"
-mv -Tf "$root/.current-e01-next-$sha-$$" "$root/current"
+current_next="$root/.current-e01-next-$sha-$"
+ln -s "$newcurrent" "$current_next"
+mv -Tf "$current_next" "$root/current"
 changed=1
 site=https://wondervale.pepepow.net
 verify_live() {
