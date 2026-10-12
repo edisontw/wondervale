@@ -1,4 +1,4 @@
-# S01E02 approved Riverside raster references — MEDIA UPLOAD PENDING
+# S01E02 approved Riverside raster references — MEDIA UPLOADED
 
 The owner has **PASSed** three colorful Riverside scene images (R0 main, R1 old stones, R2 lookout) on 2026-10-12. This directory intentionally contains **only a pending manifest**, not the actual PNG data: the original PNG bytes have been preserved in the user-visible download ZIP in the conversation.
 
@@ -13,3 +13,7 @@ The owner has **PASSed** three colorful Riverside scene images (R0 main, R1 old 
 Files named and hashed in [PRODUCTION_INTAKE_PENDING.json](PRODUCTION_INTAKE_PENDING.json).
 
 Only if actual verification succeeds should manifest status be changed to “uploaded verified.” The R0 v2 SVG movement/collision graph and script remain the gameplay source of truth; R0/R1/R2 are separately framed artistic images, not guaranteed coordinate-identical photographs.
+
+## Upload verified on current GitHub main (2026-10-12)
+
+All three PNG originals and three WebPs have been uploaded and **GitHub blob IDs plus byte sizes match** the intake manifest as of `038f9f48a53feaf4ee7a72d2fd0bd490f0de0a2f`. The upload steps above remain **historical recovery instructions only**. Do not upload a second copy. The reusable `python3 scripts/verify_episode_media.py` and lightweight GitHub art CI perform further byte/format/dimension verification. Continue with E02 playable integration after validation.
