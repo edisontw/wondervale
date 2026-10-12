@@ -24,12 +24,12 @@ for row in rows:
         continue
     b = f.read_bytes()
     h = hashlib.sha256(b).hexdigest()
-    git_blob = hashlib.sha1(f"blob {len(b)}\\0".encode() + b).hexdigest()
+    git_blob = hashlib.sha1(f"blob {len(b)}\0".encode() + b).hexdigest()
     if len(b) != row["bytes"] or h != row["sha256"] or git_blob != row["git_blob"]:
         failures.append(f"HASH_OR_SIZE_MISMATCH {row['path']}")
         continue
     if row["format"] == "png":
-        if b[:8] != b"\\x89PNG\\r\\n\\x1a\\n":
+        if b[:8] != b"\x89PNG\r\n\x1a\n":
             failures.append(f"BAD_PNG {row['path']}")
             continue
         if list(struct.unpack(">II", b[16:24])) != row["dimensions"]:
