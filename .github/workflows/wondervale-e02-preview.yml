@@ -1,0 +1,59 @@
+name: Wondervale E02 playable slice acceptance
+on:
+  pull_request:
+    paths:
+      - 'e02/**'
+      - 'engine/s01e02.mjs'
+      - 'public/s01e02.json'
+      - 'tests/s01e02.test.mjs'
+      - 'tests/s01e02-browser.mjs'
+      - 'scripts/package_e02.py'
+      - '.github/workflows/wondervale-e02-preview.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'e02/**'
+      - 'engine/s01e02.mjs'
+      - 'public/s01e02.json'
+      - 'tests/s01e02.test.mjs'
+      - 'tests/s01e02-browser.mjs'
+      - 'scripts/package_e02.py'
+      - '.github/workflows/wondervale-e02-preview.yml'
+permissions:
+  contents: read
+jobs:
+  e02:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify original E01 and E02 images
+        run: python3 scripts/verify_episode_media.py
+      - name: E02 episode state and story tests
+        run: node --test tests/s01e02.test.mjs
+      - name: Package separate E02 static preview
+        run: python3 scripts/package_e02.py
+      - name: Install pinned browser test dependency
+        run: npm install --ignore-scripts --package-lock=false
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run actual E02 desktop and mobile browser flow
+        run: |
+          python3 -m http.server 4173 --directory . > /tmp/wondervale-e02-test-server.log 2>&1 &
+          node tests/s01e02-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e02-vertical-slice-evidence
+          path: test-results/e02-*
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: wondervale-e02-preview
+          path: dist/wondervale-e02-preview/
