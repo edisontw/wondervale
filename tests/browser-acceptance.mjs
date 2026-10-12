@@ -289,6 +289,7 @@ try{
  // allowed, otherwise show a non-blocking fallback, never lose the episode.
  const {c:fullscreenCtx,p:fullscreenPage}=await context({stage:'square'});
  await click(fullscreenPage,'Full screen');
+ await fullscreenPage.waitForFunction(()=>!!document.fullscreenElement||!!document.querySelector('.fullscreen-notice'),null,{timeout:5000});
  const fs=await fullscreenPage.evaluate(()=>({active:!!document.fullscreenElement,notice:!!document.querySelector('.fullscreen-notice'),stage:!!document.querySelector('#world')}));
  assert.ok(fs.stage&&(fs.active||fs.notice),'Fullscreen must activate or fail gracefully: '+JSON.stringify(fs));
  if(fs.active){
