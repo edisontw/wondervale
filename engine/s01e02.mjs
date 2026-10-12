@@ -92,12 +92,20 @@ export function dispatch(before,action){
  }
  return s;
 }
-export function payload(s){if(s.mode==='historical_replay')return null;const {queue,after,...data}=s;return {...data,queue:[],after:null};}
+export function payload(s){
+ if(s.mode==='historical_replay')return null;
+ // Preserve unplayed dialogue and its phase transition through reload.
+ return structuredClone(s);
+}
 export function restore(raw){
  if(!raw||raw.schema!==1||raw.version!==VERSION||!Array.isArray(raw.ledger)||!Array.isArray(raw.observed)||!(raw.position in places))return fresh();
- const s={...fresh(),...structuredClone(raw),queue:[],after:null};
+ const s={...fresh(),...structuredClone(raw)};
+ const allLines=new Set(Object.values(speech).flat());
+ s.queue=Array.isArray(s.queue)?s.queue.filter(x=>allLines.has(x)).slice(0,100):[];
+ s.after=['explore','revision','market','chronicle'].includes(s.after)?s.after:null;
+ s.mode='first_play';
  s.ledger=unique(s.ledger.filter(x=>Object.values(EVENTS).includes(x)));
  s.observed=unique(s.observed.filter(x=>['stones','gap'].includes(x)));
- if(s.phase==='intro'){enqueue(s,speech.intro,'explore',true);}
+ if(s.phase==='intro'&&!s.queue.length){s.played=[];enqueue(s,speech.intro,'explore',true);}
  return s;
 }
