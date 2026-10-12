@@ -87,7 +87,7 @@ jobs:
   deploy-mn4:
     needs: verify-and-package
     # Safe default: verification works before MN4 secrets and the host are configured.
-    if: ${{ github.event_name != 'pull_request' && vars.MN4_DEPLOY_ENABLED == 'true' }}
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.MN4_DEPLOY_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
