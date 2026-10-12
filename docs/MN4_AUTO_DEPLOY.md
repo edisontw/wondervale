@@ -132,3 +132,9 @@ To suspend automatic deploy **without removing the workflow**, change `MN4_DEPLO
 - **Completed:** accepted E01 baseline verified and frozen, MN4 bootstrap, GitHub secrets, pinned host key, repository variable, initial end-to-end E02 deployment and local HTTPS smoke PASS in run #38256457984.
 - **Open:** owner real-browser/mobile E02 gameplay and responsive/scene QA; E01-to-E02 progress unlock behavior on the same origin; cleanup of obsolete CI SSH keys and temporary operator secrets/authentication.
 - **Future E01 changes:** require explicit new baseline approval; not automatically updated by E02 CI.
+
+## 2026-10-12 explicit E01 baseline refresh (later, supersedes earlier "unchanged E01" status)
+
+The E01 baseline **was intentionally refreshed** under separate owner direction after E02 initially went live. [E01 deployment run #38271380184](https://github.com/edisontw/wondervale/actions/runs/38271380184) PASS from `de8ab925ff99a8af41fd454e7a534f7f1cf840a8`. E01 public root now serves build `20261012-e01-landscape-fullscreen1`; the then-live E02's nine files were byte-verified, and both routes passed local HTTPS smoke. The E01 deployment script atomically promotes a new E01+E02 composite and updates `/srv/wondervale/e01-baseline` only after successful smoke; a failed attempt rolls back. Subsequent E02-only releases must preserve this **new** E01 baseline, not copy the historical 2026-10-10 version. Earlier references to "never update E01" describe E02-only work, not this explicitly approved E01 promotion.
+
+The E01 deployment's two corrected failure modes are documented in [E01 full-screen deployment evidence](E01_FULLSCREEN_LANDSCAPE_2026-10-12.md): inherited 0700 release directory causing HTTPS 403; mismatch between temporary symlink path using `$` and `$$`. Keep atomic switch path in a single shell variable and directory traverse permissions testable via live HTTPS. Real device/family QA is still not established by automated checks.

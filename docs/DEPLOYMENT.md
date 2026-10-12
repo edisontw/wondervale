@@ -81,3 +81,9 @@ Before announcing a public URL:
 - privacy information exists for adults;
 - parent-facing explanation is present;
 - at least one complete validated playable episode is available.
+
+## E01 landscape/fullscreen baseline promotion (2026-10-12)
+
+The one-time verified refresh of the E01 baseline is **deployed** from source `de8ab925ff99a8af41fd454e7a534f7f1cf840a8`: [Actions run #38271380184](https://github.com/edisontw/wondervale/actions/runs/38271380184) has both verification and remote deployment PASS. Build `20261012-e01-landscape-fullscreen1` replaced the earlier accepted E01 at the same root URL while preserving the live E02 under `/e02/` and the origin-scoped E01 unlock contract. Immutable composite release, hash readback, atomic symlink update, `/srv/wondervale/e01-baseline` promotion, and E01/E02 local HTTPS compare completed. E02's separate [run #38271380228](https://github.com/edisontw/wondervale/actions/runs/38271380228) PASS preceded the E01 promotion. This is a deployment PASS, **not** owner/device/family visual PASS.
+
+The deployed automation lives at `.github/workflows/wondervale-mn4-e01-refresh.yml` and `scripts/mn4/deploy_e01.sh`. Two pre-success failures (Nginx 403 from 0700 root, and temp symlink `$`/`$$` mismatch) are recorded in [E01 release incident notes](E01_FULLSCREEN_LANDSCAPE_2026-10-12.md). For future E02-only deployments the protected E01 baseline is now the refreshed version; do not silently revert to the old 2026-10-10 bytes.
