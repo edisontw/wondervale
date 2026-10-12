@@ -294,6 +294,7 @@ try{
  assert.ok(fs.stage&&(fs.active||fs.notice),'Fullscreen must activate or fail gracefully: '+JSON.stringify(fs));
  if(fs.active){
   await click(fullscreenPage,'Exit full screen');
+  await fullscreenPage.waitForFunction(()=>!document.fullscreenElement,null,{timeout:5000});
   assert.equal(await fullscreenPage.evaluate(()=>!!document.fullscreenElement),false);
  }
  pass('E01-FULLSCREEN-01','Browser fullscreen toggles or falls back without hiding the story.');
