@@ -285,6 +285,18 @@ try{
  }
  pass('E01-LANDSCAPE-01','Landscape 667/844/932 touch view with complete Square and side dialogue.','Chromium emulated landscape touch');
  await landCtx.close();
+ // Explicit fullscreen control: request a full-screen browser stage when
+ // allowed, otherwise show a non-blocking fallback, never lose the episode.
+ const {c:fullscreenCtx,p:fullscreenPage}=await context({stage:'square'});
+ await click(fullscreenPage,'Full screen');
+ const fs=await fullscreenPage.evaluate(()=>({active:!!document.fullscreenElement,notice:!!document.querySelector('.fullscreen-notice'),stage:!!document.querySelector('#world')}));
+ assert.ok(fs.stage&&(fs.active||fs.notice),'Fullscreen must activate or fail gracefully: '+JSON.stringify(fs));
+ if(fs.active){
+  await click(fullscreenPage,'Exit full screen');
+  assert.equal(await fullscreenPage.evaluate(()=>!!document.fullscreenElement),false);
+ }
+ pass('E01-FULLSCREEN-01','Browser fullscreen toggles or falls back without hiding the story.');
+ await fullscreenCtx.close();
  const {c:hotspotsCtx,p:hotspotsPage}=await context({stage:'square'});
  const marks=await hotspotsPage.locator('#world button.spot').evaluateAll(btns=>btns.map(b=>{
   const d=b.getBoundingClientRect(),icon=b.querySelector('.spot-symbol'),p=icon?.getBoundingClientRect();
