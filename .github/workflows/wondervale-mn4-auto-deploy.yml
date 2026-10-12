@@ -1,0 +1,129 @@
+name: Wondervale MN4 E02 continuous preview deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'e02/**'
+      - 'engine/s01e02.mjs'
+      - 'public/s01e02.json'
+      - 'public/art/s01e02-riverside-*.webp'
+      - 'public/art/trio-sprites.webp'
+      - 'assets/production-candidates/s01e02/**'
+      - 'scripts/package_e02.py'
+      - 'scripts/verify_episode_media.py'
+      - 'scripts/mn4/**'
+      - '.github/workflows/wondervale-mn4-auto-deploy.yml'
+  pull_request:
+    paths:
+      - 'e02/**'
+      - 'engine/s01e02.mjs'
+      - 'public/s01e02.json'
+      - 'public/art/s01e02-riverside-*.webp'
+      - 'scripts/mn4/**'
+      - 'scripts/package_e02.py'
+      - '.github/workflows/wondervale-mn4-auto-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never race two symlink flips; latest pending run wins.
+concurrency:
+  group: wondervale-mn4-e02-preview
+  # During PR iteration only, cancel outdated validation. Never interrupt a main deployment.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  verify-and-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Shell syntax check for MN4 deploy and bootstrap
+        run: bash -n scripts/mn4/bootstrap_deploy_user.sh scripts/mn4/deploy_e02.sh
+      - name: Verify both episodes' original and derived media
+        run: python3 scripts/verify_episode_media.py
+      - name: Guard E01 source and static release contract
+        run: |
+          npm run build
+          npm test
+          python3 scripts/package_static.py
+      - name: Test E02 story, route and state
+        run: node --test tests/s01e02.test.mjs
+      - name: Package isolated E02 static preview
+        run: python3 scripts/package_e02.py
+      - name: Install pinned Playwright dependency
+        run: npm install --ignore-scripts --package-lock=false
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run real E02 desktop/mobile browser acceptance
+        run: |
+          python3 -m http.server 4173 --directory . > /tmp/wondervale-mn4-ci-server.log 2>&1 &
+          node tests/s01e02-browser.mjs
+      - name: Package E02-only files for SSH transfer
+        run: |
+          tar -czf "dist/wondervale-e02-${GITHUB_SHA}.tar.gz" -C dist/wondervale-e02-preview .
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: wondervale-mn4-e02-package
+          path: dist/wondervale-e02-*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wondervale-mn4-e02-browser-evidence
+          path: test-results/e02-*
+          if-no-files-found: ignore
+          retention-days: 14
+
+  deploy-mn4:
+    needs: verify-and-package
+    # Safe default: verification works before MN4 secrets and the host are configured.
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.MN4_DEPLOY_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: wondervale-mn4-e02-package
+          path: dist
+      - name: Authenticate with pinned MN4 SSH host key and deploy
+        shell: bash
+        env:
+          MN4_SSH_HOST: ${{ secrets.MN4_SSH_HOST }}
+          MN4_SSH_USER: ${{ secrets.MN4_SSH_USER }}
+          MN4_SSH_PORT: ${{ secrets.MN4_SSH_PORT }}
+          MN4_SSH_KEY: ${{ secrets.MN4_SSH_KEY }}
+          MN4_SSH_KNOWN_HOSTS: ${{ secrets.MN4_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          : "${MN4_SSH_HOST:?Missing MN4_SSH_HOST}"
+          : "${MN4_SSH_USER:?Missing MN4_SSH_USER}"
+          : "${MN4_SSH_KEY:?Missing MN4_SSH_KEY}"
+          : "${MN4_SSH_KNOWN_HOSTS:?Missing MN4_SSH_KNOWN_HOSTS}"
+          port="${MN4_SSH_PORT:-22}"
+          [[ "$port" =~ ^[0-9]+$ ]] || exit 2
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s\n' "$MN4_SSH_KEY" > "$RUNNER_TEMP/mn4-deploy-key"
+          printf '%s\n' "$MN4_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$RUNNER_TEMP/mn4-deploy-key" "$HOME/.ssh/known_hosts"
+          key="$RUNNER_TEMP/mn4-deploy-key"
+          userhost="$MN4_SSH_USER@$MN4_SSH_HOST"
+          archive="dist/wondervale-e02-${GITHUB_SHA}.tar.gz"
+          test -f "$archive"
+          scp -i "$key" -P "$port" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=12 \
+            "$archive" "$userhost:/srv/wondervale/incoming/e02-${GITHUB_SHA}.tar.gz"
+          ssh -i "$key" -p "$port" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=12 \
+            "$userhost" "bash -s -- ${GITHUB_SHA}" < scripts/mn4/deploy_e02.sh
+          echo "Deployed E02 from ${GITHUB_SHA}: https://wondervale.pepepow.net/e02/"

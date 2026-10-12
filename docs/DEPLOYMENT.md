@@ -1,5 +1,9 @@
 # Deployment Baseline
 
+## Continuous preview deployment (E02)
+
+The GitHub Actions automation that packages and deploys the isolated E02 preview alongside the accepted E01 site is specified in [MN4 automatic deployment](MN4_AUTO_DEPLOY.md). It is **opt-in**: deployment stays disabled until a dedicated SSH key, a pinned MN4 host key, and the repository variable `MN4_DEPLOY_ENABLED=true` are configured by the operator. A build or CI PASS is not a deployed-site PASS. The E01 baseline is frozen byte-for-byte during E02 deployments, with immutable releases and automatic HTTPS-smoke rollback.
+
 ## Initial hosting
 
 Wondervale will initially run on the existing **MN4** host while usage is low.
