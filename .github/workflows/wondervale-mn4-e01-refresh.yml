@@ -1,0 +1,109 @@
+name: Wondervale MN4 E01 fullscreen release
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - 'engine/episode.mjs'
+      - 'public/episode.json'
+      - 'index.html'
+      - 'sw.js'
+      - 'scripts/compile_episode.py'
+      - 'scripts/package_static.py'
+      - 'scripts/mn4/deploy_e01.sh'
+      - '.github/workflows/wondervale-mn4-e01-refresh.yml'
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'public/episode.json'
+      - 'sw.js'
+      - 'scripts/mn4/deploy_e01.sh'
+      - '.github/workflows/wondervale-mn4-e01-refresh.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: wondervale-mn4-e02-preview
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  verify-and-package-e01:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax, media and episode tests
+        run: |
+          bash -n scripts/mn4/deploy_e01.sh
+          python3 scripts/verify_episode_media.py
+          npm run build
+          npm test
+          node --test tests/s01e02.test.mjs
+          python3 scripts/package_static.py
+          python3 scripts/package_e02.py
+      - name: Install Chromium and run E01 browser acceptance
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+          python3 -m http.server 4173 --directory dist/wondervale-e01-static > /tmp/wondervale-e01-ci.log 2>&1 &
+          npm run test:browser
+      - name: Package immutable E01 artifact
+        run: tar -czf "dist/wondervale-e01-$GITHUB_SHA.tar.gz" -C dist/wondervale-e01-static .
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: wondervale-mn4-e01-package
+          path: dist/wondervale-e01-*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: wondervale-mn4-e01-browser-evidence
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 14
+  deploy-e01-with-e02-preserved:
+    needs: verify-and-package-e01
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.MN4_DEPLOY_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: wondervale-mn4-e01-package
+          path: dist
+      - name: Deploy E01 with pinned MN4 SSH credentials
+        shell: bash
+        env:
+          MN4_SSH_HOST: ${{ secrets.MN4_SSH_HOST }}
+          MN4_SSH_USER: ${{ secrets.MN4_SSH_USER }}
+          MN4_SSH_PORT: ${{ secrets.MN4_SSH_PORT }}
+          MN4_SSH_KEY: ${{ secrets.MN4_SSH_KEY }}
+          MN4_SSH_KNOWN_HOSTS: ${{ secrets.MN4_SSH_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          : "$MN4_SSH_HOST" "$MN4_SSH_USER" "$MN4_SSH_KEY" "$MN4_SSH_KNOWN_HOSTS"
+          test -n "$MN4_SSH_HOST" && test -n "$MN4_SSH_USER"
+          test -n "$MN4_SSH_KEY" && test -n "$MN4_SSH_KNOWN_HOSTS"
+          port="$MN4_SSH_PORT"
+          port="$(printf %s "$port" | sed 's/^$/22/')"
+          [[ "$port" =~ ^[0-9]+$ ]] || exit 2
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          printf '%s\n' "$MN4_SSH_KEY" > "$RUNNER_TEMP/mn4-e01-key"
+          printf '%s\n' "$MN4_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$RUNNER_TEMP/mn4-e01-key" "$HOME/.ssh/known_hosts"
+          key="$RUNNER_TEMP/mn4-e01-key"
+          host="$MN4_SSH_USER@$MN4_SSH_HOST"
+          archive="dist/wondervale-e01-$GITHUB_SHA.tar.gz"
+          test -f "$archive"
+          scp -i "$key" -P "$port" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=12 "$archive" "$host:/srv/wondervale/incoming/e01-$GITHUB_SHA.tar.gz"
+          ssh -i "$key" -p "$port" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=12 "$host" "bash -s -- $GITHUB_SHA" < scripts/mn4/deploy_e01.sh
+          echo "E01 and E02 HTTPS composite promoted at https://wondervale.pepepow.net/"
