@@ -1,0 +1,116 @@
+{
+  "schema": "wondervale-e02-original-media-intake-v1",
+  "episode_id": "s01e02",
+  "owner_visual_pass": "2026-10-12",
+  "status": "owner_visual_pass_original_png_files_NOT_YET_UPLOADED_TO_GITHUB",
+  "starting_main_sha": "b85c4c2e6c472a05dbc4824cf8426ed04448b998",
+  "approved_compositions": {
+    "r0": "main Riverside promenade; closed old path and public overlook",
+    "r1": "R1 historical old path and stone observation view",
+    "r2": "R2 protected lookout, river gap inspection view"
+  },
+  "source": "Three exact ChatGPT image generation PNGs, located in the current conversation; original-bytes copies and WebP Q83 separately bundled for manual GitHub import.",
+  "assets": [
+    {
+      "id": "r0",
+      "role": "immutable_original",
+      "path": "assets/production-candidates/s01e02/riverside-r0-original.png",
+      "bytes": 3080156,
+      "sha256": "02a38921e9f75ca59edd68f4ee54d1541398492cd5eef7ae6425d3115f5bf83a",
+      "git_blob": "4dd1af5044e3a2cc70b59870713e5ae3b20bbdeb",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "format": "png",
+      "alpha": false
+    },
+    {
+      "id": "r1",
+      "role": "immutable_original",
+      "path": "assets/production-candidates/s01e02/riverside-r1-original.png",
+      "bytes": 3171010,
+      "sha256": "d05f561458188f26b4dc30eb49cdfc1154d266528b53305fec85642cdd643e36",
+      "git_blob": "0d4e2d72b501a6239c40109fedc96aa752545afb",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "format": "png",
+      "alpha": false
+    },
+    {
+      "id": "r2",
+      "role": "immutable_original",
+      "path": "assets/production-candidates/s01e02/riverside-r2-original.png",
+      "bytes": 3160394,
+      "sha256": "b8d534ac2883833bea6421cc9010a41373e800082d960696c8178f0e6c0c6193",
+      "git_blob": "d230710c4986e292cda4fec1494fb36ded9b5ecb",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "format": "png",
+      "alpha": false
+    },
+    {
+      "id": "r0",
+      "role": "runtime_derivative_pending_approval",
+      "path": "public/art/s01e02-riverside-r0.webp",
+      "bytes": 407288,
+      "sha256": "e07e9e05940ca3ed729ec1f77cf350517a17c20ad7dbd580e65b8b5042938409",
+      "git_blob": "551c24a88bca30d1e804efd49f6ff2447ff5edef",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "format": "webp",
+      "alpha": false,
+      "quality": 83
+    },
+    {
+      "id": "r1",
+      "role": "runtime_derivative_pending_approval",
+      "path": "public/art/s01e02-riverside-r1.webp",
+      "bytes": 423958,
+      "sha256": "3d32fdc86eda3c85520cb74a4cc2290156fbd1031ff6ed430bd921321d2c96cf",
+      "git_blob": "4e51cf22c2e4cf8cda733323de953bb889f9109d",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "format": "webp",
+      "alpha": false,
+      "quality": 83
+    },
+    {
+      "id": "r2",
+      "role": "runtime_derivative_pending_approval",
+      "path": "public/art/s01e02-riverside-r2.webp",
+      "bytes": 429262,
+      "sha256": "facd0219ed267b4cf07377aef468fb5c6ea802552f59bf9a78f51959aa36c880",
+      "git_blob": "c96d260e58b9294f6edd5289ccc88cacf2803afe",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "format": "webp",
+      "alpha": false,
+      "quality": 83
+    }
+  ],
+  "critical_constraints": [
+    "Owner PASS accepts image look and deployment candidacy; it does not override approved same-bank walkable graph, closed old crossing, or require physically false bridge traversal.",
+    "Three drawings are distinct illustrations, not geometrically identical cameras; use as separate story views while keeping gameplay movement on separately authored R0 v2 geometry.",
+    "Do not consider two bridge footings in a single rendered composition to be evidence of a safe current bridge; show missing deck explicitly in R2 dialogue and image/state.",
+    "C01 original trio sprites and portrait names are separate actor layers. No characters need regenerating.",
+    "Market Lane text is not permitted in R0/R1/R2. It remains a separately gated R4 reveal after reasoned correction.",
+    "All six listed binary assets require exact Git readback/CRC and SHA validation before release packaging."
+  ],
+  "pending": [
+    "Upload three PNG source originals and three WebP candidates from user-visible ZIP to exactly matching repository paths, preferably in one media PR.",
+    "Perform readback via GitHub API of size/blob and full-byte sha256 once in an environment with binary access.",
+    "Reconcile visual camera framing with real E02 scene R0/R1/R2 and C01 actor identity, feet, labels and dialog dock.",
+    "Execute E02 real runtime tests; E01 remains owner-PASS and untouched."
+  ]
+}

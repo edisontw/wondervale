@@ -242,3 +242,7 @@ Avoid parallelizing two tasks that both need to decide the same underlying fact.
 ## 2026-10-08 focused checkpoint
 
 Owner passed V1 references and delegated ordinary production/technical choices. C01 remains identity authority; the recovered turnaround is approved support. First playable E01 is assembled from locked 121-line source, approved images and two original ChatGPT generated transparent actor candidates. Continue from runtime QA/release packaging, then recorded media and family acceptance; do not restart approved planning. See E01_RUNTIME_QA_2026-10-08.md.
+
+## 2026-10-12 E02 owner PASS checkpoint — after visual art studies
+
+The owner explicitly **PASSed three new full-resolution Riverside illustrations** (R0 main, R1 old path and R2 lookout). [Accepted image roles and technical limits](../content/season-01/s01e02/OWNER_APPROVED_RIVERSIDE_ART_2026-10-12.md); [byte-exact PNG and WebP upload manifest](../assets/production-candidates/s01e02/PRODUCTION_INTAKE_PENDING.json). **Creative selection is locked; do not continue a loop of new concept images for trivial discrepancies.** Original images and runtime WebP derivatives are prepared as a downloadable bundle but still **await binary transfer to GitHub**. The existing E02 physical topology, narrative/EFL gates and R4 spoiler protection remain unchanged. Next focused task: actual six-file upload with integrity readback, then a minimal E02 game scene with approved C01 separate actors, real phones, E02 tests and E01 baseline. Never report a visual PASS as E02 runtime PASS.
