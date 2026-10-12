@@ -1,6 +1,6 @@
 # MN4 automatic E02 preview deployment (GitHub Actions)
 
-Status: implementation staged; **deployment is disabled until the MN4 SSH account, GitHub secrets, and opt-in repository variable are configured**. This is an E02 preview deployment contract, **not** owner/gameplay/device/family acceptance. Do not report an actual MN4 deploy without a successful deployed workflow run and endpoint verification.
+Status: **ACTIVE — first MN4 E02 deployment PASS on 2026-10-12** (GitHub Actions [run #38256457984](https://github.com/edisontw/wondervale/actions/runs/38256457984), source `main` `69ede242e1a2125a43e412016bef2772832389f3`). Both `verify-and-package` and `deploy-mn4` succeeded. Remote logs confirm byte-verified E02, frozen E01 byte identity and local HTTPS smoke checks. This is **not** owner/gameplay/physical-device/family acceptance; real-browser owner review remains open.
 
 ## Purpose and safety boundary
 
@@ -20,6 +20,14 @@ A successful deployment does **not** prove human screen/device/learning acceptan
 
 **E01 freeze is strong:** the first activation captures the *currently installed E01-only* release as a permanent `e01-baseline`. Every E02 release copies that verified baseline and overlays a strict E02 allowlist. It validates that all E01 manifest files remain byte-identical. Do not silently replace `e01-baseline`; an explicitly accepted E01 release change requires a separate, documented baseline-update task.
 
+## First live deployment evidence (2026-10-12)
+
+- **Verified:** [Actions run #38256457984](https://github.com/edisontw/wondervale/actions/runs/38256457984), `workflow_dispatch` against `main` `69ede242e1a2125a43e412016bef2772832389f3`; `verify-and-package=success`, `deploy-mn4=success`.
+- **Remote deploy log:** `Verified E02 archive: 9 runtime files`; `Verified frozen E01 build 20261010-e01-opening-spacing1`; `PASS: E01 byte-identical; E02 artifact byte-verified`; `DEPLOYED ... to https://wondervale.pepepow.net/e02/; frozen E01 unchanged`.
+- **Boundary:** the deployment script's local HTTPS checks passed; independent owner device/browser interaction and E02 gameplay acceptance have **not** yet been recorded. E01 is frozen; do not modify its code or baseline for E02.
+- **Failures encountered before PASS:** initially the deploy job was `skipped` because opt-in was not enabled; next strict host-key validation failed because `MN4_SSH_KNOWN_HOSTS` did not match the target; later `Load key ...: error in libcrypto` indicated malformed `MN4_SSH_KEY` text despite a valid server-side private key. The resolution was to write the unmodified private-key file directly into the Secret using `gh secret set MN4_SSH_KEY --repo edisontw/wondervale < "$HOME/.ssh/wondervale_mn4_ci_v3"`, eliminating multiline clipboard corruption. Avoid repeated key regeneration for this symptom.
+- **Pending security hygiene:** after deployment PASS, revoke exposed/obsolete `wondervale-mn4-ci` and `wondervale-mn4-ci-v2` public keys from `wondervale-deploy` authorized_keys while preserving the verified v3 public key; remove stale copies of private keys and any temporary `gh` authentication no longer needed. This is an **operator action, not yet verified**. Never commit private keys, IP addresses or credentials.
+
 ## One-time MN4 bootstrap
 
 Before making changes, confirm the **currently served E01 build** really is the version the owner has accepted; the deployment record may be older than the owner's latest PASS. The bootstrap intentionally freezes the *server's current bytes*, not whatever is currently on GitHub.
@@ -38,14 +46,14 @@ sudo bash scripts/mn4/bootstrap_deploy_user.sh
 
 The bootstrap requires `/srv/wondervale/current` to be a symlink to an existing E01-only release with a valid integrity manifest. It creates `wondervale-deploy`, `/srv/wondervale/incoming`, an immutable-intent `/srv/wondervale/e01-baseline` symlink, and authorized_keys permissions. It transfers **write ownership only of the Wondervale deployment directories**, not existing E01 files or other MN4 services. It does not alter `current` or reload Nginx.
 
-Configure SSH for the CI user using a **new dedicated Ed25519 key pair** generated locally, not any existing personal/MN4 administrative key. On Windows PowerShell:
+Configure SSH for the CI user using a **new dedicated Ed25519 key pair**, not an existing personal/MN4 administrative key. Windows is **not** required: generate on MN4 under the operator account if preferable and populate the GitHub Actions secret directly from the original file. For an optional Windows PowerShell workflow:
 
 ```powershell
 ssh-keygen -t ed25519 -a 64 -f "$HOME\.ssh\wondervale_mn4_ci" -C "wondervale-mn4-ci"
 Get-Content "$HOME\.ssh\wondervale_mn4_ci.pub"
 ```
 
-On MN4, append the *public* key text to `/home/wondervale-deploy/.ssh/authorized_keys` (no private key should ever reach MN4). Example after replacing the placeholder by the full public key:
+On MN4, append the *public* key text to `/home/wondervale-deploy/.ssh/authorized_keys`. For a key generated on MN4, the private key can be held **temporarily by the operator** until it has been securely transferred to GitHub Secrets and an end-to-end deployment has passed. Never install it under the deploy user's home. Example after replacing the placeholder by the full public key:
 
 ```bash
 echo 'ssh-ed25519 YOUR_NEW_CI_PUBLIC_KEY wondervale-mn4-ci' | sudo tee -a /home/wondervale-deploy/.ssh/authorized_keys >/dev/null
@@ -68,6 +76,18 @@ Add **Actions secrets**:
 | `MN4_SSH_PORT` | SSH port, usually 22 |
 | `MN4_SSH_KEY` | Complete private text from `wondervale_mn4_ci` |
 | `MN4_SSH_KNOWN_HOSTS` | Verified **pinned** SSH host-key line(s), e.g. `hostname ssh-ed25519 ...` |
+
+**Recommended lossless secret setup from MN4 (no Windows needed):**
+
+```bash
+# Run as the operator, with a dedicated unencrypted CI Ed25519 key already created
+# and its public key installed in wondervale-deploy's authorized_keys.
+ssh-keygen -y -f "$HOME/.ssh/wondervale_mn4_ci_v3" >/dev/null
+gh auth login --hostname github.com --web
+gh secret set MN4_SSH_KEY --repo edisontw/wondervale < "$HOME/.ssh/wondervale_mn4_ci_v3"
+```
+
+The file redirection preserves all newlines and avoids the `libcrypto` parse failure from copying multiline key text through a browser. Do not display or paste the private key into chats or GitHub issues. After GitHub Actions deploy **PASS** and the matching public key is confirmed in `authorized_keys`, remove unused old public keys and any locally retained CI private-key copy that is no longer needed; keep the GitHub Secret active. A direct `ssh-keygen -y -f KEY` PASS alone does not prove a Secret's content is intact.
 
 **Host-key verification:** obtain the expected SSH server public-key fingerprint **on MN4** (e.g. `sudo ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub`) and independently compare it with the key exposed to the GitHub runner host and port. You may retrieve the public host key with `ssh-keyscan -p PORT HOST`, but **never trust that output without verifying the fingerprint out of band**. For a nonstandard port, the known_hosts hostname must be bracketed: `[host]:port`.
 
@@ -109,7 +129,6 @@ To suspend automatic deploy **without removing the workflow**, change `MN4_DEPLO
 
 ## Remaining deployment gate
 
-- User/admin: verify actual E01 baseline build, run one-time MN4 bootstrap, configure SSH public/private key and pinned host key, enable GitHub variable.
-- CI: inspect a run at the current HEAD before activation.
-- Runtime: inspect E02 on actual phones and receive owner playable PASS separately.
-- Future E01 changes: require explicit new baseline approval; not automatically updated by E02 CI.
+- **Completed:** accepted E01 baseline verified and frozen, MN4 bootstrap, GitHub secrets, pinned host key, repository variable, initial end-to-end E02 deployment and local HTTPS smoke PASS in run #38256457984.
+- **Open:** owner real-browser/mobile E02 gameplay and responsive/scene QA; E01-to-E02 progress unlock behavior on the same origin; cleanup of obsolete CI SSH keys and temporary operator secrets/authentication.
+- **Future E01 changes:** require explicit new baseline approval; not automatically updated by E02 CI.
