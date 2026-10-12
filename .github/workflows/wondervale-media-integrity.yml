@@ -1,0 +1,33 @@
+name: Wondervale episode media intake integrity
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/production-candidates/**'
+      - 'public/art/**'
+      - 'scripts/verify_episode_media.py'
+      - 'scripts/verify_e02_art_intake.py'
+      - '.github/workflows/wondervale-media-integrity.yml'
+  pull_request:
+    paths:
+      - 'assets/production-candidates/**'
+      - 'public/art/**'
+      - 'scripts/verify_episode_media.py'
+      - 'scripts/verify_e02_art_intake.py'
+      - '.github/workflows/wondervale-media-integrity.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-episode-media:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify all accepted episode image originals and derivatives
+        run: python3 scripts/verify_episode_media.py
