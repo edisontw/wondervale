@@ -710,7 +710,7 @@ try{
  await hc.close();
  pass('UX-06/UX-09','No header Help/Pause across stages; Listen audio control replays without changing progress.');
  const {c:solo,p:solop}=await context({stage:'map'});await click(solop,'Look at the shape');assert.equal(await solop.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-FINN-004');await drain(solop);assert.equal(await solop.locator('.child input,.child textarea').count(),0);assert.equal(await solop.getByRole('button',{name:"Maybe it's a treasure map!",exact:true}).count(),0);pass('UX-10','Solo observation receives approved support without response input, scoring or guessed interpretation.');await solo.close();
- const {c:motor,p:motorp}=await context({stage:'square'});await motorp.getByLabel('Single-action assistance').check();assert.equal(await motorp.evaluate(key=>JSON.parse(localStorage.getItem(key)).preferences.motor,KEY),true);await finishPath(motorp);pass('UX-05-MOTOR','Motor assistance enabled: deliberate single-action travel, comparison and clean complete E01.');await motor.close();
+ const {c:motor,p:motorp}=await context({stage:'square'});await click(motorp,'Options');await motorp.getByLabel('Single-action assistance').check();await click(motorp,'Back to adventure');assert.equal(await motorp.evaluate(key=>JSON.parse(localStorage.getItem(key)).preferences.motor,KEY),true);await finishPath(motorp);pass('UX-05-MOTOR','Motor assistance enabled: deliberate single-action travel, comparison and clean complete E01.');await motor.close();
  const {c:wc,p:wp}=await context({motion:true});
  await click(wp,'Begin');await drain(wp);await click(wp,'Noticeboard');
  await wp.getByRole('button',{name:'Help hold the paper.',exact:true}).waitFor();
