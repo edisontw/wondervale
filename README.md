@@ -52,7 +52,7 @@ World/character state is derived from an event/progress ledger rather than being
 3. Season 1 learning weave — **approved**
 4. Episode Production Brief format — **approved**
 5. E01 full vertical slice — **in progress: V1 references owner-approved; first playable static E01 assembled; browser acceptance and production media tracked below**
-6. E02–E04 connected MVP
+6. E02–E04 connected MVP — **E02 engineering preview created at `/e02/`**; dedicated E02 CI/browser gates, owner gameplay/device QA and MN4 deployment remain separate
 7. Season 1 production
 
 See [Work Sequence](docs/WORK_SEQUENCE.md), the reusable [four-gate episode/media fast lane](docs/EPISODE_PRODUCTION_FAST_LANE.md), and the [installable Wondervale ChatGPT Skill](skills/wondervale-episode-fast-lane/README.md).
@@ -108,3 +108,5 @@ Previous baseline: **E01 vertical slice in progress.** Core trio, Season 1 story
 ## First playable E01
 
 Run `npm run build`, then `python3 scripts/package_static.py` to produce the runtime-only static release. The first playable S01E01 is available for HTTPS preview on MN4 at `https://wondervale.pepepow.net/`. Owner subsequently reported PASS of build `20261010-e01-opening-spacing1` (PR #42 source SHA `4d94b8f0f1b552f598a3396402eea9f77d86e6bb`); **the current public-origin build has not been independently rechecked in this documentation task**. Earlier operator deployment evidence remains in the deployment record. The release contains no future-episode source documents. See [runtime contract](docs/E01_RUNTIME_IMPLEMENTATION.md) and [actual QA evidence](docs/E01_RUNTIME_QA_2026-10-08.md). Recorded voices/music, full pose animation, real-device and family acceptance remain separate work.
+
+**E02 engineering preview:** [first playable implementation and test scope](content/season-01/s01e02/PLAYABLE_SLICE_QA_2026-10-12.md). It is a standalone `/e02/` URL on a locally served or staged copy of this repo; do not treat its source merge as MN4 deployment or a completed family UX test.

@@ -252,3 +252,7 @@ The owner explicitly **PASSed three new full-resolution Riverside illustrations*
 ## 2026-10-12 E02 image upload and process closeout
 
 The owner's six original PNG/WebP files are now present in GitHub `main` and match the previously recorded Git blob/byte-size manifest. See the [E02 production postmortem](../content/season-01/s01e02/PRODUCTION_POSTMORTEM_2026-10-12.md). A fast generic source/derivative media verifier and CI are being added; the E01 static release packager is scoped to E01-owned art, preventing silent E02 image inclusion. The owner-approved R0/R1/R2 selection is locked; **next is playable E02 integration**, not more concept/image generations. E01 visual/gameplay acceptance remains unchanged.
+
+## 2026-10-12 E02 Gate 3 engineering preview (not yet deployed)
+
+The isolated [E02 first playable implementation](../content/season-01/s01e02/PLAYABLE_SLICE_QA_2026-10-12.md) is a separate `/e02/` browser route, with exact locked 81 E02 lines, owner-approved Riverside R0/R1/R2 artwork, approved C01 actor/portrait images, legitimate E01 prerequisites, separate E02 save/ledger, child-selected observation/revision and guarded later clue. Dedicated E02 route/state/Chromium tests and a separate E02 static preview package were added. Owner **art PASS** is retained, while **playable owner PASS and MN4 deploy are not established**; inspect actual browser screenshots and run genuine E01-to-E02/device validation before release. E01 accepted app/engine/save was not modified.

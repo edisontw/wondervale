@@ -1,0 +1,418 @@
+{
+  "version": "s01e02-script-v1",
+  "build": "20261012-e02-playable-v1",
+  "origin": "content/season-01/s01e02/DETAILED_SCRIPT.md",
+  "count": 81,
+  "lines": {
+    "S01E02-NARRATOR-001": {
+      "id": "S01E02-NARRATOR-001",
+      "speaker": "NARRATOR",
+      "text": "Milo and his friends have a new place to visit."
+    },
+    "S01E02-NARRATOR-002": {
+      "id": "S01E02-NARRATOR-002",
+      "speaker": "NARRATOR",
+      "text": "The old sign points to Riverside."
+    },
+    "S01E02-UI-001": {
+      "id": "S01E02-UI-001",
+      "speaker": "UI",
+      "text": "Begin the Riverside adventure."
+    },
+    "S01E02-NARRATOR-003": {
+      "id": "S01E02-NARRATOR-003",
+      "speaker": "NARRATOR",
+      "text": "Riverside is busy today."
+    },
+    "S01E02-MILO-001": {
+      "id": "S01E02-MILO-001",
+      "speaker": "MILO",
+      "text": "We made it!"
+    },
+    "S01E02-FINN-001": {
+      "id": "S01E02-FINN-001",
+      "speaker": "FINN",
+      "text": "I can hear the water."
+    },
+    "S01E02-NIA-001": {
+      "id": "S01E02-NIA-001",
+      "speaker": "NIA",
+      "text": "Here is the old path."
+    },
+    "S01E02-MILO-002": {
+      "id": "S01E02-MILO-002",
+      "speaker": "MILO",
+      "text": "But it stops at a fence."
+    },
+    "S01E02-MILO-003": {
+      "id": "S01E02-MILO-003",
+      "speaker": "MILO",
+      "text": "Maybe the new fence is the only change."
+    },
+    "S01E02-MILO-004": {
+      "id": "S01E02-MILO-004",
+      "speaker": "MILO",
+      "text": "Maybe the old way is still behind it."
+    },
+    "S01E02-NIA-002": {
+      "id": "S01E02-NIA-002",
+      "speaker": "NIA",
+      "text": "Let's look before we decide."
+    },
+    "S01E02-FINN-002": {
+      "id": "S01E02-FINN-002",
+      "speaker": "FINN",
+      "text": "There is a lookout sign, too."
+    },
+    "S01E02-UI-002": {
+      "id": "S01E02-UI-002",
+      "speaker": "UI",
+      "text": "Explore from the public paths."
+    },
+    "S01E02-UI-003": {
+      "id": "S01E02-UI-003",
+      "speaker": "UI",
+      "text": "Look at the old stones."
+    },
+    "S01E02-MILO-005": {
+      "id": "S01E02-MILO-005",
+      "speaker": "MILO",
+      "text": "These stones are very old."
+    },
+    "S01E02-NIA-003": {
+      "id": "S01E02-NIA-003",
+      "speaker": "NIA",
+      "text": "There are stones on both sides."
+    },
+    "S01E02-FINN-003": {
+      "id": "S01E02-FINN-003",
+      "speaker": "FINN",
+      "text": "They point to the same line."
+    },
+    "S01E02-NIA-004": {
+      "id": "S01E02-NIA-004",
+      "speaker": "NIA",
+      "text": "The old path was here."
+    },
+    "S01E02-MILO-006": {
+      "id": "S01E02-MILO-006",
+      "speaker": "MILO",
+      "text": "So the map may show a real old way!"
+    },
+    "S01E02-UI-004": {
+      "id": "S01E02-UI-004",
+      "speaker": "UI",
+      "text": "This old path is closed."
+    },
+    "S01E02-FINN-004": {
+      "id": "S01E02-FINN-004",
+      "speaker": "FINN",
+      "text": "We can look from here."
+    },
+    "S01E02-NIA-005": {
+      "id": "S01E02-NIA-005",
+      "speaker": "NIA",
+      "text": "The public lookout is open."
+    },
+    "S01E02-UI-005": {
+      "id": "S01E02-UI-005",
+      "speaker": "UI",
+      "text": "Follow the sign to the lookout."
+    },
+    "S01E02-NARRATOR-004": {
+      "id": "S01E02-NARRATOR-004",
+      "speaker": "NARRATOR",
+      "text": "The path bends along this side of the river."
+    },
+    "S01E02-MILO-007": {
+      "id": "S01E02-MILO-007",
+      "speaker": "MILO",
+      "text": "We can see more from here."
+    },
+    "S01E02-FINN-005": {
+      "id": "S01E02-FINN-005",
+      "speaker": "FINN",
+      "text": "And we stayed on the safe path."
+    },
+    "S01E02-UI-006": {
+      "id": "S01E02-UI-006",
+      "speaker": "UI",
+      "text": "Look across the water."
+    },
+    "S01E02-MILO-008": {
+      "id": "S01E02-MILO-008",
+      "speaker": "MILO",
+      "text": "Wait. There is no bridge here now."
+    },
+    "S01E02-NIA-006": {
+      "id": "S01E02-NIA-006",
+      "speaker": "NIA",
+      "text": "I see an open gap."
+    },
+    "S01E02-FINN-006": {
+      "id": "S01E02-FINN-006",
+      "speaker": "FINN",
+      "text": "A path needs a way across."
+    },
+    "S01E02-FINN-007": {
+      "id": "S01E02-FINN-007",
+      "speaker": "FINN",
+      "text": "But there is no deck."
+    },
+    "S01E02-NIA-007": {
+      "id": "S01E02-NIA-007",
+      "speaker": "NIA",
+      "text": "The edge is different now."
+    },
+    "S01E02-MILO-009": {
+      "id": "S01E02-MILO-009",
+      "speaker": "MILO",
+      "text": "This looks different."
+    },
+    "S01E02-MILO-010": {
+      "id": "S01E02-MILO-010",
+      "speaker": "MILO",
+      "text": "This is a nice place to stop."
+    },
+    "S01E02-FINN-008": {
+      "id": "S01E02-FINN-008",
+      "speaker": "FINN",
+      "text": "The river keeps moving."
+    },
+    "S01E02-UI-007": {
+      "id": "S01E02-UI-007",
+      "speaker": "UI",
+      "text": "Open the old map."
+    },
+    "S01E02-NIA-008": {
+      "id": "S01E02-NIA-008",
+      "speaker": "NIA",
+      "text": "The old map shows a line here."
+    },
+    "S01E02-NIA-009": {
+      "id": "S01E02-NIA-009",
+      "speaker": "NIA",
+      "text": "We have two things to remember."
+    },
+    "S01E02-MILO-011": {
+      "id": "S01E02-MILO-011",
+      "speaker": "MILO",
+      "text": "I thought it was only the fence."
+    },
+    "S01E02-UI-008": {
+      "id": "S01E02-UI-008",
+      "speaker": "UI",
+      "text": "Which fact does not fit that idea?"
+    },
+    "S01E02-NIA-010": {
+      "id": "S01E02-NIA-010",
+      "speaker": "NIA",
+      "text": "Those stones show where the way was."
+    },
+    "S01E02-FINN-009": {
+      "id": "S01E02-FINN-009",
+      "speaker": "FINN",
+      "text": "Do they show a bridge here now?"
+    },
+    "S01E02-UI-009": {
+      "id": "S01E02-UI-009",
+      "speaker": "UI",
+      "text": "Look at both facts again."
+    },
+    "S01E02-MILO-012": {
+      "id": "S01E02-MILO-012",
+      "speaker": "MILO",
+      "text": "Oh. My idea does not fit."
+    },
+    "S01E02-MILO-013": {
+      "id": "S01E02-MILO-013",
+      "speaker": "MILO",
+      "text": "The fence is not the only change."
+    },
+    "S01E02-NIA-011": {
+      "id": "S01E02-NIA-011",
+      "speaker": "NIA",
+      "text": "The stones show the old way."
+    },
+    "S01E02-FINN-010": {
+      "id": "S01E02-FINN-010",
+      "speaker": "FINN",
+      "text": "The gap shows what is here now."
+    },
+    "S01E02-UI-010": {
+      "id": "S01E02-UI-010",
+      "speaker": "UI",
+      "text": "What can Milo say now?"
+    },
+    "S01E02-MILO-014": {
+      "id": "S01E02-MILO-014",
+      "speaker": "MILO",
+      "text": "The bridge was here before."
+    },
+    "S01E02-MILO-015": {
+      "id": "S01E02-MILO-015",
+      "speaker": "MILO",
+      "text": "It is not here now."
+    },
+    "S01E02-MILO-016": {
+      "id": "S01E02-MILO-016",
+      "speaker": "MILO",
+      "text": "I don't know why it changed."
+    },
+    "S01E02-MILO-017": {
+      "id": "S01E02-MILO-017",
+      "speaker": "MILO",
+      "text": "I was wrong about only the fence."
+    },
+    "S01E02-MILO-018": {
+      "id": "S01E02-MILO-018",
+      "speaker": "MILO",
+      "text": "More has changed."
+    },
+    "S01E02-MILO-019": {
+      "id": "S01E02-MILO-019",
+      "speaker": "MILO",
+      "text": "Maybe we can learn why later."
+    },
+    "S01E02-NIA-012": {
+      "id": "S01E02-NIA-012",
+      "speaker": "NIA",
+      "text": "Our notes can show both times."
+    },
+    "S01E02-FINN-011": {
+      "id": "S01E02-FINN-011",
+      "speaker": "FINN",
+      "text": "A real old way. A different way now."
+    },
+    "S01E02-MILO-020": {
+      "id": "S01E02-MILO-020",
+      "speaker": "MILO",
+      "text": "Let's keep the question open."
+    },
+    "S01E02-MILO-021": {
+      "id": "S01E02-MILO-021",
+      "speaker": "MILO",
+      "text": "What's that old mark?"
+    },
+    "S01E02-UI-011": {
+      "id": "S01E02-UI-011",
+      "speaker": "UI",
+      "text": "Look at the old mark."
+    },
+    "S01E02-NIA-013": {
+      "id": "S01E02-NIA-013",
+      "speaker": "NIA",
+      "text": "It points along today's path."
+    },
+    "S01E02-FINN-012": {
+      "id": "S01E02-FINN-012",
+      "speaker": "FINN",
+      "text": "I can read the name."
+    },
+    "S01E02-FINN-013": {
+      "id": "S01E02-FINN-013",
+      "speaker": "FINN",
+      "text": "Market Lane!"
+    },
+    "S01E02-MILO-022": {
+      "id": "S01E02-MILO-022",
+      "speaker": "MILO",
+      "text": "Another place to explore."
+    },
+    "S01E02-NIA-014": {
+      "id": "S01E02-NIA-014",
+      "speaker": "NIA",
+      "text": "Let's write it in our Chronicle."
+    },
+    "S01E02-NARRATOR-005": {
+      "id": "S01E02-NARRATOR-005",
+      "speaker": "NARRATOR",
+      "text": "The old path was real."
+    },
+    "S01E02-NARRATOR-006": {
+      "id": "S01E02-NARRATOR-006",
+      "speaker": "NARRATOR",
+      "text": "But the bridge is not here now."
+    },
+    "S01E02-NIA-015": {
+      "id": "S01E02-NIA-015",
+      "speaker": "NIA",
+      "text": "This picture shows the old stones."
+    },
+    "S01E02-NIA-016": {
+      "id": "S01E02-NIA-016",
+      "speaker": "NIA",
+      "text": "This picture shows the gap today."
+    },
+    "S01E02-MILO-023": {
+      "id": "S01E02-MILO-023",
+      "speaker": "MILO",
+      "text": "I changed my idea because of what we saw."
+    },
+    "S01E02-FINN-014": {
+      "id": "S01E02-FINN-014",
+      "speaker": "FINN",
+      "text": "And we found a safe place to look."
+    },
+    "S01E02-NIA-017": {
+      "id": "S01E02-NIA-017",
+      "speaker": "NIA",
+      "text": "We still do not know why."
+    },
+    "S01E02-NARRATOR-007": {
+      "id": "S01E02-NARRATOR-007",
+      "speaker": "NARRATOR",
+      "text": "The Riverside Overlook is now in the Chronicle."
+    },
+    "S01E02-NARRATOR-008": {
+      "id": "S01E02-NARRATOR-008",
+      "speaker": "NARRATOR",
+      "text": "One old mark points toward Market Lane."
+    },
+    "S01E02-UI-012": {
+      "id": "S01E02-UI-012",
+      "speaker": "UI",
+      "text": "Finish this chapter."
+    },
+    "S01E02-UI-013": {
+      "id": "S01E02-UI-013",
+      "speaker": "UI",
+      "text": "You can use the public path."
+    },
+    "S01E02-NIA-018": {
+      "id": "S01E02-NIA-018",
+      "speaker": "NIA",
+      "text": "What was here before?"
+    },
+    "S01E02-NIA-019": {
+      "id": "S01E02-NIA-019",
+      "speaker": "NIA",
+      "text": "What can we see now?"
+    },
+    "S01E02-FINN-015": {
+      "id": "S01E02-FINN-015",
+      "speaker": "FINN",
+      "text": "Try looking from the lookout."
+    },
+    "S01E02-UI-014": {
+      "id": "S01E02-UI-014",
+      "speaker": "UI",
+      "text": "Choose a picture you have seen."
+    },
+    "S01E02-NARRATOR-009": {
+      "id": "S01E02-NARRATOR-009",
+      "speaker": "NARRATOR",
+      "text": "We found the old path at Riverside."
+    },
+    "S01E02-NARRATOR-010": {
+      "id": "S01E02-NARRATOR-010",
+      "speaker": "NARRATOR",
+      "text": "Let's see what we know so far."
+    }
+  },
+  "parent": {
+    "preview": "Your child follows the Riverside clue, sees an old path and a public lookout, then compares what is there today with Milo's first idea. Let them notice first.",
+    "cue": "What can we see that doesn't fit Milo's first idea?",
+    "reflection": "How did Milo change his idea? What is still unknown?"
+  }
+}
