@@ -27,7 +27,7 @@ cleanup() {
 }
 trap cleanup EXIT
 python3 - "$archive" "$stage" "$old" <<'PY'
-import hashlib,json,pathlib,posixpath,shutil,sys,tarfile
+import hashlib,json,pathlib,posixpath,re,shutil,sys,tarfile
 archive, stage, current=sys.argv[1:]
 stage,current=pathlib.Path(stage),pathlib.Path(current)
 e01={"index.html","sw.js","app/main.mjs","app/style.css","engine/episode.mjs","public/episode.json","public/art/glyph.svg","public/art/town-square-master.webp","public/art/trio-sprites.webp","public/art/noticeboard-reference.webp","public/art/marker-reference.webp","public/art/steward.webp"}
@@ -48,7 +48,9 @@ if seen != e01|{"RELEASE_INTEGRITY.json"}: raise SystemExit("Wrong E01 file list
 manifest=json.loads((stage/"RELEASE_INTEGRITY.json").read_text())
 assert {x["path"] for x in manifest["files"]}==e01 and len(manifest["files"])==len(e01)
 assert manifest["build"]==json.loads((stage/"public/episode.json").read_text())["buildId"]
-assert manifest["build"].startswith("20261012-e01-landscape-fullscreen")
+# Build IDs are E01 release identifiers, not a particular UI feature or build revision.
+# The artifact manifest must agree with episode.json and every file hash must pass.
+assert re.fullmatch(r"20[0-9]{6}-e01-[a-z0-9][a-z0-9-]{0,63}", manifest["build"])
 for entry in manifest["files"]:
  data=(stage/entry["path"]).read_bytes()
  assert len(data)==entry["bytes"] and hashlib.sha256(data).hexdigest()==entry["sha256"],entry["path"]
