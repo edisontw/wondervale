@@ -1,0 +1,31 @@
+name: Wondervale ChatGPT Skill package validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/wondervale-episode-fast-lane/**'
+      - 'scripts/package_wondervale_skill.py'
+      - '.github/workflows/wondervale-skill-package.yml'
+  pull_request:
+    paths:
+      - 'skills/wondervale-episode-fast-lane/**'
+      - 'scripts/package_wondervale_skill.py'
+      - '.github/workflows/wondervale-skill-package.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  package-skill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build installable ZIP and validate references/contents
+        run: python3 scripts/package_wondervale_skill.py
+      - name: Archive structure integrity
+        run: unzip -t dist/wondervale-episode-fast-lane.skill.zip
