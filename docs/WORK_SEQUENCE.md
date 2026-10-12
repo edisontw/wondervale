@@ -4,7 +4,7 @@ Wondervale is intentionally developed **one design layer at a time**.
 
 The goal is to prevent story, pedagogy, art, audio, prompts, and engineering from being decided simultaneously and then repeatedly invalidating one another.
 
-**Execution shortcut (2026-10-12):** use the [Episode Production Fast Lane](EPISODE_PRODUCTION_FAST_LANE.md) for future episodes. It distinguishes story/learning, art selection + one media upload, playable browser acceptance, and deployment. It avoids repeated image generation and repetitive unscoped QA while preserving the gates below.
+**Execution shortcut (2026-10-12):** use the [Episode Production Fast Lane](EPISODE_PRODUCTION_FAST_LANE.md) and its [portable ChatGPT Skill](../skills/wondervale-episode-fast-lane/SKILL.md) for future episodes. It distinguishes story/learning, art selection + one media upload, playable browser acceptance, and deployment. It avoids repeated image generation and repetitive unscoped QA while preserving the gates below.
 
 ## Source of truth
 
