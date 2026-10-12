@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale S01E02 · Riverside E02-3 art-source review</title>
+<style>
+:root { color-scheme:light; font-family:system-ui,Arial,sans-serif; background:#f2efe7;color:#19394b }
+*{box-sizing:border-box}
+body{margin:0;padding:20px}
+main{max-width:1280px;margin:auto}
+h1{font-size:1.5rem;margin:.15rem 0 .4rem}
+p{line-height:1.45}
+header p{max-width:950px}
+.controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin:16px 0}
+button,select{font:inherit;background:#fff;border:2px solid #6b878e;border-radius:7px;padding:10px 13px;color:#19394b;cursor:pointer}
+button[aria-pressed="true"]{background:#244b5a;color:#fff}
+button:focus-visible,select:focus-visible{outline:4px solid #daaa47;outline-offset:2px}
+#frame{display:flex;flex-wrap:wrap;align-items:start;gap:16px}
+#child{min-width:0;max-width:100%;margin:0;box-shadow:0 5px 24px #203b4531;background:#fff;border-radius:8px;overflow:hidden;flex:1}
+#scene{height:calc(var(--screen-w) * 1.25);width:100%;position:relative;overflow:hidden;background:#98abb2}
+#scene img{width:100%;height:100%;object-fit:cover;object-position:var(--camera-pos) center;display:block}
+#dock{min-height:124px;padding:13px 15px;background:#fff8e9;border-top:3px solid #8da789}
+#dock strong{display:block;margin-bottom:9px}
+#parent{flex:0 1 230px;background:#fff;border-radius:8px;padding:16px}
+#parent h2{font-size:1.05rem;margin:0 0 6px}
+#parent p{margin:4px 0 15px;font-size:.92rem}
+small{color:#46616e}
+.review{background:#fff;padding:15px;border-left:5px solid #dca44b;margin-top:20px}
+#child.mobile{flex:none;width:var(--screen-w)}
+#child.desktop{width:calc(100% - 250px)}
+#child.desktop #scene{height:560px}
+code{word-wrap:break-word}
+@media(max-width:620px){body{padding:10px}#parent{flex:1 1 100%}#child.desktop{width:100%}#child.desktop #scene{height:460px}}
+</style>
+</head>
+<body><main>
+<header><h1>Wondervale S01E02 · Riverside Visual QA</h1>
+<p><strong>Candidate visual study only — not shipped gameplay.</strong> All views come from one geometry-locked R0 v3 vector source; R1 and R2 alter only the camera. The gate stays closed, Milo remains on the public bank, and Market Lane is deliberately absent.</p></header>
+<div class="controls" role="group" aria-label="Scene view">
+<button data-scene="r0" aria-pressed="true">R0 Explore</button>
+<button data-scene="r1" aria-pressed="false">R1 Old stones</button>
+<button data-scene="r2" aria-pressed="false">R2 Look across</button>
+<label for="width">Preview width</label>
+<select id="width"><option value="desktop">Desktop</option><option value="320">320 px</option><option value="360">360 px</option><option value="390" selected>390 px</option><option value="430">430 px</option></select>
+<label for="position">Scene focus</label>
+<select id="position"><option value="30%">Closed spur</option><option value="50%" selected>Old bridge evidence</option><option value="85%">Safe lookout</option></select>
+</div>
+<div id="frame">
+<figure id="child" class="mobile" style="--screen-w:390px;--camera-pos:50%">
+<div id="scene"><img id="illustration" src="riverside-r0-art-study-v3.svg" alt="Riverside: closed old-spur fence, separate old bridge footings on different banks, water gap and protected same-bank lookout"></div>
+<figcaption id="dock"><strong id="speaker">Visual QA · R0</strong><span id="caption">Move on the signed public promenade; the blocked old crossing remains closed.</span><p><small>Placeholder caption for art review. Not an E02 game or a voice test.</small></p></figcaption>
+</figure>
+<aside id="parent"><h2>Art review checks</h2><p>Old stones on opposing bank ends, with no deck.</p><p>The lookout exists on this same public bank and has protective railing.</p><p>No Market Lane, new dog, new character models or extra bridge.</p><p><strong>Not yet tested:</strong> C01 sprite overlay, exact collision, real device, audio, E02 browser gameplay.</p></aside>
+</div>
+<div class="review"><strong>Source status</strong><p>Geometry: from R0 v2 same-bank layout. Decorative brush/grain elements are provisional and cannot override route or evidence position. R1 and R2 are not separate invented paintings. The viewer is a standalone offline design inspection, not the Wondervale episode runtime.</p></div>
+</main>
+<script>
+const maps={
+r0:{src:"riverside-r0-art-study-v3.svg",who:"Visual QA · R0",say:"Move on the signed public promenade; the blocked old crossing remains closed."},
+r1:{src:"riverside-r1-old-stones-art-study-v3.svg",who:"Nia · R1",say:"There are stones on both sides."},
+r2:{src:"riverside-r2-look-across-art-study-v3.svg",who:"Milo · R2",say:"Wait. There is no bridge here now."}
+};
+const frame=document.querySelector("#child"),ill=document.querySelector("#illustration"),sel=document.querySelector("#width");
+function selectScene(key){const x=maps[key];ill.src=x.src;document.querySelector("#speaker").textContent=x.who;document.querySelector("#caption").textContent=x.say;document.querySelectorAll("[data-scene]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.scene===key)))}
+document.querySelectorAll("[data-scene]").forEach(b=>b.addEventListener("click",()=>selectScene(b.dataset.scene)));
+sel.addEventListener("change",()=>{let v=sel.value;frame.classList.toggle("desktop",v==="desktop");frame.classList.toggle("mobile",v!=="desktop");if(v!=="desktop")frame.style.setProperty("--screen-w",v+"px");});
+document.querySelector("#position").addEventListener("change",e=>frame.style.setProperty("--camera-pos",e.target.value));
+</script></body></html>
