@@ -30,11 +30,17 @@ function doAction(a){
  if(state.queue.length)voice(null); // Never autoplay; Listen is the deliberate replay action.
 }
 function coords(which,i=0){
- const src=places[state.position],offset=[[-0.0,0],[-73,19],[76,24]][i];
- // R0 art is independent painterly scenery: feet are deliberately kept on
- // a bounded safe foreground walk band, never projected into illustrated water.
- return [Math.max(8,Math.min(94,(src[0]+offset[0])/1600*100)),
-         Math.max(75,Math.min(88,(src[1]+offset[1])/900*100))];
+ const src=places[state.position];
+ // A fixed 70px world offset becomes only ~17px on a 390px phone: companions
+ // piled over Milo in earlier episode QA. Space trio in SCREEN pixels instead.
+ const sceneWidth=window.innerWidth<=750?Math.min(window.innerWidth-16,430):Math.min(window.innerWidth*.73,1100);
+ const gap=Math.max(7.5,58/Math.max(300,sceneWidth)*100);
+ const lead=src[0]/1600*100;
+ const x=i===0?lead:lead<35?lead+i*gap:lead>70?lead-i*gap:lead+(i===1?-gap:gap);
+ const y=src[1]/900*100+(i?2.3:0);
+ // R0 art is an independently composed illustration: actor FEET stay on a
+ // bounded public foreground walk band; the actual graph governs movement.
+ return [Math.max(6,Math.min(94,x)),Math.max(75,Math.min(88,y))];
 }
 function actor(name,i){
  const [x,y]=coords(name,i);
@@ -167,5 +173,6 @@ document.addEventListener('keydown',e=>{
  if(e.key==='ArrowRight'){e.preventDefault();travel('lookoutView');}
  if(e.key==='ArrowLeft'){e.preventDefault();travel('oldStones');}
 });
+window.addEventListener('resize',()=>{if(!ui.moving)render();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){save();globalThis.speechSynthesis?.cancel();}});
 render();
