@@ -24,8 +24,8 @@ Wondervale uses a **storybook shell + living interactive scenes**.
 
 - Storybook: chapters, recaps, transitions, Chronicle, parent preview/reflection.
 - Living scenes: direct control of Milo, exploration, dialogue, manipulation, experiments and problem solving.
-- Desktop: child experience and parent guide can appear side-by-side.
-- Mobile: dedicated Child View and Parent View.
+- Desktop: the child controls a single large story/game viewport; adult guidance appears in the chapter opening.
+- Mobile: landscape-first scene plus dialogue, with a functional portrait fallback and no Parent View switch.
 
 ## Content structure
 
