@@ -10,7 +10,7 @@ e01_manifest=json.loads((root/'assets/production-candidates/s01e01/PRODUCTION_IN
 e01_webps=sorted(x['path'] for x in e01_manifest
                  if x['path'].startswith('public/art/') and x['path'].endswith('.webp'))
 assert len(e01_webps)==5, "E01 owned-art manifest changed; review release allowlist"
-files=['index.html','sw.js','app/main.mjs','app/style.css','engine/episode.mjs','public/episode.json']+e01_webps+['public/art/glyph.svg']
+files=['index.html','manifest.webmanifest','sw.js','app/main.mjs','app/style.css','engine/episode.mjs','public/episode.json']+e01_webps+['public/art/glyph.svg']
 assert len(files)==len(set(files)), "Duplicate release paths"
 assert not any('s01e02' in path for path in files), "Future episode art leaked into E01"
 manifest={'build':json.loads((root/'public/episode.json').read_text())['buildId'],'files':[]}
