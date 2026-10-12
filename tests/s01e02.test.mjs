@@ -70,7 +70,7 @@ test('E02-09: Market Lane gated by accepted revision and intentional protected v
  let s=both();
  assert.equal(dispatch(s,{type:'market'}).market,false);
  s=revise();assert.equal(s.phase,'market');assert.equal(s.market,false);
- s=dispatch(s,{type:'market'});assert.equal(s.market,false,'cannot inspect from old stones');
+ s=walk(s,'oldStones');s=dispatch(s,{type:'market'});assert.equal(s.market,false,'cannot inspect from old stones');
  s=walk(s,'lookoutView');s=drain(dispatch(s,{type:'market'}));assert.equal(s.market,true);assert.equal(s.phase,'chronicle');
  assert.equal(s.ledger.filter(x=>x===EVENTS.market).length,1);
  s=dispatch(s,{type:'finish'});assert.equal(s.phase,'chronicle','Chronicle reading is required');
