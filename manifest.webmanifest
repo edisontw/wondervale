@@ -1,0 +1,11 @@
+{
+  "name": "Wondervale · Learning Adventures",
+  "short_name": "Wondervale",
+  "description": "A story-first English learning adventure for children and families.",
+  "id": "/",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5eedd",
+  "theme_color": "#f5eedd"
+}
