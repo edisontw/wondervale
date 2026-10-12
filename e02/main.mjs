@@ -9,7 +9,7 @@ const line=id=>lines[id]||{speaker:'UI',text:'...'};
 const voice=id=>{if(!id||!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const l=line(id),u=new SpeechSynthesisUtterance(l.text);u.lang='en-US';u.rate=.87;speechSynthesis.speak(u);}catch{}};
 function read(key){try{return JSON.parse(localStorage.getItem(key));}catch{return null;}}
 const unlocked=e01Ready(read(E01_KEY));
-let state=restore(read(KEY)),ui={parent:false,map:false,storageError:false,moving:false,recentAudio:'',showCue:false,focus:null,resetConfirm:false};
+let state=restore(read(KEY)),ui={parent:false,map:false,storageError:false,moving:false,recentAudio:'',showCue:false,focus:null,resetConfirm:false,completedReview:false};
 if(!unlocked)state=fresh();
 const button=(label,action,attrs='',primary=false)=>'<button '+(primary?'class="primary" ':'')+'data-a="'+esc(action)+'" '+attrs+'>'+esc(label)+'</button>';
 const ref=name=>({MILO:'60 0 465 1024',NIA:'545 0 450 1024',FINN:'1025 0 485 1024'})[name];
@@ -113,7 +113,9 @@ function navigation(){
  '<p>The Riverside Overlook is a safe place to revisit. A route mark points toward Market Lane.</p>'+
  (state.chronicleSeen?button('Finish this chapter','finish','',true):button('Read the Chronicle','chronicle','',true))+'</section>';
  if(ph==='completed')return '<section class="card"><h2>Chapter complete</h2><p>Milo changed his idea after looking at the evidence. The old bridge remains closed, and the safe lookout is remembered.</p><p>Next chapter: Market Lane (not yet available).</p>'+
- button('Review the Chronicle','show-chronicle')+button('Start E02 again','reset-prompt')+'</section>';
+ button(ui.completedReview?'Close Chronicle review':'Review the Chronicle','show-chronicle')+
+ (ui.completedReview?'<p><strong>Then:</strong> old stones marked a crossing. <strong>Now:</strong> the deck is gone. <strong>Unknown:</strong> why it changed. The safe overlook remains available.</p>':'')+
+ button('Start E02 again','reset-prompt')+'</section>';
  return '';
 }
 function parentPanel(){
@@ -157,7 +159,7 @@ root.addEventListener('click',e=>{
  if(a==='reset-prompt'){ui.resetConfirm=true;render();return;}
  if(a==='reset-cancel'){ui.resetConfirm=false;render();return;}
  if(a==='reset-confirm'){try{localStorage.removeItem(KEY);}catch{}state=fresh();ui.resetConfirm=false;render();return;}
- if(a==='show-chronicle'){ui.resetConfirm=false;state.phase='chronicle';state.chronicleSeen=true;render();return;}
+ if(a==='show-chronicle'){ui.completedReview=!ui.completedReview;render();return;}
  doAction({type:a});
 });
 document.addEventListener('keydown',e=>{
