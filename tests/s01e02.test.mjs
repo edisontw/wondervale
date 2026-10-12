@@ -90,3 +90,21 @@ test('E02-11: closed old spur never crosses the fence or creates evidence',()=>{
  let s=begin();s=drain(dispatch(s,{type:'closed'}));
  assert.equal(s.position,'oldStones');assert.deepEqual(s.observed,[]);assert.deepEqual(s.ledger,[]);
 });
+
+test('E02-12: exact pending dialogue resumes at the next unplayed line',()=>{
+ let s=dispatch(fresh(),{type:'begin'});
+ for(let i=0;i<5;i++)s=dispatch(s,{type:'next'});
+ const pending=[...s.queue],after=s.after;
+ const resumed=restore(JSON.parse(JSON.stringify(payload(s))));
+ assert.deepEqual(resumed.queue,pending);assert.equal(resumed.after,after);
+ assert.equal(drain(resumed).phase,'explore');
+});
+test('E02-13: incomplete observation scene preserves remaining dialogue on reload',()=>{
+ let s=begin();s=walk(s,'oldStones');s=dispatch(s,{type:'inspect',what:'stones'});
+ const next=s.queue[0];s=dispatch(s,{type:'next'});
+ const restored=restore(payload(s));
+ assert.equal(restored.queue[0],s.queue[0]);
+ assert.notEqual(restored.queue[0],next);
+ assert.deepEqual(restored.observed,['stones']);
+ assert.equal(restored.ledger.includes(EVENTS.revision),false);
+});
