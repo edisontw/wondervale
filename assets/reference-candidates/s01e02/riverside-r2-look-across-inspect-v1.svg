@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="475 310 1020 573.75" role="img" aria-label="R2 view from same-bank protected overlook looking across: water gap, aligned old stone landings and changed current bank edge, no bridge deck.">
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#94c8e4"/><stop offset="1" stop-color="#f5e6bb"/></linearGradient>
+ <linearGradient id="far" x2="0" y2="1"><stop stop-color="#85a98a"/><stop offset="1" stop-color="#526c62"/></linearGradient>
+ <linearGradient id="water" x2="0.1" y2="1"><stop stop-color="#438a9e"/><stop offset=".55" stop-color="#33849c"/><stop offset="1" stop-color="#216c85"/></linearGradient>
+ <linearGradient id="path" x2="0" y2="1"><stop stop-color="#e7d3a6"/><stop offset="1" stop-color="#c2a780"/></linearGradient>
+ <linearGradient id="near" x2="0" y2="1"><stop stop-color="#80a577"/><stop offset="1" stop-color="#a4b37b"/></linearGradient>
+ <linearGradient id="roof" x2="0" y2="1"><stop stop-color="#a87344"/><stop offset="1" stop-color="#784c37"/></linearGradient>
+ <pattern id="pavers" width="73" height="46" patternUnits="userSpaceOnUse" patternTransform="skewX(-12)"><rect width="73" height="46" fill="none"/><path d="M0 0H73M0 46H73M36 0V23M0 23H36M36 23H73" fill="none" stroke="#907c5e" stroke-width="2" opacity=".30"/></pattern>
+ <filter id="shadow"><feGaussianBlur stdDeviation="4"/></filter>
+ <g id="tree"><path d="M0 8L-7 66L8 67L6 7" fill="#6d513c"/><circle cy="-10" r="39" fill="#557f5c"/><circle cx="-31" cy="-5" r="30" fill="#6c9967"/><circle cx="25" cy="-20" r="29" fill="#7fac72"/><circle cx="9" cy="-42" r="29" fill="#6b9567"/></g>
+ <g id="post"><path d="M-4 0V-43" stroke="#755c40" stroke-width="9"/><path d="M-22 -34H22" stroke="#937453" stroke-width="8" stroke-linecap="round"/></g>
+</defs>
+<!-- E02 R1/R2 candidate review: single v2 source geometry, separate inspection camera. Same-bank safe viewpoint; no traversal. -->
+<!-- Permanent backdrop: no complete bridges anywhere. -->
+<rect width="1600" height="900" fill="url(#sky)"/>
+<path d="M0 280Q220 115 410 240T800 207T1200 191T1600 208V385H0Z" fill="#acc0aa"/>
+<path d="M0 310Q160 223 346 290T705 274T1050 261T1600 291V398H0Z" fill="url(#far)"/>
+<path d="M0 363Q190 346 325 365T665 353T1011 366T1322 351T1600 360V410H0Z" fill="#759a80"/>
+<!-- Small village roofs on FAR BANK; no cross-water connection. -->
+<g id="far-village" opacity=".85">
+ <path d="M130 327V304L151 286L178 305V330Z" fill="#ead6b1"/><path d="M120 305L151 278L186 306" stroke="#925e4b" stroke-width="11" fill="none"/>
+ <path d="M343 345V308L374 279L407 309V345Z" fill="#f3dfbc"/><path d="M333 309L376 269L417 309" fill="none" stroke="#995f45" stroke-width="12"/>
+ <path d="M1038 348V312L1072 282L1111 315V349Z" fill="#e9d3ad"/><path d="M1028 315L1072 269L1122 318" stroke="#965d47" stroke-width="13" fill="none"/>
+ <path d="M1248 348V299L1292 277L1330 298V352Z" fill="#ead1a4"/><path d="M1235 300L1290 263L1347 301" stroke="#98644d" stroke-width="15" fill="none"/>
+ <path d="M1162 329V239H1205V330M1154 239L1184 199L1214 239" fill="#b0a88b" stroke="#776955" stroke-width="5"/>
+ <circle cx="1184" cy="266" r="12" fill="#e9ebd9" stroke="#655847" stroke-width="4"/>
+</g>
+<!-- FAR bank ground remains separated from player-side bank by continuous water. -->
+<path id="far-bank" d="M0 389Q238 406 394 396T763 405T1160 396T1600 410V0H0Z" fill="#88a878" opacity=".24"/>
+<path id="water-channel" d="M0 402Q230 420 398 411T771 419T1160 410T1600 427L1600 601Q1280 591 1080 602T670 604T296 600T0 608Z" fill="url(#water)"/>
+<g id="water-texture" fill="none" stroke="#d6ede4" stroke-width="4" opacity=".56">
+ <path d="M20 450q70 -16 155 5t140 1t165 0t190 -8t210 4t196 -6t210 10t170 -3"/>
+ <path d="M0 525q130 18 234 0t240 6t255 -5t217 4t236 0t218 7"/>
+ <path d="M55 567q95 -16 203 -3t207 -2t210 2t213 -5t185 0t230 1t220 1"/>
+</g>
+<!-- Ancient bridge bases, aligned on one x-axis; BROKEN AND MISSING DECK in between. -->
+<g id="far-old-landing" fill="#a79b7f" stroke="#6f6655" stroke-width="4">
+ <path d="M694 374 L793 374 L790 475 Q740 491 696 473 Z"/>
+ <path d="M681 365 L808 365 L804 389 L685 389 Z" fill="#c6b696"/>
+ <path d="M712 390V476 M744 390V482 M774 390V476 M696 421H792 M696 449H792" fill="none" stroke="#80725e" stroke-width="3"/>
+ <path d="M703 371L782 371" stroke="#dacead" stroke-width="5" />
+</g>
+
+<!-- NEAR bank occupies bottom. Its public paths never reach far bank. -->
+<path id="near-bank-ground" d="M0 616Q261 603 440 617T814 615T1167 608T1600 618V900H0Z" fill="url(#near)"/>
+<g id="near-old-footing" fill="#a99c82" stroke="#786b57" stroke-width="4">
+ <path d="M698 548 L794 548 L803 640 L689 640 Z"/>
+ <path d="M682 538 L809 538 L804 559 L689 559 Z" fill="#c7b494"/>
+ <path d="M711 558V639 M748 558V641 M784 558V640 M697 590H797 M693 618H801" fill="none" stroke="#867866" stroke-width="3"/>
+ <path d="M700 543L793 543" stroke="#e3d2ae" stroke-width="5"/>
+</g>
+<path id="stone-retaining-edge" d="M0 613Q269 601 442 615T814 613T1167 606T1600 616" fill="none" stroke="#b1a48d" stroke-width="18"/>
+<path d="M0 625Q269 610 442 625T814 621T1167 615T1600 628" fill="none" stroke="#5f7669" stroke-width="7"/>
+<!-- Wide public promenade and the public side route to lookout are visibly connected. -->
+<path id="walkable-promenade" d="M0 719Q250 690 437 709T850 704T1180 691L1600 730V900H0Z" fill="url(#path)" stroke="#b69a70" stroke-width="7"/>
+<path d="M0 719Q250 690 437 709T850 704T1180 691L1600 730V900H0Z" fill="url(#pavers)" opacity=".55"/>
+<!-- The closed older SPUR is separate from the same-bank public route. -->
+<path id="closed-spur-public-approach" d="M663 700L663 656L829 656L829 704Z" fill="#ceb992" stroke="#b19776" stroke-width="6"/>
+<path d="M676 679L817 679" fill="none" stroke="#aa9578" stroke-width="3" stroke-dasharray="20 12"/>
+<!-- Physically complete closure at y=650. The landing is behind it and unwalkable. -->
+<g id="closed-old-bridge-barrier">
+ <path d="M646 647H844" stroke="#705443" stroke-width="15" stroke-linecap="round"/>
+ <path d="M646 616V670M844 616V670" stroke="#705443" stroke-width="17" stroke-linecap="round"/>
+ <path d="M660 622L833 667M664 665L830 621" stroke="#926d51" stroke-width="12" stroke-linecap="round"/>
+ <rect x="723" y="626" width="43" height="30" rx="5" fill="#d9bc91" stroke="#5f5547" stroke-width="5"/>
+</g>
+<!-- Continuous public same-bank route from promenade junction x1100 y755 to gazebo x1380 y655. -->
+<path id="walkable-side-path" d="M1082 748Q1140 691 1243 657T1430 646L1497 712Q1352 720 1245 750T1143 806Z" fill="url(#path)" stroke="#b89c77" stroke-width="6"/>
+<path d="M1082 748Q1140 691 1243 657T1430 646L1497 712Q1352 720 1245 750T1143 806Z" fill="url(#pavers)" opacity=".46"/>
+<!-- Guard railing protects bank side, including near overlook; all player regions are on SOUTH side. -->
+<g id="public-bank-rail" stroke="#765c41" stroke-linejoin="round" stroke-linecap="round">
+ <path d="M42 639Q278 622 463 643L627 639M867 639Q1080 628 1237 628" fill="none" stroke-width="9"/>
+ <path d="M42 657Q278 640 463 661L627 657M867 657Q1080 646 1237 646" fill="none" stroke-width="6"/>
+ <path d="M42 636V674M160 628V670M291 630V668M424 635V675M560 639V674M895 637V669M1018 632V667M1139 631V663" stroke-width="14"/>
+</g>
+<!-- Lookout is grounded on near bank ABOVE its open side-path but BELOW river shoreline; protected all around. -->
+<g id="protected-public-lookout">
+ <ellipse cx="1376" cy="642" rx="142" ry="58" fill="#576c50" opacity=".20" filter="url(#shadow)"/>
+ <path d="M1260 617Q1370 588 1490 621L1491 696Q1370 718 1258 687Z" fill="#dac3a0" stroke="#977f5f" stroke-width="6"/>
+ <path d="M1276 624L1472 626M1280 680L1472 684" stroke="#a68d6d" stroke-width="4"/>
+ <path d="M1290 608L1290 673M1330 603V677M1375 594V685M1420 603V681M1470 615V675" stroke="#76553f" stroke-width="12"/>
+ <path d="M1265 604Q1375 573 1494 608" fill="none" stroke="#71533e" stroke-width="15" stroke-linecap="round"/>
+ <path d="M1315 600L1315 561M1440 600V561" stroke="#78583c" stroke-width="16"/>
+ <path d="M1260 566L1377 518L1500 568Z" fill="url(#roof)" stroke="#634633" stroke-width="9" stroke-linejoin="round"/>
+ <path d="M1320 552L1377 530L1440 554" stroke="#d9a565" stroke-width="5" fill="none"/>
+</g>
+<!-- Small blank sign plates are separate from all destination typography. -->
+<g id="blank-sign-plates">
+ <path d="M1122 767V673" stroke="#735b46" stroke-width="14"/>
+ <path d="M1072 676L1193 669L1191 711L1072 719Z" fill="#e3c69b" stroke="#7d6348" stroke-width="8"/>
+</g>
+<!-- Near-bank scenic decorations, not traversable crossing structures. -->
+<g opacity=".9"><use href="#tree" transform="translate(146 597) scale(1.40)"/><use href="#tree" transform="translate(358 609) scale(.95)"/><use href="#tree" transform="translate(1560 621) scale(1.05)"/></g>
+<g id="flowers" fill="#f4e3a3">
+ <circle cx="127" cy="755" r="7"/><circle cx="153" cy="747" r="5"/><circle cx="401" cy="654" r="6"/><circle cx="454" cy="673" r="7"/>
+ <circle cx="959" cy="687" r="6"/><circle cx="1049" cy="683" r="6"/><circle cx="1535" cy="755" r="8"/>
+</g>
+</svg>
