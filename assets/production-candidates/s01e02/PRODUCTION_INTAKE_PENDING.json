@@ -2,7 +2,7 @@
   "schema": "wondervale-e02-original-media-intake-v1",
   "episode_id": "s01e02",
   "owner_visual_pass": "2026-10-12",
-  "status": "owner_visual_pass_original_png_files_NOT_YET_UPLOADED_TO_GITHUB",
+  "status": "media_uploaded_verified_2026-10-12",
   "starting_main_sha": "b85c4c2e6c472a05dbc4824cf8426ed04448b998",
   "approved_compositions": {
     "r0": "main Riverside promenade; closed old path and public overlook",
@@ -108,9 +108,16 @@
     "All six listed binary assets require exact Git readback/CRC and SHA validation before release packaging."
   ],
   "pending": [
-    "Upload three PNG source originals and three WebP candidates from user-visible ZIP to exactly matching repository paths, preferably in one media PR.",
-    "Perform readback via GitHub API of size/blob and full-byte sha256 once in an environment with binary access.",
-    "Reconcile visual camera framing with real E02 scene R0/R1/R2 and C01 actor identity, feet, labels and dialog dock.",
-    "Execute E02 real runtime tests; E01 remains owner-PASS and untouched."
-  ]
+    "C01 identity sprite/foot/label positioning and visual evidence proof in the real E02 runtime.",
+    "Implement safe same-bank walkable E02 scene with R1/R2 inspections and R4 delayed Market Lane mark.",
+    "Execute E02 unit/browser/device/family tests and verify MN4 production SHA + runtime build; E01 remains owner-PASS."
+  ],
+  "upload_verified": {
+    "github_main_sha": "038f9f48a53feaf4ee7a72d2fd0bd490f0de0a2f",
+    "github_blob_and_size": "6/6 match original manifest",
+    "exact_byte_ci": "PASS at 38218380148 on PR #54 (SHA 4aa32b47046ea13dc00efa48a62a32e52f45ad2d); subsequent HEADs must be retested before merge",
+    "original_png_count": 3,
+    "runtime_webp_count": 3,
+    "note": "This file retains its historical _PENDING basename for backwards-compatible references; the status field above is authoritative. E02 runtime QA remains NOT RUN."
+  }
 }

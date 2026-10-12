@@ -55,7 +55,7 @@ World/character state is derived from an event/progress ledger rather than being
 6. E02–E04 connected MVP
 7. Season 1 production
 
-See [Work Sequence](docs/WORK_SEQUENCE.md).
+See [Work Sequence](docs/WORK_SEQUENCE.md) and the reusable [four-gate episode/media fast lane](docs/EPISODE_PRODUCTION_FAST_LANE.md) for future production.
 
 ## Documentation
 

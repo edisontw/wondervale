@@ -1,5 +1,8 @@
 # S01E02 Riverside — Owner-PASS visual image intake (2026-10-12)
 
+**Current-state correction (2026-10-12):** the owner has now **uploaded all six media files to GitHub `main`**, SHA `038f9f48a53feaf4ee7a72d2fd0bd490f0de0a2f`. GitHub content listings confirm exact bytes and Git blob IDs against the six-file manifest. The following “not yet uploaded” prose describes the **historical handoff before that upload** and is superseded by this correction. See [E02 upload postmortem](PRODUCTION_POSTMORTEM_2026-10-12.md). No second upload is required; the next real task is E02 integration.
+
+
 **Decision:** The owner replied **PASS** to the three newly generated **separate** full-resolution Riverside PNGs in the preceding conversation. Stop repeatedly regenerating the approved visual direction; adopt them as the **R0/R1/R2 scene illustration candidates for E02 MVP**. This is a visual/art acceptance, not a statement that the E02 browser implementation or all evidence geometry is already validated.
 
 Starting GitHub `main`: `b85c4c2e6c472a05dbc4824cf8426ed04448b998`. Current acceptance assets are held as **original conversation PNGs** and are supplied in a [user-downloadable ZIP]. They are **not yet in this GitHub repository**. Their exact expected SHA-256/Git blob hashes, full dimensions, WebP derivatives and pending upload paths are recorded in [PRODUCTION_INTAKE_PENDING.json](../../../assets/production-candidates/s01e02/PRODUCTION_INTAKE_PENDING.json). GitHub PR merges containing only this intake manifest do not mean binary upload succeeded.

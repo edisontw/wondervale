@@ -4,6 +4,8 @@ Wondervale is intentionally developed **one design layer at a time**.
 
 The goal is to prevent story, pedagogy, art, audio, prompts, and engineering from being decided simultaneously and then repeatedly invalidating one another.
 
+**Execution shortcut (2026-10-12):** use the [Episode Production Fast Lane](EPISODE_PRODUCTION_FAST_LANE.md) for future episodes. It distinguishes story/learning, art selection + one media upload, playable browser acceptance, and deployment. It avoids repeated image generation and repetitive unscoped QA while preserving the gates below.
+
 ## Source of truth
 
 GitHub `main` is the project source of truth.
@@ -246,3 +248,7 @@ Owner passed V1 references and delegated ordinary production/technical choices. 
 ## 2026-10-12 E02 owner PASS checkpoint — after visual art studies
 
 The owner explicitly **PASSed three new full-resolution Riverside illustrations** (R0 main, R1 old path and R2 lookout). [Accepted image roles and technical limits](../content/season-01/s01e02/OWNER_APPROVED_RIVERSIDE_ART_2026-10-12.md); [byte-exact PNG and WebP upload manifest](../assets/production-candidates/s01e02/PRODUCTION_INTAKE_PENDING.json). **Creative selection is locked; do not continue a loop of new concept images for trivial discrepancies.** Original images and runtime WebP derivatives are prepared as a downloadable bundle but still **await binary transfer to GitHub**. The existing E02 physical topology, narrative/EFL gates and R4 spoiler protection remain unchanged. Next focused task: actual six-file upload with integrity readback, then a minimal E02 game scene with approved C01 separate actors, real phones, E02 tests and E01 baseline. Never report a visual PASS as E02 runtime PASS.
+
+## 2026-10-12 E02 image upload and process closeout
+
+The owner's six original PNG/WebP files are now present in GitHub `main` and match the previously recorded Git blob/byte-size manifest. See the [E02 production postmortem](../content/season-01/s01e02/PRODUCTION_POSTMORTEM_2026-10-12.md). A fast generic source/derivative media verifier and CI are being added; the E01 static release packager is scoped to E01-owned art, preventing silent E02 image inclusion. The owner-approved R0/R1/R2 selection is locked; **next is playable E02 integration**, not more concept/image generations. E01 visual/gameplay acceptance remains unchanged.
