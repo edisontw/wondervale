@@ -360,7 +360,7 @@ try{
    return {world:r(world),viewport:r(viewport),actors,overflowX:viewport.scrollWidth-viewport.clientWidth,
     scrollHeight:document.documentElement.scrollHeight,screenHeight:innerHeight};
   });
-  assert.ok(Math.abs(geometry.world.width-geometry.viewport.width)<=2,
+  assert.ok(geometry.world.width<=geometry.viewport.width+2 && geometry.world.x>=geometry.viewport.x-2 && geometry.world.right<=geometry.viewport.right+2,
    'All mobile World artwork must fit screen width: '+JSON.stringify({width,height,geometry}));
   assert.ok(Math.abs(geometry.world.height/geometry.world.width-941/1672)<.012,
    'Town Square lower half must not be vertically clipped: '+JSON.stringify({width,height,geometry}));
