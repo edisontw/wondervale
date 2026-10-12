@@ -14,6 +14,15 @@ on:
       - 'scripts/verify_episode_media.py'
       - 'scripts/mn4/**'
       - '.github/workflows/wondervale-mn4-auto-deploy.yml'
+  pull_request:
+    paths:
+      - 'e02/**'
+      - 'engine/s01e02.mjs'
+      - 'public/s01e02.json'
+      - 'public/art/s01e02-riverside-*.webp'
+      - 'scripts/mn4/**'
+      - 'scripts/package_e02.py'
+      - '.github/workflows/wondervale-mn4-auto-deploy.yml'
   workflow_dispatch:
 
 permissions:
@@ -78,7 +87,7 @@ jobs:
   deploy-mn4:
     needs: verify-and-package
     # Safe default: verification works before MN4 secrets and the host are configured.
-    if: ${{ vars.MN4_DEPLOY_ENABLED == 'true' }}
+    if: ${{ github.event_name != 'pull_request' && vars.MN4_DEPLOY_ENABLED == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
