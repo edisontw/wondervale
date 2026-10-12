@@ -81,13 +81,13 @@ try{
  mobileResetPage.on('pageerror',e=>errors.push(e.message));
  await mobileResetPage.goto(base,{waitUntil:'networkidle'});
  assert.ok((await ledger(mobileResetPage)).includes('episode_completed:s01e01'));
- await mobileResetPage.getByRole('button',{name:'Parent',exact:true}).click();
- await mobileResetPage.locator('.parent').getByRole('button',{name:'Start new adventure'}).click();
+ await mobileResetPage.getByRole('button',{name:'Options',exact:true}).click();
+ await mobileResetPage.getByRole('dialog',{name:'Options'}).getByRole('button',{name:'Start new adventure'}).click();
  await mobileResetPage.getByRole('dialog',{name:'Confirm new adventure'}).getByRole('button',{name:'Erase progress and restart'}).click();
  assert.equal(await mobileResetPage.evaluate(key=>localStorage.getItem(key),KEY),null);
  await mobileResetPage.reload({waitUntil:'networkidle'});
  assert.equal(await mobileResetPage.getByRole('button',{name:'Begin',exact:true}).count(),1);
- pass('RESET-03','Mobile Parent View erases completed story and future unlocks only after confirmation.','Chromium emulated touch 390×844');
+ pass('RESET-03','Mobile Options safely erase completed story and future unlocks after confirmation.','Chromium emulated touch 390×844');
  await mobileResetContext.close();
  // A denied storage write must never falsely claim the previous progress was erased.
  const deniedContext=await browser.newContext({viewport:{width:1366,height:900}});
@@ -121,6 +121,8 @@ try{
  assert.ok(introLayout.milo.left>=introLayout.stewardLabel.right-2,
   'Steward nameplate must not be behind Milo in opening: '+JSON.stringify(introLayout));
  assert.match(await firstVisit.locator('.scene-heading').innerText(),/Press Begin, then read every story line/);
+ assert.equal(await firstVisit.getByText(content.parent.cue,{exact:true}).count(),1);
+ assert.equal(await firstVisit.getByRole('button',{name:'Parent',exact:true}).count(),0);
  await click(firstVisit,'Begin');
  assert.equal(await firstVisit.locator('.opening-guide').count(),0,'Intro instructions dismissed on Begin');
  assert.doesNotMatch(await firstVisit.locator('.scene-heading').innerText(),/Press Begin, then read every story line/);
@@ -267,6 +269,22 @@ try{
  pass('FIELD-QA-RPG-MOBILE-01','Responsive RPG dialogue panel on 390px and 320px touch views, with isolated portrait and reachable actions.','Chromium emulated touch');
  await mobileCaptionCtx.close();
 
+ // Landscape phones: full scene alongside reachable RPG dialogue, no page scrolling.
+ const {c:landCtx,p:landPage}=await context({mobile:true});
+ await tap(landPage,'Begin');
+ for(const [w,h] of [[667,375],[844,390],[932,430]]){
+  await landPage.setViewportSize({width:w,height:h});
+  const g=await landPage.evaluate(()=>{
+   const r=selector=>{const b=document.querySelector(selector).getBoundingClientRect();return {left:b.left,right:b.right,width:b.width,height:b.height};};
+   return {dw:document.documentElement.scrollWidth,dh:document.documentElement.scrollHeight,scene:r('.scene-card'),caption:r('.caption'),world:r('.world'),buttons:[...document.querySelectorAll('.caption-actions button')].map(b=>b.getBoundingClientRect().height)};
+  });
+  assert.ok(g.dh<=h+3&&g.dw<=w+3,'Landscape page does not fit '+JSON.stringify({w,h,g}));
+  assert.ok(g.scene.right<=g.caption.left+2,'Caption must sit beside scene '+JSON.stringify(g));
+  assert.ok(Math.abs(g.world.width/g.world.height-1672/941)<.025,'Whole Square aspect preserved');
+  for(const height of g.buttons)assert.ok(height>=44,'Landscape dialogue actions remain usable');
+ }
+ pass('E01-LANDSCAPE-01','Landscape 667/844/932 touch view with complete Square and side dialogue.','Chromium emulated landscape touch');
+ await landCtx.close();
  const {c:hotspotsCtx,p:hotspotsPage}=await context({stage:'square'});
  const marks=await hotspotsPage.locator('#world button.spot').evaluateAll(btns=>btns.map(b=>{
   const d=b.getBoundingClientRect(),icon=b.querySelector('.spot-symbol'),p=icon?.getBoundingClientRect();
@@ -397,13 +415,14 @@ try{
  pass('FIELD-QA-SHELL-03','Mobile viewport uses one page; optional map is an in-scene sheet without page-length growth.','Chromium touch 390×844');
  await mobileShellCtx.close();
  const {c:parentPreviewCtx,p:parentPreviewPage}=await context();
- await click(parentPreviewPage,'Parent preview');
- assert.equal(await parentPreviewPage.getByRole('dialog',{name:'Parent preview'}).count(),1);
- assert.ok(await parentPreviewPage.getByRole('dialog',{name:'Parent preview'}).getByText(content.parent.preview,{exact:true}).isVisible());
- await click(parentPreviewPage,'Back to the story');
- assert.equal(await parentPreviewPage.getByRole('dialog',{name:'Parent preview'}).count(),0);
- assert.equal(await parentPreviewPage.getByRole('button',{name:'Begin',exact:true}).count(),1);
- pass('FIELD-QA-PARENT-02','Parent preview is a working, dismissible on-screen guide, not a no-op in desktop side-by-side mode.');
+ assert.equal(await parentPreviewPage.locator('.parent').count(),0,'Parent View removed');
+ for(const note of Object.values(content.parent))assert.equal(await parentPreviewPage.getByText(note,{exact:true}).count(),1,'All parent guidance in opening');
+ await click(parentPreviewPage,'Begin');
+ assert.equal(await parentPreviewPage.locator('.chapter-brief').count(),0,'Opening notes disappear after Begin');
+ await click(parentPreviewPage,'Options');
+ assert.equal(await parentPreviewPage.getByRole('dialog',{name:'Options'}).count(),1);
+ await click(parentPreviewPage,'Back to adventure');
+ pass('FIELD-QA-PARENT-02','Parent guidance moved entirely into chapter opening; accessibility/reset remain in Options.');
  await parentPreviewCtx.close();
  const {c:mapMarksCtx,p:mapMarksPage}=await context({stage:'observed'});
  await click(mapMarksPage,'Map');
@@ -528,7 +547,7 @@ try{
  await click(p,'Fountain');await click(p,'Look closely');await drain(p);await click(p,'Big tree');await click(p,'Look closely');await drain(p);assert.deepEqual((await cp(p)).anchors,[]);pass('INT-03','Ambient inspections do not verify map anchors.');
  await click(p,'Noticeboard');await click(p,'Help hold the paper.');await drain(p);assert.equal((await cp(p)).checkpoint,'cp_map_exposed');pass('INT-04','Tap hold saves intact map-exposure checkpoint.');
  await click(p,'Look at the line');await drain(p);await click(p,'Look at the line');await drain(p);assert.equal(await p.getByRole('button',{name:"Maybe it's a treasure map!",exact:true}).count(),0);pass('INT-09','Repeated region does not unlock speculation.');
- assert.equal(await p.locator('#parent-cue').count(),1);pass('UX-07','Nonblocking first-observation parent cue in desktop side panel.');
+ assert.equal(await p.locator('#parent-cue,.parent').count(),0);pass('UX-07','First observation proceeds without a live Parent View interruption.');
  await click(p,'Look at the shape');await drain(p);await click(p,"Maybe it's a treasure map!");assert.equal(await p.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-MILO-013');await drain(p);assert.equal(await p.locator('.scene-map-sheet').count(),0);await click(p,'Map');assert.equal(await p.locator('.scene-map-sheet .map-art').count(),1);assert.equal(await p.locator('.scene-map-sheet image[href="public/art/glyph.svg"]').count(),1);await click(p,'Close map');assert.equal(await p.locator('.scene-map-sheet').count(),0);assert.equal((await p.locator('body').innerText()).includes('${mapArt()}'),false);pass('INT-05','A/B observations, A guess, C physical fallback converge.');
  await click(p,'Old post');assert.equal(await p.getByRole('button',{name:'Clean without rubbing',exact:true}).count(),0);pass('INT-15','No early clean control or destination disclosure.');
  assert.equal(await p.getByRole('button',{name:'Bench',exact:true}).count(),0);assert.equal(await p.getByRole('button',{name:'Compare the round mark'}).count(),0);assert.equal(await p.getByRole('button',{name:'Compare the tree mark'}).count(),0);assert.deepEqual((await cp(p)).anchors,[]);pass('INT-12','Unrelated location does not present misleading comparison buttons or confirm either landmark.');
@@ -626,7 +645,7 @@ try{
  pass('FIELD-QA-07-BROWSER','Decorative actor sprite and name label layers do not block world clicks.');
  await lc1.close();
  const {c:mc,p:mp}=await context({mobile:true});await mp.screenshot({path:`${out}/mobile-opening.png`,fullPage:true});await finishPath(mp,{mobile:true,choice:'C',anchorOrder:['fountain','large_tree']});assert.ok(await mp.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));pass('UX-01/UX-02/UX-04/UX-05','Audio off, reduced motion, touch actions and explicit assisted travel complete E01; no horizontal page overflow.','Chromium emulated touch 390×844');await mc.close();
- const {c:pc,p:pp}=await context({mobile:true,stage:'map'});await tap(pp,'Look at the line');await drain(pp);await tap(pp,'Parent');assert.equal(await pp.getByText(content.parent.cue,{exact:true}).count(),1);await tap(pp,'Back to Child View');assert.equal(await pp.getByRole('button',{name:'Look at the line',exact:true}).getAttribute('aria-pressed'),'true');await tap(pp,'Parent');await tap(pp,'Back to Child View');pass('INT-20/UX-08','Repeated Parent/Child switches preserve inspection; cue remains single.','Chromium emulated touch 390×844');await pc.close();
+ const {c:pc,p:pp}=await context({mobile:true,stage:'map'});await tap(pp,'Look at the line');await drain(pp);await tap(pp,'Options');assert.equal(await pp.getByRole('dialog',{name:'Options'}).count(),1);await tap(pp,'Back to adventure');assert.equal(await pp.getByRole('button',{name:'Look at the line',exact:true}).getAttribute('aria-pressed'),'true');await tap(pp,'Options');await tap(pp,'Back to adventure');assert.equal(await pp.locator('.parent').count(),0);pass('INT-20/UX-08','Repeated Options access preserves state without Parent View.','Chromium emulated touch 390×844');await pc.close();
  for(const [stage,id,expected] of [['square','SAV-01','012'],['map','SAV-02','014'],['observed','SAV-03','014'],['anchors','SAV-04','014'],['marker','SAV-05','016']]){const {c,p}=await context({stage});await p.reload({waitUntil:'networkidle'});assert.equal(await p.getByRole('dialog').count(),1);assert.equal(await p.locator('.dialog [data-line-id]').first().getAttribute('data-line-id'),`S01E01-NARRATOR-${expected}`);await click(p,'Continue the story');assert.equal(await p.getByRole('dialog').count(),0);pass(id,'Resume presents exactly one state-appropriate optional recap.');await c.close();}
  const {c:lc,p:lp}=await context({stage:'later'});const later=await ledger(lp);await click(lp,'Replay this memory');await click(lp,'Begin');await drain(lp);await click(lp,'Leave replay');assert.deepEqual(await ledger(lp),later);pass('SAV-09','Later-season fixture unchanged after partial replay/exit.');await lc.close();
  const {c:kc,p:kp}=await context({stage:'square'});async function keyAction(name){for(let i=0;i<90;i++){await kp.keyboard.press('Tab');if(await kp.evaluate(name=>document.activeElement?.textContent.trim()===name,name)){await kp.keyboard.press('Enter');return;}}throw Error('Keyboard unreachable '+name);}
