@@ -1,0 +1,109 @@
+{
+  "schema": "wondervale-e02-inspect-reference-v1",
+  "episode_id": "s01e02",
+  "reference_status": "CANDIDATE_NOT_APPROVED",
+  "revision": 1,
+  "source_main_at_start": "316ac55697bed364f51807eb0837e7c34e66f54d",
+  "topology_authority": "assets/reference-candidates/s01e02/riverside-r0-geography-blockout-v2.svg",
+  "topology_github_blob": "c9053ccd47713f11ec60936fef9d8e803c94786e",
+  "walkable_map": "assets/reference-candidates/s01e02/riverside-r0-geography-blockout-v1.json",
+  "dialogue_authority": "content/season-01/s01e02/DETAILED_SCRIPT.md",
+  "interaction_authority": "content/season-01/s01e02/INTERACTION_SPEC.md",
+  "render": {
+    "size": [
+      1600,
+      900
+    ],
+    "aspect": "16:9",
+    "composition": "same original R0 v2 geometry rewindowed by 16:9 viewBox; no independent landforms or bridge repairs; no text or characters embedded",
+    "style": "vector geography blockout pending final painterly illustrations"
+  },
+  "cameraMode": "inspect_only_overlay_after_explicit_child_selection; never moves Milo across river",
+  "viewStates": [
+    {
+      "state": "R1",
+      "file": "assets/reference-candidates/s01e02/riverside-r1-old-footings-inspect-v1.svg",
+      "viewBox": [
+        270,
+        285,
+        950,
+        534.375
+      ],
+      "entryPoint": "oldStones",
+      "spokenIDs": [
+        "S01E02-UI-003",
+        "S01E02-MILO-005",
+        "S01E02-NIA-003"
+      ],
+      "guard": "Player on safe paving at closed old-spur station chooses Inspect old stones"
+    },
+    {
+      "state": "R2",
+      "file": "assets/reference-candidates/s01e02/riverside-r2-look-across-inspect-v1.svg",
+      "viewBox": [
+        475,
+        310,
+        1020,
+        573.75
+      ],
+      "entryPoint": "lookoutView",
+      "spokenIDs": [
+        "S01E02-UI-006",
+        "S01E02-MILO-008",
+        "S01E02-NIA-006"
+      ],
+      "guard": "Player physically arrives on protected same-bank lookout using public route, then explicitly chooses Look across"
+    }
+  ],
+  "geography": {
+    "alignment": "both old footing centers x≈745 in v2 source; opposite banks are north/top vs south/bottom, no continuous deck",
+    "oldEntrance": "closed, no traversable route edge to water",
+    "publicLookout": "already open same-bank path; discovery persists on first arrival",
+    "barrierAndWater": "non-walkable",
+    "optionalMap": "never automatically opens",
+    "marketMarker": "never baked in any R1 or R2 image; only in post-revision separate R4 state"
+  },
+  "ui": {
+    "captionsFrom": "locked script v1",
+    "parentCue": "only after both observed evidence categories and before notebook",
+    "listen": "manual line repeat; no state mutation",
+    "needsC01Sprites": true,
+    "safePhoneWidths": [
+      320,
+      360,
+      390,
+      430
+    ]
+  },
+  "evidence": {
+    "ev_e02_old_stones": {
+      "visibleIn": [
+        "R1",
+        "R2"
+      ],
+      "recordOnlyOn": "intentional R1 station inspect"
+    },
+    "ev_e02_changed_edge": {
+      "visibleIn": [
+        "R2"
+      ],
+      "recordOnlyOn": "intentional R2 lookout inspect"
+    },
+    "ev_e02_new_edge": {
+      "visibleIn": [
+        "R2"
+      ],
+      "recordOnlyOn": "supporting visual; never a mandatory third hotspot"
+    }
+  },
+  "qa": {
+    "sourceVersionMatching": "pending verification in PR",
+    "rasterFrameMockups": "locally rendered from existing geometry-equivalent R0 v2 PNG, not SHA-identical re-render of GitHub SVG",
+    "phoneStaging": "320/390 px image+dialog dock static samples made in current conversation; 360/430 coverage previously in R0 camera record",
+    "painterlyMood": "generated two-panel illustration exists as conversation PNG only; reject exact geography until bases relocated to shore ends and C01 verified",
+    "approved_visual_assets": false,
+    "E02_runtime_test_cases_run": 0,
+    "C01_actor_composite": "NOT_RUN",
+    "owner_visual_pass": "PENDING"
+  }
+}
