@@ -282,7 +282,7 @@ try{
    const scene=document.querySelector('.scene-card'),caption=document.querySelector('.caption');
    const controls=[...document.querySelectorAll('.caption-actions button,.navigation button')].map(b=>{
     const v=box(b),hit=document.elementFromPoint(v.left+v.width/2,v.top+v.height/2);
-    return {...v,name:b.textContent.trim(),fontSize:parseFloat(getComputedStyle(b).fontSize),hit:hit===b||b.contains(hit)};
+    return {...v,name:b.innerText.trim(),fontSize:parseFloat(getComputedStyle(b).fontSize),hit:hit===b||b.contains(hit)};
    });
    return {dw:document.documentElement.scrollWidth,dh:document.documentElement.scrollHeight,
     scene:box(scene),caption:box(caption),world:box('.world'),viewport:box('.viewport'),
