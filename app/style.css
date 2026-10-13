@@ -703,34 +703,106 @@ html,body{height:100%;overflow:hidden}
  .chapter-world .world{width:min(100%,calc(30dvh * 1.776833))}
  .chapter-actions{position:sticky}
 }
-@media(orientation:landscape) and (max-height:520px) and (pointer:coarse){
- #app>header{min-height:34px;padding:1px 6px}
- #app>header .brand{font-size:17px}
- #app>header button{min-height:32px;font-size:11px;padding:3px 7px}
- #app>.layout{padding:0 4px 4px}
- #app>.layout .child:has(.caption){display:grid;grid-template-columns:minmax(0,1fr) clamp(210px,34%,305px);gap:6px}
- #app>.layout .child:has(.caption) .scene-card{height:100%;min-height:0;border-radius:10px}
- #app>.layout .child:has(.caption) .caption{width:100%;height:100%;min-height:0;max-height:none;margin:0;padding:6px;gap:6px;align-content:start;grid-template-columns:43px minmax(0,1fr);overflow-y:auto;border-radius:10px}
- #app .caption .portrait{width:43px;height:57px;grid-row:auto;align-self:start}
- #app .caption .caption-message{max-height:none;overflow:visible}
- #app .caption .speaker{font-size:12px;padding:2px 6px}
- #app .caption .text{font-size:clamp(15px,2.1vw,19px);line-height:1.25}
- #app .caption .caption-actions{grid-column:1/-1;display:flex;flex-direction:column;gap:5px}
- #app .caption .caption-actions button{width:100%;min-height:44px;flex:0 0 auto;font-size:13px;padding:6px}
- #app .caption .caption-actions button[data-action=next]{min-height:48px;font-size:15px}
- #app .scene-heading{padding:3px 8px}
- #app .scene-heading h1{font-size:17px}
- #app .scene-heading .eyebrow{font-size:9px}
- #app .world{width:min(100%,calc((100dvh - 135px)*1.776833))}
- #app .navigation{display:flex;flex-wrap:nowrap;gap:3px;padding:4px}
- #app .navigation button{min-height:40px;font-size:10px;padding:4px 2px}
- #app .action-dock{padding:4px 5px;gap:4px}
- #app .action-dock button{min-height:42px;font-size:12px;padding:5px}
- #app .comparison-progress{font-size:11px}
- #app .scene-map-sheet{inset:28px 4px 4px;width:calc(100% - 8px);max-height:calc(100% - 32px);padding:5px}
- #app .scene-map-sheet .map-art{min-height:85px;max-height:none}
- #app .scene-map-sheet .choices{max-height:25dvh}
- #app .scene-map-sheet .choices button{min-height:44px}
+/* Phone landscape: the illustrated world stays ABOVE the RPG dialogue.
+   One compact bottom dialogue row avoids the prior right sidebar. Preserve
+   all scene geometry, 44px touch targets, and scroll only for rich tasks. */
+@media (orientation:landscape) and (max-height:520px) and (pointer:coarse){
+ #app>header{min-height:42px;padding:2px 7px;gap:6px}
+ #app>header .brand{font-size:18px}
+ #app>header .episode-title{display:none}
+ #app>header button{min-height:40px;font-size:13px;padding:4px 8px}
+ #app>.layout{padding:0 5px 5px}
+ #app>.layout .child:has(.caption){display:flex;flex-direction:column;gap:0;min-height:0;overflow:hidden}
+ #app>.layout .child:has(.caption) .scene-card{
+  position:relative;display:flex;flex-direction:column;flex:1 1 auto;
+  width:100%;height:auto;min-height:0;border-radius:11px;overflow-x:hidden;overflow-y:auto
+ }
+ #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)){
+  overflow:hidden
+ }
+ #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .scene-heading{
+  flex:0 0 auto;min-height:46px;width:100%;padding:3px 6px
+ }
+ #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .scene-heading h1{
+  width:clamp(118px,20vw,162px);font-size:15px;line-height:1.14;margin:1px 0;
+ }
+ #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .scene-heading .eyebrow{font-size:9px}
+ #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .navigation{
+  position:absolute;top:0;right:3px;z-index:8;
+  width:calc(100% - clamp(125px,21vw,170px));
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:1px 2px;
+  background:rgba(255,250,240,.95);border-radius:10px
+ }
+ #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .navigation button{
+  width:100%;min-width:0;min-height:44px;padding:3px 2px;
+  font:600 14px/1.1 system-ui;white-space:normal
+ }
+ #app>.layout .child:has(.caption) .scene-card:not(:has(.close-panel)) .viewport{
+  flex:1 1 auto;min-height:0;max-height:100%;width:100%;
+  display:flex;align-items:center;justify-content:center;overflow:hidden
+ }
+ #app>.layout .child:has(.caption) .scene-card:not(:has(.close-panel)) .world{
+  flex:none;width:auto;height:100%;max-height:100%;max-width:100%;
+  aspect-ratio:1672/941
+ }
+ #app>.layout .child:has(.caption) .scene-card .action-dock{
+  flex:0 0 auto;gap:4px;padding:3px 6px
+ }
+ #app>.layout .child:has(.caption) .scene-card .action-dock button{
+  min-height:44px;padding:4px 8px;font-size:14px
+ }
+ #app>.layout .child:has(.caption) .caption{
+  display:grid;grid-template-columns:44px minmax(0,1fr) minmax(225px,38%);
+  align-items:center;align-content:center;gap:5px 8px;
+  flex:0 0 auto;width:auto;height:auto;min-height:0;max-height:min(31dvh,112px);
+  margin:4px 4px 2px;padding:5px 8px;overflow:hidden;border-radius:10px
+ }
+ #app>.layout .child:has(.caption) .caption .portrait{
+  grid-row:auto;width:44px;height:56px;align-self:center
+ }
+ #app>.layout .child:has(.caption) .caption .caption-message{
+  min-width:0;max-height:min(21dvh,80px);overflow-y:auto;overscroll-behavior:contain
+ }
+ #app>.layout .child:has(.caption) .caption .speaker{
+  width:max-content;max-width:100%;font-size:12px;padding:2px 7px;margin:0 0 3px
+ }
+ #app>.layout .child:has(.caption) .caption .text{
+  font-size:clamp(16px,2.35vw,18px);line-height:1.25;margin:0
+ }
+ #app>.layout .child:has(.caption) .caption .caption-actions{
+  grid-column:auto;display:flex;flex-direction:row;align-items:center;gap:4px;margin:0
+ }
+ #app>.layout .child:has(.caption) .caption .caption-actions button{
+  flex:1 1 0;width:auto;min-width:0;min-height:44px;
+  padding:4px 3px;font:600 14px/1.13 system-ui;
+  white-space:normal;overflow-wrap:normal
+ }
+ #app>.layout .child:has(.caption) .caption .caption-actions button[data-action=next]{
+  grid-column:auto;min-height:44px;font-size:15px
+ }
+ #app>.layout .child:has(.caption) .scene-heading{padding:3px 8px}
+ #app>.layout .child:has(.caption) .scene-heading h1{font-size:17px}
+ #app>.layout .child:has(.caption) .scene-heading .eyebrow{font-size:9px}
+ #app>.layout .child:has(.caption) .comparison-progress{font-size:12px}
+ #app>.layout .child:has(.caption) .scene-map-sheet{
+  inset:38px 5px 5px;width:calc(100% - 10px);max-height:calc(100% - 43px);padding:6px
+ }
+ #app>.layout .child:has(.caption) .scene-map-sheet .map-art{min-height:85px;max-height:none}
+ #app>.layout .child:has(.caption) .scene-map-sheet .choices{max-height:25dvh}
+ #app>.layout .child:has(.caption) .scene-map-sheet .choices button{min-height:44px}
+ /* Rich scratch/map content deliberately scrolls instead of hiding controls. */
+ #app>.layout .child:has(.caption) .scene-card:has(.close-panel){display:block;overflow-y:auto}
+ #app>.layout .child:has(.caption) .scene-card:has(.close-panel) .viewport{display:flex;height:auto}
+ #app>.layout .child:has(.caption) .scene-card:has(.close-panel) .world{
+  height:auto;width:min(100%,calc(38dvh * 1.776833))
+ }
+ #app>.layout .child:has(.caption) .scene-card:has(.close-panel) .navigation{
+  position:static;display:flex;flex-wrap:nowrap;gap:4px;padding:4px
+ }
+ #app>.layout .child:has(.caption) .scene-card:has(.close-panel) .navigation button{
+  min-height:44px;font-size:14px;padding:4px 2px
+ }
+ /* The opening parent briefing remains a separately scrolling long-form page. */
  #app .chapter-brief{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden}
  #app .chapter-content{height:100%;overflow-y:auto}
  #app .chapter-world{order:0;max-height:none}
@@ -740,4 +812,11 @@ html,body{height:100%;overflow:hidden}
  #app .chapter-parent h3{font-size:12px}
  #app .chapter-content .scene-heading p{font-size:12px}
  #app .chapter-actions button{min-height:44px}
+}
+@media (orientation:portrait) and (max-width:760px) and (pointer:coarse){
+ #app>header button{min-height:40px;font-size:13px;padding:5px 8px}
+ #app .navigation button{min-height:44px;font-size:14px;padding:6px 6px}
+ #app .caption{margin:-9px 4px 4px}
+ #app .caption .caption-actions button{min-height:44px;padding:5px 4px;font-size:14px}
+ #app .caption .caption-actions button[data-action=next]{min-height:44px;font-size:16px}
 }

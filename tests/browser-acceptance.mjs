@@ -271,21 +271,37 @@ try{
  pass('FIELD-QA-RPG-MOBILE-01','Responsive RPG dialogue panel on 390px and 320px touch views, with isolated portrait and reachable actions.','Chromium emulated touch');
  await mobileCaptionCtx.close();
 
- // Landscape phones: full scene alongside reachable RPG dialogue, no page scrolling.
- const {c:landCtx,p:landPage}=await context({mobile:true});
- await tap(landPage,'Begin');
+ // Phone landscape: a wide illustrated scene ABOVE a compact bottom dialogue row.
+ // Normal exploration should fit a single screen; long scratch/Chronicle can scroll.
+ const {c:landCtx,p:landPage}=await context({mobile:true,stage:'square'});
+ await tap(landPage,'Fountain');await tap(landPage,'Look closely');
  for(const [w,h] of [[667,375],[844,390],[932,430]]){
   await landPage.setViewportSize({width:w,height:h});
   const g=await landPage.evaluate(()=>{
-   const r=selector=>{const b=document.querySelector(selector).getBoundingClientRect();return {left:b.left,right:b.right,width:b.width,height:b.height};};
-   return {dw:document.documentElement.scrollWidth,dh:document.documentElement.scrollHeight,scene:r('.scene-card'),caption:r('.caption'),world:r('.world'),buttons:[...document.querySelectorAll('.caption-actions button')].map(b=>b.getBoundingClientRect().height)};
+   const box=x=>{const b=(typeof x==='string'?document.querySelector(x):x).getBoundingClientRect();return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};
+   const scene=document.querySelector('.scene-card'),caption=document.querySelector('.caption');
+   const controls=[...document.querySelectorAll('.caption-actions button,.navigation button')].map(b=>{
+    const v=box(b),hit=document.elementFromPoint(v.left+v.width/2,v.top+v.height/2);
+    return {...v,name:b.textContent.trim(),fontSize:parseFloat(getComputedStyle(b).fontSize),hit:hit===b||b.contains(hit)};
+   });
+   return {dw:document.documentElement.scrollWidth,dh:document.documentElement.scrollHeight,
+    scene:box(scene),caption:box(caption),world:box('.world'),viewport:box('.viewport'),
+    nav:box('.navigation'),controls,
+    sceneOverflow:scene.scrollHeight-scene.clientHeight,
+    captionOverflow:caption.scrollHeight-caption.clientHeight};
   });
-  assert.ok(g.dh<=h+3&&g.dw<=w+3,'Landscape page does not fit '+JSON.stringify({w,h,g}));
-  assert.ok(g.scene.right<=g.caption.left+2,'Caption must sit beside scene '+JSON.stringify(g));
-  assert.ok(Math.abs(g.world.width/g.world.height-1672/941)<.025,'Whole Square aspect preserved');
-  for(const height of g.buttons)assert.ok(height>=44,'Landscape dialogue actions remain usable');
+  assert.ok(g.dh<=h+3&&g.dw<=w+3,'Landscape document must fit '+JSON.stringify({w,h,g}));
+  assert.ok(g.scene.bottom<=g.caption.top+2,'Dialogue must be BELOW scene, never right: '+JSON.stringify({w,h,g}));
+  assert.ok(g.caption.bottom<=h+2,'Landscape dialogue exceeds viewport '+JSON.stringify({w,h,g}));
+  assert.ok(g.world.width>=310&&g.world.width<=w,'Preserve readable whole scene '+JSON.stringify({w,h,g}));
+  assert.ok(Math.abs(g.world.width/g.world.height-1672/941)<.025,'Whole Square aspect preserved '+JSON.stringify({w,h,g}));
+  assert.ok(g.world.top>=g.viewport.top-2&&g.world.bottom<=g.viewport.bottom+2,'Illustration clipped '+JSON.stringify({w,h,g}));
+  assert.ok(g.nav.top>=g.scene.top-2&&g.nav.bottom<=g.viewport.top+5,'Navigation must share heading row '+JSON.stringify({w,h,g}));
+  assert.ok(g.sceneOverflow<4&&g.captionOverflow<4,'Normal dialogue should not scroll outer panels '+JSON.stringify({w,h,g}));
+  for(const c of g.controls)assert.ok(c.height>=44&&c.fontSize>=14&&c.hit&&c.bottom<=h+2,
+   'Landscape touch control too small/unreachable '+JSON.stringify({w,h,c}));
  }
- pass('E01-LANDSCAPE-01','Landscape 667/844/932 touch view with complete Square and side dialogue.','Chromium emulated landscape touch');
+ pass('E01-LANDSCAPE-01','Landscape 667/844/932 keeps scene above bottom dialogue, correct illustration ratio, one-screen layout and legible touch controls.','Chromium emulated landscape touch');
  await landCtx.close();
  // Fullscreen is optional. Unsupported and rejected mobile requests must not leave a dead button.
  const {c:fullscreenCtx,p:fullscreenPage}=await context({stage:'square'});
