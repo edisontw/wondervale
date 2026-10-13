@@ -824,3 +824,75 @@ html,body{height:100%;overflow:hidden}
  #app .caption .caption-actions button{min-height:44px;padding:5px 4px;font-size:14px}
  #app .caption .caption-actions button[data-action=next]{min-height:44px;font-size:16px}
 }
+
+/* 2026-10-13 physical iPhone 1136x639 screenshot corresponds to ~568x320 CSS pixels.
+   In this short landscape game viewport, a 44px header and 44px full-width
+   'Open the old map' row squeezed the 1672:941 illustration to ~130 CSS px wide.
+   Overlay ONLY lightweight chrome at the illustration's upper edge; keep
+   the four 44px walk targets in one row BELOW the artwork and RPG dialogue
+   under them. Rich map/scratch/Chronicle remain independently scrollable. */
+.compact-map-short{display:none}
+@media (orientation:landscape) and (max-height:360px) and (max-width:760px) and (pointer:coarse){
+ #app{position:relative}
+ #app>header{
+  position:absolute;top:2px;right:5px;left:auto;z-index:17;
+  width:auto;height:auto;min-height:0;max-height:none;
+  padding:0;background:transparent;pointer-events:none
+ }
+ #app>header .site-id{display:none}
+ #app>header .tools{pointer-events:auto;gap:4px}
+ #app>header .tools button{
+  min-height:44px;min-width:66px;padding:5px 8px;
+  border-radius:10px;background:rgba(255,250,240,.94);
+  font:600 13px/1.1 system-ui
+ }
+ #app>.layout{padding:0 4px 2px}
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .scene-card:has(.navigation):not(:has(.close-panel)) .scene-heading{
+  position:absolute;left:2px;top:2px;z-index:14;
+  min-height:0;width:auto;max-width:calc(100% - 220px);
+  padding:4px 7px;border-radius:8px;background:rgba(255,250,240,.88)
+ }
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .scene-card:has(.navigation):not(:has(.close-panel)) .scene-heading h1{
+  font:700 14px/1.15 Georgia,serif;margin:0
+ }
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .scene-card:has(.navigation):not(:has(.close-panel)) .viewport{
+  flex:1 1 auto;min-height:0;max-height:100%;align-items:center
+ }
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .scene-card:has(.navigation):not(:has(.close-panel)) .action-dock:has([data-action="open-map"]){
+  position:absolute;top:0;left:108px;right:auto;z-index:15;
+  display:flex;flex:0 0 auto;align-items:flex-start;
+  width:auto;min-height:0;padding:2px 0;background:none
+ }
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .action-dock [data-action="open-map"]{
+  flex:0 0 auto;min-width:58px;min-height:44px;
+  padding:5px 8px;border-radius:10px;
+  font:700 14px/1.1 system-ui
+ }
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .action-dock .compact-map-full{display:none}
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .action-dock .compact-map-short{display:inline}
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .scene-card:has(.navigation):not(:has(.close-panel)) .navigation{
+  gap:3px;padding:1px 3px
+ }
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .caption{
+  margin:2px 3px 1px;padding:3px 6px;gap:4px 5px;
+  grid-template-columns:40px minmax(0,1fr) minmax(190px,39%);
+  max-height:76px
+ }
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .caption .portrait{
+  width:40px;height:51px
+ }
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .caption .caption-message{
+  max-height:68px
+ }
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .caption .text{
+  font-size:16px;line-height:1.18
+ }
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .caption .caption-actions button{
+  min-height:44px;padding:3px 2px;font-size:13px
+ }
+ #app>.layout :is(.child:has(.caption),.child:has(.navigation)) .caption .caption-actions button[data-action="next"]{
+  font-size:14px
+ }
+ /* Preserve the parent briefing's own scrolling, not an obscured global header. */
+ #app>.layout .child:has(.chapter-brief){padding-top:44px}
+}
