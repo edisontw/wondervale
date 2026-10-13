@@ -901,6 +901,8 @@ html,body{height:100%;overflow:hidden}
    Size each answer to its words, wrap rows as required, keep 44px touch
    targets, and leave the floating old-paper map and controls unchanged. */
 .scene-map-sheet .choices{
+ flex-direction:row;
+ flex-wrap:wrap;
  justify-content:flex-start;
  align-items:flex-start;
  gap:6px;
