@@ -347,6 +347,42 @@ try{
  pass('E01-IPHONE-320-MAP','At 568x320 CSS, Open the old map uses a compact top control with its full accessible name.','Chromium emulated touch');
  await compactMapCtx.close();
  await landCtx.close();
+ // Owner iPhone acceptance: traveling briefly rendered "Walking to the place…"
+ // as an extra full-width scene row, shrinking the painted Town Square.
+ // Enable genuine animated walking and verify the scene geometry is invariant
+ // at the real ~568x320 iPhone CSS window, not just at arrival.
+ const {c:walkCtx,p:walkPage}=await context({mobile:true,stage:'square',motion:true});
+ await walkPage.setViewportSize({width:568,height:320});
+ await tap(walkPage,'Options');
+ await walkPage.locator('input[data-setting="motion"]').check();
+ await tap(walkPage,'Back to adventure');
+ const measureWalk=()=>walkPage.evaluate(()=>{
+  const rect=s=>{const b=document.querySelector(s).getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height};};
+  return {world:rect('#world'),viewport:rect('#viewport'),
+   dock:rect('.scene-card .action-dock'),text:document.querySelector('.scene-card .action-dock')?.textContent?.trim()||'',
+   moving:!!document.querySelector('.scene-card .action-dock[role="status"][aria-label="Milo is walking"]'),
+   docHeight:document.documentElement.scrollHeight,docWidth:document.documentElement.scrollWidth};
+ });
+ const beforeWalk=await measureWalk();
+ assert.equal(beforeWalk.text,'','Ordinary free-roam action slot is empty');
+ await walkPage.locator('.navigation [data-action="walk:marker"]').tap({noWaitAfter:true});
+ await walkPage.waitForFunction(()=>!!document.querySelector('.scene-card .action-dock[role="status"][aria-label="Milo is walking"]'),null,{timeout:3000});
+ const duringWalk=await measureWalk();
+ assert.equal(duringWalk.text,'','Walking status must not draw visible text');
+ assert.equal(await walkPage.getByText('Walking to the place', {exact:false}).count(),0);
+ assert.ok(duringWalk.moving,'The animation must really be in progress');
+ for(const item of ['world','viewport','dock']){
+  for(const dimension of ['x','y','width','height'])
+   assert.ok(Math.abs(beforeWalk[item][dimension]-duringWalk[item][dimension])<1.5,
+    'Moving must not resize/reflow '+item+'.'+dimension+' '+JSON.stringify({beforeWalk,duringWalk}));
+ }
+ assert.ok(duringWalk.docHeight<=320+3&&duringWalk.docWidth<=568+3,'No page overflow during walking '+JSON.stringify(duringWalk));
+ await walkPage.waitForFunction(()=>!document.querySelector('.scene-card .action-dock[aria-label="Milo is walking"]'),null,{timeout:6000});
+ const afterWalk=await measureWalk();
+ assert.equal(afterWalk.text,'','Travel completion must restore ordinary empty action slot');
+ for(const dimension of ['width','height'])assert.ok(Math.abs(beforeWalk.world[dimension]-afterWalk.world[dimension])<1.5,'Travel arrival must not resize whole scene');
+ pass('E01-IPHONE-WALK-STABLE','Animated iPhone 568x320 travel has no visible walking text and leaves artwork, viewport and action dock dimensions stable before/during/after movement.','Chromium touch with motion enabled, not real iOS WebKit');
+ await walkCtx.close();
  // Fullscreen is optional. Unsupported and rejected mobile requests must not leave a dead button.
  const {c:fullscreenCtx,p:fullscreenPage}=await context({stage:'square'});
  if(await fullscreenPage.getByRole('button',{name:'Full screen',exact:true}).count()){
