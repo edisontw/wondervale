@@ -275,7 +275,7 @@ try{
  // Normal exploration should fit a single screen; long scratch/Chronicle can scroll.
  const {c:landCtx,p:landPage}=await context({mobile:true,stage:'square'});
  await tap(landPage,'Fountain');await tap(landPage,'Look closely');
- for(const [w,h] of [[667,375],[844,390],[932,430]]){
+ for(const [w,h] of [[667,375],[844,390],[932,430],[1136,639]]){
   await landPage.setViewportSize({width:w,height:h});
   const g=await landPage.evaluate(()=>{
    const box=x=>{const b=(typeof x==='string'?document.querySelector(x):x).getBoundingClientRect();return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};
@@ -286,7 +286,10 @@ try{
    });
    return {dw:document.documentElement.scrollWidth,dh:document.documentElement.scrollHeight,
     scene:box(scene),caption:box(caption),world:box('.world'),viewport:box('.viewport'),
+    header:box('#app>header'),brand:box('#app>header .brand'),
+    options:box('#app>header [data-action="settings"]'),
     nav:box('.navigation'),controls,
+    boardLabel:document.querySelector('.navigation [data-action="walk:board"]')?.innerText.trim(),
     sceneOverflow:scene.scrollHeight-scene.clientHeight,
     captionOverflow:caption.scrollHeight-caption.clientHeight};
   });
@@ -296,12 +299,20 @@ try{
   assert.ok(g.world.width>=310&&g.world.width<=w,'Preserve readable whole scene '+JSON.stringify({w,h,g}));
   assert.ok(Math.abs(g.world.width/g.world.height-1672/941)<.025,'Whole Square aspect preserved '+JSON.stringify({w,h,g}));
   assert.ok(g.world.top>=g.viewport.top-2&&g.world.bottom<=g.viewport.bottom+2,'Illustration clipped '+JSON.stringify({w,h,g}));
-  assert.ok(g.nav.top>=g.scene.top-2&&g.nav.bottom<=g.viewport.top+5,'Navigation must share heading row '+JSON.stringify({w,h,g}));
+  assert.ok(g.header.height<=48&&g.brand.height<28&&g.options.height>=44&&g.options.width<130,
+   'Compact title/Options must leave more room for artwork '+JSON.stringify({w,h,g}));
+  assert.equal(g.boardLabel,'Board','Short visual label must not change accessible Noticeboard identity');
+  assert.ok(g.nav.top>=g.viewport.bottom-2&&g.nav.bottom<=g.scene.bottom+2,
+   'All location buttons must be in ONE row BELOW illustration '+JSON.stringify({w,h,g}));
+  const places=g.controls.filter(c=>['Board','Fountain','Big tree','Old post'].includes(c.name));
+  assert.equal(places.length,4,'All four walk buttons visible');
+  assert.ok(places.every(c=>Math.abs(c.top-places[0].top)<2&&Math.abs(c.bottom-places[0].bottom)<2),
+   'Location buttons must form exactly one row '+JSON.stringify({w,h,g}));
   assert.ok(g.sceneOverflow<4&&g.captionOverflow<4,'Normal dialogue should not scroll outer panels '+JSON.stringify({w,h,g}));
   for(const c of g.controls)assert.ok(c.height>=44&&c.fontSize>=14&&c.hit&&c.bottom<=h+2,
    'Landscape touch control too small/unreachable '+JSON.stringify({w,h,c}));
  }
- pass('E01-LANDSCAPE-01','Landscape 667/844/932 keeps scene above bottom dialogue, correct illustration ratio, one-screen layout and legible touch controls.','Chromium emulated landscape touch');
+ pass('E01-LANDSCAPE-01','Landscape 667/844/932/1136 keeps all four short-labeled buttons one row below art, compact header/Options, uncropped image and bottom dialogue.','Chromium emulated landscape touch');
  await landCtx.close();
  // Fullscreen is optional. Unsupported and rejected mobile requests must not leave a dead button.
  const {c:fullscreenCtx,p:fullscreenPage}=await context({stage:'square'});
