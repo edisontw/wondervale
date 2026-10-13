@@ -896,3 +896,23 @@ html,body{height:100%;overflow:hidden}
  /* Preserve the parent briefing's own scrolling, not an obscured global header. */
  #app>.layout .child:has(.chapter-brief){padding-top:44px}
 }
+
+/* E01 map hypotheses: these are short choices, not full-width command bars.
+   Size each answer to its words, wrap rows as required, keep 44px touch
+   targets, and leave the floating old-paper map and controls unchanged. */
+.scene-map-sheet .choices{
+ justify-content:flex-start;
+ align-items:flex-start;
+ gap:6px;
+}
+.scene-map-sheet .choices button{
+ flex:0 1 auto;
+ width:max-content;
+ max-width:100%;
+ min-width:0;
+ min-height:44px;
+ padding:6px 11px;
+ font:600 14px/1.25 system-ui;
+ text-align:left;
+ white-space:normal;
+}
