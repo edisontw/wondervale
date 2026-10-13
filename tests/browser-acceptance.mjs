@@ -271,6 +271,42 @@ try{
  pass('FIELD-QA-RPG-MOBILE-01','Responsive RPG dialogue panel on 390px and 320px touch views, with isolated portrait and reachable actions.','Chromium emulated touch');
  await mobileCaptionCtx.close();
 
+ // Owner iPhone: "Maybe it's a treasure map!" and sibling hypotheses used to
+ // stretch across the entire old-paper sheet. Keep each button content-sized.
+ for(const mobile of [true,false]){
+  const {c:choiceCtx,p:choicePage}=await context({mobile,stage:'map'});
+  for(const region of ['Look at the line','Look at the shape']){
+   await (mobile?tap:click)(choicePage,region);await drain(choicePage);
+  }
+  const labels=["Maybe it's a treasure map!","Maybe it's our town.","I'm not sure yet."];
+  for(const label of labels)assert.equal(await choicePage.getByRole('button',{name:label,exact:true}).count(),1);
+  const sizes=mobile?[[390,844],[568,320],[667,375]]:[[1366,900]];
+  for(const [w,h] of sizes){
+   await choicePage.setViewportSize({width:w,height:h});
+   const g=await choicePage.evaluate(()=>{
+    const box=e=>{const r=e.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};};
+    const group=document.querySelector('.scene-map-sheet .choices');
+    return {group:box(group),documentWidth:document.documentElement.scrollWidth,
+     buttons:[...group.querySelectorAll('button')].map(b=>({
+      ...box(b),label:b.textContent.trim(),fontSize:parseFloat(getComputedStyle(b).fontSize),
+      flexGrow:getComputedStyle(b).flexGrow
+     }))};
+   });
+   assert.equal(g.buttons.length,3,'Keep all three canonical guesses');
+   assert.ok(g.buttons.every(b=>b.width<=g.group.width-18&&b.height>=44&&b.fontSize>=14&&b.flexGrow==='0'),
+    'Hypothesis buttons should hug their words, not fill paper width '+JSON.stringify({mobile,w,h,g}));
+   assert.ok(g.buttons.every(b=>b.left>=g.group.left-1&&b.right<=g.group.right+1),
+    'No choice extends outside the map '+JSON.stringify({mobile,w,h,g}));
+   assert.ok(g.documentWidth<=w+3,'Compact choices must not cause horizontal page overflow '+JSON.stringify({mobile,w,h,g}));
+  }
+  await (mobile?tap:click)(choicePage,labels[0]);
+  assert.equal(await choicePage.locator('[data-line-id]').getAttribute('data-line-id'),'S01E01-MILO-013',
+   'Compact guesses must retain canonical story selection');
+  pass(mobile?'E01-IPHONE-MAP-CHOICE-WIDTH':'E01-DESKTOP-MAP-CHOICE-WIDTH',
+   'Three exact EFL speculation choices keep 44px touch height and fit individual text widths, with no state or horizontal overflow change.',
+   mobile?'Chromium touch 390×844, 568×320, 667×375':'Chromium desktop 1366×900');
+  await choiceCtx.close();
+ }
  // Phone landscape: a wide illustrated scene ABOVE a compact bottom dialogue row.
  // Normal exploration should fit a single screen; long scratch/Chronicle can scroll.
  const {c:landCtx,p:landPage}=await context({mobile:true,stage:'square'});
