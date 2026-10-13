@@ -313,6 +313,28 @@ try{
    'Landscape touch control too small/unreachable '+JSON.stringify({w,h,c}));
  }
  pass('E01-LANDSCAPE-01','Landscape 667/844/932/1136 keeps all four short-labeled buttons one row below art, compact header/Options, uncropped image and bottom dialogue.','Chromium emulated landscape touch');
+ // Owner screenshot was taken BETWEEN dialogue lines, with no caption at all.
+ // The four walk buttons must still occupy one row in free exploration.
+ await tap(landPage,'Skip dialogue');
+ assert.equal(await landPage.locator('.caption').count(),0,'Free roam must genuinely omit the caption');
+ for(const [w,h] of [[667,375],[1136,639]]){
+  await landPage.setViewportSize({width:w,height:h});
+  const q=await landPage.evaluate(()=>{
+   const rect=e=>{const b=e.getBoundingClientRect();return {x:b.x,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};
+   const nav=document.querySelector('.navigation'),scene=document.querySelector('.scene-card'),viewport=document.querySelector('.viewport');
+   return {nav:rect(nav),scene:rect(scene),viewport:rect(viewport),world:rect(document.querySelector('.world')),
+    scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,
+    buttons:[...nav.querySelectorAll('button')].map(b=>({...rect(b),label:b.innerText.trim(),fontSize:parseFloat(getComputedStyle(b).fontSize)}))};
+  });
+  assert.equal(q.buttons.length,4,'All walking destinations remain available without dialogue');
+  assert.deepEqual(q.buttons.map(b=>b.label),['Board','Fountain','Big tree','Old post']);
+  assert.ok(q.buttons.every(b=>Math.abs(b.top-q.buttons[0].top)<2&&b.height>=44&&b.fontSize>=14),'Four buttons must stay on ONE readable row in free roam '+JSON.stringify({w,h,q}));
+  assert.ok(q.nav.top>=q.viewport.bottom-2&&q.nav.bottom<=q.scene.bottom+2,'One-row buttons must be beneath the image '+JSON.stringify({w,h,q}));
+  assert.ok(q.world.width>=310&&q.world.bottom<=q.viewport.bottom+2,'Whole artwork must stay visible '+JSON.stringify({w,h,q}));
+  assert.ok(q.scrollWidth<=w+3&&q.scrollHeight<=h+3,'Free-roam page must not scroll '+JSON.stringify({w,h,q}));
+ }
+ pass('E01-LANDSCAPE-NO-DIALOGUE','Landscape free-roam without a caption still has a single row of four buttons under the scene at 667×375 and 1136×639.','Chromium touch; matches owner screenshot state');
+
  await landCtx.close();
  // Fullscreen is optional. Unsupported and rejected mobile requests must not leave a dead button.
  const {c:fullscreenCtx,p:fullscreenPage}=await context({stage:'square'});
