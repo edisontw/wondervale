@@ -703,14 +703,17 @@ html,body{height:100%;overflow:hidden}
  .chapter-world .world{width:min(100%,calc(30dvh * 1.776833))}
  .chapter-actions{position:sticky}
 }
+/* The abbreviated location is purely visual; accessibility keeps Noticeboard. */
+.walk-label-short{display:none}
 /* Phone landscape: the illustrated world stays ABOVE the RPG dialogue.
    One compact bottom dialogue row avoids the prior right sidebar. Preserve
    all scene geometry, 44px touch targets, and scroll only for rich tasks. */
-@media (orientation:landscape) and (max-height:520px) and (pointer:coarse){
- #app>header{min-height:42px;padding:2px 7px;gap:6px}
- #app>header .brand{font-size:18px}
+@media (orientation:landscape) and (max-height:700px) and (max-width:1280px) and (pointer:coarse){
+ #app>header{height:44px;min-height:44px;max-height:44px;padding:0 7px;gap:6px}
+ #app>header .site-id{align-items:center}
+ #app>header .brand{font-size:17px;line-height:1.05}
  #app>header .episode-title{display:none}
- #app>header button{min-height:40px;font-size:13px;padding:4px 8px}
+ #app>header button{min-height:44px;font-size:13px;padding:4px 8px;border-radius:10px}
  #app>.layout{padding:0 5px 5px}
  #app>.layout .child:has(.caption){display:flex;flex-direction:column;gap:0;min-height:0;overflow:hidden}
  #app>.layout .child:has(.caption) .scene-card{
@@ -721,22 +724,23 @@ html,body{height:100%;overflow:hidden}
   overflow:hidden
  }
  #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .scene-heading{
-  flex:0 0 auto;min-height:46px;width:100%;padding:3px 6px
+  flex:0 0 auto;min-height:25px;width:100%;padding:2px 8px
  }
  #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .scene-heading h1{
-  width:clamp(118px,20vw,162px);font-size:15px;line-height:1.14;margin:1px 0;
+  width:auto;font-size:15px;line-height:1.12;margin:1px 0;
  }
- #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .scene-heading .eyebrow{font-size:9px}
+ #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .scene-heading .eyebrow{display:none}
  #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .navigation{
-  position:absolute;top:0;right:3px;z-index:8;
-  width:calc(100% - clamp(125px,21vw,170px));
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:1px 2px;
-  background:rgba(255,250,240,.95);border-radius:10px
+  position:static;top:auto;right:auto;z-index:auto;flex:0 0 auto;
+  width:100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:5px;padding:3px 6px;border-radius:0;background:rgba(255,250,240,.96)
  }
  #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .navigation button{
-  width:100%;min-width:0;min-height:44px;padding:3px 2px;
-  font:600 14px/1.1 system-ui;white-space:normal
+  width:100%;min-width:0;min-height:44px;padding:3px 4px;
+  font:600 14px/1.1 system-ui;white-space:nowrap
  }
+ #app>.layout .child:has(.caption) .navigation .walk-label-full{display:none}
+ #app>.layout .child:has(.caption) .navigation .walk-label-short{display:inline}
  #app>.layout .child:has(.caption) .scene-card:not(:has(.close-panel)) .viewport{
   flex:1 1 auto;min-height:0;max-height:100%;width:100%;
   display:flex;align-items:center;justify-content:center;overflow:hidden
@@ -781,7 +785,7 @@ html,body{height:100%;overflow:hidden}
   grid-column:auto;min-height:44px;font-size:15px
  }
  #app>.layout .child:has(.caption) .scene-heading{padding:3px 8px}
- #app>.layout .child:has(.caption) .scene-heading h1{font-size:17px}
+ #app>.layout .child:has(.caption) .scene-heading h1{font-size:15px}
  #app>.layout .child:has(.caption) .scene-heading .eyebrow{font-size:9px}
  #app>.layout .child:has(.caption) .comparison-progress{font-size:12px}
  #app>.layout .child:has(.caption) .scene-map-sheet{
@@ -797,7 +801,7 @@ html,body{height:100%;overflow:hidden}
   height:auto;width:min(100%,calc(38dvh * 1.776833))
  }
  #app>.layout .child:has(.caption) .scene-card:has(.close-panel) .navigation{
-  position:static;display:flex;flex-wrap:nowrap;gap:4px;padding:4px
+  position:static;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:4px
  }
  #app>.layout .child:has(.caption) .scene-card:has(.close-panel) .navigation button{
   min-height:44px;font-size:14px;padding:4px 2px
