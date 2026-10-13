@@ -737,11 +737,11 @@ html,body{height:100%;overflow:hidden}
   width:100%;min-width:0;min-height:44px;padding:3px 2px;
   font:600 14px/1.1 system-ui;white-space:normal
  }
- #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .viewport{
+ #app>.layout .child:has(.caption) .scene-card:not(:has(.close-panel)) .viewport{
   flex:1 1 auto;min-height:0;max-height:100%;width:100%;
   display:flex;align-items:center;justify-content:center;overflow:hidden
  }
- #app>.layout .child:has(.caption) .scene-card:has(.navigation):not(:has(.close-panel)) .world{
+ #app>.layout .child:has(.caption) .scene-card:not(:has(.close-panel)) .world{
   flex:none;width:auto;height:100%;max-height:100%;max-width:100%;
   aspect-ratio:1672/941
  }
