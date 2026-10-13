@@ -275,7 +275,7 @@ try{
  // Normal exploration should fit a single screen; long scratch/Chronicle can scroll.
  const {c:landCtx,p:landPage}=await context({mobile:true,stage:'square'});
  await tap(landPage,'Fountain');await tap(landPage,'Look closely');
- for(const [w,h] of [[667,375],[844,390],[932,430],[1136,639]]){
+ for(const [w,h] of [[568,320],[667,375],[844,390],[932,430],[1136,639]]){
   await landPage.setViewportSize({width:w,height:h});
   const g=await landPage.evaluate(()=>{
    const box=x=>{const b=(typeof x==='string'?document.querySelector(x):x).getBoundingClientRect();return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};
@@ -296,11 +296,12 @@ try{
   assert.ok(g.dh<=h+3&&g.dw<=w+3,'Landscape document must fit '+JSON.stringify({w,h,g}));
   assert.ok(g.scene.bottom<=g.caption.top+2,'Dialogue must be BELOW scene, never right: '+JSON.stringify({w,h,g}));
   assert.ok(g.caption.bottom<=h+2,'Landscape dialogue exceeds viewport '+JSON.stringify({w,h,g}));
-  assert.ok(g.world.width>=310&&g.world.width<=w,'Preserve readable whole scene '+JSON.stringify({w,h,g}));
+  assert.ok(g.world.width>=(h<=340?335:310)&&g.world.width<=w,'Preserve readable whole scene at real CSS iPhone dimensions '+JSON.stringify({w,h,g}));
   assert.ok(Math.abs(g.world.width/g.world.height-1672/941)<.025,'Whole Square aspect preserved '+JSON.stringify({w,h,g}));
   assert.ok(g.world.top>=g.viewport.top-2&&g.world.bottom<=g.viewport.bottom+2,'Illustration clipped '+JSON.stringify({w,h,g}));
   assert.ok(g.header.height<=48&&g.brand.height<28&&g.options.height>=44&&g.options.width<130,
    'Compact title/Options must leave more room for artwork '+JSON.stringify({w,h,g}));
+  if(h<=340)assert.ok(g.world.width>=w*.59&&g.header.top<=5,'Short iPhone landscape must show large artwork, with overlaid top chrome '+JSON.stringify({w,h,g}));
   assert.equal(g.boardLabel,'Board','Short visual label must not change accessible Noticeboard identity');
   assert.ok(g.nav.top>=g.viewport.bottom-2&&g.nav.bottom<=g.scene.bottom+2,
    'All location buttons must be in ONE row BELOW illustration '+JSON.stringify({w,h,g}));
@@ -317,7 +318,7 @@ try{
  // The four walk buttons must still occupy one row in free exploration.
  await tap(landPage,'Skip dialogue');
  assert.equal(await landPage.locator('.caption').count(),0,'Free roam must genuinely omit the caption');
- for(const [w,h] of [[667,375],[1136,639]]){
+ for(const [w,h] of [[568,320],[667,375],[1136,639]]){
   await landPage.setViewportSize({width:w,height:h});
   const q=await landPage.evaluate(()=>{
    const rect=e=>{const b=e.getBoundingClientRect();return {x:b.x,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};
@@ -335,6 +336,16 @@ try{
  }
  pass('E01-LANDSCAPE-NO-DIALOGUE','Landscape free-roam without a caption still has a single row of four buttons under the scene at 667×375 and 1136×639.','Chromium touch; matches owner screenshot state');
 
+ // Canonical map action remains tappable without taking a full extra row.
+ const {c:compactMapCtx,p:compactMapPage}=await context({mobile:true,stage:'map'});
+ await compactMapPage.setViewportSize({width:568,height:320});
+ const mapButton=compactMapPage.getByRole('button',{name:'Open the old map',exact:true});
+ assert.equal(await mapButton.count(),1);
+ const mg=await mapButton.evaluate(b=>{const r=b.getBoundingClientRect();return {text:b.innerText.trim(),top:r.top,width:r.width,height:r.height,hit:document.elementFromPoint(r.left+r.width/2,r.top+r.height/2)?.closest('[data-action="open-map"]')===b};});
+ assert.equal(mg.text,'Map');
+ assert.ok(mg.top<55&&mg.width<=100&&mg.height>=44&&mg.hit,'Map remains tappable in real CSS phone window '+JSON.stringify(mg));
+ pass('E01-IPHONE-320-MAP','At 568x320 CSS, Open the old map uses a compact top control with its full accessible name.','Chromium emulated touch');
+ await compactMapCtx.close();
  await landCtx.close();
  // Fullscreen is optional. Unsupported and rejected mobile requests must not leave a dead button.
  const {c:fullscreenCtx,p:fullscreenPage}=await context({stage:'square'});
