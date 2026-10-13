@@ -275,18 +275,21 @@ try{
  // Normal exploration should fit a single screen; long scratch/Chronicle can scroll.
  const {c:landCtx,p:landPage}=await context({mobile:true,stage:'square'});
  await tap(landPage,'Fountain');await tap(landPage,'Look closely');
- for(const [w,h] of [[667,375],[844,390],[932,430]]){
+ for(const [w,h] of [[667,375],[844,390],[932,430],[1136,639]]){
   await landPage.setViewportSize({width:w,height:h});
   const g=await landPage.evaluate(()=>{
    const box=x=>{const b=(typeof x==='string'?document.querySelector(x):x).getBoundingClientRect();return {left:b.left,right:b.right,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};
    const scene=document.querySelector('.scene-card'),caption=document.querySelector('.caption');
    const controls=[...document.querySelectorAll('.caption-actions button,.navigation button')].map(b=>{
     const v=box(b),hit=document.elementFromPoint(v.left+v.width/2,v.top+v.height/2);
-    return {...v,name:b.textContent.trim(),fontSize:parseFloat(getComputedStyle(b).fontSize),hit:hit===b||b.contains(hit)};
+    return {...v,name:b.innerText.trim(),fontSize:parseFloat(getComputedStyle(b).fontSize),hit:hit===b||b.contains(hit)};
    });
    return {dw:document.documentElement.scrollWidth,dh:document.documentElement.scrollHeight,
     scene:box(scene),caption:box(caption),world:box('.world'),viewport:box('.viewport'),
+    header:box('#app>header'),brand:box('#app>header .brand'),
+    options:box('#app>header [data-action="settings"]'),
     nav:box('.navigation'),controls,
+    boardLabel:document.querySelector('.navigation [data-action="walk:board"]')?.innerText.trim(),
     sceneOverflow:scene.scrollHeight-scene.clientHeight,
     captionOverflow:caption.scrollHeight-caption.clientHeight};
   });
@@ -296,12 +299,42 @@ try{
   assert.ok(g.world.width>=310&&g.world.width<=w,'Preserve readable whole scene '+JSON.stringify({w,h,g}));
   assert.ok(Math.abs(g.world.width/g.world.height-1672/941)<.025,'Whole Square aspect preserved '+JSON.stringify({w,h,g}));
   assert.ok(g.world.top>=g.viewport.top-2&&g.world.bottom<=g.viewport.bottom+2,'Illustration clipped '+JSON.stringify({w,h,g}));
-  assert.ok(g.nav.top>=g.scene.top-2&&g.nav.bottom<=g.viewport.top+5,'Navigation must share heading row '+JSON.stringify({w,h,g}));
+  assert.ok(g.header.height<=48&&g.brand.height<28&&g.options.height>=44&&g.options.width<130,
+   'Compact title/Options must leave more room for artwork '+JSON.stringify({w,h,g}));
+  assert.equal(g.boardLabel,'Board','Short visual label must not change accessible Noticeboard identity');
+  assert.ok(g.nav.top>=g.viewport.bottom-2&&g.nav.bottom<=g.scene.bottom+2,
+   'All location buttons must be in ONE row BELOW illustration '+JSON.stringify({w,h,g}));
+  const places=g.controls.filter(c=>['Board','Fountain','Big tree','Old post'].includes(c.name));
+  assert.equal(places.length,4,'All four walk buttons visible');
+  assert.ok(places.every(c=>Math.abs(c.top-places[0].top)<2&&Math.abs(c.bottom-places[0].bottom)<2),
+   'Location buttons must form exactly one row '+JSON.stringify({w,h,g}));
   assert.ok(g.sceneOverflow<4&&g.captionOverflow<4,'Normal dialogue should not scroll outer panels '+JSON.stringify({w,h,g}));
   for(const c of g.controls)assert.ok(c.height>=44&&c.fontSize>=14&&c.hit&&c.bottom<=h+2,
    'Landscape touch control too small/unreachable '+JSON.stringify({w,h,c}));
  }
- pass('E01-LANDSCAPE-01','Landscape 667/844/932 keeps scene above bottom dialogue, correct illustration ratio, one-screen layout and legible touch controls.','Chromium emulated landscape touch');
+ pass('E01-LANDSCAPE-01','Landscape 667/844/932/1136 keeps all four short-labeled buttons one row below art, compact header/Options, uncropped image and bottom dialogue.','Chromium emulated landscape touch');
+ // Owner screenshot was taken BETWEEN dialogue lines, with no caption at all.
+ // The four walk buttons must still occupy one row in free exploration.
+ await tap(landPage,'Skip dialogue');
+ assert.equal(await landPage.locator('.caption').count(),0,'Free roam must genuinely omit the caption');
+ for(const [w,h] of [[667,375],[1136,639]]){
+  await landPage.setViewportSize({width:w,height:h});
+  const q=await landPage.evaluate(()=>{
+   const rect=e=>{const b=e.getBoundingClientRect();return {x:b.x,top:b.top,bottom:b.bottom,width:b.width,height:b.height};};
+   const nav=document.querySelector('.navigation'),scene=document.querySelector('.scene-card'),viewport=document.querySelector('.viewport');
+   return {nav:rect(nav),scene:rect(scene),viewport:rect(viewport),world:rect(document.querySelector('.world')),
+    scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,
+    buttons:[...nav.querySelectorAll('button')].map(b=>({...rect(b),label:b.innerText.trim(),fontSize:parseFloat(getComputedStyle(b).fontSize)}))};
+  });
+  assert.equal(q.buttons.length,4,'All walking destinations remain available without dialogue');
+  assert.deepEqual(q.buttons.map(b=>b.label),['Board','Fountain','Big tree','Old post']);
+  assert.ok(q.buttons.every(b=>Math.abs(b.top-q.buttons[0].top)<2&&b.height>=44&&b.fontSize>=14),'Four buttons must stay on ONE readable row in free roam '+JSON.stringify({w,h,q}));
+  assert.ok(q.nav.top>=q.viewport.bottom-2&&q.nav.bottom<=q.scene.bottom+2,'One-row buttons must be beneath the image '+JSON.stringify({w,h,q}));
+  assert.ok(q.world.width>=310&&q.world.bottom<=q.viewport.bottom+2,'Whole artwork must stay visible '+JSON.stringify({w,h,q}));
+  assert.ok(q.scrollWidth<=w+3&&q.scrollHeight<=h+3,'Free-roam page must not scroll '+JSON.stringify({w,h,q}));
+ }
+ pass('E01-LANDSCAPE-NO-DIALOGUE','Landscape free-roam without a caption still has a single row of four buttons under the scene at 667×375 and 1136×639.','Chromium touch; matches owner screenshot state');
+
  await landCtx.close();
  // Fullscreen is optional. Unsupported and rejected mobile requests must not leave a dead button.
  const {c:fullscreenCtx,p:fullscreenPage}=await context({stage:'square'});
@@ -751,7 +784,7 @@ try{
  const {c:pc,p:pp}=await context({mobile:true,stage:'map'});await tap(pp,'Look at the line');await drain(pp);await tap(pp,'Options');assert.equal(await pp.getByRole('dialog',{name:'Options'}).count(),1);await tap(pp,'Back to adventure');assert.equal(await pp.getByRole('button',{name:'Look at the line',exact:true}).getAttribute('aria-pressed'),'true');await tap(pp,'Options');await tap(pp,'Back to adventure');assert.equal(await pp.locator('.parent').count(),0);pass('INT-20/UX-08','Repeated Options access preserves state without Parent View.','Chromium emulated touch 390×844');await pc.close();
  for(const [stage,id,expected] of [['square','SAV-01','012'],['map','SAV-02','014'],['observed','SAV-03','014'],['anchors','SAV-04','014'],['marker','SAV-05','016']]){const {c,p}=await context({stage});await p.reload({waitUntil:'networkidle'});assert.equal(await p.getByRole('dialog').count(),1);assert.equal(await p.locator('.dialog [data-line-id]').first().getAttribute('data-line-id'),`S01E01-NARRATOR-${expected}`);await click(p,'Continue the story');assert.equal(await p.getByRole('dialog').count(),0);pass(id,'Resume presents exactly one state-appropriate optional recap.');await c.close();}
  const {c:lc,p:lp}=await context({stage:'later'});const later=await ledger(lp);await click(lp,'Replay this memory');await click(lp,'Begin');await drain(lp);await click(lp,'Leave replay');assert.deepEqual(await ledger(lp),later);pass('SAV-09','Later-season fixture unchanged after partial replay/exit.');await lc.close();
- const {c:kc,p:kp}=await context({stage:'square'});async function keyAction(name){for(let i=0;i<90;i++){await kp.keyboard.press('Tab');if(await kp.evaluate(name=>document.activeElement?.textContent.trim()===name,name)){await kp.keyboard.press('Enter');return;}}throw Error('Keyboard unreachable '+name);}
+ const {c:kc,p:kp}=await context({stage:'square'});async function keyAction(name){for(let i=0;i<90;i++){await kp.keyboard.press('Tab');if(await kp.evaluate(name=>(document.activeElement?.getAttribute('aria-label')===name||document.activeElement?.textContent.trim()===name),name)){await kp.keyboard.press('Enter');return;}}throw Error('Keyboard unreachable '+name);}
  await keyAction('Noticeboard');await keyAction('Help hold the paper.');while(await kp.getByRole('button',{name:'Skip dialogue',exact:true}).count())await keyAction('Skip dialogue');for(const name of ['Look at the line','Look at the shape']){await keyAction(name);while(await kp.getByRole('button',{name:'Skip dialogue',exact:true}).count())await keyAction('Skip dialogue');}await keyAction("I'm not sure yet.");while(await kp.getByRole('button',{name:'Skip dialogue',exact:true}).count())await keyAction('Skip dialogue');for(const [a,b] of [['Fountain','Compare the round mark'],['Big tree','Compare the tree mark']]){await keyAction(a);await keyAction(b);while(await kp.getByRole('button',{name:'Skip dialogue',exact:true}).count())await keyAction('Skip dialogue');}await keyAction('Old post');await keyAction('Look at the old post');while(await kp.getByRole('button',{name:'Skip dialogue',exact:true}).count())await keyAction('Skip dialogue');await keyAction('Clean without rubbing');while(await kp.getByRole('button',{name:'Skip dialogue',exact:true}).count())await keyAction('Skip dialogue');await keyAction('Finish this page');while(await kp.getByRole('button',{name:'Skip dialogue',exact:true}).count())await keyAction('Skip dialogue');assert.ok((await ledger(kp)).includes(events.complete[0]));pass('UX-03','Keyboard Tab/Enter alone completes required exploration, observation, comparison and cleaning.');await kc.close();
 
  // Equivalent guess branches: exact pair plus identical durable semantics.
