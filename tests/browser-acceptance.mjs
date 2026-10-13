@@ -273,8 +273,8 @@ try{
 
  // Phone landscape: a wide illustrated scene ABOVE a compact bottom dialogue row.
  // Normal exploration should fit a single screen; long scratch/Chronicle can scroll.
- const {c:landCtx,p:landPage}=await context({mobile:true});
- await tap(landPage,'Begin');await drain(landPage);
+ const {c:landCtx,p:landPage}=await context({mobile:true,stage:'square'});
+ await tap(landPage,'Fountain');await tap(landPage,'Look closely');
  for(const [w,h] of [[667,375],[844,390],[932,430]]){
   await landPage.setViewportSize({width:w,height:h});
   const g=await landPage.evaluate(()=>{
