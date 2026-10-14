@@ -45,3 +45,17 @@
 - New Chromium test runs **all 13 lines**, including the exact fifth line screenshot, checking unchanged background element and geometry, full visible caption/control bounds, and the scene after the 13th Continue. Continue testing portrait (390×844) and 568×320 / 667×375 short landscape. Preserve all prior E02 route, asset-decode, story, save and E01 tests.
 
 **Locked unchanged:** R0/R1/R2 approved artwork, 81 E02 source/voice lines, safe-route and chronology engine, C01 identity, E01 app and released bytes. The owner must still approve the actual iPhone landscape after the updated MN4 deploy. Never claim Chrome CI represents a real WebKit approval.
+
+## 2026-10-14 owner iPhone follow-up — Notebook and uncertainty
+
+The owner corrected their earlier interpretation: the major offscreen problem happens **after choosing Open evidence notebook**, not on the fifth opening line. The two exploratory buttons **Look across** and **Open evidence notebook** were green only because `primary=true` assigned the theme accent; green was not an evidence or correctness state. The 116px mobile dialogue dock gave Continue and Listen half the available width, forcing 'Continue' onto two lines. The original notebook renderer left the Riverside scene above the evidence notebook, and `unsure` only changed `lastFeedback` without enqueuing any spoken dialogue.
+
+**E02-only corrective design, build `20261014-e02-notebook-compact3`:**
+
+- Use neutral styling for the Look at old stones, Look across and Open evidence notebook travel/evidence actions, so green is not misread as the correct answer.
+- In short iPhone landscape, Continue is a 91px single-line target; manual Listen is a separate 44px accessible loudspeaker icon. The canonical speech text and IDs remain unmodified.
+- When entering Notebook or the immediate Revision choice page, do not render an unused full-size Riverside game painting **above** the content. Preserve the existing Chronicle image and revealed Market Lane sign; that chapter record is intentionally scrollable. The evidence notebook instead owns the available child viewport, with two visible evidence photographs, their labels, the original fence-only hypothesis question, and an immediately available Not sure yet control.
+- During the notebook introduction/help dialogue, keep the notebook visible with evidence buttons temporarily disabled until the three existing queued lines finish. The caption remains at the bottom of the same viewport. Constrain evidence thumbnails/card content on 568×320 short landscape; no page-length scroll should be required for ordinary notebook decisions.
+- Not sure yet enqueues the **already approved** NIA-010, FINN-009 and UI-009 recovery questions. It never marks `linked`, `revised`, or any ledger event. Hints may be repeated; the child still selects the fact, then explicitly revises Milo's idea. In the revision step Not sure yet reuses approved NIA-018 and NIA-019 prompts.
+- Keep evidence photos at full quality in the original R1/R2 asset files; only their notebook thumbnail viewport is compacted. No new art.
+- Retest the actual iPhone landscape after CI and production deploy. Chromium short-landscape tests do not establish WebKit PASS, and evidence/family acceptance remains open. Preserve E01 frozen release, original 81 E02 script lines and E02 safety/story gates.

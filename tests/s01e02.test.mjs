@@ -57,7 +57,7 @@ test('E02-06: order independence and station-specific intentional inspection',()
 test('E02-07: old-stones recovery and unsure never grant revision',()=>{
  let s=drain(dispatch(both(),{type:'notebook'}));assert.equal(s.offeredCue,true);
  s=drain(dispatch(s,{type:'fact',choice:'stones'}));assert.equal(s.phase,'notebook');
- s=dispatch(s,{type:'unsure'});assert.equal(s.linked,false);
+ s=dispatch(s,{type:'unsure'});assert.deepEqual(s.queue,speech.recovery,'Uncertain children receive spoken help');assert.equal(s.linked,false);s=drain(s);
  assert.equal(s.ledger.includes(EVENTS.revision),false);
  s=drain(dispatch(s,{type:'fact',choice:'gap'}));assert.equal(s.linked,true);assert.equal(s.phase,'revision');
 });
@@ -120,4 +120,19 @@ test('E02-14: close inspection camera without undoing evidence or changing place
  assert.equal(s.view,'r2');
  s=dispatch(s,{type:'close-detail'});assert.equal(s.view,'r0');
  assert.deepEqual(new Set(s.observed),new Set(['gap','stones']));
+});
+
+test('E02-15: Not sure yet gives canonical spoken assistance without marking a correct answer',()=>{
+ let s=drain(dispatch(both(),{type:'notebook'}));
+ const ledger=[...s.ledger],observed=[...s.observed],position=s.position;
+ s=dispatch(s,{type:'unsure'});
+ assert.equal(s.phase,'notebook');
+ assert.deepEqual(s.queue,speech.recovery,'Use existing Nia/Finn/UI clarification lines, not generated text');
+ assert.equal(s.linked,false);assert.equal(s.revised,false);
+ assert.deepEqual(s.ledger,ledger);assert.deepEqual(s.observed,observed);
+ assert.equal(s.position,position);
+ s=drain(s);assert.equal(s.phase,'notebook');
+ s=dispatch(s,{type:'unsure'});assert.deepEqual(s.queue,speech.recovery,'Help must be repeatable');
+ s=drain(s);s=drain(dispatch(s,{type:'fact',choice:'gap'}));
+ assert.equal(s.linked,true);assert.equal(s.phase,'revision');
 });
