@@ -136,3 +136,31 @@ test('E02-15: Not sure yet gives canonical spoken assistance without marking a c
  s=drain(s);s=drain(dispatch(s,{type:'fact',choice:'gap'}));
  assert.equal(s.linked,true);assert.equal(s.phase,'revision');
 });
+
+test('E02-16: Chronicle reading plus Finish are separate explicit, persistent and idempotent gates',()=>{
+ let s=revise();
+ s=walk(s,'lookoutView');
+ s=drain(dispatch(s,{type:'market'}));
+ assert.equal(s.phase,'chronicle');
+ const before=[...s.ledger];
+ assert.equal(s.chronicleSeen,false);
+ s=dispatch(s,{type:'finish'});
+ assert.deepEqual(s.ledger,before,'Arriving at Chronicle never finishes chapter');
+ s=dispatch(s,{type:'chronicle'});
+ assert.equal(s.chronicleSeen,true);
+ assert.ok(s.queue.length>=9,'Chronicle has its own approved narration');
+ const during=dispatch(s,{type:'finish'});
+ assert.equal(during.phase,'chronicle');
+ assert.equal(during.ledger.includes(EVENTS.finish),false,'Cannot finish during dialogue');
+ for(let i=0;i<3;i++)s=dispatch(s,{type:'next'});
+ s=restore(JSON.parse(JSON.stringify(payload(s))));
+ assert.ok(s.queue.length>0,'Mid-Chronicle narration must survive refresh');
+ assert.equal(dispatch(s,{type:'finish'}).phase,'chronicle');
+ s=drain(s);assert.equal(s.phase,'chronicle');
+ s=dispatch(s,{type:'finish'});
+ assert.equal(s.phase,'completed');
+ assert.equal(s.ledger.filter(e=>e===EVENTS.finish).length,1);
+ const completed=restore(payload(s));
+ assert.equal(completed.phase,'completed');
+ assert.equal(dispatch(completed,{type:'finish'}).ledger.filter(e=>e===EVENTS.finish).length,1);
+});

@@ -328,3 +328,96 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
  /* Keep Parent View exclusive despite notebook display:flex rules. */
  .outer.phone-parent-open .child.phase-notebook{display:none}
 }
+
+/* E02 Chronicle is a persistent, readable record rather than a second
+   panoramic game scene. It uses its approved Then/Now art and the gated
+   Market Lane mark; reading never substitutes for explicit Finish. */
+.chronicle-sheet{min-width:0}
+.chronicle-scroll{min-width:0;min-height:0}
+.chronicle-scroll h2{margin:0 0 7px}
+.chronicle-mark{display:inline-block;padding:5px 9px;margin:1px 0 9px;
+ border:2px solid #9b7d38;border-radius:7px;background:#f8e2a6;
+ color:#483c28;font:700 13px/1.2 system-ui}
+.chronicle-evidence>div{min-width:0}
+.chronicle-evidence img{display:block;width:100%;height:auto;aspect-ratio:16/9;
+ object-fit:cover;border-radius:8px}
+.chronicle-evidence p{margin:4px 0 8px}
+.chronicle-actions{display:flex;align-items:center;justify-content:flex-end;min-height:48px;gap:8px}
+.chronicle-actions button{min-height:44px}
+@media(max-width:750px){
+ .child.phase-chronicle .headline,.child.phase-completed .headline{display:none}
+ .child.phase-chronicle .chronicle-sheet{margin:0}
+ .child.phase-chronicle .chronicle-evidence{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .child.phase-chronicle .chronicle-evidence p{overflow-wrap:anywhere}
+ .child.phase-chronicle .chronicle-actions{padding:5px 0 0;min-height:49px}
+ .child.phase-chronicle .chronicle-actions button{font:600 14px/1.2 system-ui}
+}
+/* In 568x320 / 667x375 CSS landscape, the chronicle article may scroll
+   internally, while Read/Finish and any current dialogue remain reachable
+   without scrolling the game screen or hiding the evidence illustrations. */
+@media(orientation:landscape) and (max-height:420px) and (max-width:760px) and (pointer:coarse){
+ .outer .child.phase-chronicle{
+  display:flex;flex-direction:column;min-width:0;width:100%;
+  height:100%;min-height:0;overflow:hidden;padding-top:46px}
+ .outer .child.phase-chronicle .scene-card{
+  flex:1 1 auto;display:flex;flex-direction:column;
+  width:100%;min-width:0;min-height:0;overflow:hidden}
+ .outer .child.phase-chronicle .chronicle-sheet{
+  display:flex;flex:1 1 auto;flex-direction:column;
+  min-height:0;min-width:0;overflow:hidden;
+  padding:5px 9px 4px;background:#fffaf1;border:0;border-radius:0}
+ .outer .child.phase-chronicle .chronicle-scroll{
+  flex:1 1 auto;min-height:0;max-width:100%;overflow-y:auto;overflow-x:hidden;
+  overscroll-behavior:contain;scrollbar-width:thin}
+ .outer .child.phase-chronicle .chronicle-scroll h2{
+  font:700 18px/1.12 Georgia,serif;margin:0 0 4px}
+ .outer .child.phase-chronicle .chronicle-mark{
+  margin:0 0 6px;padding:3px 7px;font:700 11px/1.2 system-ui}
+ .outer .child.phase-chronicle .chronicle-evidence{gap:7px}
+ .outer .child.phase-chronicle .chronicle-evidence img{max-height:110px}
+ .outer .child.phase-chronicle .chronicle-evidence p{
+  margin:3px 0 5px;font:12px/1.3 system-ui}
+ .outer .child.phase-chronicle .chronicle-scroll>p{
+  margin:4px 0;font:12px/1.3 system-ui}
+ .outer .child.phase-chronicle .chronicle-actions{
+  flex:0 0 50px;min-height:50px;width:100%;padding:3px 0 0;
+  background:#fffaf1;border-top:1px solid #ddd0b5}
+ .outer .child.phase-chronicle .chronicle-actions button{
+  min-height:44px;white-space:nowrap;padding:5px 13px;font:600 14px/1.2 system-ui}
+ .outer .child.phase-chronicle>.caption:not(.idle){
+  display:grid;grid-template-columns:34px minmax(0,1fr);
+  width:calc(100% - 4px);max-width:calc(100% - 4px);
+  flex:0 0 82px;height:82px;min-height:82px;max-height:82px;
+  padding:4px 5px;margin:3px 2px 0;gap:5px;overflow:hidden}
+ .outer .child.phase-chronicle>.caption .portrait{width:34px;height:49px;overflow:hidden}
+ .outer .child.phase-chronicle>.caption>div:nth-child(2){
+  display:grid;grid-template-columns:minmax(0,1fr) 140px;
+  grid-template-rows:14px minmax(0,1fr);
+  height:100%;min-width:0;gap:2px 5px;overflow:hidden}
+ .outer .child.phase-chronicle .caption-speaker{
+  grid-row:1;grid-column:1;font:700 12px/1.1 system-ui}
+ .outer .child.phase-chronicle .caption-text{
+  grid-row:2;grid-column:1;min-width:0;min-height:0;
+  max-width:100%;max-height:55px;overflow-x:hidden;overflow-y:auto;
+  margin:0;font:15px/1.15 Georgia,serif;overflow-wrap:anywhere}
+ .outer .child.phase-chronicle .caption-buttons{
+  grid-row:1 / span 2;grid-column:2;display:flex;flex-wrap:nowrap;
+  align-items:center;justify-content:flex-end;
+  min-width:0;max-width:140px;gap:4px;overflow:hidden}
+ .outer .child.phase-chronicle .caption-buttons button{
+  flex:0 0 auto;height:44px;min-height:44px;
+  padding:4px 5px;font:600 12px/1.2 system-ui;white-space:nowrap}
+ .outer .child.phase-chronicle .caption-buttons button[data-a="next"]{width:91px}
+ .outer .child.phase-chronicle .caption-buttons button[data-a="listen"]{width:44px;font-size:19px}
+ .outer .child.phase-chronicle .caption-buttons .small{display:none}
+ .outer .child.phase-chronicle .footer{display:none}
+ .outer .child.phase-completed{padding-top:46px;overflow-y:auto}
+ .outer .child.phase-completed .scene-card{min-width:0;max-width:100%}
+ .outer .child.phase-completed .card{padding:10px;margin:0}
+ .outer .child.phase-completed .card h2{font-size:19px}
+ .outer .child.phase-completed .card p{margin:5px 0;font:13px/1.35 system-ui}
+ .outer .child.phase-completed .card button{
+  min-height:44px;margin:3px 4px 3px 0;font:600 13px/1.2 system-ui}
+ .outer .child.phase-completed .footer{display:none}
+ .outer.phone-parent-open .child.phase-chronicle{display:none}
+}

@@ -67,3 +67,21 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 **Regression/provenance:** [E02 acceptance #38548635113](https://github.com/edisontw/wondervale/actions/runs/38548635113) PASS, [E01 regression #38548635134](https://github.com/edisontw/wondervale/actions/runs/38548635134) PASS, [MN4 deployment #38548635057](https://github.com/edisontw/wondervale/actions/runs/38548635057) PASS and confirmed E01 byte-identical. Canonical 81 spoken lines, R0/R1/R2 approved art, evidence gate, and safe route remain locked.
 
 **Still open:** broader E02 end-to-end/family playtest, audio quality, WebKit/Home Screen variations and Chronicle-to-E03 readiness. **Next focused task:** exercise the complete E02 conclusion and Chronicle on physical phone; repair only concrete user-reported failures.
+
+## 2026-10-14 focused follow-up — Chapter conclusion & Chronicle on phone (PR #72)
+
+**Trigger:** owner reported PASS for the prior Notebook/Continue/hint repair and requested the next focused step. The previously accepted E02 81-line dialogue, C01 trio, route/mystery canon, and E01 release remain locked.
+
+**Pre-fix UI issue:** Chronicle shared the screen with the full-size Riverside `world-frame` and the full Chronicle card was appended below it. On a ~568×320 iPhone CSS viewport this pushed the Then/Now record and `Read the Chronicle`/Finish button below the visible area. Also, `navigation()` unmounted the Chronicle card whenever its narration queue was active, leaving an isolated, displaced dialogue pane.
+
+**Scoped solution:**
+- Chronicle is a dedicated evidence page: keep its two approved R1/R2 Then/Now photos, corresponding plain-English facts, safe-lookout note, and explicitly unlocked `MARKET LANE →` mark **inside the Chronicle card**. No panoramic game-scene duplicate and no early clue revelation.
+- Keep Chronicle visible during all 10 canonical narration lines. Only its article pane scrolls if content exceeds the available height. A persistent minimum 44px action strip offers `Read the Chronicle` before reading and `Finish this chapter` only after the complete manually advanced queue.
+- When speech is queued, keep 44px `Continue` and accessible manual Listen visible below the Chronicle. Hide the Read/Finish buttons during speech; keep the chapter record and images in place.
+- The standard phone Parent View still replaces the child pane, not stacks below it; explicit Restart confirmation uses an accessible screen-centered modal and Cancel leaves the chapter complete.
+- On smaller 568×320 landscape, article scrolling is expected. On larger 667×375, article may fit entirely and **should not be forced to scroll**. Portrait remains a scrollable fallback.
+- No change to story, evidence linking, station graph, `chronicleSeen` completion semantics, save schema, or E01 assets. `episode_completed:s01e02` remains a one-time event behind original Market clue + full Chronicle reading + explicit Finish. E03 is not implemented or unlocked by this UI layer.
+
+**Validation:** E02 browser test now drives real touchscreen actions through Notebook → qualified revision → safe Market mark → Chronicle → 10 narrated lines → Finish and one-time ledger event → reload → Chronicle review → Restart Cancel at 568×320. Separately restores a legitimate Chronicle checkpoint in a new 667×375 mobile context and completes. Checks original image decoding, on-screen CTA/Continue, parent swap and no horizontal/global page overflow. Engine unit test checks premature Finish rejection, mid-Chronicle reload and idempotency. Automated CI and deploy gate required; **owner iPhone / Home Screen visual PASS still OPEN**.
+
+**Test fixture note:** when seeding a stored Chronicle state in a second Playwright browser context, use a pre-load init script rather than writing localStorage into an already running Preview page immediately before reload; the earlier page can save Preview on visibilitychange during navigation. This was a test setup problem, not an established defect in ordinary in-app checkpoint saves.

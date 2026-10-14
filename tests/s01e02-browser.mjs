@@ -78,6 +78,44 @@ async function verifyStableIntroduction(p,width,height){
  if(shortLandscape)assert.ok(after.docHeight<=height+3&&after.width>=370,
   'After dialogue, full landscape must not collapse or start page-scrolling '+JSON.stringify(after));
 }
+// Chronicle is an internally scrolling evidence book with a fixed action row.
+async function checkPhoneChronicle(page,width,height,reading=false){
+ const g=await page.evaluate(()=>{
+  const box=sel=>{const r=document.querySelector(sel)?.getBoundingClientRect();return r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null;};
+  const sc=document.querySelector('.chronicle-scroll');
+  const cont=document.querySelector('.caption [data-a="next"]');
+  return {article:box('#chronicle'),scroll:box('.chronicle-scroll'),
+   first:box('.chronicle-evidence img'),second:box('.chronicle-evidence > div:nth-child(2) img'),
+   action:box('.chronicle-actions'),read:box('[data-a="chronicle"]'),finish:box('[data-a="finish"]'),
+   caption:box('.caption:not(.idle)'),cont:box('.caption [data-a="next"]'),
+   docHeight:document.documentElement.scrollHeight,docWidth:document.documentElement.scrollWidth,
+   contentHeight:sc?.scrollHeight,visibleHeight:sc?.clientHeight,
+   contWrap:cont?getComputedStyle(cont).whiteSpace:null};
+ });
+ assert.equal(await page.locator('#world').count(),0,'Chronicle must not stack the river panorama over the book');
+ assert.equal(await page.getByText('MARKET LANE →',{exact:true}).count(),1,'The gated Market Lane clue stays visible');
+ assert.ok(g.article&&g.scroll&&g.first&&g.second&&g.action,'Then/Now pictures and Chronicle action must exist '+JSON.stringify(g));
+ assert.ok(g.docWidth<=width+3,'No horizontal page overflow '+JSON.stringify(g));
+ if(height<400){
+  assert.ok(g.article.left>=-2&&g.article.right<=width+2&&g.article.top>=-2&&g.action.bottom<=height+3,
+   'Chronicle and action must fit phone landscape '+JSON.stringify(g));
+  assert.ok(g.action.height>=44&&g.contentHeight>=g.visibleHeight,
+   'Chronicle must fit its panel or scroll internally '+JSON.stringify(g));
+  if(width<=600)assert.ok(g.contentHeight>g.visibleHeight+4,
+   'Small iPhone Chronicle article should scroll instead of pushing Finish offscreen '+JSON.stringify(g));
+  assert.ok(g.docHeight<=height+3,'No document scrolling during Chronicle '+JSON.stringify(g));
+  if(g.caption)assert.ok(g.caption.bottom<=height+3,'Dialogue must remain in the phone viewport '+JSON.stringify(g));
+ }
+ if(reading){
+  assert.ok(g.caption&&g.cont,'Continue button must remain available during Chronicle');
+  assert.equal(g.read,null);
+  assert.equal(g.finish,null,'Finish stays gated during narration');
+  if(height<400)assert.equal(g.contWrap,'nowrap');
+ }else assert.equal(g.caption,null,'No idle dialogue panel should take space');
+ const decoded=await page.locator('.chronicle-evidence img').evaluateAll(els=>Promise.all(els.map(async img=>{await img.decode();return img.naturalWidth;})));
+ assert.deepEqual(decoded,[1672,1672],'Both approved evidence paintings decode');
+ return g;
+}
 async function action(p,name){await p.getByRole('button',{name,exact:true}).first().click();}
 async function saved(p){return p.evaluate(()=>JSON.parse(localStorage.getItem('wondervale-s01e02-progress-v1')));}
 const passed=(id,note)=>{report.push({id,status:'PASS',note});process.stdout.write('PASS '+id+' '+note+'\n');};
@@ -177,6 +215,7 @@ try{
  // E02 previously tested only portrait widths and allowed page-length phone
  // layouts. Exercise the actual ~568x320 CSS viewport of the owner's iPhone
  // (1136x639 physical screenshot), not a 1136x639 CSS desktop equivalent.
+ let chronicleCheckpoint=null;
  for(const [width,height] of [[568,320],[667,375],[390,844]]){
   const {ctx:phoneCtx,p:phone}=await open({width,height,authorized:true,touch:true});
   await phone.getByRole('button',{name:'Begin Riverside adventure'}).tap();
@@ -289,11 +328,78 @@ try{
    await phone.locator('[data-a="fact-gap"]').tap();
    await lines(phone);
    assert.equal((await saved(phone)).linked,true,'Mobile evidence flow must preserve original E02 reasoning gate');
+   await phone.getByRole('button',{name:'The bridge was here before. It is not here now.'}).tap();
+   await lines(phone);
+   assert.equal((await saved(phone)).phase,'market');
+   assert.equal((await saved(phone)).market,false,'Market discovery must require a further action');
+   await phone.getByRole('button',{name:'Go to public lookout'}).tap();
+   await phone.getByRole('button',{name:'Look at the old mark'}).tap();
+   await lines(phone);
+   const before=await saved(phone);
+   assert.equal(before.phase,'chronicle');
+   assert.equal(before.chronicleSeen,false);
+   assert.equal(before.ledger.includes('episode_completed:s01e02'),false);
+   chronicleCheckpoint=before;
+   const initial=await checkPhoneChronicle(phone,width,height);
+   assert.ok(initial.read&&initial.read.height>=44,'Read is immediately reachable');
+   assert.equal(await phone.getByRole('button',{name:'Finish this chapter'}).count(),0);
+   await phone.screenshot({path:'test-results/e02-chronicle-ready-'+width+'.png',fullPage:true});
+   await phone.getByRole('button',{name:'Child / Parent View'}).tap();
+   assert.equal(await phone.locator('.child').evaluate(el=>getComputedStyle(el).display),'none');
+   await phone.getByRole('button',{name:'Child / Parent View'}).tap();
+   await phone.getByRole('button',{name:'Read the Chronicle'}).tap();
+   assert.ok((await saved(phone)).queue.length>=9);
+   await checkPhoneChronicle(phone,width,height,true);
+   await phone.locator('.chronicle-scroll').evaluate(el=>el.scrollTop=el.scrollHeight);
+   await checkPhoneChronicle(phone,width,height,true);
+   await phone.screenshot({path:'test-results/e02-chronicle-reading-'+width+'.png',fullPage:true});
+   await lines(phone);
+   const finishedReading=await checkPhoneChronicle(phone,width,height);
+   assert.ok(finishedReading.finish&&finishedReading.finish.height>=44&&finishedReading.finish.bottom<=height+3,
+    'Finish stays visible without page scrolling '+JSON.stringify(finishedReading));
+   await phone.getByRole('button',{name:'Finish this chapter'}).tap();
+   assert.equal((await saved(phone)).phase,'completed');
+   assert.equal((await saved(phone)).ledger.filter(x=>x==='episode_completed:s01e02').length,1);
+   await phone.reload({waitUntil:'networkidle'});
+   assert.equal((await saved(phone)).phase,'completed');
+   await phone.getByRole('button',{name:'Review the Chronicle'}).tap();
+   assert.equal(await phone.getByText(/old stones marked a crossing/).count(),1);
+   await phone.getByRole('button',{name:'Close Chronicle review'}).tap();
+   await phone.getByRole('button',{name:'Start E02 again'}).tap();
+   assert.equal(await phone.getByRole('dialog',{name:'Restart E02 confirmation'}).count(),1);
+   await phone.getByRole('button',{name:'Cancel'}).tap();
+   assert.equal((await saved(phone)).phase,'completed','Cancel must preserve the completed chapter');
+   assert.deepEqual(await phone.evaluate(()=>JSON.parse(localStorage.getItem('wondervale-progress-v1')).ledger),fakeE01.ledger);
+   await phone.screenshot({path:'test-results/e02-chronicle-completed-'+width+'.png',fullPage:true});
   }
   await phone.screenshot({path:'test-results/e02-phone-landscape-'+width+'x'+height+'.png',fullPage:true});
   await phoneCtx.close();
  }
  passed('E02-PHONE-VIEWPORT','E02 short-landscape 568x320 and 667x375 plus portrait 390x844 preserve full art, scene controls, bottom story, reachable Parent View, and notebook progression.');
+
+ // Independent 667x375 saved-book route, including restoring the checkpoint
+ // and completing without replaying any discovery/ledger event.
+ assert.ok(chronicleCheckpoint,'568x320 run must reach Chronicle');
+ {const {ctx:largerCtx,p:larger}=await open({width:667,height:375,touch:true});
+  await largerCtx.addInitScript(s=>localStorage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(s)),chronicleCheckpoint);
+  await larger.reload({waitUntil:'networkidle'});
+  const restoredCheckpoint=await saved(larger);
+  assert.equal(restoredCheckpoint.phase,'chronicle',
+   'Chronicle checkpoint must survive reload: '+JSON.stringify({phase:restoredCheckpoint.phase,version:restoredCheckpoint.version,market:restoredCheckpoint.market,ledger:restoredCheckpoint.ledger}));
+  assert.equal(await larger.locator('#chronicle').count(),1,
+   'Chronicle DOM must exist on saved phone reload: '+(await larger.locator('.child').innerText()));
+  await checkPhoneChronicle(larger,667,375);
+  await larger.getByRole('button',{name:'Read the Chronicle'}).tap();
+  await checkPhoneChronicle(larger,667,375,true);
+  await lines(larger);
+  await checkPhoneChronicle(larger,667,375);
+  await larger.getByRole('button',{name:'Finish this chapter'}).tap();
+  assert.equal((await saved(larger)).phase,'completed');
+  await larger.screenshot({path:'test-results/e02-chronicle-completed-667.png',fullPage:true});
+  await largerCtx.close();
+ }
+ passed('E02-CHRONICLE-PHONE','Touch completion from notebook through Market Lane, gated Chronicle narration, fixed Finish and reload on 568x320 and 667x375');
+
  for(const width of [320,360,390,430]){
   const {ctx:c,p:page}=await open({width,height:width<390?700:844,authorized:true,touch:true});
   await page.getByRole('button',{name:'Begin Riverside adventure'}).tap();await lines(page);
