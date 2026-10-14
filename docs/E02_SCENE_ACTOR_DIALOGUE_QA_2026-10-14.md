@@ -241,3 +241,15 @@ The owner replied **PASS** after the production deployment of [PR #77](https://g
 **Preserved:** E01 frozen release, original approved R0/R1/R2 image bytes and R1 magnifier, E02 81 canonical lines, same-bank safe graph, Chronicle/Finish, persisted saves and user-approved reset/resume.
 
 **Still OPEN, distinct from this specific PASS:** holistic E02 closing Chronicle/family experience signoff, prerecorded voice/audio, cross-device accessibility/Home Screen variants and E03 planning. Do not infer an E02-wide product PASS from this single targeted acceptance. **Next focused task:** finish any outstanding E02 chapter-level usability/audio/family gates or explicitly defer them before E03 kickoff.
+
+### Owner follow-up PASS — current E02 playable chapter experience (2026-10-14)
+
+After targeted iPhone PASS for the direct `Look at old stones` and visible Notebook, the user replied **PASS** again following the proposal to advance to E02's wider playable-experience acceptance.
+
+**Interpretation / accepted scope:** owner does not request further corrections to the **currently deployed E02 core chapter interaction/visual story flow** at this gate. Record the current episode's playable mobile experience (intro → safe riverside exploration → Then/Now observations → Notebook/revision → Market Lane mark → Chronicle → chapter completion and review) as **OWNER PASS for this existing preview build** (`20261014-e02-direct-stones9`, source `81884c9e5c9efe0b7412970a33a3aa0d86a71282`). The earlier targeted PASS decisions remain locked.
+
+**Do not overstate:** this brief PASS is not evidence that prerecorded audio exists or that an independent adult-and-child learning trial, accessibility/device matrix, or parent-cue observation has been conducted. Keep these as explicit **OPEN/DEFERRED** production gates, not as failed gates or implicit PASS. It also does not automatically authorize changes to Season 1 narrative/EFL canon or an E03 production start.
+
+**Locked:** E02 story/81 canonical EFL lines, approved R0/R1/R2 art, original C01 trio, safe route, Notebook/revision reasoning gate, Chronicle/Finish, E02-specific clean restart, interruption resume, current accepted iPhone mobile controls. E01 stays frozen. No code/art/deploy change is part of this record.
+
+**Next focused task:** choose and scope the next still-open E02 production layer (most immediately voice/audio, parent-child learning QA, or purposeful transition to E03 without treating deferred gates as complete). Preserve the working playable chapter instead of opening further unrequested visual tuning.
