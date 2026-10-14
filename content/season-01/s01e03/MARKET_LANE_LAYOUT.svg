@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="E03 technical storyboard, Market Lane routes, hub, steps, arcade, wide lane and delivery destinations">
+<rect width="1600" height="900" fill="#F5EEDD"/>
+<rect x="35" y="35" width="1530" height="653" rx="32" fill="#ECE2CF" stroke="#D9CCB5" stroke-width="3"/>
+<g opacity=".65"><rect x="210" y="72" width="230" height="115" rx="13" fill="#B6C4A9"/><rect x="500" y="60" width="245" height="115" rx="13" fill="#CFBCA4"/><rect x="900" y="60" width="320" height="118" rx="13" fill="#BDCBB5"/><rect x="1270" y="75" width="238" height="123" rx="13" fill="#D4B9A2"/></g>
+<text x="70" y="104" font-size="34" font-weight="700" fill="#344653">MARKET LANE — STORYBOARD R0</text>
+<text x="70" y="145" font-size="20" fill="#58646B">Technical routes only · illustrated environment to be generated later</text>
+<rect x="670" y="300" width="350" height="140" rx="28" fill="#D8B999" stroke="#B87A5C" stroke-dasharray="10 8" stroke-width="4"/>
+<g fill="#AF8763"><rect x="710" y="334" width="82" height="64" rx="8"/><rect x="808" y="340" width="76" height="59" rx="8"/><rect x="905" y="334" width="68" height="65" rx="8"/></g>
+<text x="844" y="465" text-anchor="middle" font-size="19" font-weight="700" fill="#804D38">UNLOADING: DIRECT WAY CLOSED</text>
+<polyline points="180,450 370,345 565,240 1120,295 1350,310" fill="none" stroke="#FBFAF3" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" /><polyline points="180,450 370,345 565,240 1120,295 1350,310" fill="none" stroke="#BD8158" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+<polyline points="180,450 380,480 650,600 870,590 1120,295 1350,310" fill="none" stroke="#FBFAF3" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" /><polyline points="180,450 380,480 650,600 870,590 1120,295 1350,310" fill="none" stroke="#A79468" stroke-width="26" stroke-linecap="round" stroke-linejoin="round" />
+<polyline points="180,450 390,605 700,660 960,625 1140,530 1330,490 1350,310" fill="none" stroke="#FBFAF3" stroke-width="42" stroke-linecap="round" stroke-linejoin="round" /><polyline points="180,450 390,605 700,660 960,625 1140,530 1330,490 1350,310" fill="none" stroke="#4C8B80" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" />
+<polyline points="960,625 1010,540" fill="none" stroke="#FBFAF3" stroke-width="32" stroke-linecap="round" stroke-linejoin="round" /><polyline points="960,625 1010,540" fill="none" stroke="#4C8B80" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="410" y="260" width="165" height="50" rx="12" fill="#F1DEC8" stroke="#B37C54" stroke-width="2"/><text x="492" y="293" text-anchor="middle" font-size="21" fill="#6D4C36" font-weight="700">STAIRS ↑</text>
+<rect x="510" y="518" width="218" height="46" rx="12" fill="#F0E9D8" stroke="#8C7A58" stroke-width="2"/><text x="619" y="548" text-anchor="middle" font-size="19" fill="#5C554A" font-weight="700">NARROW ARCADE</text>
+<g><rect x="475" y="695" rx="16" width="270" height="56" fill="#FBF6EA" stroke="#4C8B80" stroke-width="2"/><text x="491" y="718" font-size="18" font-weight="700" fill="#344653">L — WIDE · LEVEL</text></g>
+<path d="M350 347 L565 242" stroke="#674B3A" stroke-width="2" stroke-dasharray="3 14" opacity=".6"/>
+<g><circle cx="180" cy="450" r="31" fill="#fffaf1" stroke="#354D53" stroke-width="3"/><text x="180" y="456" font-size="19" font-weight="700" fill="#344653" text-anchor="middle">H</text></g>
+<g><circle cx="370" cy="345" r="22" fill="#fffaf1" stroke="#354D53" stroke-width="3"/><text x="370" y="351" font-size="15" font-weight="700" fill="#344653" text-anchor="middle">S0</text></g>
+<g><circle cx="1350" cy="310" r="31" fill="#fffaf1" stroke="#354D53" stroke-width="3"/><text x="1350" y="316" font-size="19" font-weight="700" fill="#344653" text-anchor="middle">B</text></g>
+<g><circle cx="380" cy="480" r="22" fill="#fffaf1" stroke="#354D53" stroke-width="3"/><text x="380" y="486" font-size="15" font-weight="700" fill="#344653" text-anchor="middle">N0</text></g>
+<g><circle cx="390" cy="605" r="22" fill="#fffaf1" stroke="#354D53" stroke-width="3"/><text x="390" y="611" font-size="15" font-weight="700" fill="#344653" text-anchor="middle">L0</text></g>
+<g><circle cx="1330" cy="490" r="31" fill="#fffaf1" stroke="#354D53" stroke-width="3"/><text x="1330" y="496" font-size="19" font-weight="700" fill="#344653" text-anchor="middle">T</text></g>
+<g><circle cx="1010" cy="540" r="31" fill="#fffaf1" stroke="#354D53" stroke-width="3"/><text x="1010" y="546" font-size="19" font-weight="700" fill="#344653" text-anchor="middle">F</text></g>
+<text x="160" y="407" fill="#344653" font-weight="700" font-size="19">DELIVERY HUB</text>
+<text x="1235" y="267" fill="#344653" font-weight="700" font-size="19">BOOKSTALL</text>
+<text x="1228" y="541" fill="#344653" font-weight="700" font-size="19">TEA PORCH</text>
+<text x="890" y="493" fill="#344653" font-weight="700" font-size="19">FLOWER STAND</text>
+<text x="245" y="308" fill="#344653" font-weight="700" font-size="19">STEPS START</text>
+<text x="365" y="447" fill="#344653" font-weight="700" font-size="19">ARCADE ENTRY</text>
+<text x="375" y="656" fill="#344653" font-weight="700" font-size="19">WIDE ENTRY</text>
+<path d="M1460 355 L1510 355" stroke="#6C7580" stroke-dasharray="3 5" stroke-width="4"/><text x="1487" y="337" fill="#56616B" font-size="16" text-anchor="middle">old stone*</text>
+<rect x="0" y="705" width="1600" height="195" fill="#344653"/>
+<text x="65" y="764" font-size="30" fill="#FFFFFF" font-weight="700">RPG dialogue / controls — reserved zone</text>
+<text x="65" y="806" font-size="22" fill="#DCE4E5">No important route decision, actor feet, or interactive target should be hidden here.</text>
+<text x="65" y="848" font-size="18" fill="#BBD1D1">*Old stone mark is a separate inspectable overlay, not a painted answer. Route colors exist ONLY for QA.</text>
+</svg>
