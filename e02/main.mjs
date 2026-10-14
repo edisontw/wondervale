@@ -187,7 +187,7 @@ function navigation(){
  if(ph==='completed')return '<section class="card completed-sheet" id="chapter-complete" aria-label="Completed Riverside chapter">'+
   '<div class="completed-summary"><h2>Chapter complete</h2><p>Milo changed his idea after looking at the evidence. The old bridge remains closed, and the safe lookout is remembered.</p>'+
   (ui.resetError?'<p class="warning" role="alert">Could not erase saved E02 progress in this browser. Nothing was reset. Allow site storage and try again.</p>':'')+'</div>'+
-  '<div class="completed-review" id="completed-review" '+(ui.completedReview?'':'hidden')+' aria-label="Wondervale Chronicle review">'+
+  '<div class="completed-review" id="completed-review" tabindex="0" '+(ui.completedReview?'':'hidden')+' aria-label="Wondervale Chronicle review">'+
   '<h3>Wondervale Chronicle · Then and Now</h3>'+
   '<div class="chronicle-mark" aria-label="Recorded old mark toward Market Lane">MARKET LANE →</div>'+
   '<div class="evidence chronicle-evidence">'+
@@ -255,7 +255,7 @@ root.addEventListener('click',e=>{
  if(a==='reset-prompt'){ui.resetError=false;ui.resetConfirm=true;render();return;}
  if(a==='reset-cancel'){ui.resetConfirm=false;render();return;}
  if(a==='reset-confirm'){restartE02();return;}
- if(a==='show-chronicle'){ui.completedReview=!ui.completedReview;render();return;}
+ if(a==='show-chronicle'){ui.completedReview=!ui.completedReview;render();root.querySelector('[data-a="show-chronicle"]')?.focus();return;}
  doAction({type:a});
 });
 document.addEventListener('keydown',e=>{
