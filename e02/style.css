@@ -184,3 +184,10 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
   position:absolute;width:1px;height:1px;max-height:1px;padding:0;margin:0;
   white-space:nowrap;overflow:hidden;clip-path:inset(50%);}
 }
+
+/* Prevent oversized C01 sprites from towering over the railing on mobile.
+   Grounding uses their FEET position; size scales with the small scene. */
+@media(max-width:750px){
+ .world .actor{width:clamp(26px,6vw,37px);height:clamp(46px,10.5vw,66px)}
+ .world .actor.companion{width:clamp(24px,5.6vw,34px);height:clamp(42px,9.6vw,60px)}
+}
