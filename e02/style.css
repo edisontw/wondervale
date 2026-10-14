@@ -191,3 +191,45 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
  .world .actor{width:clamp(26px,6vw,37px);height:clamp(46px,10.5vw,66px)}
  .world .actor.companion{width:clamp(24px,5.6vw,34px);height:clamp(42px,9.6vw,60px)}
 }
+
+/* Owner iPhone QA: same bounded dialogue geometry for EVERY opening line,
+   including the first real C01 portrait on line 5 and the final intro exit.
+   Use fixed cross-axis sizing so intrinsic SVG/button widths cannot push the
+   dialogue panel to the right or enlarge the horizontal page. */
+@media(orientation:landscape) and (max-height:420px) and (max-width:760px) and (pointer:coarse){
+ #app,#app .outer,#app .child,#app .scene-card{min-width:0;max-width:100%}
+ .outer .child:is(.phase-intro,.phase-explore,.phase-market){
+  width:100%;height:100%;display:flex;flex-direction:column;min-width:0;
+  min-height:0;overflow:hidden}
+ .outer .child:is(.phase-intro,.phase-explore,.phase-market) .scene-card{
+  width:100%;min-width:0;min-height:0;max-width:100%;flex:1 1 auto}
+ .outer .child:is(.phase-intro,.phase-explore,.phase-market) .world-frame{
+  width:100%;max-width:100%;min-width:0;min-height:0;overflow:hidden}
+ .outer .child:is(.phase-intro,.phase-explore,.phase-market) .caption:not(.idle){
+  display:grid;grid-template-columns:34px minmax(0,1fr);
+  width:calc(100% - 4px);max-width:calc(100% - 4px);min-width:0;
+  height:84px;min-height:84px;max-height:84px;flex:0 0 84px;
+  padding:4px 5px;margin:3px 2px 0;gap:5px;overflow:hidden}
+ .outer .child:is(.phase-intro,.phase-explore,.phase-market) .caption .portrait{
+  width:34px;height:49px;min-width:0;overflow:hidden}
+ .outer .child:is(.phase-intro,.phase-explore,.phase-market) .caption>div:nth-child(2){
+  display:grid;grid-template-columns:minmax(0,1fr) 116px;
+  grid-template-rows:14px minmax(0,1fr);
+  width:100%;min-width:0;max-width:100%;height:100%;gap:2px 5px;overflow:hidden}
+ .outer .child:is(.phase-intro,.phase-explore,.phase-market) .caption-speaker{
+  grid-column:1;grid-row:1;min-width:0;font:700 12px/1.1 system-ui}
+ .outer .child:is(.phase-intro,.phase-explore,.phase-market) .caption-text{
+  grid-column:1;grid-row:2;min-width:0;max-width:100%;
+  max-height:55px;min-height:0;overflow-x:hidden;overflow-y:auto;
+  overflow-wrap:anywhere;font:16px/1.2 Georgia,serif;margin:0}
+ .outer .child:is(.phase-intro,.phase-explore,.phase-market) .caption-buttons{
+  grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:row;
+  align-items:center;justify-content:flex-end;flex-wrap:nowrap;
+  min-width:0;max-width:116px;gap:3px;overflow:hidden}
+ .outer .child:is(.phase-intro,.phase-explore,.phase-market) .caption-buttons button{
+  flex:1 1 0;min-width:0;max-width:100%;min-height:44px;height:44px;
+  padding:2px 3px;font:600 12px/1.1 system-ui;white-space:normal;
+  overflow-wrap:anywhere}
+ .outer .child:is(.phase-intro,.phase-explore,.phase-market) .caption-buttons .small{
+  display:none}
+}
