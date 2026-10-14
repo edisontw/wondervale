@@ -164,3 +164,26 @@ test('E02-16: Chronicle reading plus Finish are separate explicit, persistent an
  assert.equal(completed.phase,'completed');
  assert.equal(dispatch(completed,{type:'finish'}).ledger.filter(e=>e===EVENTS.finish).length,1);
 });
+
+test('E02-17: restarting from a completed chapter resets every E02 milestone without changing E01',()=>{
+ let s=revise();s=walk(s,'lookoutView');s=drain(dispatch(s,{type:'market'}));
+ s=drain(dispatch(s,{type:'chronicle'}));s=dispatch(s,{type:'finish'});
+ assert.equal(s.phase,'completed');assert.equal(s.ledger.length,4);
+ const historical=structuredClone(s);
+ const restart=fresh();
+ assert.equal(restart.phase,'preview');assert.equal(restart.position,'spawn');
+ assert.deepEqual(restart.ledger,[]);
+ assert.deepEqual(restart.observed,[]);
+ assert.deepEqual(restart.queue,[]);
+ assert.deepEqual(restart.played,[]);
+ for(const prop of ['started','linked','revised','market','visitedLookout','offeredCue','chronicleSeen'])
+  assert.equal(restart[prop],false,prop+' must reset');
+ assert.equal(restart.view,'r0');
+ assert.equal(restart.after,null);
+ assert.equal(restart.lastFeedback,'');
+ assert.equal(restore(null).phase,'preview','Deleted E02 storage loads the fresh start');
+ assert.equal(historical.ledger.includes(EVENTS.finish),true,'Reset does not mutate the old snapshot');
+ const next=dispatch(restart,{type:'begin'});
+ assert.deepEqual(next.queue,speech.intro,'The chapter must replay all opening lines');
+ assert.deepEqual(next.ledger,[]);
+});
