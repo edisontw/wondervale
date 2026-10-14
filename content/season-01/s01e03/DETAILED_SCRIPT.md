@@ -1,8 +1,8 @@
 # S01E03 Detailed Script — Three Deliveries, One Wrong Turn
 
 - episode_id: s01e03
-- script_revision: 1
-- script_status: draft_for_dialogue_and_interaction_QA
+- script_revision: 2
+- script_status: authoring_QA_reviewed_pending_owner_dialogue_lock
 - source_brief_revision: 2
 - language: en
 - audio: deferred (captions and manual Listen remain)
@@ -45,7 +45,7 @@
 - [S01E03-NIA-003] “We can carry these books.”
 - [S01E03-UI-003] “Choose a path to the bookstall.”
 - [S01E03-MILO-003] “The books are here!”
-- [S01E03-FINN-004] “That was quick!”
+- [S01E03-FINN-004] “That worked for the books!”
 - [S01E03-NIA-004] “This path works for books.”
 
 [state] Award books-delivered only at bookstall after physically legal traversal. If child takes N or L, delivery still succeeds; Finn's S proposal remains a comparison rather than a forced route.
@@ -72,9 +72,9 @@
 - [S01E03-NIA-007] “But it is wide and level.”
 - [S01E03-FINN-009] “It works for the cart!”
 - [S01E03-MILO-007] “We made the tea delivery.”
-- [S01E03-FINN-010] “Who needs to use this way?”
+- [S01E03-FINN-010] “Who can use this path?”
 
-[state] UI-005/NIA-005 trigger only on stairs mismatch; UI-006/NIA-006 trigger only on arcade mismatch. If child first chooses L, success is valid; invite a *voluntary* contrast of a shorter path before recording the learning event, without requiring an actual intentionally bad attempt. The cart-revision event requires demonstrated comparison plus child-owned route decision, not Finn's statement alone. Parent cue appears when mismatch has been observed or explicitly compared, before player commits revised route.
+[state] UI-005/NIA-005 only after a player-selected stair attempt stops; UI-006/NIA-006 only after an arcade attempt stops. FINN-007/008 play on the stair-boundary comparison after the child notices the mismatch; if L is selected first, deliver successfully **without** inventing a failed walk or playing the stop-at-stairs lines. Before progressing from Tea, offer a short, non-punitive **route comparison** of S versus L: the child may identify the visible stair/width constraint and confirm the previously chosen L. The old event ID `s01e03_cart_route_revised` is a *changed-needs reasoning milestone* in this no-failure branch, **not** a fabricated route change. FINN-009/010 play only after a meaningful child comparison or revised suitable choice. If the child prefers `Not sure yet`, offer more visual scaffolding without automatically claiming reasoning or blocking the entire story indefinitely; assisted comparison of cargo + restriction suffices. Parent cue may appear after observable mismatch **or** explicit comparison, before the supported confirm/retry decision. Ensure no compulsory incorrect route.
 
 ## SC04 — Flowers; apply the rule
 
@@ -82,11 +82,11 @@
 
 - [S01E03-COORDINATOR-007] “These flowers must stay upright.”
 - [S01E03-MILO-008] “We need a steady path.”
-- [S01E03-UI-009] “Find a way to the flowers.”
+- [S01E03-UI-009] “Take the flowers to the flower stand.”
 - [S01E03-NIA-008] “Think about the tray.”
 - [S01E03-UI-010] “Look at the turns and steps.”
 - [S01E03-MILO-009] “This path is easier for flowers.”
-- [S01E03-COORDINATOR-008] “All three deliveries are here!”
+- [S01E03-COORDINATOR-008] “All three deliveries are done!”
 - [S01E03-FINN-011] “Different loads, different ways.”
 
 [state] No breakage, punishment or forced route if an alternate is truly equivalent.
@@ -143,6 +143,13 @@
 Preview: “This chapter is about routes that fit different loads. Let the child try a plausible shortcut, notice what the cart needs, and choose an alternative. A longer path can be a better fit.”
 
 Recommended cue trigger: **after** the cart/stair or arcade mismatch is visible, **before** the child's new route decision. “Which route works for this delivery, and what makes it different from the others?” Optional: “Who else might need the wider way?” No parent answer or mandatory parent interaction.
+
+## Script source QA review (2026-10-14)
+
+- **Reviewed:** all proposed line IDs are speaker-namespaced and unique on text inspection; IDs remain unchanged across this revision. Fixed cargo-arrival ambiguity and flower destination instructions; tightened Finn’s conditional response when the cart succeeds on its first choice.
+- **Conditional lines:** UI-005/NIA-005 = stair stop; UI-006/NIA-006 = arcade stop; FINN-007/008 = noticed stair mismatch; FINN-009/010 = reasoning follow-up. These must not all fire on one path.
+- **Known open issue:** a child choosing L immediately should not be penalized or forced to simulate a failed S attempt. A short optional-to-enter **comparison** and assisted confirmation allow the episode to preserve the learning goal. Whether every line is culturally natural in a family play session and the final narration pacing remain **unverified until owner/family play**.
+- **Status:** source editorial review only. Do not report playable QA, audio PASS or owner dialogue lock.
 
 ## Dialogue and timing QA still required
 
