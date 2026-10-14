@@ -114,7 +114,7 @@ function queuePanel(){
  const l=line(state.queue[0]);
  const speaker=speakerName(l.speaker);
  return '<section class="caption" aria-label="Story dialogue"><div class="portrait">'+portrait(l.speaker)+'</div><div><div class="caption-speaker">'+esc(speaker)+'</div><p class="caption-text" data-line="'+esc(l.id)+'">'+esc(l.text)+'</p><div class="caption-buttons">'+
- button('Continue','next','',true)+button('Listen','listen','aria-label="Listen to this line"')+
+ button('Continue','next','',true)+button('🔊','listen','aria-label="Listen to this line" title="Listen"')+
  '<span class="small">'+state.queue.length+' line(s) left</span></div></div></section>';
 }
 function statusPanel(){
@@ -124,7 +124,7 @@ function statusPanel(){
  (p.market?'Old route mark recorded':'')+'</div>';
 }
 function navigation(){
- if(state.queue.length)return '';
+ if(state.queue.length&&state.phase!=='notebook')return '';
  const ph=state.phase,p=projected(state);
  if(ph==='preview')return '<section class="card"><h2>Follow the Riverside clue</h2><p>The old marker in Town Square pointed here. Milo, Nia, and Finn want to see what is really there.</p>'+
  button('Begin Riverside adventure','begin','',true)+'</section>';
@@ -132,15 +132,17 @@ function navigation(){
  if(ph==='explore'&&state.view!=='r0')return '<div class="actions detail-actions">'+button('Back to Riverside','close-detail','',true)+'</div>';
  if(ph==='explore')return '<div class="actions">'+
  button('Walk to old stones','go-stones')+button('Go to public lookout','go-lookout')+
- (state.position==='oldStones'?button('Look at old stones','inspect-stones','',true):'')+
- (state.position==='lookoutView'?button('Look across','inspect-gap','',true):'')+
+ (state.position==='oldStones'?button('Look at old stones','inspect-stones'):'')+
+ (state.position==='lookoutView'?button('Look across','inspect-gap'):'')+
  (state.observed.length?button('Open old map','map'):'')+
- (p.stones&&p.gap?button('Open evidence notebook','notebook','',true):'')+
+ (p.stones&&p.gap?button('Open evidence notebook','notebook'):'')+
  '</div>';
- if(ph==='notebook')return '<section class="card" id="notebook"><h2>Nia’s evidence notebook</h2><p>Milo thought only the fence changed. Which fact does not fit?</p>'+
- '<div class="evidence"><button data-a="fact-stones"><img src="../public/art/s01e02-riverside-r1.webp" alt="Old stones on both sides"><span>Old stones on both banks</span></button>'+
- '<button data-a="fact-gap"><img src="../public/art/s01e02-riverside-r2.webp" alt="The open gap and missing deck today"><span>No bridge deck today</span></button></div>'+
- '<p>'+esc(state.lastFeedback)+'</p>'+button('Not sure yet','unsure')+'</section>';
+ if(ph==='notebook')return '<section class="card notebook-sheet" id="notebook" aria-label="Nia’s evidence notebook">'+
+ '<h2>Nia’s evidence notebook</h2><p class="notebook-question">Milo thought only the fence changed. Which fact does not fit?</p>'+
+ '<div class="evidence notebook-evidence"><button data-a="fact-stones" '+(state.queue.length?'disabled':'')+'><img src="../public/art/s01e02-riverside-r1.webp" alt="Old stones on both sides"><span>Old stones on both banks</span></button>'+
+ '<button data-a="fact-gap" '+(state.queue.length?'disabled':'')+'><img src="../public/art/s01e02-riverside-r2.webp" alt="The open gap and missing deck today"><span>No bridge deck today</span></button></div>'+
+ '<div class="notebook-footer">'+button('Not sure yet','unsure',state.queue.length?'disabled':'')+
+ '<p class="notebook-feedback" role="status">'+esc(state.lastFeedback)+'</p></div></section>';
  if(ph==='revision')return '<section class="card" id="revision"><h2>What can Milo say now?</h2><p>We can describe what changed without guessing the cause.</p>'+
  '<div class="actions">'+button('The bridge was here before. It is not here now.','revision-A','',true)+
  button('I was wrong about only the fence.','revision-B')+button('Not sure yet','unsure')+'</div>'+
@@ -174,8 +176,8 @@ function render(){
  const markup='<header><div><a class="brand" href="../">Wondervale</a><h1 class="title">Episode 02 · The Bridge That Stops</h1></div><button class="parent-toggle" data-a="parent" aria-expanded="'+ui.parent+'">Child / Parent View</button></header>'+
  '<main class="outer '+(ui.parent?'phone-parent-open':'')+'"><section class="child phase-'+esc(state.phase)+'"><div class="scene-card"><div class="headline"><div class="byline">Milo · Nia · Finn · Riverside</div><h1>Find the way that is safe today</h1>'+
  '<p>Closed old crossing · Open public path · Protected lookout</p></div>'+
- (paintedWorld?'<div class="world-frame">'+paintedWorld+'</div>':'')+statusPanel()+navigation()+'</div>'+
- queuePanel()+
+ (state.phase==='notebook'?'':paintedWorld?'<div class="world-frame">'+paintedWorld+'</div>':'')+(state.phase==='notebook'?'':statusPanel())+navigation()+'</div>'+
+ (state.phase==='notebook'&&!state.queue.length?'':queuePanel())+
  (ui.map?'<div class="scene-modal" role="dialog" aria-modal="true" aria-label="Old map fragment"><section class="card" id="old-map"><h2>Old map fragment</h2><p>An old line points toward Riverside. We do not yet know how the present bank changed.</p>'+button('Close map','close-map')+'</section></div>':'')+
  (ui.resetConfirm?'<section class="card"><p>Start E02 again? This only clears the E02 draft; Town Square progress stays.</p>'+button('Yes, start E02 again','reset-confirm')+button('Cancel','reset-cancel')+'</section>':'')+
  (ui.storageError?'<p class="warning">Saving is unavailable in this browser session. You can continue, but this progress may not survive a reload.</p>':'')+
