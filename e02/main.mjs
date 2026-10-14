@@ -24,9 +24,30 @@ function save(){
  const p=payload(state);if(!p)return;
  try{localStorage.setItem(KEY,JSON.stringify(p));ui.storageError=false;}catch{ui.storageError=true;}
 }
+// Advance a line without replacing the scene, images, or focused Continue.
+function updateCurrentLine(){
+ const caption=root.querySelector('.caption:not(.idle)');
+ if(!caption||!state.queue.length)return false;
+ const l=line(state.queue[0]);
+ const name=caption.querySelector('.caption-speaker');
+ const text=caption.querySelector('.caption-text');
+ const face=caption.querySelector('.portrait');
+ if(!name||!text||!face)return false;
+ name.textContent=speakerName(l.speaker);
+ text.textContent=l.text;
+ text.dataset.line=l.id;
+ text.scrollTop=0;
+ face.innerHTML=portrait(l.speaker);
+ const counter=caption.querySelector('.caption-buttons .small');
+ if(counter)counter.textContent=state.queue.length+' line(s) left';
+ return true;
+}
 function doAction(a){
  if(ui.moving)return;
- state=dispatch(state,a);save();render();
+ const was=state;
+ state=dispatch(state,a);save();
+ const sameScene=state.phase===was.phase&&state.view===was.view;
+ if(!(a.type==='next'&&sameScene&&state.queue.length&&updateCurrentLine()))render();
  if(state.queue.length)voice(null); // Never autoplay; Listen is the deliberate replay action.
 }
 // Independently painted R0 art is not registered to the engine's 1600x900
@@ -87,10 +108,11 @@ function renderWorld(){
   (!detail&&ui.artError!==state.view?actor('MILO',0)+actor('NIA',1)+actor('FINN',2):'')+
   '</div>';
 }
+const speakerName=s=>({MILO:'Milo',NIA:'Nia',FINN:'Finn',NARRATOR:'Narrator',UI:'Story'})[s]||s;
 function queuePanel(){
  if(!state.queue.length)return '<div class="caption idle" aria-label="Story dialogue"><div class="portrait"><span class="portrait-mark" aria-hidden="true">❧</span></div><div><div class="caption-speaker">Riverside</div><p class="caption-text">Choose what Milo does next.</p></div></div>';
  const l=line(state.queue[0]);
- const speaker=({MILO:'Milo',NIA:'Nia',FINN:'Finn',NARRATOR:'Narrator',UI:'Story'})[l.speaker]||l.speaker;
+ const speaker=speakerName(l.speaker);
  return '<section class="caption" aria-label="Story dialogue"><div class="portrait">'+portrait(l.speaker)+'</div><div><div class="caption-speaker">'+esc(speaker)+'</div><p class="caption-text" data-line="'+esc(l.id)+'">'+esc(l.text)+'</p><div class="caption-buttons">'+
  button('Continue','next','',true)+button('Listen','listen','aria-label="Listen to this line"')+
  '<span class="small">'+state.queue.length+' line(s) left</span></div></div></section>';
@@ -149,7 +171,7 @@ function render(){
  if(!unlocked){
   root.innerHTML='<header><div class="brand">Wondervale</div></header><main class="outer" style="display:block"><section class="card"><h1>Riverside is next</h1><p>Finish the Town Square chapter and reveal the RIVERSIDE marker first. Your E01 progress is never changed here.</p><p><a href="../">Return to Town Square</a></p></section></main>';return;
  }
- root.innerHTML='<header><div><a class="brand" href="../">Wondervale</a><h1 class="title">Episode 02 · The Bridge That Stops</h1></div><button class="parent-toggle" data-a="parent" aria-expanded="'+ui.parent+'">Child / Parent View</button></header>'+
+ const markup='<header><div><a class="brand" href="../">Wondervale</a><h1 class="title">Episode 02 · The Bridge That Stops</h1></div><button class="parent-toggle" data-a="parent" aria-expanded="'+ui.parent+'">Child / Parent View</button></header>'+
  '<main class="outer '+(ui.parent?'phone-parent-open':'')+'"><section class="child phase-'+esc(state.phase)+'"><div class="scene-card"><div class="headline"><div class="byline">Milo · Nia · Finn · Riverside</div><h1>Find the way that is safe today</h1>'+
  '<p>Closed old crossing · Open public path · Protected lookout</p></div>'+
  (paintedWorld?'<div class="world-frame">'+paintedWorld+'</div>':'')+statusPanel()+navigation()+'</div>'+
@@ -158,6 +180,15 @@ function render(){
  (ui.resetConfirm?'<section class="card"><p>Start E02 again? This only clears the E02 draft; Town Square progress stays.</p>'+button('Yes, start E02 again','reset-confirm')+button('Cancel','reset-cancel')+'</section>':'')+
  (ui.storageError?'<p class="warning">Saving is unavailable in this browser session. You can continue, but this progress may not survive a reload.</p>':'')+
  '<p class="footer">E02 first playable engineering preview · '+BUILD+' · C01 characters / captions · No recorded voice yet</p></section>'+parentPanel()+'</main>';
+ // Keep a decoded background in place when a phase or dialogue ends.
+ const previous=root.querySelector('.world img.backdrop');
+ const fragment=document.createElement('template');
+ fragment.innerHTML=markup;
+ const upcoming=fragment.content.querySelector('.world img.backdrop');
+ if(previous&&upcoming&&previous.getAttribute('src')===upcoming.getAttribute('src')){
+  upcoming.replaceWith(previous);
+ }
+ root.replaceChildren(fragment.content);
 }
 root.addEventListener('click',e=>{
  const btn=e.target.closest('button[data-a]');if(!btn||btn.disabled)return;
@@ -196,6 +227,6 @@ root.addEventListener('error',e=>{
   ui.artError=state.view;render();
  }
 },true);
-window.addEventListener('resize',()=>{if(!ui.moving)render();});
+// Rotation and browser UI resize are handled by CSS, not a full DOM teardown.
 document.addEventListener('visibilitychange',()=>{if(document.hidden){save();globalThis.speechSynthesis?.cancel();}});
 render();
