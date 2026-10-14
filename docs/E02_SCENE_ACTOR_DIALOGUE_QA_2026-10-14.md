@@ -154,3 +154,18 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 **Still open, not covered by this targeted PASS:** holistic E02 Chronicle reading/layout/ending evaluation beyond the tested restart path, real family/child learning and parent guidance trial, recorded voice/audio, other devices and Home Screen variations, and the E03 kickoff decision. Do not reinterpret a targeted PASS as an episode-wide creative or accessibility sign-off.
 
 **Next focused task:** final E02 owner-facing Chronicle/episode usability QA, then decide whether the chapter is ready to freeze and hand off to the E03 production layer. Avoid changing already accepted story, EFL, art, safe-route, E01, reset or checkpoint contracts.
+
+## 2026-10-14 — Final Chronicle illustrated memory review (focused UI layer, PR #75)
+
+**Starting source:** confirmed `main` `f9b2a4064287c21d693e113101f1fff61442a072` after owner phone PASS for interrupted dialogue and E02 destructive restart. Those contracts are frozen.
+
+**Observed gap:** after the successful `Finish this chapter` gate, `Review the Chronicle` replaced the approved pictured Then/Now evidence with a single plain-text paragraph. The chapter's tangible story/memory record was lost exactly when the player was most likely to revisit it; short-landscape expanded reviews could also extend the whole chapter below the viewport.
+
+**Focused solution (E02 build `20261014-e02-chronicle-review7`):**
+- `Chapter complete` remains visible with the original safe-road and next-chapter message. Tapping `Review the Chronicle` opens an illustrated child-readable `Wondervale Chronicle · Then and Now` panel containing **the same approved R1/R2 evidence paintings**, Then and Now plain-English descriptions, explicit **Unknown: why it changed**, existing safe-overlook knowledge and the already-recorded `MARKET LANE →` clue. No new narrative or SPOILER facts.
+- `Close Chronicle review` collapses this UI-only panel. Use `aria-expanded`, a stable `aria-controls` target, a keyboard-scrollable reading region, and restore keyboard focus to the review button after toggling.
+- For 568×320 and 667×375 CSS landscape, a compact completion summary and the 44px Review / Start E02 again controls remain visible; scroll any long story-memory content **inside the review**, not the full page. Desktop expands normally and portrait remains a readable scrollable fallback. Phone Parent View replaces (never stacks beneath) the child view.
+- No saved-state, canonical event, evidence gate, Chronicle reading obligation, E02 script/81 lines, character, safe topological geography, approved image or E01 runtime changes. The user-accepted destructive restart and mid-dialogue resume remain untouched.
+- Browser regression: original 1672×941 evidence images decode after completion, 568×320 review and buttons stay within viewport without horizontal/outer scrolling, accessible focus survives toggle, Parent View switching retains review state, exact four E02 events remain deduplicated through viewing and reload, Cancel/destructive restart still work. E01 regressions/byte-isolation and MN4 deploy required.
+
+**OPEN until expressly confirmed:** owner physical-phone review layout and final holistic E02 acceptance, family learning/parent UX, recorded audio and E03 authoring.
