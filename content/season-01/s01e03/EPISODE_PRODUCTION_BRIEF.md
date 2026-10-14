@@ -66,7 +66,7 @@ The pedestrian B/T-side junction connects **B** and **T** by ordinary level foot
 |---|---|---|---|
 | **sc00** Chapter opener | Short E02 recap: safe overlook; Market Lane mark | Begin; no E02 replay or forced map | Enter market |
 | **sc01** Busy hub | Meet coordinator; see three items, shop landmarks, unloading obstruction and three public paths | Explore controls; inspect loads and route entrance clues before commitment | Choose A |
-| **sc02** A: walker's shortcut | Finn proposes stairs, explicitly for light parcel | Select a route on walkable scene/sketch; move Milo/parcel along S or another legal route; compare | B delivered |
+| **sc02** A: walker's shortcut | Finn proposes stairs, explicitly for light parcel | Select a route on walkable scene/sketch; move Milo/parcel along S or another legal route; compare | Books delivered |
 | **sc03** B: route under changed needs | Same map, visible cart/steps/narrow-width relation; Finn's shortcut now mismatches | Choose route, watch cart approach **stop before** stairs/narrow entrance, inspect why, choose another; L succeeds | Tea delivered |
 | **sc04** C: carry carefully | Flower tray and F placement make ease/turning relevant | Child independently compares routes and uses a stable legitimate approach, with alternate solutions credited | Flowers delivered |
 | **sc05** Improve current signs | Shoppers still confuse foot and cart routes | Child places/chooses clear arrows at known junction, checks destinations from both viewpoints; **not** an answer-key puzzle | Signs visibly updated |
@@ -154,3 +154,7 @@ Fast Lane image intake in Gate 2: approve useful scene candidate(s) before trans
 | E03 Gate 2 image/art, Gate 3 running game, Gate 4 owner/deploy | **NOT STARTED** |
 
 **Next focused task:** write and review a compact E03 detailed script and interaction specification/test matrix with stable line IDs. Gate 2 visual selection follows script/interaction authoring QA; no images or runtime yet. Do not call this draft approved or create art/runtime preemptively.
+
+### Gate 1 post-approval source QA clarification (2026-10-14)
+
+For the first playable E03, use **books → tea cart → flower tray** narrative order to preserve Finn's character beat; route choices within each delivery remain child-controlled. A player who picks the cart-safe L route immediately is **not** required to deliberately fail: compare the stairs and level route in a short supported reflection, without fictional failed traversal, before recording the existing changed-needs reasoning milestone. Full alternate order is not an implementation requirement. This clarifies the approved episode intent rather than changing upstream Season canon. Detailed wording and interaction source review live in Script rev 2 and Interaction Spec rev 2; live QA is still open.

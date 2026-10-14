@@ -1,4 +1,4 @@
-# S01E03 Interaction Specification — revision 1 (draft)
+# S01E03 Interaction Specification — revision 2 (authoring QA reviewed, draft)
 
 **Authority:** E03 EPB rev 2, E03 Detailed Script rev 1, approved Season weave. Design/authoring only; no engine code or implementation PASS.
 
@@ -23,14 +23,14 @@
 | `select_route` | active delivery, legitimate displayed path | preview/move; respect graph and cargo legal edges | retry at safe entrance if route unfit |
 | `route_unsure` | active route choice | optional supportive comparison cue, never advances delivery | return to same choice |
 | `deliver` | at requested destination with legal traversal | exactly-once delivery event; return to hub flow | avoid duplicate on repeat |
-| `compare_cart_paths` | tea load and observed visible stairs/width (or accessible explicit route comparison) | allow `cart_route_revised` **only when child selects a suitable cart route** after comparison | no forced failed route |
+| `compare_cart_paths` | tea load and observed visible stairs/width (or accessible explicit route comparison) | allow `cart_route_revised` after the child chooses/reconfirms a suitable cart route and demonstrates load/route comparison; never require an actual bad traversal | no forced failed route |
 | `install_sign` | all three delivered | choose valid WALK/CART sign at real fork; visually persist | explain why invalid signs point to unusable edges |
 | `inspect_glyph` | sign flow complete, physically adjacent stone | old marker event; *not* old history proof | revisit |
 | `hear_memory` | glyph seen and speaker available | attributed station/garden events, either order | replay/read again |
 | `open_chronicle` | two attributed memories | render today vs unverified memories | close/reopen |
 | `finish` | all intended events and Chronicle seen | exactly-once episode completion | completed replay only |
 
-**Critical comparison branch:** If a child chooses L immediately for the tea cart, do **not** require deliberately choosing a bad path. Offer a two-path visual comparison (“Why would the cart stop at these steps?”) and let child indicate steps/width/load and confirm L. This constitutes evidence of changed-needs reasoning. If a child first chooses S/N, show actual boundary and allow another route. In both branches Finn's learning occurs *after* child observation, never before.
+**Critical comparison branch:** If a child chooses L immediately for the tea cart, do **not** require deliberately choosing a bad path. Offer a two-path visual comparison (“Why would the cart stop at these steps?”) and let child indicate steps/width/load and confirm L. This is a **changed-needs comparison**, not a historical claim that the player ever chose the steps. The existing event ID describes the conceptual plan revision; implementation should additionally store route-attempt telemetry separately (ephemeral) so analytics does not misstate an attempted mistake. If a child first chooses S/N, show the boundary and allow another route. If the child requests help repeatedly, show the physical restriction then ask them to confirm a legitimate cart path; never leave them indefinitely unable to finish due to inability to verbalize the comparison. In both branches Finn's learning occurs *after* child observation, never before.
 
 **Delivery C:** the flower tray needs a level, steady approach. Accept any graph-valid stable route, not an arbitrary L-only answer if geometry permits an equivalent. Path legalities must match depicted physical surfaces.
 
@@ -46,6 +46,15 @@ Source E01: `wondervale-progress-v1`, E02: `wondervale-s01e02-progress-v1` — r
 
 Old stone glyph is present in the world art but may only receive a *historical-mark discovery* after appropriate inspection; should not be replaced by a newly made sign. Neither resident has omniscient route chronology. Maintain Riverside closed and no hint about the Common. No automatic changes to E01/E02 entry, art, save, dialogue or packages.
 
-## 6. Authoring issues still open
+## 6. Source QA decisions (2026-10-14)
+
+1. **Fixed vs flexible order:** preserve A → B → C for the initial playable authoring contract, so Finn has a clear success-then-revision beat. Players retain freedom **within each delivery** and may revisit paths; do not claim all three task orders are supported in the initial runtime.
+2. **No phantom failure:** an immediate correct L selection remains a valid successful delivery. A separate S/L visual contrast, not an invalid route animation, supports understanding. The milestone event is not evidence of an actual failed route.
+3. **Cargo rules:** books may use S/N/L; loaded cup cart only L; flower tray uses graph edges with actual steady-level flags, not arbitrary route names.
+4. **Route graph proof:** before art approval or implementation, preserve an explicit path-edge table for walker/cart/stable tray and destination connectivity. Prevent the illustration from suggesting paths forbidden by the graph.
+5. **Sign feedback:** invalid sign placements must be recoverable without permanent wrong signs. Parent cue is independent and never gating.
+6. **Source QA is documentary only:** no engine/browser/mobile test has run.
+
+## 7. Authoring issues still open
 
 Graph coordinates/widths, character/parcel staging, final sign facing, optional delivery order, load animation, exact hint panel timing, final spoken line QA and audio voice files. Current preferred fixed A→B→C narrative order supports Finn's first-success-then-failure arc. This spec is not executable code or tested QA.
