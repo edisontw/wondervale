@@ -1,6 +1,6 @@
 # S01E03 Interaction Test Matrix — planned, NOT RUN
 
-**Source:** EPB rev 2, Detailed Script rev 1 (draft), Interaction Spec rev 1 (draft). These are acceptance designs, not browser results. A later implementation must record evidence, exact commit SHA and real device sizes.
+**Source:** EPB rev 2, Detailed Script rev 1 (draft), Interaction Spec rev 2 (authoring-reviewed draft). These are acceptance designs, not browser results. A later implementation must record evidence, exact commit SHA and real device sizes.
 
 | ID | Test / expected outcome | Status |
 |---|---|---|
@@ -12,7 +12,7 @@
 | E03-06 | Cart cannot traverse steps or narrow arch; stops safely before edge; no stairs/ramp trick. | NOT RUN |
 | E03-07 | Cart on L actually reaches Tea porch with wide corners and connected level pavement. | NOT RUN |
 | E03-08 | Invalid cart route → reason explained after observed condition → retry with L, no loss/penalty. | NOT RUN |
-| E03-09 | Choosing L first for cart succeeds; child may compare with S/N without forced incorrect action. | NOT RUN |
+| E03-09 | Choosing L first for cart succeeds; optional assisted visual comparison confirms constraint without fabricated failed walk; no deadlock. | NOT RUN |
 | E03-10 | Finn corrects his shortcut assumption only after child comparison and never mocks child. | NOT RUN |
 | E03-11 | Flowers have legal steady route to F; all physically valid alternatives accepted; no breakage/timer. | NOT RUN |
 | E03-12 | Not sure yet, staged hints and keyboard/tap alternative do not advance event falsely. | NOT RUN |
@@ -30,3 +30,16 @@
 | E03-24 | Gate 2 accepted original PNG and full-size WebP hashes verified after single manual intake. | NOT RUN |
 
 **Gate distinction:** Document source QA may be checked when scripts are locked; none of these gameplay tests pass merely because the documents exist. Gate 2 is visual/media; Gate 3 is actual executable game; Gate 4 is owner/device/deploy.
+
+## 2026-10-14 source QA (separate from execution)
+
+**Reviewed:** authoring script namespaced IDs, sequence and conditional dialogue; explicit child decision for each load; mutually exclusive stair/arcade feedback; E02 save read-only prerequisites; persistent wayfinding and E04 memory spoiler guards. No implementation, browser or physical-device run was performed. **All E03-01–24 remain NOT RUN.**
+
+**Additional future test cases:**
+
+| ID | Test / expected outcome | Status |
+|---|---|---|
+| E03-25 | First-choice valid cart path does not play fabricated stair-stop dialogue or report an actual attempted failure. | NOT RUN |
+| E03-26 | Repeated unsure/help yields a supported valid comparison/confirmation path without endless mandatory quiz or automatic credit. | NOT RUN |
+| E03-27 | Books→tea→flowers sequence and conditional line queues remain coherent for all valid route alternatives. | NOT RUN |
+| E03-28 | Flower route validation uses stable-surface edges rather than hard-coded L label alone. | NOT RUN |
