@@ -184,11 +184,21 @@ function navigation(){
    ?'<span class="small" role="status">The story continues in the dialogue below.</span>'
    :state.chronicleSeen?button('Finish this chapter','finish','',true)
     :button('Read the Chronicle','chronicle','',true))+'</div></section>';
- if(ph==='completed')return '<section class="card"><h2>Chapter complete</h2><p>Milo changed his idea after looking at the evidence. The old bridge remains closed, and the safe lookout is remembered.</p><p>Next chapter: Market Lane (not yet available).</p>'+
- (ui.resetError?'<p class="warning" role="alert">Could not erase saved E02 progress in this browser. Nothing was reset. Allow site storage and try again.</p>':'')+
- button(ui.completedReview?'Close Chronicle review':'Review the Chronicle','show-chronicle')+
- (ui.completedReview?'<p><strong>Then:</strong> old stones marked a crossing. <strong>Now:</strong> the deck is gone. <strong>Unknown:</strong> why it changed. The safe overlook remains available.</p>':'')+
- button('Start E02 again','reset-prompt')+'</section>';
+ if(ph==='completed')return '<section class="card completed-sheet" id="chapter-complete" aria-label="Completed Riverside chapter">'+
+  '<div class="completed-summary"><h2>Chapter complete</h2><p>Milo changed his idea after looking at the evidence. The old bridge remains closed, and the safe lookout is remembered.</p>'+
+  (ui.resetError?'<p class="warning" role="alert">Could not erase saved E02 progress in this browser. Nothing was reset. Allow site storage and try again.</p>':'')+'</div>'+
+  '<div class="completed-review" id="completed-review" '+(ui.completedReview?'':'hidden')+' aria-label="Wondervale Chronicle review">'+
+  '<h3>Wondervale Chronicle · Then and Now</h3>'+
+  '<div class="chronicle-mark" aria-label="Recorded old mark toward Market Lane">MARKET LANE →</div>'+
+  '<div class="evidence chronicle-evidence">'+
+  '<div><img src="../public/art/s01e02-riverside-r1.webp" alt="Old crossing stones at Riverside"><p><strong>Then:</strong> old stones marked a crossing.</p></div>'+
+  '<div><img src="../public/art/s01e02-riverside-r2.webp" alt="The missing bridge deck today"><p><strong>Now:</strong> the deck is gone.</p></div></div>'+
+  '<p><strong>Unknown:</strong> why it changed. The safe overlook remains available.</p></div>'+
+  '<p class="completed-next">Next chapter: Market Lane (not yet available).</p>'+
+  '<div class="completed-actions">'+
+  button(ui.completedReview?'Close Chronicle review':'Review the Chronicle','show-chronicle',
+   'aria-expanded="'+ui.completedReview+'" aria-controls="completed-review"')+
+  button('Start E02 again','reset-prompt')+'</div></section>';
  return '';
 }
 function parentPanel(){
