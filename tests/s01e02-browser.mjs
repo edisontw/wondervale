@@ -51,6 +51,8 @@ try{
  const {ctx,p}=await open();
  assert.equal(await p.getByText('MARKET LANE →',{exact:true}).count(),0);
  await action(p,'Begin Riverside adventure');
+  assert.equal(await p.locator('#world').getAttribute('data-view'),'r0','Opening dialogue must already show Riverside');
+  assert.equal(await p.locator('img.backdrop').evaluate(async img=>{await img.decode();return img.naturalWidth;}),1672);
  assert.ok((await p.locator('[data-line]').first().getAttribute('data-line')).startsWith('S01E02-'));
  await lines(p);
  const pavement=await p.locator('#world .actor').evaluateAll(els=>els.map(el=>({
@@ -112,6 +114,15 @@ try{
  for(const [width,height] of [[568,320],[667,375],[390,844]]){
   const {ctx:phoneCtx,p:phone}=await open({width,height,authorized:true,touch:true});
   await phone.getByRole('button',{name:'Begin Riverside adventure'}).tap();
+  const opening=await phone.evaluate(()=>{
+   const rect=s=>{const r=document.querySelector(s)?.getBoundingClientRect();return r?{width:r.width,height:r.height,bottom:r.bottom}:null;};
+   return {scene:rect('#world'),caption:rect('.caption:not(.idle)')};
+  });
+  assert.ok(opening.scene&&opening.caption,'Opening picture and dialogue appear together');
+  if(height<400){
+   assert.ok(opening.scene.width>=350,'Short-landscape opening art visible '+JSON.stringify(opening));
+   assert.ok(opening.caption.bottom<=height+3,'Opening caption remains inside phone '+JSON.stringify(opening));
+  }
   await lines(phone);
   const rect=el=>{const r=el.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
   const geom=await phone.evaluate(()=>{
