@@ -80,7 +80,10 @@ try{
   await lines(p);await action(p,'Back to Riverside');
   assert.equal(await p.locator('#world .actor').count(),3,'R0 restores all three actors');
  assert.deepEqual(new Set((await saved(p)).observed),new Set(['stones','gap']));
- await action(p,'Open evidence notebook');await lines(p);
+ await action(p,'Open old map');
+  assert.equal(await p.getByRole('dialog',{name:'Old map fragment'}).count(),1,'Old map must be its own visible dialog');
+  await action(p,'Close map');await lines(p);
+  await action(p,'Open evidence notebook');await lines(p);
  assert.equal(await p.getByText('MARKET LANE →',{exact:true}).count(),0);
  const parent=await p.locator('#parent').innerText();
  assert.ok(parent.includes("doesn't fit Milo's first idea"),'Parent cue now eligible');
@@ -173,6 +176,11 @@ try{
    await phone.getByRole('button',{name:'Look at old stones'}).tap();await lines(phone);
    assert.equal(await phone.locator('#world .actor').count(),0);
    await phone.getByRole('button',{name:'Back to Riverside'}).tap();
+   await phone.getByRole('button',{name:'Open old map'}).tap();
+   const modal=phone.getByRole('dialog',{name:'Old map fragment'});
+   const modalBounds=await modal.evaluate(el=>{const r=el.querySelector('.card').getBoundingClientRect();return {top:r.top,bottom:r.bottom};});
+   assert.ok(modalBounds.top>=0&&modalBounds.bottom<=height+2,'Old map remains onscreen in short landscape '+JSON.stringify(modalBounds));
+   await phone.getByRole('button',{name:'Close map'}).tap();await lines(phone);
    await phone.getByRole('button',{name:'Open evidence notebook'}).tap();await lines(phone);
    const notebook=phone.getByRole('heading',{name:'Nia’s evidence notebook'});
    assert.equal(await notebook.count(),1,'Notebook must be reachable without cropping');
