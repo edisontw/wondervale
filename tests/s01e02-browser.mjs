@@ -136,7 +136,17 @@ try{
  await action(p,'Open old map');
   assert.equal(await p.getByRole('dialog',{name:'Old map fragment'}).count(),1,'Old map must be its own visible dialog');
   await action(p,'Close map');await lines(p);
-  await action(p,'Open evidence notebook');await lines(p);
+  await action(p,'Open evidence notebook');
+  assert.equal(await p.locator('#world').count(),0,'Notebook is its own thinking screen, not beneath the river scene');
+  assert.equal(await p.locator('#notebook').count(),1,'Notebook visible even during its initial guidance');
+  await lines(p);
+  assert.equal(await p.locator('#notebook').count(),1);
+  await action(p,'Not sure yet');
+  assert.equal((await saved(p)).queue.length,3,'Uncertainty must offer approved Nia/Finn/UI spoken help');
+  assert.equal((await saved(p)).linked,false,'Help cannot count as the right answer');
+  assert.equal(await p.locator('#notebook').count(),1,'Notebook remains visible behind guidance');
+  await lines(p);
+  assert.equal((await saved(p)).phase,'notebook','User can still answer after help');
  assert.equal(await p.getByText('MARKET LANE →',{exact:true}).count(),0);
  const parent=await p.locator('#parent').innerText();
  assert.ok(parent.includes("doesn't fit Milo's first idea"),'Parent cue now eligible');
@@ -234,8 +244,47 @@ try{
    const modalBounds=await modal.evaluate(el=>{const r=el.querySelector('.card').getBoundingClientRect();return {top:r.top,bottom:r.bottom};});
    assert.ok(modalBounds.top>=0&&modalBounds.bottom<=height+2,'Old map remains onscreen in short landscape '+JSON.stringify(modalBounds));
    await phone.getByRole('button',{name:'Close map'}).tap();await lines(phone);
-   await phone.getByRole('button',{name:'Open evidence notebook'}).tap();await lines(phone);
+   await phone.getByRole('button',{name:'Open evidence notebook'}).tap();
    const notebook=phone.getByRole('heading',{name:'Nia’s evidence notebook'});
+   const checkNotebook=async active=>{
+    const geometry=await phone.evaluate(()=>{
+     const box=s=>{const e=document.querySelector(s),r=e?.getBoundingClientRect();return r?{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}:null;};
+     return {card:box('#notebook'),stone:box('[data-a="fact-stones"]'),gap:box('[data-a="fact-gap"]'),
+      unsure:box('[data-a="unsure"]'),dialogue:box('.caption:not(.idle)'),
+      cont:box('.caption button[data-a="next"]'),viewWidth:innerWidth,viewHeight:innerHeight,
+      documentWidth:document.documentElement.scrollWidth,
+      continueWrap:document.querySelector('.caption button[data-a="next"]')?
+       {whiteSpace:getComputedStyle(document.querySelector('.caption button[data-a="next"]')).whiteSpace,
+        scrollWidth:document.querySelector('.caption button[data-a="next"]').scrollWidth,
+        clientWidth:document.querySelector('.caption button[data-a="next"]').clientWidth}:null};
+    });
+    assert.equal(await phone.locator('#world').count(),0,'No large world behind notebook');
+    assert.ok(geometry.card&&geometry.stone&&geometry.gap&&geometry.unsure,'Notebook actions visibly rendered');
+    assert.ok(geometry.documentWidth<=width+2,'No horizontal notebook overflow '+JSON.stringify(geometry));
+    for(const key of ['card','stone','gap','unsure']){
+     const r=geometry[key];
+     assert.ok(r.left>=-2&&r.right<=width+2&&r.top>=-2&&r.bottom<=height+2,
+      key+' must fit phone viewport '+JSON.stringify(geometry));
+    }
+    assert.ok(geometry.stone.height>=44&&geometry.gap.height>=44&&geometry.unsure.height>=44,
+     'Evidence and help are touchable');
+    if(active){
+     assert.ok(geometry.dialogue&&geometry.cont,'Help line and Continue must appear without scrolling');
+     assert.ok(geometry.dialogue.bottom<=height+2,'Help stays inside landscape '+JSON.stringify(geometry));
+     assert.equal(geometry.continueWrap.whiteSpace,'nowrap','Continue must never break into two lines');
+     assert.ok(geometry.continueWrap.scrollWidth<=geometry.continueWrap.clientWidth+2,'Continue should not be clipped');
+    }
+   };
+   await checkNotebook(true);
+   await lines(phone);
+   await checkNotebook(false);
+   await phone.getByRole('button',{name:'Not sure yet'}).tap();
+   assert.equal((await saved(phone)).queue.length,3,'Not sure yet starts Nia/Finn guidance');
+   assert.equal((await saved(phone)).linked,false);
+   await checkNotebook(true);
+   await phone.screenshot({path:'test-results/e02-phone-notebook-hint-'+width+'x'+height+'.png',fullPage:true});
+   await lines(phone);
+   await checkNotebook(false);
    assert.equal(await notebook.count(),1,'Notebook must be reachable without cropping');
    await phone.locator('[data-a="fact-gap"]').tap();
    await lines(phone);
