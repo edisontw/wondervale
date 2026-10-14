@@ -169,3 +169,13 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 - Browser regression: original 1672×941 evidence images decode after completion, 568×320 review and buttons stay within viewport without horizontal/outer scrolling, accessible focus survives toggle, Parent View switching retains review state, exact four E02 events remain deduplicated through viewing and reload, Cancel/destructive restart still work. E01 regressions/byte-isolation and MN4 deploy required.
 
 **OPEN until expressly confirmed:** owner physical-phone review layout and final holistic E02 acceptance, family learning/parent UX, recorded audio and E03 authoring.
+
+### Engineering/MN4 acceptance — final illustrated Chronicle review (2026-10-14)
+
+[PR #75](https://github.com/edisontw/wondervale/pull/75) merged to code `5776e961b30a8b8ace1489b0c2202c80b66bc5f0`, E02 build `20261014-e02-chronicle-review7`.
+
+- [E02 main browser/engine #38565803151](https://github.com/edisontw/wondervale/actions/runs/38565803151): **PASS**. Desktop and 568×320 phone: both 1672×941 original Then/Now pictures decode in the completed review; Market Lane and Unknown remain readable; mobile review internally scrolls as needed; 44px Review/Restart controls stay in the viewport; the accessible toggle retains focus and Parent View swaps without losing review state; completion remains deduplicated; Cancel, reset and resume regressions pass.
+- [E01 independent runtime #38565803292](https://github.com/edisontw/wondervale/actions/runs/38565803292): **PASS**.
+- [MN4 E02 deployment #38565802910](https://github.com/edisontw/wondervale/actions/runs/38565802910): **PASS** including live SSH deploy; remote log confirms `Verified E02 archive: 9 runtime files`, frozen E01 build `20261014-e01-map-choice-compact1`, `PASS: E01 byte-identical; E02 artifact byte-verified`, and matching source commit deployed to `https://wondervale.pepepow.net/e02/`.
+
+**Now locked in engineering:** post-Finish illustrated Chronicle memory review, no additional ledger event on review, compact mobile Review/Restart dock, no art/81-line/story/route/E01 alteration. Existing owner device PASS for reset/interrupted session is preserved. **Still OPEN:** owner's real iPhone Chronicle *visual review* PASS, broader E02 story/parent-child use, voice/audio and E03 kickoff. **Next focused task:** owner opens completed Chapter → Review the Chronicle on iPhone, checks two clear pictures/Then-Now-Unknown and that Close/Restart remain reachable, then confirms visual PASS or reports a specific issue. No automatic E02-wide signoff.
