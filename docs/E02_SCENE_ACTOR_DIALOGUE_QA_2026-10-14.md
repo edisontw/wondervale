@@ -219,3 +219,15 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 **Automated acceptance:** the button row starts `Look at old stones` and contains no separate Walk action; the R0 old hotspot is absent, so it cannot obscure the player. One tap reaches canonical `position=oldStones` before displaying R1 and recording the original observation. The original R1 zoom and image decoder still work. Once both observations exist, Notebook must occupy the second button with both first actions visible on short landscape without global page scrolling. Test on desktop and 568×320 phone, preserve all existing story/evidence/completion and E01 regression gates.
 
 **OPEN:** PR CI, final MN4 release, then actual owner iPhone acceptance of the simpler interaction and first two button positions. Previous old-stones walk-based QA is superseded by this explicit owner change, but the legal safe route and artwork remain canonical.
+
+### Owner-directed one-step old-stones UX — engineering/deployment PASS (2026-10-14)
+
+[PR #77](https://github.com/edisontw/wondervale/pull/77) merged code `81884c9e5c9efe0b7412970a33a3aa0d86a71282` with E02 build `20261014-e02-direct-stones9`.
+
+- [E02 main engine/browser acceptance #38583141880](https://github.com/edisontw/wondervale/actions/runs/38583141880) **PASS**: desktop and 568×320 simulated phone verify the first button is `Look at old stones`, no redundant `Walk to old stones`, no old hotspot obscuring Milo, one-click safe graph arrival followed by deliberate R1 inspection with unchanged approved magnifier, and `Open evidence notebook` as the second visible action after the two evidence observations.
+- [E01 independent runtime regression #38583141867](https://github.com/edisontw/wondervale/actions/runs/38583141867) **PASS**.
+- [MN4 production deployment #38583141873](https://github.com/edisontw/wondervale/actions/runs/38583141873) **PASS** including actual server deployment. Remote logs explicitly show `Verified E02 archive: 9 runtime files`, `Verified frozen E01 build 20261014-e01-map-choice-compact1`, `PASS: E01 byte-identical; E02 artifact byte-verified`, and deployed matching source SHA to `https://wondervale.pepepow.net/e02/`.
+
+**Accepted and locked in engineering:** the first-column one-click Old Stones inspection, safe route and preexisting observation/Chronicle gates, removal of the occluding Old stones overlay, Notebook's second-column visibility, preserved R1 lens and 81-line text/approved assets; E01 bytes untouched. This closes code and deployment QA **only**.
+
+**OPEN:** owner physical iPhone confirmation that Look-first and Notebook-second are both visible, no label covers Milo, and full E02 visual/parent/audio/family review; do not infer owner PASS from Chromium CI.
