@@ -93,7 +93,7 @@ function actor(name,i){
  const [x,y]=coords(name,i);
  return '<div class="actor '+(i?'companion':'milo')+'" data-actor="'+name+'" style="--x:'+x+'%;--y:'+y+'%">'+sprite(name)+'<span class="actor-label">'+name.charAt(0)+name.slice(1).toLowerCase()+'</span></div>';
 }
-function travel(to){
+function travel(to,inspectStonesOnArrival=false){
  if(ui.moving||state.queue.length||!['explore','market'].includes(state.phase))return;
  const points=route(state.position,to);
  if(!points.length)return;
@@ -103,15 +103,23 @@ function travel(to){
  const prefersReduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
  const path=points.map(k=>stageStops[k]);
  const duration=Math.min(1350,Math.max(260,points.length*180));
- if(prefersReduce||points.length<2){doAction({type:'go',to});return;}
+ // Keep the canonical public route even for the single-step Look action.
+ // The evidence inspection remains deliberate and happens on arrival.
+ const arrive=()=>{
+  ui.moving=false;
+  doAction({type:'go',to});
+  if(inspectStonesOnArrival&&state.phase==='explore'&&state.position==='oldStones'&&!state.queue.length)
+   doAction({type:'inspect',what:'stones'});
+ };
+ if(prefersReduce||points.length<2){arrive();return;}
  ui.moving=true;
  const target=root.querySelector('[data-actor="MILO"]');
  const frames=path.map((p,i)=>({offset:i/(path.length-1),left:p[0]+'%',top:p[1]+'%'}));
- if(!target){ui.moving=false;doAction({type:'go',to});return;}
+ if(!target){arrive();return;}
  try{
   const animation=target.animate(frames,{duration,easing:'linear'});
-  animation.finished.catch(()=>{}).then(()=>{ui.moving=false;doAction({type:'go',to});});
- }catch{ui.moving=false;doAction({type:'go',to});}
+  animation.finished.catch(()=>{}).then(arrive);
+ }catch{arrive();}
 }
 function viewUrl(){return '../public/art/s01e02-riverside-'+state.view+'.webp'+(ui.artRetry?'?retry='+ui.artRetry:'');}
 function renderWorld(){
@@ -131,8 +139,7 @@ function renderWorld(){
    '<div class="old-stones-marker" aria-hidden="true"></div>'+
    '<div class="old-stones-focus" role="img" aria-label="Magnified old stone bridge landing across the river. The bridge is not usable today."><span>Old bridge stones · Far bank</span></div>':'')+
   (!detail&&ui.artError!==state.view&&(exploring||market)
-   ?'<button class="hotspot old" data-a="go-stones" aria-label="Walk to old stones">Old stones</button>'+
-    '<button class="hotspot lookout" data-a="go-lookout" aria-label="Walk to public lookout">Lookout</button>'+
+   ?'<button class="hotspot lookout" data-a="go-lookout" aria-label="Walk to public lookout">Lookout</button>'+
     (exploring?'<button class="hotspot closed" data-a="closed">Closed path</button>':'')
    :'')+
   (!detail&&state.market?'<span class="market-sign" aria-label="Old mark toward Market Lane">MARKET LANE →</span>':'')+
@@ -162,11 +169,13 @@ function navigation(){
  if(ph==='intro')return '';
  if(ph==='explore'&&state.view!=='r0')return '<div class="actions detail-actions">'+button('Back to Riverside','close-detail','',true)+'</div>';
  if(ph==='explore')return '<div class="actions">'+
- button('Walk to old stones','go-stones')+button('Go to public lookout','go-lookout')+
- (state.position==='oldStones'?button('Look at old stones','inspect-stones'):'')+
+ // Always first: walk the safe route and inspect with one explicit action.
+ button('Look at old stones','inspect-stones')+
+ // When unlocked, the thinking step stays in the visible second position.
+ (p.stones&&p.gap?button('Open evidence notebook','notebook'):'')+
+ button('Go to public lookout','go-lookout')+
  (state.position==='lookoutView'?button('Look across','inspect-gap'):'')+
  (state.observed.length?button('Open old map','map'):'')+
- (p.stones&&p.gap?button('Open evidence notebook','notebook'):'')+
  '</div>';
  if(ph==='notebook')return '<section class="card notebook-sheet" id="notebook" aria-label="Nia’s evidence notebook">'+
  '<h2>Nia’s evidence notebook</h2><p class="notebook-question">Milo thought only the fence changed. Which fact does not fit?</p>'+
@@ -248,10 +257,9 @@ root.addEventListener('click',e=>{
  if(a==='retry-art'){ui.artError=null;ui.artRetry++;render();return;}
  if(a==='next'){doAction({type:'next'});return;}
  if(a==='close-detail'){doAction({type:'close-detail'});return;}
- if(a==='go-stones'){travel('oldStones');return;}
  if(a==='go-lookout'){travel('lookoutView');return;}
  if(a==='closed'){doAction({type:'closed'});return;}
- if(a==='inspect-stones'){doAction({type:'inspect',what:'stones'});return;}
+ if(a==='inspect-stones'){travel('oldStones',true);return;}
  if(a==='inspect-gap'){doAction({type:'inspect',what:'gap'});return;}
  if(a==='fact-stones'||a==='fact-gap'){doAction({type:'fact',choice:a.slice(5)});return;}
  if(a==='revision-A'||a==='revision-B'){doAction({type:'revision',choice:a.slice(-1)});return;}
