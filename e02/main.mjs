@@ -185,6 +185,7 @@ function navigation(){
    :state.chronicleSeen?button('Finish this chapter','finish','',true)
     :button('Read the Chronicle','chronicle','',true))+'</div></section>';
  if(ph==='completed')return '<section class="card"><h2>Chapter complete</h2><p>Milo changed his idea after looking at the evidence. The old bridge remains closed, and the safe lookout is remembered.</p><p>Next chapter: Market Lane (not yet available).</p>'+
+ (ui.resetError?'<p class="warning" role="alert">Could not erase saved E02 progress in this browser. Nothing was reset. Allow site storage and try again.</p>':'')+
  button(ui.completedReview?'Close Chronicle review':'Review the Chronicle','show-chronicle')+
  (ui.completedReview?'<p><strong>Then:</strong> old stones marked a crossing. <strong>Now:</strong> the deck is gone. <strong>Unknown:</strong> why it changed. The safe overlook remains available.</p>':'')+
  button('Start E02 again','reset-prompt')+'</section>';
@@ -209,7 +210,7 @@ function render(){
  (state.phase==='notebook'&&!state.queue.length?'':queuePanel())+
  (ui.map?'<div class="scene-modal" role="dialog" aria-modal="true" aria-label="Old map fragment"><section class="card" id="old-map"><h2>Old map fragment</h2><p>An old line points toward Riverside. We do not yet know how the present bank changed.</p>'+button('Close map','close-map')+'</section></div>':'')+
  (ui.resetConfirm?'<div class="scene-modal" role="dialog" aria-modal="true" aria-label="Restart E02 confirmation"><section class="card"><p>Delete all saved Episode 02 progress, discoveries, Chronicle and completion on this device? Episode 01 remains completed.</p>'+button('Clear E02 and restart','reset-confirm')+button('Cancel','reset-cancel')+'</section></div>':'')+
- (ui.resetError?'<p class="warning" role="alert">Could not erase saved E02 progress in this browser. Nothing was reset. Allow site storage and try again.</p>':'')+
+ 
  (ui.storageError?'<p class="warning">Saving is unavailable in this browser session. You can continue, but this progress may not survive a reload.</p>':'')+
  '<p class="footer">E02 first playable engineering preview · '+BUILD+' · C01 characters / captions · No recorded voice yet</p></section>'+parentPanel()+'</main>';
  // Keep a decoded background in place when a phase or dialogue ends.
