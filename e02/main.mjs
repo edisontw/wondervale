@@ -9,7 +9,7 @@ const line=id=>lines[id]||{speaker:'UI',text:'...'};
 const voice=id=>{if(!id||!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const l=line(id),u=new SpeechSynthesisUtterance(l.text);u.lang='en-US';u.rate=.87;speechSynthesis.speak(u);}catch{}};
 function read(key){try{return JSON.parse(localStorage.getItem(key));}catch{return null;}}
 const unlocked=e01Ready(read(E01_KEY));
-let state=restore(read(KEY)),ui={parent:false,map:false,storageError:false,moving:false,recentAudio:'',showCue:false,focus:null,resetConfirm:false,completedReview:false};
+let state=restore(read(KEY)),ui={parent:false,map:false,storageError:false,moving:false,recentAudio:'',showCue:false,focus:null,resetConfirm:false,completedReview:false,artError:null,artRetry:0};
 if(!unlocked)state=fresh();
 const button=(label,action,attrs='',primary=false)=>'<button '+(primary?'class="primary" ':'')+'data-a="'+esc(action)+'" '+attrs+'>'+esc(label)+'</button>';
 const ref=name=>({MILO:'60 0 465 1024',NIA:'545 0 450 1024',FINN:'1025 0 485 1024'})[name];
@@ -29,18 +29,18 @@ function doAction(a){
  state=dispatch(state,a);save();render();
  if(state.queue.length)voice(null); // Never autoplay; Listen is the deliberate replay action.
 }
-function coords(which,i=0){
- const src=places[state.position];
- // A fixed 70px world offset becomes only ~17px on a 390px phone: companions
- // piled over Milo in earlier episode QA. Space trio in SCREEN pixels instead.
- const sceneWidth=window.innerWidth<=750?Math.min(window.innerWidth-16,430):Math.min(window.innerWidth*.73,1100);
- const gap=Math.max(7.5,58/Math.max(300,sceneWidth)*100);
- const lead=src[0]/1600*100;
- const x=i===0?lead:lead<35?lead+i*gap:lead>70?lead-i*gap:lead+(i===1?-gap:gap);
- const y=src[1]/900*100+(i?2.3:0);
- // R0 art is an independently composed illustration: actor FEET stay on a
- // bounded public foreground walk band; the actual graph governs movement.
- return [Math.max(6,Math.min(94,x)),Math.max(75,Math.min(88,y))];
+// Independently painted R0 art is not registered to the engine's 1600x900
+// topology. These are image-specific actor FEET locations on paved foreground.
+// Only the canonical graph controls where Milo is legally allowed to travel.
+const stageStops={
+ spawn:[19,88],plaza:[30,88],oldSpurFork:[41,88],oldStones:[49,88],
+ promenadeEast:[59,88],publicSideFork:[66,88],sidePathMiddle:[71,88],
+ lookoutEntry:[76,88],lookoutView:[81,88]
+};
+function coords(name,i){
+ const [lead,y]=stageStops[state.position]||stageStops.spawn;
+ const x=i===0?lead:lead<30?lead+i*14:lead>70?lead-i*14:lead+(i===1?-14:14);
+ return [Math.max(8,Math.min(92,x)),y];
 }
 function actor(name,i){
  const [x,y]=coords(name,i);
@@ -50,37 +50,49 @@ function travel(to){
  if(ui.moving||state.queue.length||!['explore','market'].includes(state.phase))return;
  const points=route(state.position,to);
  if(!points.length)return;
+ // R1/R2 are unrelated camera compositions. Never animate a route on those
+ // pictures; restore the R0 promenade before walking.
+ if(state.view!=='r0'){state=dispatch(state,{type:'close-detail'});save();render();}
  const prefersReduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
- const path=points.map(k=>places[k]);
+ const path=points.map(k=>stageStops[k]);
  const duration=Math.min(1350,Math.max(260,points.length*180));
  if(prefersReduce||points.length<2){doAction({type:'go',to});return;}
  ui.moving=true;
  const target=root.querySelector('[data-actor="MILO"]');
- const frames=path.map((p,i)=>({offset:i/(path.length-1),left:(p[0]/1600*100)+'%',top:(Math.max(75,Math.min(88,p[1]/900*100)))+'%'}));
+ const frames=path.map((p,i)=>({offset:i/(path.length-1),left:p[0]+'%',top:p[1]+'%'}));
  if(!target){ui.moving=false;doAction({type:'go',to});return;}
  try{
   const animation=target.animate(frames,{duration,easing:'linear'});
   animation.finished.catch(()=>{}).then(()=>{ui.moving=false;doAction({type:'go',to});});
  }catch{ui.moving=false;doAction({type:'go',to});}
 }
-function viewUrl(){return '../public/art/s01e02-riverside-'+state.view+'.webp';}
+function viewUrl(){return '../public/art/s01e02-riverside-'+state.view+'.webp'+(ui.artRetry?'?retry='+ui.artRetry:'');}
 function renderWorld(){
  if(['preview','intro'].includes(state.phase))return '';
- const a=state.phase==='explore',b=state.phase==='market';
- return '<div class="world" id="world" aria-label="Riverside illustrated scene with safe public paths">'+
- '<img class="backdrop" src="'+viewUrl()+'" alt="'+(state.view==='r1'?'Old stone landings at the former connection':state.view==='r2'?'Current river gap and edge viewed safely from the public lookout':'Riverside public promenade, a closed old spur and a protected lookout')+'">'+
- '<div class="safe-band" aria-hidden="true"></div>'+
- (a||b?'<button class="hotspot old" data-a="go-stones" aria-label="Walk to old stones">Old stones</button>'+
- '<button class="hotspot lookout" data-a="go-lookout" aria-label="Walk to public lookout">Lookout</button>'+
- (a?'<button class="hotspot closed" data-a="closed">Closed path</button>':''):'')+
- (state.market?'<span class="market-sign" aria-label="Old mark toward Market Lane">MARKET LANE →</span>':'')+
- actor('MILO',0)+actor('NIA',1)+actor('FINN',2)+'</div>';
+ const exploring=state.phase==='explore',market=state.phase==='market';
+ const detail=state.view!=='r0';
+ const alt=state.view==='r1'?'Old stone landings at the former connection':state.view==='r2'?'Current river gap and edge viewed safely from the public lookout':'Riverside public promenade, a closed old spur and a protected lookout';
+ const picture=ui.artError===state.view
+  ?'<div class="art-error" role="alert"><p>Riverside picture could not load.</p>'+button('Retry picture','retry-art')+'</div>'
+  :'<img class="backdrop" src="'+viewUrl()+'" data-view="'+state.view+'" loading="eager" decoding="async" alt="'+alt+'">';
+ return '<div class="world'+(detail?' inspection-view':'')+'" id="world" data-view="'+state.view+'" aria-label="Riverside illustrated scene with safe public paths">'+
+  picture+
+  (detail?'<span class="view-tag">'+(state.view==='r1'?'Old stones · Close-up':'Lookout · Close-up')+'</span>':'')+
+  (!detail&&ui.artError!==state.view&&(exploring||market)
+   ?'<button class="hotspot old" data-a="go-stones" aria-label="Walk to old stones">Old stones</button>'+
+    '<button class="hotspot lookout" data-a="go-lookout" aria-label="Walk to public lookout">Lookout</button>'+
+    (exploring?'<button class="hotspot closed" data-a="closed">Closed path</button>':'')
+   :'')+
+  (!detail&&state.market?'<span class="market-sign" aria-label="Old mark toward Market Lane">MARKET LANE →</span>':'')+
+  (!detail&&ui.artError!==state.view?actor('MILO',0)+actor('NIA',1)+actor('FINN',2):'')+
+  '</div>';
 }
 function queuePanel(){
  if(!state.queue.length)return '<div class="caption idle" aria-label="Story dialogue"><div class="portrait"><span class="portrait-mark" aria-hidden="true">❧</span></div><div><div class="caption-speaker">Riverside</div><p class="caption-text">Choose what Milo does next.</p></div></div>';
  const l=line(state.queue[0]);
- return '<section class="caption" aria-label="Story dialogue"><div class="portrait">'+portrait(l.speaker)+'</div><div><div class="caption-speaker">'+esc(l.speaker)+'</div><p class="caption-text" data-line="'+esc(l.id)+'">'+esc(l.text)+'</p><div class="caption-buttons">'+
- button('Continue','next','',true)+button('🔊 Listen','listen','aria-label="Listen to this line"')+
+ const speaker=({MILO:'Milo',NIA:'Nia',FINN:'Finn',NARRATOR:'Narrator',UI:'Story'})[l.speaker]||l.speaker;
+ return '<section class="caption" aria-label="Story dialogue"><div class="portrait">'+portrait(l.speaker)+'</div><div><div class="caption-speaker">'+esc(speaker)+'</div><p class="caption-text" data-line="'+esc(l.id)+'">'+esc(l.text)+'</p><div class="caption-buttons">'+
+ button('Continue','next','',true)+button('Listen','listen','aria-label="Listen to this line"')+
  '<span class="small">'+state.queue.length+' line(s) left</span></div></div></section>';
 }
 function statusPanel(){
@@ -95,6 +107,7 @@ function navigation(){
  if(ph==='preview')return '<section class="card"><h2>Follow the Riverside clue</h2><p>The old marker in Town Square pointed here. Milo, Nia, and Finn want to see what is really there.</p>'+
  button('Begin Riverside adventure','begin','',true)+'</section>';
  if(ph==='intro')return '';
+ if(ph==='explore'&&state.view!=='r0')return '<div class="actions detail-actions">'+button('Back to Riverside','close-detail','',true)+'</div>';
  if(ph==='explore')return '<div class="actions">'+
  button('Walk to old stones','go-stones')+button('Go to public lookout','go-lookout')+
  (state.position==='oldStones'?button('Look at old stones','inspect-stones','',true):'')+
@@ -151,7 +164,9 @@ root.addEventListener('click',e=>{
  const a=btn.dataset.a;
  if(a==='parent'){ui.parent=!ui.parent;render();return;}
  if(a==='listen'){voice(state.queue[0]);return;}
+ if(a==='retry-art'){ui.artError=null;ui.artRetry++;render();return;}
  if(a==='next'){doAction({type:'next'});return;}
+ if(a==='close-detail'){doAction({type:'close-detail'});return;}
  if(a==='go-stones'){travel('oldStones');return;}
  if(a==='go-lookout'){travel('lookoutView');return;}
  if(a==='closed'){doAction({type:'closed'});return;}
@@ -171,9 +186,16 @@ root.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{
  if(!unlocked||ui.moving||state.queue.length||!['explore','market'].includes(state.phase)||e.target instanceof HTMLButtonElement)return;
+ if(e.key==='Escape'&&state.view!=='r0'){e.preventDefault();doAction({type:'close-detail'});return;}
  if(e.key==='ArrowRight'){e.preventDefault();travel('lookoutView');}
  if(e.key==='ArrowLeft'){e.preventDefault();travel('oldStones');}
 });
+// Image errors must never show an empty painting without an explanation.
+root.addEventListener('error',e=>{
+ if(e.target.matches?.('img.backdrop')&&e.target.dataset.view===state.view){
+  ui.artError=state.view;render();
+ }
+},true);
 window.addEventListener('resize',()=>{if(!ui.moving)render();});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){save();globalThis.speechSynthesis?.cancel();}});
 render();
