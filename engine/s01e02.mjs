@@ -110,6 +110,37 @@ export function payload(s){
  // Preserve unplayed dialogue and its phase transition through reload.
  return structuredClone(s);
 }
+const phaseOrder=['preview','intro','explore','notebook','revision','market','chronicle','completed'];
+const stepNext={intro:'explore',notebook:'revision',revision:'market',market:'chronicle'};
+const booleanKeys=['linked','revised','market','started','visitedLookout','offeredCue','chronicleSeen'];
+// A checkpoint is one atomic snapshot. Phase, story flags and the ledger must
+// agree before rendering a recovered world; otherwise a damaged localStorage
+// value could falsely present completion or reveal Market Lane.
+function consistentCheckpoint(s){
+ if(!phaseOrder.includes(s.phase)||!['r0','r1','r2'].includes(s.view))return false;
+ if(booleanKeys.some(k=>typeof s[k]!=='boolean'))return false;
+ if(!Array.isArray(s.played)||!s.played.every(v=>typeof v==='string'))return false;
+ if(s.started!==(s.phase!=='preview'))return false;
+ if(s.visitedLookout!==s.ledger.includes(EVENTS.lookout))return false;
+ if(s.revised!==s.ledger.includes(EVENTS.revision))return false;
+ if(s.market!==s.ledger.includes(EVENTS.market))return false;
+ if(s.ledger.includes(EVENTS.finish)!==(s.phase==='completed'))return false;
+ if(s.observed.includes('gap')&&!s.visitedLookout)return false;
+ if(s.linked&&s.observed.length!==2)return false;
+ if(s.offeredCue&&s.observed.length!==2)return false;
+ if(s.revised&&(!s.linked||!s.offeredCue))return false;
+ if(s.market&&(!s.revised||!s.visitedLookout))return false;
+ if(s.chronicleSeen&&!s.market)return false;
+ if(['notebook','revision','market','chronicle','completed'].includes(s.phase)&&!s.offeredCue)return false;
+ if(['revision','market','chronicle','completed'].includes(s.phase)&&!s.linked)return false;
+ if(['market','chronicle','completed'].includes(s.phase)&&!s.revised)return false;
+ if(['chronicle','completed'].includes(s.phase)&&!s.market)return false;
+ if(s.phase==='completed'&&(!s.chronicleSeen||s.queue.length||s.after))return false;
+ if(s.phase!=='explore'&&s.view!=='r0')return false;
+ if(s.after!==null&&(s.after!==stepNext[s.phase]||!s.queue.length))return false;
+ if(s.phase==='preview'&&(s.queue.length||s.ledger.length||s.observed.length||s.played.length))return false;
+ return true;
+}
 export function restore(raw){
  if(!raw||raw.schema!==1||raw.version!==VERSION||!Array.isArray(raw.ledger)||!Array.isArray(raw.observed)||!(raw.position in places))return fresh();
  const s={...fresh(),...structuredClone(raw)};
@@ -119,6 +150,7 @@ export function restore(raw){
  s.mode='first_play';
  s.ledger=unique(s.ledger.filter(x=>Object.values(EVENTS).includes(x)));
  s.observed=unique(s.observed.filter(x=>['stones','gap'].includes(x)));
+ if(!consistentCheckpoint(s))return fresh();
  if(s.phase==='intro'&&!s.queue.length){s.played=[];enqueue(s,speech.intro,'explore',true);}
  return s;
 }
