@@ -29,3 +29,106 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
 @media(max-width:750px){.outer{display:block;padding:0 8px 16px}.parent-toggle{display:inline-flex}.parent{margin:10px 0}.parent:not(.shown-on-phone){display:none}header{padding:9px 10px}.brand{font-size:20px}.title{font-size:14px}.world{width:100%}.hotspot{font-size:11px;padding:5px;min-height:40px;min-width:64px}.actor{width:41px;height:85px}.actor.companion{width:36px;height:76px}.actor-label{font-size:10px}.headline h1{font-size:18px}.caption{grid-template-columns:48px 1fr;padding:10px;gap:7px;min-height:120px}.portrait{width:45px;height:68px}.caption-text{font-size:18px}.actions{padding:9px 10px}.actions button{font-size:14px;min-width:105px;flex:1}.card{padding:12px}.card h2{font-size:19px}.evidence{gap:6px}.evidence button{padding:7px;font-size:13px}}
 @media(max-width:350px){.hotspot{font-size:9px;padding:4px;min-width:58px}.actor{width:36px;height:76px}.actor.companion{width:32px;height:70px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+/* E02 first real-phone game-shell gate: E01's mobile UX contract applies to
+   the Riverside scene without importing or modifying E01's runtime. */
+@media(max-width:750px){
+ #app{display:flex;flex-direction:column;height:100dvh;min-height:0;overflow:hidden}
+ #app>header{flex:0 0 auto;width:100%;min-height:50px}
+ .outer{flex:1 1 auto;min-height:0;width:100%;overflow:hidden;padding:0 7px 6px}
+ .child{min-height:0;min-width:0;height:100%;overflow-y:auto;overscroll-behavior:contain}
+ .scene-card{min-width:0}
+ .world-frame{display:flex;align-items:center;justify-content:center;width:100%;min-width:0;overflow:hidden}
+ .world-frame .world{flex:0 0 auto;width:100%;height:auto;aspect-ratio:1672/941}
+ .caption.idle{display:none}
+ .caption-buttons button{min-height:44px}
+ .actions button{min-height:44px}
+ .outer.phone-parent-open .child{display:none}
+ .outer.phone-parent-open .parent{display:block;max-height:100%;overflow-y:auto;margin:0}
+}
+/* A physical 1136x639 iPhone screenshot may mean only ~568x320 CSS pixels.
+   On short landscape, decorative title, idle talk, and vertical button wrapping
+   must not turn the complete Riverside image into a tiny thumbnail.
+   The separate explicit walk buttons remain available for motor/keyboard users. */
+@media(orientation:landscape) and (max-height:360px) and (max-width:760px) and (pointer:coarse){
+ #app{position:relative}
+ #app>header{position:absolute;top:0;left:0;right:0;z-index:10;
+  display:flex;align-items:flex-start;justify-content:space-between;
+  min-height:0;padding:3px 6px;pointer-events:none}
+ #app>header .brand{display:inline-flex;align-items:center;min-height:44px;
+  padding:4px 8px;border-radius:9px;background:rgba(255,249,235,.93);
+  font:700 15px/1.1 Georgia,serif;pointer-events:auto}
+ #app>header .title{display:none}
+ #app>header .parent-toggle{display:inline-flex;align-items:center;
+  justify-content:center;min-height:44px;padding:4px 8px;max-width:160px;
+  background:rgba(255,249,235,.93);font:600 12px/1.15 system-ui;
+  pointer-events:auto}
+ .outer{padding:0 4px 3px}
+ .outer .child.phase-explore,.outer .child.phase-market{
+  display:flex;flex-direction:column;gap:0;overflow:hidden}
+ .outer .child.phase-explore .scene-card,
+ .outer .child.phase-market .scene-card{
+  position:relative;display:flex;flex-direction:column;flex:1 1 auto;
+  min-height:0;overflow:hidden}
+ .outer .child.phase-explore .headline,
+ .outer .child.phase-market .headline{
+  position:absolute;width:1px;height:1px;padding:0;margin:0;
+  overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ .outer .child.phase-explore .world-frame,
+ .outer .child.phase-market .world-frame{
+  flex:1 1 auto;min-height:0;max-height:100%;align-items:center}
+ .outer .child.phase-explore .world-frame .world,
+ .outer .child.phase-market .world-frame .world{
+  flex:0 0 auto;width:auto;height:min(100%,calc((100vw - 12px)*941/1672));
+  max-width:100%;max-height:100%;aspect-ratio:1672/941}
+ .outer .child.phase-explore .status,
+ .outer .child.phase-market .status{
+  flex:0 0 auto;max-height:20px;min-height:0;overflow-x:auto;
+  overflow-y:hidden;white-space:nowrap;padding:1px 7px;
+  font:11px/1.2 system-ui}
+ .outer .child.phase-explore .actions,
+ .outer .child.phase-market .actions{
+  display:flex;flex:0 0 auto;flex-wrap:nowrap;align-items:center;
+  gap:4px;min-height:48px;max-height:48px;overflow-x:auto;
+  padding:2px 5px;overscroll-behavior-x:contain;scrollbar-width:thin}
+ .outer .child.phase-explore .actions button,
+ .outer .child.phase-market .actions button{
+  flex:0 0 auto;min-width:120px;max-width:210px;min-height:44px;
+  padding:4px 7px;font:600 13px/1.15 system-ui}
+ .outer .child.phase-explore .caption,
+ .outer .child.phase-market .caption{
+  flex:0 0 auto;display:grid;grid-template-columns:40px minmax(0,1fr);
+  max-height:82px;min-height:0;overflow:hidden;
+  margin:3px 2px 0;padding:4px 6px;gap:5px}
+ .outer .child.phase-explore .caption.idle,
+ .outer .child.phase-market .caption.idle{display:none}
+ .outer .child.phase-explore .caption .portrait,
+ .outer .child.phase-market .caption .portrait{width:40px;height:55px}
+ .outer .child.phase-explore .caption>div:nth-child(2),
+ .outer .child.phase-market .caption>div:nth-child(2){
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(166px,38%);
+  gap:2px 5px;min-width:0;align-items:center}
+ .outer .child.phase-explore .caption-speaker,
+ .outer .child.phase-market .caption-speaker{font:700 12px/1.1 system-ui}
+ .outer .child.phase-explore .caption-text,
+ .outer .child.phase-market .caption-text{
+  grid-row:2;grid-column:1;min-width:0;max-height:59px;
+  overflow-y:auto;margin:0;font:16px/1.2 Georgia,serif}
+ .outer .child.phase-explore .caption-buttons,
+ .outer .child.phase-market .caption-buttons{
+  grid-row:1 / span 2;grid-column:2;display:flex;gap:4px;
+  flex-wrap:nowrap;align-items:center}
+ .outer .child.phase-explore .caption-buttons button,
+ .outer .child.phase-market .caption-buttons button{
+  flex:1 1 auto;min-width:0;min-height:44px;padding:4px 5px;
+  font:600 14px/1.15 system-ui}
+ .outer .child.phase-explore .caption-buttons .small,
+ .outer .child.phase-market .caption-buttons .small{display:none}
+ .outer .child .footer{display:none}
+ .outer .child:not(.phase-explore):not(.phase-market){padding-top:48px}
+ .outer.phone-parent-open .child{display:none}
+ .outer.phone-parent-open .parent{display:block;padding:12px;
+  overflow-y:auto;height:100%;max-height:100%}
+}
+/* More detailed views (evidence notebook, Chronicle, parent prompts) are
+   intentionally scrollable rather than cropping evidence or answer controls. */
