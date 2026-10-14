@@ -194,3 +194,14 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 **Browser regression:** test explicit desktop `Walk to old stones` puts Milo in the 29–35% left zone close to the old-stone hotspot with feet on legal public paving, with companion/speech/return preserved. On actual 568×320 CSS phone, capture R0 left stop and R1 enlarged focus screenshots and verify the lens/locator are visible, source R1 WebP unchanged, no pointer interception and safe close-up switching. CI, artifact integrity, E01 regression and MN4 deployment are separate mandatory gates.
 
 **Open:** owner real iPhone visual confirmation that Milo is visibly at the old stones and that children can readily recognize the old stone landing in R1; this targeted report does **not** approve the wider E02 conclusion, parent-family learning, audio or E03 kickoff.
+
+### Engineering and MN4 acceptance — E02 old-stones visual focus (2026-10-14)
+
+[PR #76](https://github.com/edisontw/wondervale/pull/76) squash merged to code `933855e9527b958b37e03c68807cde296b8717ff`, E02 build `20261014-e02-stone-focus8`.
+
+- [E02 main CI #38578420621](https://github.com/edisontw/wondervale/actions/runs/38578420621): **PASS**. Real desktop and 568×320 touch simulated scenes check left safe-paving old-stones arrival, original 1672px R1 image decode, same-source magnified lens >=130px wide, locator and accessible description, no interactive blocking, successful R0 return, existing Notebook/Chronicle/save/Finish/reset pipeline.
+- [E01 independent main runtime #38578420564](https://github.com/edisontw/wondervale/actions/runs/38578420564): **PASS**.
+- [MN4 E02 release #38578420464](https://github.com/edisontw/wondervale/actions/runs/38578420464): **PASS** including production SSH deployment. Remote deploy log confirms `Verified E02 archive: 9 runtime files`, frozen E01 build `20261014-e01-map-choice-compact1`, `PASS: E01 byte-identical; E02 artifact byte-verified`, and `DEPLOYED 933855e9527b958b37e03c68807cde296b8717ff` to `https://wondervale.pepepow.net/e02/`.
+- **Scope locked:** R0 visual old-stones walking stop at 32% x, front paving; R1 original painting reused with masonry focus/locator; no changes to engine path graph, E02 scripted 81 lines, R0/R1/R2 source WebP bytes, E01, Chronicle or owner-accepted save/reset. This closes **automated engineering and deployment QA only**.
+
+**OPEN — OWNER REAL PHONE:** walk to old stones, look at real final Milo standing place and the R1 enlarged stone masonry, check whether both are intuitive at a glance. Automated cropping/geometry cannot certify child recognizability or full iPhone/WebKit visual acceptance. If the approved art is still insufficient, next step is a *separately approved* image-regeneration proposal, not silent modification of R1 canon. Family/E02-wide audio/Chronicle acceptance and E03 still separately open.
