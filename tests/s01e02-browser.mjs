@@ -116,6 +116,43 @@ async function checkPhoneChronicle(page,width,height,reading=false){
  assert.deepEqual(decoded,[1672,1672],'Both approved evidence paintings decode');
  return g;
 }
+// Finished chapters keep the original illustrated Then/Now record.
+// The review scrolls internally while 44px Review/Restart actions stay visible.
+async function checkCompletedReview(page,width,height){
+ const review=page.locator('#completed-review');
+ assert.equal(await review.isVisible(),true,'Illustrated Chronicle review should open');
+ assert.equal(await page.getByText('MARKET LANE →',{exact:true}).count(),1);
+ assert.equal(await page.getByText('Unknown:',{exact:true}).count(),1);
+ assert.equal(await page.getByRole('button',{name:'Close Chronicle review'}).getAttribute('aria-expanded'),'true');
+ const decoded=await review.locator('img').evaluateAll(els=>Promise.all(els.map(async e=>{
+  await e.decode();return {w:e.naturalWidth,h:e.naturalHeight};
+ })));
+ assert.deepEqual(decoded,[{w:1672,h:941},{w:1672,h:941}],
+  'The two approved Then/Now art images remain available after Finish');
+ const g=await page.evaluate(()=>{
+  const box=s=>{const r=document.querySelector(s)?.getBoundingClientRect();return r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,height:r.height}:null;};
+  const e=document.querySelector('#completed-review');
+  return {review:box('#completed-review'),actions:box('.completed-actions'),
+   docHeight:document.documentElement.scrollHeight,docWidth:document.documentElement.scrollWidth,
+   scrollHeight:e?.scrollHeight,clientHeight:e?.clientHeight,
+   buttons:[...document.querySelectorAll('.completed-actions button')].map(x=>{
+    const r=x.getBoundingClientRect();return {name:x.textContent,top:r.top,bottom:r.bottom,height:r.height};
+   })};
+ });
+ if(width<=750&&height<420){
+  assert.ok(g.docWidth<=width+2&&g.docHeight<=height+3,
+   'No full-page scrolling or side overflow for final Chronicle '+JSON.stringify(g));
+  assert.ok(g.review&&g.review.top>=-2&&g.actions?.bottom<=height+3,
+   'Review and final actions fit short landscape '+JSON.stringify(g));
+  assert.ok(g.buttons.length===2&&g.buttons.every(b=>b.height>=44&&b.bottom<=height+3),
+   'Review/Restart are always 44px accessible touch targets '+JSON.stringify(g));
+  if(g.scrollHeight>g.clientHeight+4){
+   await review.evaluate(el=>{el.scrollTop=el.scrollHeight;});
+   assert.ok(await review.evaluate(el=>el.scrollTop>0),'Only review contents scroll');
+  }
+ }
+ return g;
+}
 async function action(p,name){await p.getByRole('button',{name,exact:true}).first().click();}
 async function saved(p){return p.evaluate(()=>JSON.parse(localStorage.getItem('wondervale-s01e02-progress-v1')));}
 const passed=(id,note)=>{report.push({id,status:'PASS',note});process.stdout.write('PASS '+id+' '+note+'\n');};
@@ -209,6 +246,11 @@ try{
  await p.reload({waitUntil:'networkidle'});
  assert.equal(await p.getByRole('heading',{name:'Chapter complete'}).count(),1);
  assert.equal((await saved(p)).ledger.length,4);
+ await action(p,'Review the Chronicle');
+ await checkCompletedReview(p,1366,900);
+ assert.equal((await saved(p)).ledger.filter(x=>x==='episode_completed:s01e02').length,1);
+ await action(p,'Close Chronicle review');
+ assert.equal(await p.locator('#completed-review').isVisible(),false);
  await p.screenshot({path:'test-results/e02-desktop-complete.png',fullPage:true});
  passed('E02-C02','Complete and restore four deduplicated E02 canonical events');
  await ctx.close();
@@ -393,8 +435,19 @@ try{
    await phone.reload({waitUntil:'networkidle'});
    assert.equal((await saved(phone)).phase,'completed');
    await phone.getByRole('button',{name:'Review the Chronicle'}).tap();
-   assert.equal(await phone.getByText(/old stones marked a crossing/).count(),1);
+   await checkCompletedReview(phone,width,height);
+   assert.equal(await phone.evaluate(()=>document.activeElement?.dataset?.a),'show-chronicle',
+    'After expanding Chronicle, keyboard focus remains on toggle');
+   assert.equal((await saved(phone)).ledger.filter(x=>x==='episode_completed:s01e02').length,1);
+   await phone.screenshot({path:'test-results/e02-phone-chronicle-final-review-'+width+'.png',fullPage:true});
+   await phone.getByRole('button',{name:'Child / Parent View'}).tap();
+   assert.equal(await phone.locator('.child').evaluate(el=>getComputedStyle(el).display),'none',
+    'Parent View replaces completed review');
+   await phone.getByRole('button',{name:'Child / Parent View'}).tap();
+   assert.equal(await phone.locator('#completed-review').isVisible(),true);
    await phone.getByRole('button',{name:'Close Chronicle review'}).tap();
+   assert.equal(await phone.locator('#completed-review').isVisible(),false);
+   assert.equal(await phone.getByRole('button',{name:'Review the Chronicle'}).getAttribute('aria-expanded'),'false');
    await phone.getByRole('button',{name:'Start E02 again'}).tap();
    assert.equal(await phone.getByRole('dialog',{name:'Restart E02 confirmation'}).count(),1);
    assert.ok((await phone.getByRole('dialog',{name:'Restart E02 confirmation'}).innerText()).includes('Delete all saved Episode 02 progress'),
