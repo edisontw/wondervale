@@ -109,3 +109,12 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 - E02 browser regression must confirm cancel safety, simulated denied-storage warning, successful key deletion, absence of leftover E02-prefixed keys, full reload still preview with no E02 record, replay from original first line with zero E02 events, and E01 ledger byte-for-byte equality. Unit test validates all `fresh()` milestones. Physical iPhone owner PASS remains OPEN until tested.
 
 **Scope:** restart storage/UX only. Do not alter the E02 canonical 81 lines, approved art, map/route, safety/reasoning/completion gates or E01 code.
+
+### Engineering and MN4 production verification — 2026-10-14
+
+[PR #73](https://github.com/edisontw/wondervale/pull/73) merged to source `45f5eeb65880e5e21bfeb3d7f83b86b4e40f8522`, build `20261014-e02-reset-clean5`.
+
+- [E02 acceptance #38554287079](https://github.com/edisontw/wondervale/actions/runs/38554287079) **PASS**: browser test exercised Cancel, simulated storage-denied deletion, confirmed E02 localStorage key removal, reload without key recreation, complete first-line replay and E01 unchanged. Engine test checks all `fresh()` episode milestones cleared.
+- [E01 regression #38554287200](https://github.com/edisontw/wondervale/actions/runs/38554287200) **PASS**.
+- [MN4 deployment #38554287091](https://github.com/edisontw/wondervale/actions/runs/38554287091) **PASS**: confirmed deployed from this main commit, E02 artifact byte-verified and E01 release byte-identical.
+- **Engineering/deployment gate CLOSED. Actual owner's iPhone confirmation for destructive restart still OPEN.** Do not confuse the user's original requirement with a reported PASS.
