@@ -556,3 +556,10 @@ Owner replied **PASS** again after the direct-Look/Notebook phone fix had alread
 
 **Canonical new-session guide:** [E03 kickoff and minimal file reading order](E03_KICKOFF_2026-10-14.md). This is a **documentation-only handoff**; no E01/E02 runtime, release, audio assets or E03 implementation changes.
 
+
+## 2026-10-14 — S01E03 Gate 2 Market Lane visual preparation
+
+- **Accepted upstream, unchanged:** E03 story/learning/route needs, C01 trio identity and visual style, E01/E02 playable freeze; voice/music/SFX deferred.
+- **Proposed R0 technical visual reference, NOT owner art PASS:** one 16:9 Market Lane environment, readable stair S / narrow arcade N / wide level outer L, bookstall B / tea porch T / flower stand F, centered safe unloading blockage on direct through lane only. Storyboard and graph: [E03 visual contract](../content/season-01/s01e03/VISUAL_REFERENCE_CONTRACT.md). Basic 14-node/15-edge layout reachability and comparative book-route lengths source-checked; no physics or render pass.
+- **Open:** one actual high-quality painted M0 scene, owner art review, source PNG + WebP integrity transfer, exact collision/turn widths, mobile scene perception and playable E03. No new character appearances or canonical mystery answer approved here.
+- **Next:** generate one M0 **background-only** scene from R0, judge material visual defects, then prepare a single media handoff if accepted. Audio remains intentionally deferred.
