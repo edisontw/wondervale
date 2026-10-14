@@ -131,6 +131,9 @@ function consistentCheckpoint(s){
  if(s.revised&&(!s.linked||!s.offeredCue))return false;
  if(s.market&&(!s.revised||!s.visitedLookout))return false;
  if(s.chronicleSeen&&!s.market)return false;
+ if(s.chronicleSeen&&!['chronicle','completed'].includes(s.phase))return false;
+ if(s.view==='r1'&&(s.position!=='oldStones'||!s.observed.includes('stones')))return false;
+ if(s.view==='r2'&&(s.position!=='lookoutView'||!s.observed.includes('gap')))return false;
  if(['notebook','revision','market','chronicle','completed'].includes(s.phase)&&!s.offeredCue)return false;
  if(['revision','market','chronicle','completed'].includes(s.phase)&&!s.linked)return false;
  if(['market','chronicle','completed'].includes(s.phase)&&!s.revised)return false;
