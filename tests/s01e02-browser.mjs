@@ -51,9 +51,17 @@ try{
  const {ctx,p}=await open();
  assert.equal(await p.getByText('MARKET LANE →',{exact:true}).count(),0);
  await action(p,'Begin Riverside adventure');
+  assert.equal(await p.locator('#world').getAttribute('data-view'),'r0','Opening dialogue must already show Riverside');
+  assert.equal(await p.locator('img.backdrop').evaluate(async img=>{await img.decode();return img.naturalWidth;}),1672);
  assert.ok((await p.locator('[data-line]').first().getAttribute('data-line')).startsWith('S01E02-'));
  await lines(p);
- passed('E02-S01','Mandatory fence-only opening played line-by-line');
+ const pavement=await p.locator('#world .actor').evaluateAll(els=>els.map(el=>({
+   x:parseFloat(el.style.getPropertyValue('--x')),y:parseFloat(el.style.getPropertyValue('--y'))
+  })));
+  assert.equal(pavement.length,3);
+  assert.ok(pavement.every(q=>q.x>=8&&q.x<=92&&q.y>=85&&q.y<=92),'R0 actor feet must be on near-bank paving '+JSON.stringify(pavement));
+  assert.equal(await p.locator('img.backdrop').evaluate(async img=>{await img.decode();return img.naturalWidth;}),1672,'R0 painting decodes');
+  passed('E02-S01','Mandatory fence-only opening played line-by-line');
  // Touch/keyboard alike have explicit accessible Go-to station actions.
  await action(p,'Go to public lookout');await lines(p);
  const arrived=await saved(p);
@@ -61,11 +69,21 @@ try{
  assert.equal(arrived.observed.length,0,'Arrival alone cannot count as inspection');
  assert.equal(await p.getByText('MARKET LANE →',{exact:true}).count(),0);
  await action(p,'Look across');assert.ok(await p.locator('img.backdrop').getAttribute('src').then(s=>s.endsWith('-r2.webp')));
+  assert.equal(await p.locator('#world .actor').count(),0,'R2 close-up cannot place actors in the river');
+  assert.equal(await p.locator('img.backdrop').evaluate(async img=>{await img.decode();return img.naturalWidth;}),1672,'R2 painting decodes');
  await lines(p);assert.deepEqual((await saved(p)).observed,['gap']);
  passed('E02-G04/I03','Lookout event once, child must separately inspect gap');
- await action(p,'Walk to old stones');await action(p,'Look at old stones');await lines(p);
+ await action(p,'Back to Riverside');
+  await action(p,'Walk to old stones');await action(p,'Look at old stones');
+  assert.equal(await p.locator('#world .actor').count(),0,'R1 close-up cannot place actors in the river');
+  assert.equal(await p.locator('img.backdrop').evaluate(async img=>{await img.decode();return img.naturalWidth;}),1672,'R1 painting decodes');
+  await lines(p);await action(p,'Back to Riverside');
+  assert.equal(await p.locator('#world .actor').count(),3,'R0 restores all three actors');
  assert.deepEqual(new Set((await saved(p)).observed),new Set(['stones','gap']));
- await action(p,'Open evidence notebook');await lines(p);
+ await action(p,'Open old map');
+  assert.equal(await p.getByRole('dialog',{name:'Old map fragment'}).count(),1,'Old map must be its own visible dialog');
+  await action(p,'Close map');await lines(p);
+  await action(p,'Open evidence notebook');await lines(p);
  assert.equal(await p.getByText('MARKET LANE →',{exact:true}).count(),0);
  const parent=await p.locator('#parent').innerText();
  assert.ok(parent.includes("doesn't fit Milo's first idea"),'Parent cue now eligible');
@@ -99,6 +117,15 @@ try{
  for(const [width,height] of [[568,320],[667,375],[390,844]]){
   const {ctx:phoneCtx,p:phone}=await open({width,height,authorized:true,touch:true});
   await phone.getByRole('button',{name:'Begin Riverside adventure'}).tap();
+  const opening=await phone.evaluate(()=>{
+   const rect=s=>{const r=document.querySelector(s)?.getBoundingClientRect();return r?{width:r.width,height:r.height,bottom:r.bottom}:null;};
+   return {scene:rect('#world'),caption:rect('.caption:not(.idle)')};
+  });
+  assert.ok(opening.scene&&opening.caption,'Opening picture and dialogue appear together');
+  if(height<400){
+   assert.ok(opening.scene.width>=350,'Short-landscape opening art visible '+JSON.stringify(opening));
+   assert.ok(opening.caption.bottom<=height+3,'Opening caption remains inside phone '+JSON.stringify(opening));
+  }
   await lines(phone);
   const rect=el=>{const r=el.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
   const geom=await phone.evaluate(()=>{
@@ -143,8 +170,17 @@ try{
   await lines(phone);
   if(width===568){
    await phone.getByRole('button',{name:'Look across'}).tap();await lines(phone);
+   assert.equal(await phone.locator('#world .actor').count(),0);
+   await phone.getByRole('button',{name:'Back to Riverside'}).tap();
    await phone.locator('.scene-card .actions [data-a="go-stones"]').tap();
    await phone.getByRole('button',{name:'Look at old stones'}).tap();await lines(phone);
+   assert.equal(await phone.locator('#world .actor').count(),0);
+   await phone.getByRole('button',{name:'Back to Riverside'}).tap();
+   await phone.getByRole('button',{name:'Open old map'}).tap();
+   const modal=phone.getByRole('dialog',{name:'Old map fragment'});
+   const modalBounds=await modal.evaluate(el=>{const r=el.querySelector('.card').getBoundingClientRect();return {top:r.top,bottom:r.bottom};});
+   assert.ok(modalBounds.top>=0&&modalBounds.bottom<=height+2,'Old map remains onscreen in short landscape '+JSON.stringify(modalBounds));
+   await phone.getByRole('button',{name:'Close map'}).tap();await lines(phone);
    await phone.getByRole('button',{name:'Open evidence notebook'}).tap();await lines(phone);
    const notebook=phone.getByRole('heading',{name:'Nia’s evidence notebook'});
    assert.equal(await notebook.count(),1,'Notebook must be reachable without cropping');
@@ -173,5 +209,18 @@ try{
   await c.close();
  }
  passed('E02-E03','320/360/390/430 touch render screenshot and parent view toggle');
- assert.deepEqual(errors,[]);
+  // Image fetch failures should show an explicit retry instead of an empty scene.
+  {const {ctx:brokenCtx,p:broken}=await open({width:568,height:320,touch:true});
+   await broken.getByRole('button',{name:'Begin Riverside adventure'}).tap();await lines(broken);
+   await broken.route('**/s01e02-riverside-r2.webp**',r=>r.abort());
+   await action(broken,'Go to public lookout');await lines(broken);
+   await action(broken,'Look across');
+   await broken.getByRole('alert').getByText('Riverside picture could not load.').waitFor();
+   await broken.unroute('**/s01e02-riverside-r2.webp**');
+   await action(broken,'Retry picture');
+   assert.equal(await broken.locator('img.backdrop').evaluate(async img=>{await img.decode();return img.naturalWidth;}),1672);
+   await brokenCtx.close();
+   passed('E02-ART-LOAD','R2 network failure explains the missing picture and retry restores the image');
+  }
+  assert.deepEqual(errors,[]);
 }finally{await writeFile('test-results/e02-acceptance.json',JSON.stringify({report,errors},null,2));await browser.close();}

@@ -64,71 +64,130 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
   background:rgba(255,249,235,.93);font:600 12px/1.15 system-ui;
   pointer-events:auto}
  .outer{padding:0 4px 3px}
- .outer .child.phase-explore,.outer .child.phase-market{
+ .outer .child:is(.phase-explore,.phase-intro),.outer .child.phase-market{
   display:flex;flex-direction:column;gap:0;overflow:hidden}
- .outer .child.phase-explore .scene-card,
+ .outer .child:is(.phase-explore,.phase-intro) .scene-card,
  .outer .child.phase-market .scene-card{
   position:relative;display:flex;flex-direction:column;flex:1 1 auto;
   min-height:0;overflow:hidden}
- .outer .child.phase-explore .headline,
+ .outer .child:is(.phase-explore,.phase-intro) .headline,
  .outer .child.phase-market .headline{
   position:absolute;width:1px;height:1px;padding:0;margin:0;
   overflow:hidden;clip-path:inset(50%);white-space:nowrap}
- .outer .child.phase-explore .world-frame,
+ .outer .child:is(.phase-explore,.phase-intro) .world-frame,
  .outer .child.phase-market .world-frame{
   flex:1 1 auto;min-height:0;max-height:100%;align-items:center}
- .outer .child.phase-explore .world-frame .world,
+ .outer .child:is(.phase-explore,.phase-intro) .world-frame .world,
  .outer .child.phase-market .world-frame .world{
   flex:0 0 auto;width:auto;height:min(100%,calc((100vw - 12px)*941/1672));
   max-width:100%;max-height:100%;aspect-ratio:1672/941}
- .outer .child.phase-explore .status,
+ .outer .child:is(.phase-explore,.phase-intro) .status,
  .outer .child.phase-market .status{
   flex:0 0 auto;max-height:20px;min-height:0;overflow-x:auto;
   overflow-y:hidden;white-space:nowrap;padding:1px 7px;
   font:11px/1.2 system-ui}
- .outer .child.phase-explore .actions,
+ .outer .child:is(.phase-explore,.phase-intro) .actions,
  .outer .child.phase-market .actions{
   display:flex;flex:0 0 auto;flex-wrap:nowrap;align-items:center;
   gap:4px;min-height:48px;max-height:48px;overflow-x:auto;
   padding:2px 5px;overscroll-behavior-x:contain;scrollbar-width:thin}
- .outer .child.phase-explore .actions button,
+ .outer .child:is(.phase-explore,.phase-intro) .actions button,
  .outer .child.phase-market .actions button{
   flex:0 0 auto;min-width:120px;max-width:210px;min-height:44px;
   padding:4px 7px;font:600 13px/1.15 system-ui}
- .outer .child.phase-explore .caption,
+ .outer .child:is(.phase-explore,.phase-intro) .caption,
  .outer .child.phase-market .caption{
   flex:0 0 auto;display:grid;grid-template-columns:40px minmax(0,1fr);
   max-height:82px;min-height:0;overflow:hidden;
   margin:3px 2px 0;padding:4px 6px;gap:5px}
- .outer .child.phase-explore .caption.idle,
+ .outer .child:is(.phase-explore,.phase-intro) .caption.idle,
  .outer .child.phase-market .caption.idle{display:none}
- .outer .child.phase-explore .caption .portrait,
+ .outer .child:is(.phase-explore,.phase-intro) .caption .portrait,
  .outer .child.phase-market .caption .portrait{width:40px;height:55px}
- .outer .child.phase-explore .caption>div:nth-child(2),
+ .outer .child:is(.phase-explore,.phase-intro) .caption>div:nth-child(2),
  .outer .child.phase-market .caption>div:nth-child(2){
   display:grid;grid-template-columns:minmax(0,1fr) minmax(166px,38%);
   gap:2px 5px;min-width:0;align-items:center}
- .outer .child.phase-explore .caption-speaker,
+ .outer .child:is(.phase-explore,.phase-intro) .caption-speaker,
  .outer .child.phase-market .caption-speaker{font:700 12px/1.1 system-ui}
- .outer .child.phase-explore .caption-text,
+ .outer .child:is(.phase-explore,.phase-intro) .caption-text,
  .outer .child.phase-market .caption-text{
   grid-row:2;grid-column:1;min-width:0;max-height:59px;
   overflow-y:auto;margin:0;font:16px/1.2 Georgia,serif}
- .outer .child.phase-explore .caption-buttons,
+ .outer .child:is(.phase-explore,.phase-intro) .caption-buttons,
  .outer .child.phase-market .caption-buttons{
   grid-row:1 / span 2;grid-column:2;display:flex;gap:4px;
   flex-wrap:nowrap;align-items:center}
- .outer .child.phase-explore .caption-buttons button,
+ .outer .child:is(.phase-explore,.phase-intro) .caption-buttons button,
  .outer .child.phase-market .caption-buttons button{
   flex:1 1 auto;min-width:0;min-height:44px;padding:4px 5px;
   font:600 14px/1.15 system-ui}
- .outer .child.phase-explore .caption-buttons .small,
+ .outer .child:is(.phase-explore,.phase-intro) .caption-buttons .small,
  .outer .child.phase-market .caption-buttons .small{display:none}
  .outer .child .footer{display:none}
- .outer .child:not(.phase-explore):not(.phase-market){padding-top:48px}
+ .outer .child:not(.phase-explore):not(.phase-intro):not(.phase-market){padding-top:48px}
  .outer.phone-parent-open .child{display:none}
  .outer.phone-parent-open .parent{display:block;padding:12px;
   overflow-y:auto;height:100%;max-height:100%}
 }
 /* More detailed views (evidence notebook, Chronicle, parent prompts) are
    intentionally scrollable rather than cropping evidence or answer controls. */
+
+/* Camera-specific safety: only R0 is walkable. R1/R2 are close-up images
+   with no actors/hotspots whose feet could be projected into the river. */
+.world img.backdrop{object-fit:contain}
+.world .old{left:30%;top:67%}
+.world .closed{left:14%;top:45%}
+.world .lookout{left:87%;top:62%}
+.view-tag{position:absolute;top:7px;left:7px;z-index:6;padding:4px 9px;border-radius:8px;
+ background:rgba(255,249,235,.92);color:#264c43;font:700 12px/1.3 system-ui;pointer-events:none}
+.art-error{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+ justify-content:center;padding:16px;text-align:center;background:#e7eadc;
+ font:600 16px/1.5 system-ui}
+.art-error p{margin:0 0 10px}
+.status:empty{display:none}
+.caption>div:nth-child(2){min-width:0}
+.caption-text{overflow-wrap:anywhere;min-width:0}
+.caption-buttons{align-items:center}
+@media(max-width:750px){
+ .caption-text{font-size:clamp(17px,3.8vw,20px);line-height:1.3}
+ .caption-buttons button{min-height:44px}
+ .caption-buttons .small{display:none}
+ .detail-actions button{flex:0 0 auto;min-width:135px}
+}
+@media(orientation:landscape) and (max-height:420px) and (max-width:760px) and (pointer:coarse){
+ .outer .child.phase-explore .caption,.outer .child.phase-market .caption{
+  grid-template-columns:34px minmax(0,1fr);max-height:84px;padding:3px 5px;gap:5px}
+ .outer .child.phase-explore .caption .portrait,.outer .child.phase-market .caption .portrait{
+  width:34px;height:49px}
+ .outer .child.phase-explore .caption>div:nth-child(2),
+ .outer .child.phase-market .caption>div:nth-child(2){
+  grid-template-columns:minmax(0,1fr) 113px;gap:2px 4px}
+ .outer .child.phase-explore .caption-text,.outer .child.phase-market .caption-text{
+  font:16px/1.2 Georgia,serif;max-height:58px;min-height:0;overflow-y:auto;
+  overflow-wrap:anywhere}
+ .outer .child.phase-explore .caption-buttons,.outer .child.phase-market .caption-buttons{
+  min-width:0;gap:3px;justify-content:flex-end}
+ .outer .child.phase-explore .caption-buttons button,
+ .outer .child.phase-market .caption-buttons button{
+  min-height:44px;padding:3px 4px;font:600 12px/1.15 system-ui}
+ .view-tag{top:45px;left:5px;font-size:11px}
+}
+
+/* Short-landscape evidence and map never spill below the viewport. */
+.scene-modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;
+ padding:12px;background:rgba(22,42,38,.68)}
+.scene-modal .card{width:min(100%,540px);max-height:calc(100dvh - 24px);margin:0;
+ overflow-y:auto;box-shadow:0 10px 28px #1b292450}
+@media(orientation:landscape) and (max-height:420px) and (max-width:760px) and (pointer:coarse){
+ .outer .child.phase-explore .status,.outer .child.phase-market .status{
+  position:absolute;width:1px;height:1px;max-height:1px;padding:0;margin:0;
+  white-space:nowrap;overflow:hidden;clip-path:inset(50%);}
+}
+
+/* Prevent oversized C01 sprites from towering over the railing on mobile.
+   Grounding uses their FEET position; size scales with the small scene. */
+@media(max-width:750px){
+ .world .actor{width:clamp(26px,6vw,37px);height:clamp(46px,10.5vw,66px)}
+ .world .actor.companion{width:clamp(24px,5.6vw,34px);height:clamp(42px,9.6vw,60px)}
+}
