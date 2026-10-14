@@ -143,7 +143,7 @@ try{
   await lines(phone);
   if(width===568){
    await phone.getByRole('button',{name:'Look across'}).tap();await lines(phone);
-   await phone.getByRole('button',{name:'Walk to old stones'}).tap();
+   await phone.locator('.scene-card .actions [data-a="go-stones"]').tap();
    await phone.getByRole('button',{name:'Look at old stones'}).tap();await lines(phone);
    await phone.getByRole('button',{name:'Open evidence notebook'}).tap();await lines(phone);
    const notebook=phone.getByRole('heading',{name:'Nia’s evidence notebook'});
