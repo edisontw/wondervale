@@ -187,3 +187,79 @@ test('E02-17: restarting from a completed chapter resets every E02 milestone wit
  assert.deepEqual(next.queue,speech.intro,'The chapter must replay all opening lines');
  assert.deepEqual(next.ledger,[]);
 });
+
+test('E02-18: every legitimate chapter checkpoint round-trips without losing narrative or replay state',()=>{
+ let s=fresh(),checked=0;
+ const checkpoint=label=>{
+  const value=restore(JSON.parse(JSON.stringify(payload(s))));
+  assert.deepEqual(value,s,'Restore must preserve '+label);
+  checked++;
+ };
+ checkpoint('fresh preview');
+ s=dispatch(s,{type:'begin'});checkpoint('opening dialogue');
+ for(let i=0;i<5;i++)s=dispatch(s,{type:'next'});
+ checkpoint('opening line six');
+ s=drain(s);checkpoint('free exploration');
+ s=dispatch(s,{type:'go',to:'oldStones'});checkpoint('walking to stones');
+ s=dispatch(s,{type:'inspect',what:'stones'});checkpoint('stones closeup with pending speech');
+ s=dispatch(s,{type:'next'});checkpoint('middle stones caption');
+ s=drain(s);checkpoint('stones closeup after speech');
+ s=dispatch(s,{type:'close-detail'});checkpoint('return to safe panorama');
+ s=dispatch(s,{type:'go',to:'lookoutView'});checkpoint('first lookout visit speech');
+ s=drain(s);checkpoint('lookout free navigation');
+ s=dispatch(s,{type:'inspect',what:'gap'});checkpoint('gap closeup pending speech');
+ s=drain(s);checkpoint('gap closeup');
+ s=dispatch(s,{type:'close-detail'});
+ s=dispatch(s,{type:'notebook'});checkpoint('Notebook introduction with pending speech');
+ s=drain(s);checkpoint('Notebook choice');
+ s=dispatch(s,{type:'unsure'});checkpoint('uncertainty recovery speech');
+ s=drain(s);
+ s=dispatch(s,{type:'fact',choice:'stones'});checkpoint('incorrect but supported hypothesis');
+ s=drain(s);
+ s=dispatch(s,{type:'fact',choice:'gap'});checkpoint('gap chosen, transition to revision queued');
+ s=drain(s);checkpoint('revision offered');
+ s=dispatch(s,{type:'unsure'});checkpoint('revision uncertainty help');
+ s=drain(s);
+ s=dispatch(s,{type:'revision',choice:'B'});checkpoint('accepted revision with queued story');
+ s=drain(s);checkpoint('market choice with completed revision');
+ s=dispatch(s,{type:'go',to:'lookoutView'});checkpoint('revisit safe lookout');
+ s=dispatch(s,{type:'market'});checkpoint('Market mark before Chronicle transition');
+ s=drain(s);checkpoint('Chronicle available, not yet read');
+ s=dispatch(s,{type:'chronicle'});checkpoint('Chronicle narration pending');
+ for(let i=0;i<3;i++)s=dispatch(s,{type:'next'});
+ checkpoint('Chronicle midway');
+ s=drain(s);checkpoint('Chronicle read');
+ s=dispatch(s,{type:'finish'});checkpoint('Chapter complete');
+ assert.equal(s.phase,'completed');assert.equal(s.ledger.length,4);
+ assert.ok(checked>=25,'All major E02 checkpoints were exercised');
+});
+
+test('E02-19: inconsistent stored chapter cannot invent completed episode, clues, or unsafe camera',()=>{
+ let s=revise();s=walk(s,'lookoutView');
+ s=drain(dispatch(s,{type:'market'}));s=drain(dispatch(s,{type:'chronicle'}));
+ s=dispatch(s,{type:'finish'});assert.equal(s.phase,'completed');
+ const raw=payload(s);
+ const spoofed=[
+  ['missing completion event',{ledger:[EVENTS.lookout,EVENTS.revision,EVENTS.market]}],
+  ['spoofed complete without Chronicle',{chronicleSeen:false}],
+  ['fabricated market without ledger',{market:true,ledger:[EVENTS.lookout,EVENTS.revision,EVENTS.finish]}],
+  ['fabricated old crossing',{phase:'ferry'}],
+  ['future detail image',{view:'r6'}],
+  ['fake played speech',{played:'all'}],
+  ['wrong type of completion',{revised:'true'}],
+  ['impossible after phase',{phase:'preview',started:false}],
+  ['loss of reasoning event',{ledger:[EVENTS.lookout,EVENTS.market,EVENTS.finish]}],
+  ['claimed market without found gap',{observed:['stones']}]
+ ];
+ for(const [label,overrides] of spoofed){
+  const result=restore({...raw,...overrides});
+  assert.equal(result.phase,'preview',label+' should recover to safe unopened chapter');
+  assert.deepEqual(result.ledger,[],label+' must not show invented canonical events');
+  assert.equal(result.market,false);
+ }
+ const closeup=inspect(begin(),'oldStones','stones');
+ assert.equal(restore({...payload(closeup),position:'spawn'}).phase,'preview',
+  'Inconsistent image/position should not put players on water or inaccessible stations');
+ const bad=restore({schema:1,version:raw.version,position:'spawn',observed:[],ledger:[],phase:'completed',started:true});
+ assert.equal(bad.phase,'preview');
+});

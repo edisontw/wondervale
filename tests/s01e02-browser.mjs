@@ -315,6 +315,19 @@ try{
     }
    };
    await checkNotebook(true);
+   // Reload while actual notebook dialogue is half-read; neither the
+   // observation flags nor pending cue may be lost/duplicated.
+   const firstNotebook=await saved(phone);
+   await phone.getByRole('button',{name:'Continue',exact:true}).tap();
+   const interruptedNotebook=await saved(phone);
+   assert.equal(interruptedNotebook.queue.length,firstNotebook.queue.length-1);
+   await phone.reload({waitUntil:'networkidle'});
+   const resumedNotebook=await saved(phone);
+   assert.deepEqual(resumedNotebook.queue,interruptedNotebook.queue);
+   assert.deepEqual(resumedNotebook.ledger,interruptedNotebook.ledger);
+   assert.deepEqual(resumedNotebook.observed,interruptedNotebook.observed);
+   assert.equal(resumedNotebook.phase,'notebook');
+   await checkNotebook(true);
    await lines(phone);
    await checkNotebook(false);
    await phone.getByRole('button',{name:'Not sure yet'}).tap();
@@ -326,6 +339,14 @@ try{
    await checkNotebook(false);
    assert.equal(await notebook.count(),1,'Notebook must be reachable without cropping');
    await phone.locator('[data-a="fact-gap"]').tap();
+   const pendingRevision=await saved(phone);
+   assert.equal(pendingRevision.after,'revision','Evidence link transition must remain pending while spoken');
+   assert.equal(pendingRevision.linked,true);
+   await phone.reload({waitUntil:'networkidle'});
+   const restoredRevision=await saved(phone);
+   assert.deepEqual(restoredRevision.queue,pendingRevision.queue);
+   assert.deepEqual(restoredRevision.ledger,pendingRevision.ledger);
+   assert.equal(restoredRevision.after,'revision');
    await lines(phone);
    assert.equal((await saved(phone)).linked,true,'Mobile evidence flow must preserve original E02 reasoning gate');
    await phone.getByRole('button',{name:'The bridge was here before. It is not here now.'}).tap();
@@ -349,6 +370,15 @@ try{
    await phone.getByRole('button',{name:'Child / Parent View'}).tap();
    await phone.getByRole('button',{name:'Read the Chronicle'}).tap();
    assert.ok((await saved(phone)).queue.length>=9);
+   await checkPhoneChronicle(phone,width,height,true);
+   for(let k=0;k<3;k++)await phone.getByRole('button',{name:'Continue',exact:true}).tap();
+   const midChronicle=await saved(phone);
+   await phone.reload({waitUntil:'networkidle'});
+   const resumedChronicle=await saved(phone);
+   assert.equal(resumedChronicle.phase,'chronicle');
+   assert.deepEqual(resumedChronicle.queue,midChronicle.queue);
+   assert.deepEqual(resumedChronicle.ledger,midChronicle.ledger);
+   assert.equal(resumedChronicle.ledger.includes('episode_completed:s01e02'),false);
    await checkPhoneChronicle(phone,width,height,true);
    await phone.locator('.chronicle-scroll').evaluate(el=>el.scrollTop=el.scrollHeight);
    await checkPhoneChronicle(phone,width,height,true);

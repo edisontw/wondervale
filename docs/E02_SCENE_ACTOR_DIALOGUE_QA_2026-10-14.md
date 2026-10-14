@@ -118,3 +118,15 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 - [E01 regression #38554287200](https://github.com/edisontw/wondervale/actions/runs/38554287200) **PASS**.
 - [MN4 deployment #38554287091](https://github.com/edisontw/wondervale/actions/runs/38554287091) **PASS**: confirmed deployed from this main commit, E02 artifact byte-verified and E01 release byte-identical.
 - **Engineering/deployment gate CLOSED. Actual owner's iPhone confirmation for destructive restart still OPEN.** Do not confuse the user's original requirement with a reported PASS.
+
+## 2026-10-14 — E02 interrupted checkpoint integrity regression (focused engineering QA)
+
+**Starting point:** `main` `9d195c79f8f1fc58ef25b0c25b8d5d730168d25f`, following [PR #73](https://github.com/edisontw/wondervale/pull/73) production deployment. Owner's actual iPhone PASS for destructive restart **remains open**; no invented acceptance.
+
+**Issue detected in static audit:** `restore()` already filters unknown ledger and observation IDs, but previously merged arbitrary stored `phase`, `market`, `revised`, `chronicleSeen` and `view` fields without ensuring they agree with canonical events. A damaged browser checkpoint could therefore show `Chapter complete` or prematurely reveal the Market Lane clue without the corresponding E02 ledger history.
+
+**Repair, E02-only `20261014-e02-checkpoint-guard6`:** reject inconsistent checkpoint state to the safe fresh E02 preview. Verify recognized phase/camera, boolean flag types, a coherent event/phase chain (lookout → inspected facts → linked evidence → revision → Market mark → Chronicle read → explicit Finish), and only valid close-up camera/standing-station pairings. Retain genuine pending dialogue, the intended `after` transition, observations, E02 events and position for valid checkpoints; do not regenerate scene art or alter narration or E01. This is integrity validation, not a new game rule, route, reward or E03 unlock.
+
+**Focused automated regression:** unit tests cover 25+ real sequential checkpoints from preview/opening through old-stones/gap, both supported recovery prompts, revision, Market mark, mid-Chronicle and completion. Explicit corrupted snapshots must never fabricate completion/Market progress or invalid camera locations. Browser test actually reloads a phone while Notebook intro, evidence-to-revision and Chronicle queues are pending, checking exact pending line order and unchanged events, then finishes and uses the already accepted E02 clean restart. E01 and static release byte-isolation must remain PASS.
+
+**Acceptance still open:** real mobile Safari/Chrome/Home Screen interrupted-session checks, owner reset and Chronicle acceptance, actual child/parent family trial, recorded audio and E03 authoring.
