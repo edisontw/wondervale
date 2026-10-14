@@ -95,3 +95,17 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 - [MN4 E02 continuous preview deployment #38551725654](https://github.com/edisontw/wondervale/actions/runs/38551725654): **PASS** including production SSH deploy. Remote transcript explicitly reports **E01 byte-identical, E02 archive byte-verified** and E02 deployed from the above code SHA.
 - **Locked in engineering:** Chronicle screen-first layout; no river scene stacked above the book; internal scroll only if needed; pinned Read/Finish actions; narration text remains accessible; no automatic completion; no E03 early unlock. R0/R1/R2 and all 81 canonical lines unchanged.
 - **OPEN:** owner physical iPhone Chrome / Home Screen Chronicle and completion acceptance, recorded voice, full parent/family trial, and separate E03 kickoff. Do not mark E02-wide physical QA PASS from Chromium evidence.
+
+## 2026-10-14 — Owner request: Start E02 again must delete Chapter 2 history
+
+**Owner direction:** choosing `Start E02 again` should erase Chapter 2's saved records, not just return to the opening screen. This is a user-controlled *destructive restart*, distinct from replay/viewing the permanent Chronicle.
+
+**E02-only implementation, build `20261014-e02-reset-clean5`:**
+- `Start E02 again` opens an explicit confirmation explaining that **all Episode 02 saved progress, clue observations, Chronicle reading and episode completion on this device will be lost**; Episode 01 completion remains intact. Cancel leaves the entire E02 state untouched.
+- Confirm deletes only `wondervale-s01e02-progress-v1` in localStorage and checks that the key is actually absent. If the browser denies deletion or the key remains, keep the completed state and display a visible `role=alert` error (no false success).
+- After successful deletion restore `fresh()` in memory, clearing the complete E02 ledger, observations, current station, evidence/revision/Market flags, Chronicle/completion flags, played-line history, dialogue queue, and UI review/parent/map state. Cancel speech and remove any stale alerts.
+- During the new pristine preview, `save()` is deliberately a no-op, including on `visibilitychange`: backgrounding/reloading must not silently recreate a deleted E02 saved record. Pressing `Begin Riverside adventure` resumes ordinary checkpoint persistence and replays all 13 opening lines.
+- Preserve the entire `wondervale-progress-v1` E01 save without mutation. Reset must not open/repair the closed crossing or unlock E03.
+- E02 browser regression must confirm cancel safety, simulated denied-storage warning, successful key deletion, absence of leftover E02-prefixed keys, full reload still preview with no E02 record, replay from original first line with zero E02 events, and E01 ledger byte-for-byte equality. Unit test validates all `fresh()` milestones. Physical iPhone owner PASS remains OPEN until tested.
+
+**Scope:** restart storage/UX only. Do not alter the E02 canonical 81 lines, approved art, map/route, safety/reasoning/completion gates or E01 code.
