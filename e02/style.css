@@ -233,3 +233,10 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
  .outer .child:is(.phase-intro,.phase-explore,.phase-market) .caption-buttons .small{
   display:none}
 }
+
+/* A mobile Parent View must replace the child screen, not appear below it.
+   Keep this rule AFTER the short-landscape phase display rules. */
+@media(max-width:750px){
+ .outer.phone-parent-open .child:is(.phase-intro,.phase-explore,.phase-market){display:none}
+ .outer.phone-parent-open .parent{display:block;overflow-y:auto}
+}
