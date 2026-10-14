@@ -108,3 +108,16 @@ test('E02-13: incomplete observation scene preserves remaining dialogue on reloa
  assert.deepEqual(restored.observed,['stones']);
  assert.equal(restored.ledger.includes(EVENTS.revision),false);
 });
+
+test('E02-14: close inspection camera without undoing evidence or changing place',()=>{
+ let s=begin();s=walk(s,'oldStones');s=drain(dispatch(s,{type:'inspect',what:'stones'}));
+ assert.equal(s.view,'r1');
+ const history=structuredClone({position:s.position,ledger:s.ledger,observed:s.observed,played:s.played});
+ s=dispatch(s,{type:'close-detail'});
+ assert.equal(s.view,'r0');
+ assert.deepEqual({position:s.position,ledger:s.ledger,observed:s.observed,played:s.played},history);
+ s=walk(s,'lookoutView');s=drain(dispatch(s,{type:'inspect',what:'gap'}));
+ assert.equal(s.view,'r2');
+ s=dispatch(s,{type:'close-detail'});assert.equal(s.view,'r0');
+ assert.deepEqual(new Set(s.observed),new Set(['gap','stones']));
+});
