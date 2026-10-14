@@ -144,3 +144,13 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 **Still OPEN (human acceptance):** actual-owner iPhone/WebKit re-entry and clean Start Again behavior, full E02 Chronicle conclusion, parent/child family test, prerecorded narration/audio quality and Episode 03 authoring. This automatic test PASS is not an owner physical-device acceptance report.
 
 **Next focused task:** owner checks on the real phone that an interrupted Notebook/Chronicle resumes at the same line and that confirmed Start E02 again remains clear after reload, before proceeding to the final E02 acceptance checklist.
+
+## 2026-10-14 — Owner physical-phone PASS: E02 interrupted continuation and clean restart
+
+**Direct owner response:** `pass` on the deployed E02 build `20261014-e02-checkpoint-guard6` after the requested focused physical-phone tests: (1) leave during dialogue / re-open the episode and check that it resumes rather than skipping or restarting; (2) complete the chapter, confirm **Start E02 again → Clear E02 and restart**, reload and confirm a fresh E02 start without deleting E01 progress.
+
+**Scope now accepted / locked:** owner device verification of E02 interrupted dialogue/save continuation and deliberate deletion of E02 history on restart, with E01 state preserved. Corresponding engineering/production verification remains [PR #74](https://github.com/edisontw/wondervale/pull/74), [E02 CI #38556405604](https://github.com/edisontw/wondervale/actions/runs/38556405604), [E01 regression #38556405598](https://github.com/edisontw/wondervale/actions/runs/38556405598), and [MN4 deploy #38556405611](https://github.com/edisontw/wondervale/actions/runs/38556405611), all PASS.
+
+**Still open, not covered by this targeted PASS:** holistic E02 Chronicle reading/layout/ending evaluation beyond the tested restart path, real family/child learning and parent guidance trial, recorded voice/audio, other devices and Home Screen variations, and the E03 kickoff decision. Do not reinterpret a targeted PASS as an episode-wide creative or accessibility sign-off.
+
+**Next focused task:** final E02 owner-facing Chronicle/episode usability QA, then decide whether the chapter is ready to freeze and hand off to the E03 production layer. Avoid changing already accepted story, EFL, art, safe-route, E01, reset or checkpoint contracts.
