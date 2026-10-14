@@ -176,7 +176,7 @@ function render(){
  const markup='<header><div><a class="brand" href="../">Wondervale</a><h1 class="title">Episode 02 · The Bridge That Stops</h1></div><button class="parent-toggle" data-a="parent" aria-expanded="'+ui.parent+'">Child / Parent View</button></header>'+
  '<main class="outer '+(ui.parent?'phone-parent-open':'')+'"><section class="child phase-'+esc(state.phase)+'"><div class="scene-card"><div class="headline"><div class="byline">Milo · Nia · Finn · Riverside</div><h1>Find the way that is safe today</h1>'+
  '<p>Closed old crossing · Open public path · Protected lookout</p></div>'+
- (state.phase==='notebook'?'':paintedWorld?'<div class="world-frame">'+paintedWorld+'</div>':'')+(state.phase==='notebook'?'':statusPanel())+navigation()+'</div>'+
+ (['notebook','revision','chronicle','completed'].includes(state.phase)?'':paintedWorld?'<div class="world-frame">'+paintedWorld+'</div>':'')+(['notebook','revision','chronicle','completed'].includes(state.phase)?'':statusPanel())+navigation()+'</div>'+
  (state.phase==='notebook'&&!state.queue.length?'':queuePanel())+
  (ui.map?'<div class="scene-modal" role="dialog" aria-modal="true" aria-label="Old map fragment"><section class="card" id="old-map"><h2>Old map fragment</h2><p>An old line points toward Riverside. We do not yet know how the present bank changed.</p>'+button('Close map','close-map')+'</section></div>':'')+
  (ui.resetConfirm?'<section class="card"><p>Start E02 again? This only clears the E02 draft; Town Square progress stays.</p>'+button('Yes, start E02 again','reset-confirm')+button('Cancel','reset-cancel')+'</section>':'')+
