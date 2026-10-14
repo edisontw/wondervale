@@ -381,6 +381,11 @@ try{
  {const {ctx:largerCtx,p:larger}=await open({width:667,height:375,touch:true});
   await larger.evaluate(s=>localStorage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(s)),chronicleCheckpoint);
   await larger.reload({waitUntil:'networkidle'});
+  const restoredCheckpoint=await saved(larger);
+  assert.equal(restoredCheckpoint.phase,'chronicle',
+   'Chronicle checkpoint must survive reload: '+JSON.stringify({phase:restoredCheckpoint.phase,version:restoredCheckpoint.version,market:restoredCheckpoint.market,ledger:restoredCheckpoint.ledger}));
+  assert.equal(await larger.locator('#chronicle').count(),1,
+   'Chronicle DOM must exist on saved phone reload: '+(await larger.locator('.child').innerText()));
   await checkPhoneChronicle(larger,667,375);
   await larger.getByRole('button',{name:'Read the Chronicle'}).tap();
   await checkPhoneChronicle(larger,667,375,true);
