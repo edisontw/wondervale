@@ -153,6 +153,42 @@ async function checkCompletedReview(page,width,height){
  }
  return g;
 }
+// Detect the two owner-reported visual regressions with real scene geometry.
+async function checkOldStoneVisuals(page,detail=false){
+ if(!detail){
+  const g=await page.locator('#world').evaluate(el=>{
+   const p=el.querySelector('[data-actor="MILO"]');
+   const stone=el.querySelector('.hotspot.old');
+   return {view:el.dataset.view,x:parseFloat(p?.style.getPropertyValue('--x')),
+    y:parseFloat(p?.style.getPropertyValue('--y')),
+    stoneX:parseFloat(getComputedStyle(stone).left)/el.clientWidth*100};
+  });
+  assert.equal(g.view,'r0');
+  assert.ok(g.x>=29&&g.x<=35&&g.x<39,
+   'Milo must stop by the LEFT old-stone gate, not center '+JSON.stringify(g));
+  assert.ok(g.y>=85&&g.y<=92,'Milo still stands on near-bank safe paving '+JSON.stringify(g));
+  assert.ok(Math.abs(g.x-g.stoneX)<10,'Old-stone station and painted hotspot must agree '+JSON.stringify(g));
+  return;
+ }
+ const q=await page.locator('#world').evaluate(el=>{
+  const l=el.querySelector('.old-stones-focus'),m=el.querySelector('.old-stones-marker');
+  const b=el.getBoundingClientRect(),r=l?.getBoundingClientRect();
+  return {view:el.dataset.view,focus:!!l,marker:!!m,width:r?.width,height:r?.height,
+   left:r?.left,right:r?.right,bottom:r?.bottom,
+   bounds:{left:b.left,right:b.right,bottom:b.bottom},
+   background:l&&getComputedStyle(l).backgroundImage,
+   backgroundSize:l&&getComputedStyle(l).backgroundSize,
+   pointerEvents:l&&getComputedStyle(l).pointerEvents};
+ });
+ assert.equal(q.view,'r1');
+ assert.ok(q.focus&&q.marker&&q.width>=130&&q.height>=50&&
+  q.left>=q.bounds.left-1&&q.right<=q.bounds.right+1&&q.bottom<=q.bounds.bottom+1,
+  'Old masonry magnifier must be visible within R1 on both desktop and phone '+JSON.stringify(q));
+ assert.ok(q.background.includes('s01e02-riverside-r1.webp')&&q.backgroundSize.startsWith('430%'),
+  'Focus must crop the same approved R1 painting rather than using speculative art');
+ assert.equal(q.pointerEvents,'none','Decorative zoom must not block game controls');
+ assert.equal(await page.getByRole('img',{name:/Magnified old stone bridge landing/}).count(),1);
+}
 async function action(p,name){await p.getByRole('button',{name,exact:true}).first().click();}
 async function saved(p){return p.evaluate(()=>JSON.parse(localStorage.getItem('wondervale-s01e02-progress-v1')));}
 const passed=(id,note)=>{report.push({id,status:'PASS',note});process.stdout.write('PASS '+id+' '+note+'\n');};
@@ -202,7 +238,8 @@ try{
  await lines(p);assert.deepEqual((await saved(p)).observed,['gap']);
  passed('E02-G04/I03','Lookout event once, child must separately inspect gap');
  await action(p,'Back to Riverside');
-  await action(p,'Walk to old stones');await action(p,'Look at old stones');
+  await action(p,'Walk to old stones');await checkOldStoneVisuals(p);
+  await action(p,'Look at old stones');await checkOldStoneVisuals(p,true);
   assert.equal(await p.locator('#world .actor').count(),0,'R1 close-up cannot place actors in the river');
   assert.equal(await p.locator('img.backdrop').evaluate(async img=>{await img.decode();return img.naturalWidth;}),1672,'R1 painting decodes');
   await lines(p);await action(p,'Back to Riverside');
@@ -317,7 +354,12 @@ try{
    assert.equal(await phone.locator('#world .actor').count(),0);
    await phone.getByRole('button',{name:'Back to Riverside'}).tap();
    await phone.locator('.scene-card .actions [data-a="go-stones"]').tap();
-   await phone.getByRole('button',{name:'Look at old stones'}).tap();await lines(phone);
+   await checkOldStoneVisuals(phone);
+   await phone.screenshot({path:'test-results/e02-old-stones-walk-arrival-'+width+'.png',fullPage:true});
+   await phone.getByRole('button',{name:'Look at old stones'}).tap();
+   await checkOldStoneVisuals(phone,true);
+   await phone.screenshot({path:'test-results/e02-old-stones-focus-closeup-'+width+'.png',fullPage:true});
+   await lines(phone);
    assert.equal(await phone.locator('#world .actor').count(),0);
    await phone.getByRole('button',{name:'Back to Riverside'}).tap();
    await phone.getByRole('button',{name:'Open old map'}).tap();
