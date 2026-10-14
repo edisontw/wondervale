@@ -50,7 +50,7 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
    On short landscape, decorative title, idle talk, and vertical button wrapping
    must not turn the complete Riverside image into a tiny thumbnail.
    The separate explicit walk buttons remain available for motor/keyboard users. */
-@media(orientation:landscape) and (max-height:360px) and (max-width:760px) and (pointer:coarse){
+@media(orientation:landscape) and (max-height:420px) and (max-width:760px) and (pointer:coarse){
  #app{position:relative}
  #app>header{position:absolute;top:0;left:0;right:0;z-index:10;
   display:flex;align-items:flex-start;justify-content:space-between;
