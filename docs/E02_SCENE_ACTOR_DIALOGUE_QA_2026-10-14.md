@@ -205,3 +205,17 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 - **Scope locked:** R0 visual old-stones walking stop at 32% x, front paving; R1 original painting reused with masonry focus/locator; no changes to engine path graph, E02 scripted 81 lines, R0/R1/R2 source WebP bytes, E01, Chronicle or owner-accepted save/reset. This closes **automated engineering and deployment QA only**.
 
 **OPEN — OWNER REAL PHONE:** walk to old stones, look at real final Milo standing place and the R1 enlarged stone masonry, check whether both are intuitive at a glance. Automated cropping/geometry cannot certify child recognizability or full iPhone/WebKit visual acceptance. If the approved art is still insufficient, next step is a *separately approved* image-regeneration proposal, not silent modification of R1 canon. Family/E02-wide audio/Chronicle acceptance and E03 still separately open.
+
+## 2026-10-14 — Owner changed E02 old-stones interaction to one-step direct inspection (PR #77)
+
+**Latest explicit user instruction:** remove `Walk to old stones` (unnecessary) and show `Look at old stones` in the **first position** of the exploration button row. Earlier owner noted that the floating `Old stones` hotspot obscured Milo and that `Open evidence notebook` was hidden beyond the right edge of the short landscape action row.
+
+**Locked interpretation and implementation, E02 build `20261014-e02-direct-stones9`:**
+1. Remove the separate `Walk to old stones` bottom control and its redundant floating `Old stones` hotspot on R0, which previously overlapped Milo after arrival.
+2. Keep `Look at old stones` as the **first button**, available throughout the free exploration phase. A single tap **automatically follows the canonical same-bank safe route to the oldStones station**, then triggers the preexisting deliberate `inspect stones` engine action, displaying the owner-approved R1 closeup/zoom. This preserves the old-stones evidence gate: there is *no observation merely for passing the station*, and no crossing into the river or far bank. Keyboard-safe travel via ArrowLeft and other station mechanics remain intact.
+3. After both real evidence facts have been observed, make `Open evidence notebook` **second** in the row. The first two buttons must fit the 568×320 phone landscape viewport at 44px or more; other navigation/old map options can remain horizontally scrollable if necessary. This directly addresses the prior report that Notebook was pushed off-screen.
+4. Do not change E02 canonical route graph, any approved R0/R1/R2 WebP byte, the previous far-bank masonry zoom, all 81 EFL lines, Chronicle, state schema, Start Again, or E01.
+
+**Automated acceptance:** the button row starts `Look at old stones` and contains no separate Walk action; the R0 old hotspot is absent, so it cannot obscure the player. One tap reaches canonical `position=oldStones` before displaying R1 and recording the original observation. The original R1 zoom and image decoder still work. Once both observations exist, Notebook must occupy the second button with both first actions visible on short landscape without global page scrolling. Test on desktop and 568×320 phone, preserve all existing story/evidence/completion and E01 regression gates.
+
+**OPEN:** PR CI, final MN4 release, then actual owner iPhone acceptance of the simpler interaction and first two button positions. Previous old-stones walk-based QA is superseded by this explicit owner change, but the legal safe route and artwork remain canonical.
