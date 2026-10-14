@@ -470,3 +470,35 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
   font:600 13px/1.15 system-ui}
  .outer.phone-parent-open .child.phase-completed{display:none}
 }
+
+/* E02 R1 old stones discoverability: preserve the approved image unchanged.
+   The original opposite-bank pier is ~64% x / 40% y in R1. A gentle locator
+   and inset crop keep both the near safe gate and the old stonework legible. */
+.world[data-view="r1"] .old-stones-marker{
+ position:absolute;left:56%;top:32%;width:17%;height:23%;z-index:6;
+ border:3px dashed rgba(255,239,166,.98);border-radius:45%;
+ box-shadow:0 0 0 2px rgba(57,56,33,.48),0 0 10px rgba(40,44,23,.35);
+ pointer-events:none}
+.world[data-view="r1"] .old-stones-focus{
+ position:absolute;right:2%;bottom:3%;width:38%;height:49%;z-index:7;
+ border:3px solid #fff2bd;border-radius:12px;overflow:hidden;
+ background-color:#c6d4b7;
+ background-image:url("../public/art/s01e02-riverside-r1.webp");
+ /* crop R1 image to the historic masonry at x~900–1280, y~240–540 */
+ background-repeat:no-repeat;background-size:430% auto;background-position:68% 38%;
+ box-shadow:0 4px 16px #192b2d88;
+ pointer-events:none}
+.world[data-view="r1"] .old-stones-focus span{
+ position:absolute;left:0;right:0;bottom:0;
+ background:rgba(33,51,49,.89);color:#fff9e7;
+ font:700 clamp(10px,1.2vw,15px)/1.15 system-ui;
+ text-align:center;padding:5px 4px}
+@media(max-width:750px){
+ .world[data-view="r1"] .old-stones-marker{border-width:2px}
+ .world[data-view="r1"] .old-stones-focus{
+  width:43%;height:53%;border-width:2px;border-radius:7px}
+ .world[data-view="r1"] .old-stones-focus span{
+  font:700 10px/1.1 system-ui;padding:3px 3px}
+}
+/* Locator/lens are purely explanatory. They must not obstruct keyboard,
+   touch actions, water, or create a new world-action target. */
