@@ -47,6 +47,9 @@ World/character state is derived from an event/progress ledger rather than being
 
 ## Current work sequence
 
+**Current next-work handoff (2026-10-14):** The existing E02 Riverside **core playable/mobile chapter is owner PASS** and its source is preserved. At the owner's direction, **prerecorded audio/music/SFX are deferred** (not completed, and not blocking E03). The next new conversation starts with **S01E03 Gate 1 — story/learning/interaction Episode Production Brief draft**, not images, script or implementation. See [E03 new-session kickoff](docs/E03_KICKOFF_2026-10-14.md). Formal family observation and broader device/audio QA stay separate and open. Historical status notes below are retained for provenance; this newer handoff governs current priority.
+
+
 1. Core trio — **locked**
 2. Season 1 story architecture — **approved**
 3. Season 1 learning weave — **approved**
