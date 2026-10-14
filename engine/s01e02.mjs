@@ -1,7 +1,7 @@
 // E02 state machine and approved public route; separate from the E01 save key.
 export const E01_KEY='wondervale-progress-v1';
 export const KEY='wondervale-s01e02-progress-v1';
-export const VERSION='s01e02-script-v1',BUILD='20261012-e02-playable-v1';
+export const VERSION='s01e02-script-v1',BUILD='20261014-e02-mobile-shell1';
 export const e01Ready=save=>Array.isArray(save?.ledger)&&['episode_completed:s01e01','s01e01_town_square_old_marker_revealed'].every(id=>save.ledger.includes(id));
 export const places={spawn:[170,801],plaza:[453,786],oldSpurFork:[746,763],oldStones:[748,683],promenadeEast:[1030,772],publicSideFork:[1120,758],sidePathMiddle:[1214,711],lookoutEntry:[1322,676],lookoutView:[1407,667]};
 export const edges=[['spawn','plaza'],['plaza','oldSpurFork'],['oldSpurFork','oldStones'],['oldSpurFork','promenadeEast'],['promenadeEast','publicSideFork'],['publicSideFork','sidePathMiddle'],['sidePathMiddle','lookoutEntry'],['lookoutEntry','lookoutView']];
