@@ -77,7 +77,7 @@ function renderWorld(){
  actor('MILO',0)+actor('NIA',1)+actor('FINN',2)+'</div>';
 }
 function queuePanel(){
- if(!state.queue.length)return '<div class="caption" aria-label="Story dialogue"><div class="portrait"><span class="portrait-mark" aria-hidden="true">❧</span></div><div><div class="caption-speaker">Riverside</div><p class="caption-text">Choose what Milo does next.</p></div></div>';
+ if(!state.queue.length)return '<div class="caption idle" aria-label="Story dialogue"><div class="portrait"><span class="portrait-mark" aria-hidden="true">❧</span></div><div><div class="caption-speaker">Riverside</div><p class="caption-text">Choose what Milo does next.</p></div></div>';
  const l=line(state.queue[0]);
  return '<section class="caption" aria-label="Story dialogue"><div class="portrait">'+portrait(l.speaker)+'</div><div><div class="caption-speaker">'+esc(l.speaker)+'</div><p class="caption-text" data-line="'+esc(l.id)+'">'+esc(l.text)+'</p><div class="caption-buttons">'+
  button('Continue','next','',true)+button('🔊 Listen','listen','aria-label="Listen to this line"')+
@@ -132,13 +132,14 @@ function parentPanel(){
  '<p class="small">All parent prompts are optional. Milo makes the choice.</p></aside>';
 }
 function render(){
+ const paintedWorld=renderWorld();
  if(!unlocked){
   root.innerHTML='<header><div class="brand">Wondervale</div></header><main class="outer" style="display:block"><section class="card"><h1>Riverside is next</h1><p>Finish the Town Square chapter and reveal the RIVERSIDE marker first. Your E01 progress is never changed here.</p><p><a href="../">Return to Town Square</a></p></section></main>';return;
  }
  root.innerHTML='<header><div><a class="brand" href="../">Wondervale</a><h1 class="title">Episode 02 · The Bridge That Stops</h1></div><button class="parent-toggle" data-a="parent" aria-expanded="'+ui.parent+'">Child / Parent View</button></header>'+
- '<main class="outer"><section class="child"><div class="scene-card"><div class="headline"><div class="byline">Milo · Nia · Finn · Riverside</div><h1>Find the way that is safe today</h1>'+
+ '<main class="outer '+(ui.parent?'phone-parent-open':'')+'"><section class="child phase-'+esc(state.phase)+'"><div class="scene-card"><div class="headline"><div class="byline">Milo · Nia · Finn · Riverside</div><h1>Find the way that is safe today</h1>'+
  '<p>Closed old crossing · Open public path · Protected lookout</p></div>'+
- renderWorld()+statusPanel()+navigation()+'</div>'+
+ (paintedWorld?'<div class="world-frame">'+paintedWorld+'</div>':'')+statusPanel()+navigation()+'</div>'+
  queuePanel()+
  (ui.map?'<section class="card" id="old-map"><h2>Old map fragment</h2><p>An old line points toward Riverside. We do not yet know how the present bank changed.</p>'+button('Close map','close-map')+'</section>':'')+
  (ui.resetConfirm?'<section class="card"><p>Start E02 again? This only clears the E02 draft; Town Square progress stays.</p>'+button('Yes, start E02 again','reset-confirm')+button('Cancel','reset-cancel')+'</section>':'')+
