@@ -85,3 +85,13 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 **Validation:** E02 browser test now drives real touchscreen actions through Notebook → qualified revision → safe Market mark → Chronicle → 10 narrated lines → Finish and one-time ledger event → reload → Chronicle review → Restart Cancel at 568×320. Separately restores a legitimate Chronicle checkpoint in a new 667×375 mobile context and completes. Checks original image decoding, on-screen CTA/Continue, parent swap and no horizontal/global page overflow. Engine unit test checks premature Finish rejection, mid-Chronicle reload and idempotency. Automated CI and deploy gate required; **owner iPhone / Home Screen visual PASS still OPEN**.
 
 **Test fixture note:** when seeding a stored Chronicle state in a second Playwright browser context, use a pre-load init script rather than writing localStorage into an already running Preview page immediately before reload; the earlier page can save Preview on visibilitychange during navigation. This was a test setup problem, not an established defect in ordinary in-app checkpoint saves.
+
+### Accepted GitHub engineering/production gates (2026-10-14)
+
+[PR #72](https://github.com/edisontw/wondervale/pull/72) merged to code SHA `5308cdddad647722fb5c228a4a2c5d4035939400`, E02 build `20261014-e02-chronicle-phone4`.
+
+- [E02 main browser and engine acceptance #38551725622](https://github.com/edisontw/wondervale/actions/runs/38551725622): **PASS**. Includes actual touch path at 568×320, 667×375; preserved approved images; Chronicle with original dialogue and action row; explicit completion, save/reload, Parent View, review, Cancel, and E01 prerequisite.
+- [E01 main runtime regression #38551725709](https://github.com/edisontw/wondervale/actions/runs/38551725709): **PASS**; no E01 code changes.
+- [MN4 E02 continuous preview deployment #38551725654](https://github.com/edisontw/wondervale/actions/runs/38551725654): **PASS** including production SSH deploy. Remote transcript explicitly reports **E01 byte-identical, E02 archive byte-verified** and E02 deployed from the above code SHA.
+- **Locked in engineering:** Chronicle screen-first layout; no river scene stacked above the book; internal scroll only if needed; pinned Read/Finish actions; narration text remains accessible; no automatic completion; no E03 early unlock. R0/R1/R2 and all 81 canonical lines unchanged.
+- **OPEN:** owner physical iPhone Chrome / Home Screen Chronicle and completion acceptance, recorded voice, full parent/family trial, and separate E03 kickoff. Do not mark E02-wide physical QA PASS from Chromium evidence.
