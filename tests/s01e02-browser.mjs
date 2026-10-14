@@ -93,6 +93,69 @@ try{
  await p.screenshot({path:'test-results/e02-desktop-complete.png',fullPage:true});
  passed('E02-C02','Complete and restore four deduplicated E02 canonical events');
  await ctx.close();
+ // E02 previously tested only portrait widths and allowed page-length phone
+ // layouts. Exercise the actual ~568x320 CSS viewport of the owner's iPhone
+ // (1136x639 physical screenshot), not a 1136x639 CSS desktop equivalent.
+ for(const [width,height] of [[568,320],[667,375],[390,844]]){
+  const {ctx:phoneCtx,p:phone}=await open({width,height,authorized:true,touch:true});
+  await phone.getByRole('button',{name:'Begin Riverside adventure'}).tap();
+  await lines(phone);
+  const rect=el=>{const r=el.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
+  const geom=await phone.evaluate(()=>{
+   const box=s=>{const r=document.querySelector(s)?.getBoundingClientRect();return r?{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}:null;};
+   const actions=[...document.querySelectorAll('.scene-card .actions button')].map(el=>{
+    const r=el.getBoundingClientRect();return {label:el.innerText.trim(),top:r.top,bottom:r.bottom,height:r.height};
+   });
+   return {world:box('#world'),frame:box('.world-frame'),scene:box('.scene-card'),
+    dock:box('.scene-card .actions'),captionIdleHidden:getComputedStyle(document.querySelector('.caption.idle')).display==='none',
+    actions,documentWidth:document.documentElement.scrollWidth,documentHeight:document.documentElement.scrollHeight,
+    app:box('#app')};
+  });
+  assert.ok(geom.world&&geom.frame&&geom.dock,'Riverside artwork and travel controls must render on '+width);
+  assert.ok(Math.abs(geom.world.width/geom.world.height-1672/941)<.03,'Riverside art ratio must stay uncropped '+JSON.stringify({width,height,geom}));
+  assert.ok(geom.world.right<=width+2&&geom.world.left>=-2,'Riverside art must fit phone width '+JSON.stringify({width,height,geom}));
+  assert.ok(geom.documentWidth<=width+3,'E02 must not create horizontal document scrolling '+JSON.stringify({width,height,geom}));
+  assert.ok(geom.captionIdleHidden,'Idle free roam should not consume a dialogue panel on touch phones');
+  assert.ok(geom.actions.every(a=>a.height>=44),'All explicit walk targets remain >=44px');
+  if(height<400){
+   assert.ok(geom.world.width>=370,'Short landscape art should be legible rather than a central thumbnail '+JSON.stringify({width,height,geom}));
+   assert.ok(geom.documentHeight<=height+3,'Normal short-landscape exploration should fit one viewport '+JSON.stringify({width,height,geom}));
+   assert.ok(geom.actions.every(a=>a.top>=geom.world.bottom-2&&a.bottom<=height+3),
+    'Travel controls stay under the scene and in the window '+JSON.stringify({width,height,geom}));
+  }
+  await phone.getByRole('button',{name:'Child / Parent View'}).tap();
+  assert.equal(await phone.locator('#parent').evaluate(el=>getComputedStyle(el).display!=='none'),true);
+  assert.equal(await phone.locator('.child').evaluate(el=>getComputedStyle(el).display==='none'),true,'Phone parent mode must not stack below inaccessible child scene');
+  await phone.getByRole('button',{name:'Child / Parent View'}).tap();
+  assert.ok(await phone.locator('.child').evaluate(el=>getComputedStyle(el).display!=='none'));
+  await phone.getByRole('button',{name:'Go to public lookout'}).first().tap();
+  const story=phone.locator('.caption:not(.idle)');
+  assert.equal(await story.count(),1,'Lookout arrival should show real story, not idle placeholder');
+  const dialogue=await story.evaluate(el=>{
+   const b=el.getBoundingClientRect(),buttons=[...el.querySelectorAll('button')].map(x=>{
+    const r=x.getBoundingClientRect();return {label:x.textContent.trim(),top:r.top,bottom:r.bottom,height:r.height};
+   });return {top:b.top,bottom:b.bottom,buttons};
+  });
+  if(height<400){
+   assert.ok(dialogue.bottom<=height+3,'Active RPG dialogue stays in short-landscape phone screen '+JSON.stringify({width,height,dialogue}));
+   assert.ok(dialogue.buttons.every(x=>x.height>=44&&x.bottom<=height+3),'Continue/Listen stay touchable in phone dialogue '+JSON.stringify({width,height,dialogue}));
+  }
+  await lines(phone);
+  if(width===568){
+   await phone.getByRole('button',{name:'Look across'}).tap();await lines(phone);
+   await phone.locator('.scene-card .actions [data-a="go-stones"]').tap();
+   await phone.getByRole('button',{name:'Look at old stones'}).tap();await lines(phone);
+   await phone.getByRole('button',{name:'Open evidence notebook'}).tap();await lines(phone);
+   const notebook=phone.getByRole('heading',{name:'Nia’s evidence notebook'});
+   assert.equal(await notebook.count(),1,'Notebook must be reachable without cropping');
+   await phone.locator('[data-a="fact-gap"]').tap();
+   await lines(phone);
+   assert.equal((await saved(phone)).linked,true,'Mobile evidence flow must preserve original E02 reasoning gate');
+  }
+  await phone.screenshot({path:'test-results/e02-phone-landscape-'+width+'x'+height+'.png',fullPage:true});
+  await phoneCtx.close();
+ }
+ passed('E02-PHONE-VIEWPORT','E02 short-landscape 568x320 and 667x375 plus portrait 390x844 preserve full art, scene controls, bottom story, reachable Parent View, and notebook progression.');
  for(const width of [320,360,390,430]){
   const {ctx:c,p:page}=await open({width,height:width<390?700:844,authorized:true,touch:true});
   await page.getByRole('button',{name:'Begin Riverside adventure'}).tap();await lines(page);
