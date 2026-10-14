@@ -158,16 +158,14 @@ async function checkOldStoneVisuals(page,detail=false){
  if(!detail){
   const g=await page.locator('#world').evaluate(el=>{
    const p=el.querySelector('[data-actor="MILO"]');
-   const stone=el.querySelector('.hotspot.old');
    return {view:el.dataset.view,x:parseFloat(p?.style.getPropertyValue('--x')),
-    y:parseFloat(p?.style.getPropertyValue('--y')),
-    stoneX:parseFloat(getComputedStyle(stone).left)/el.clientWidth*100};
+    y:parseFloat(p?.style.getPropertyValue('--y')),oldHotspots:el.querySelectorAll('.hotspot.old').length};
   });
   assert.equal(g.view,'r0');
   assert.ok(g.x>=29&&g.x<=35&&g.x<39,
    'Milo must stop by the LEFT old-stone gate, not center '+JSON.stringify(g));
   assert.ok(g.y>=85&&g.y<=92,'Milo still stands on near-bank safe paving '+JSON.stringify(g));
-  assert.ok(Math.abs(g.x-g.stoneX)<10,'Old-stone station and painted hotspot must agree '+JSON.stringify(g));
+  assert.equal(g.oldHotspots,0,'Redundant old stones hotspot no longer covers Milo');
   return;
  }
  const q=await page.locator('#world').evaluate(el=>{
@@ -188,6 +186,25 @@ async function checkOldStoneVisuals(page,detail=false){
   'Focus must crop the same approved R1 painting rather than using speculative art');
  assert.equal(q.pointerEvents,'none','Decorative zoom must not block game controls');
  assert.equal(await page.getByRole('img',{name:/Magnified old stone bridge landing/}).count(),1);
+}
+// Owner-requested first-column direct Look; Notebook takes second column
+// once both observations exist, so it never requires a horizontal hunt.
+async function checkExploreActionPriority(page,width,height,notebookReady=false){
+ const buttons=await page.locator('.scene-card>.actions button').evaluateAll(els=>els.map(el=>{
+  const r=el.getBoundingClientRect();
+  return {label:el.textContent.trim(),left:r.left,right:r.right,top:r.top,bottom:r.bottom,height:r.height};
+ }));
+ assert.equal(buttons[0]?.label,'Look at old stones','Look at old stones must be first');
+ assert.ok(!buttons.some(b=>b.label==='Walk to old stones'),'Redundant walk action is removed');
+ assert.equal(await page.locator('.hotspot.old').count(),0,'Old stones label must not cover Milo');
+ if(notebookReady){
+  assert.equal(buttons[1]?.label,'Open evidence notebook','Notebook must be second when available');
+  assert.ok(buttons[0].left>=-2&&buttons[1].right<=width+2&&
+   buttons[0].height>=44&&buttons[1].height>=44,
+   'Direct Look and Notebook both fit phone width '+JSON.stringify({width,height,buttons}));
+  if(height<400)assert.ok(buttons[1].bottom<=height+3,
+   'Notebook must fit within short landscape viewport '+JSON.stringify(buttons));
+ }
 }
 async function action(p,name){await p.getByRole('button',{name,exact:true}).first().click();}
 async function saved(p){return p.evaluate(()=>JSON.parse(localStorage.getItem('wondervale-s01e02-progress-v1')));}
@@ -238,8 +255,9 @@ try{
  await lines(p);assert.deepEqual((await saved(p)).observed,['gap']);
  passed('E02-G04/I03','Lookout event once, child must separately inspect gap');
  await action(p,'Back to Riverside');
-  await action(p,'Walk to old stones');await checkOldStoneVisuals(p);
+  await checkExploreActionPriority(p,1366,900);
   await action(p,'Look at old stones');await checkOldStoneVisuals(p,true);
+  assert.equal((await saved(p)).position,'oldStones','One Look safely reaches old stones before inspecting');
   assert.equal(await p.locator('#world .actor').count(),0,'R1 close-up cannot place actors in the river');
   assert.equal(await p.locator('img.backdrop').evaluate(async img=>{await img.decode();return img.naturalWidth;}),1672,'R1 painting decodes');
   await lines(p);await action(p,'Back to Riverside');
@@ -353,15 +371,17 @@ try{
    await phone.getByRole('button',{name:'Look across'}).tap();await lines(phone);
    assert.equal(await phone.locator('#world .actor').count(),0);
    await phone.getByRole('button',{name:'Back to Riverside'}).tap();
-   await phone.locator('.scene-card .actions [data-a="go-stones"]').tap();
-   await checkOldStoneVisuals(phone);
-   await phone.screenshot({path:'test-results/e02-old-stones-walk-arrival-'+width+'.png',fullPage:true});
+   await checkExploreActionPriority(phone,width,height);
    await phone.getByRole('button',{name:'Look at old stones'}).tap();
    await checkOldStoneVisuals(phone,true);
+   assert.equal((await saved(phone)).position,'oldStones','Direct Look follows safe public graph');
    await phone.screenshot({path:'test-results/e02-old-stones-focus-closeup-'+width+'.png',fullPage:true});
    await lines(phone);
    assert.equal(await phone.locator('#world .actor').count(),0);
    await phone.getByRole('button',{name:'Back to Riverside'}).tap();
+   await checkOldStoneVisuals(phone);
+   await checkExploreActionPriority(phone,width,height,true);
+   await phone.screenshot({path:'test-results/e02-old-stones-direct-look-notebook-visible-'+width+'.png',fullPage:true});
    await phone.getByRole('button',{name:'Open old map'}).tap();
    const modal=phone.getByRole('dialog',{name:'Old map fragment'});
    const modalBounds=await modal.evaluate(el=>{const r=el.querySelector('.card').getBoundingClientRect();return {top:r.top,bottom:r.bottom};});
