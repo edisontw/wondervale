@@ -132,3 +132,44 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
 }
 /* More detailed views (evidence notebook, Chronicle, parent prompts) are
    intentionally scrollable rather than cropping evidence or answer controls. */
+
+/* Camera-specific safety: only R0 is walkable. R1/R2 are close-up images
+   with no actors/hotspots whose feet could be projected into the river. */
+.world img.backdrop{object-fit:contain}
+.world .old{left:30%;top:67%}
+.world .closed{left:14%;top:45%}
+.world .lookout{left:87%;top:62%}
+.view-tag{position:absolute;top:7px;left:7px;z-index:6;padding:4px 9px;border-radius:8px;
+ background:rgba(255,249,235,.92);color:#264c43;font:700 12px/1.3 system-ui;pointer-events:none}
+.art-error{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+ justify-content:center;padding:16px;text-align:center;background:#e7eadc;
+ font:600 16px/1.5 system-ui}
+.art-error p{margin:0 0 10px}
+.status:empty{display:none}
+.caption>div:nth-child(2){min-width:0}
+.caption-text{overflow-wrap:anywhere;min-width:0}
+.caption-buttons{align-items:center}
+@media(max-width:750px){
+ .caption-text{font-size:clamp(17px,3.8vw,20px);line-height:1.3}
+ .caption-buttons button{min-height:44px}
+ .caption-buttons .small{display:none}
+ .detail-actions button{flex:0 0 auto;min-width:135px}
+}
+@media(orientation:landscape) and (max-height:420px) and (max-width:760px) and (pointer:coarse){
+ .outer .child.phase-explore .caption,.outer .child.phase-market .caption{
+  grid-template-columns:34px minmax(0,1fr);max-height:84px;padding:3px 5px;gap:5px}
+ .outer .child.phase-explore .caption .portrait,.outer .child.phase-market .caption .portrait{
+  width:34px;height:49px}
+ .outer .child.phase-explore .caption>div:nth-child(2),
+ .outer .child.phase-market .caption>div:nth-child(2){
+  grid-template-columns:minmax(0,1fr) 113px;gap:2px 4px}
+ .outer .child.phase-explore .caption-text,.outer .child.phase-market .caption-text{
+  font:16px/1.2 Georgia,serif;max-height:58px;min-height:0;overflow-y:auto;
+  overflow-wrap:anywhere}
+ .outer .child.phase-explore .caption-buttons,.outer .child.phase-market .caption-buttons{
+  min-width:0;gap:3px;justify-content:flex-end}
+ .outer .child.phase-explore .caption-buttons button,
+ .outer .child.phase-market .caption-buttons button{
+  min-height:44px;padding:3px 4px;font:600 12px/1.15 system-ui}
+ .view-tag{top:45px;left:5px;font-size:11px}
+}
