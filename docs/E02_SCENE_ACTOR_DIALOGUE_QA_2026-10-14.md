@@ -59,3 +59,11 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 - Not sure yet enqueues the **already approved** NIA-010, FINN-009 and UI-009 recovery questions. It never marks `linked`, `revised`, or any ledger event. Hints may be repeated; the child still selects the fact, then explicitly revises Milo's idea. In the revision step Not sure yet reuses approved NIA-018 and NIA-019 prompts.
 - Keep evidence photos at full quality in the original R1/R2 asset files; only their notebook thumbnail viewport is compacted. No new art.
 - Retest the actual iPhone landscape after CI and production deploy. Chromium short-landscape tests do not establish WebKit PASS, and evidence/family acceptance remains open. Preserve E01 frozen release, original 81 E02 script lines and E02 safety/story gates.
+
+## 2026-10-14 — Owner iPhone PASS for notebook/UI repair
+
+**Owner explicit report:** PASS after the deployed E02 build `20261014-e02-notebook-compact3` ([PR #71](https://github.com/edisontw/wondervale/pull/71), main `932028778716800417db6d0c6f1b2c7b9bf03b18`). Close the **specific physical-phone repair acceptance** for: single-line Continue/manual Listen placement; neutral Look across / Open evidence notebook buttons; Notebook two-evidence compact landscape layout; accessible Not sure yet dialogue followed by child-selected evidence; and preservation of landscape operation through the Notebook. The exact final owner response is `pass`; do not extrapolate it to every gameplay/audio/replay/parent device path.
+
+**Regression/provenance:** [E02 acceptance #38548635113](https://github.com/edisontw/wondervale/actions/runs/38548635113) PASS, [E01 regression #38548635134](https://github.com/edisontw/wondervale/actions/runs/38548635134) PASS, [MN4 deployment #38548635057](https://github.com/edisontw/wondervale/actions/runs/38548635057) PASS and confirmed E01 byte-identical. Canonical 81 spoken lines, R0/R1/R2 approved art, evidence gate, and safe route remain locked.
+
+**Still open:** broader E02 end-to-end/family playtest, audio quality, WebKit/Home Screen variations and Chronicle-to-E03 readiness. **Next focused task:** exercise the complete E02 conclusion and Chronicle on physical phone; repair only concrete user-reported failures.
