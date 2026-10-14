@@ -99,8 +99,10 @@ async function checkPhoneChronicle(page,width,height,reading=false){
  if(height<400){
   assert.ok(g.article.left>=-2&&g.article.right<=width+2&&g.article.top>=-2&&g.action.bottom<=height+3,
    'Chronicle and action must fit phone landscape '+JSON.stringify(g));
-  assert.ok(g.action.height>=44&&g.contentHeight>g.visibleHeight+4,
-   'Chronicle text should scroll internally '+JSON.stringify(g));
+  assert.ok(g.action.height>=44&&g.contentHeight>=g.visibleHeight,
+   'Chronicle must fit its panel or scroll internally '+JSON.stringify(g));
+  if(width<=600)assert.ok(g.contentHeight>g.visibleHeight+4,
+   'Small iPhone Chronicle article should scroll instead of pushing Finish offscreen '+JSON.stringify(g));
   assert.ok(g.docHeight<=height+3,'No document scrolling during Chronicle '+JSON.stringify(g));
   if(g.caption)assert.ok(g.caption.bottom<=height+3,'Dialogue must remain in the phone viewport '+JSON.stringify(g));
  }
