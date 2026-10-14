@@ -25,6 +25,58 @@ async function lines(p){
  }
  return i;
 }
+// Owner's regression was at line five, not merely the first or last line.
+// Verify all 13 actual opening lines with changing narrator/C01 SVG portraits,
+// preserving one decoded image and landscape geometry throughout the queue.
+async function verifyStableIntroduction(p,width,height){
+ const shortLandscape=height<400&&width>height;
+ let initial=null;
+ await p.evaluate(()=>{window.__e02StableBackdrop=document.querySelector('#world img.backdrop');});
+ for(let index=0;index<13;index++){
+  const geometry=await p.evaluate(()=>{
+   const rect=el=>{if(!el)return null;const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height};};
+   const caption=document.querySelector('.caption:not(.idle)');
+   return {viewport:{width:innerWidth,height:innerHeight},world:rect(document.querySelector('#world')),
+    caption:rect(caption),text:rect(caption?.querySelector('.caption-text')),
+    controls:[...(caption?.querySelectorAll('button')||[])].map(rect),
+    documentWidth:document.documentElement.scrollWidth,
+    imageUnchanged:window.__e02StableBackdrop===document.querySelector('#world img.backdrop'),
+    imageComplete:!!document.querySelector('#world img.backdrop')?.complete};
+  });
+  assert.ok(geometry.imageUnchanged,'Backdrop must not be recreated at opening line '+(index+1));
+  assert.ok(geometry.imageComplete,'Backdrop should remain loaded at line '+(index+1));
+  assert.ok(geometry.caption&&geometry.world,'Scene and caption present at line '+(index+1));
+  assert.ok(geometry.documentWidth<=width+2,'No horizontal page clipping at line '+(index+1)+' '+JSON.stringify(geometry));
+  if(shortLandscape){
+   assert.ok(geometry.caption.left>=-1&&geometry.caption.right<=width+1,
+    'Dialogue box stays inside phone width at line '+(index+1)+' '+JSON.stringify(geometry));
+   assert.ok(geometry.controls.every(b=>b.left>=-1&&b.right<=width+1&&b.bottom<=height+2),
+    'Continue and Listen stay on screen at line '+(index+1)+' '+JSON.stringify(geometry));
+   assert.ok(geometry.caption.bottom<=height+2,
+    'Dialogue box stays within landscape height at line '+(index+1)+' '+JSON.stringify(geometry));
+   assert.ok(geometry.world.width>=350,'Opening world must stay large at line '+(index+1));
+   if(initial)assert.ok(Math.abs(geometry.world.width-initial.world.width)<2&&
+     Math.abs(geometry.world.height-initial.world.height)<2,
+     'Landscape scene size changes while Continue is clicked at line '+(index+1)+' '+JSON.stringify({initial,geometry}));
+  }
+  if(!initial)initial=geometry;
+  if(index===4)await p.screenshot({path:'test-results/e02-intro-line-05-'+width+'x'+height+'.png',fullPage:true});
+  assert.equal(await p.getByRole('button',{name:'Continue',exact:true}).count(),1,'13 canonical opening lines required, step '+index);
+  await p.getByRole('button',{name:'Continue',exact:true}).tap();
+ }
+ assert.equal(await p.locator('.child.phase-explore').count(),1,'After line 13, switch to normal exploration');
+ assert.equal(await p.locator('#world img.backdrop').evaluate(el=>el===window.__e02StableBackdrop),true,
+  'Intro-to-explore transition should retain the decoded background image');
+ const after=await p.evaluate(()=>{
+  const r=document.querySelector('#world').getBoundingClientRect();
+  return {left:r.left,right:r.right,width:r.width,docWidth:document.documentElement.scrollWidth,
+   docHeight:document.documentElement.scrollHeight,viewportHeight:innerHeight};
+ });
+ assert.ok(after.left>=-2&&after.right<=width+2&&after.docWidth<=width+2,
+  'Exploration after final Continue must stay within full landscape '+JSON.stringify(after));
+ if(shortLandscape)assert.ok(after.docHeight<=height+3&&after.width>=370,
+  'After dialogue, full landscape must not collapse or start page-scrolling '+JSON.stringify(after));
+}
 async function action(p,name){await p.getByRole('button',{name,exact:true}).first().click();}
 async function saved(p){return p.evaluate(()=>JSON.parse(localStorage.getItem('wondervale-s01e02-progress-v1')));}
 const passed=(id,note)=>{report.push({id,status:'PASS',note});process.stdout.write('PASS '+id+' '+note+'\n');};
@@ -126,7 +178,7 @@ try{
    assert.ok(opening.scene.width>=350,'Short-landscape opening art visible '+JSON.stringify(opening));
    assert.ok(opening.caption.bottom<=height+3,'Opening caption remains inside phone '+JSON.stringify(opening));
   }
-  await lines(phone);
+  await verifyStableIntroduction(phone,width,height);
   const rect=el=>{const r=el.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
   const geom=await phone.evaluate(()=>{
    const box=s=>{const r=document.querySelector(s)?.getBoundingClientRect();return r?{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}:null;};
