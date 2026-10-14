@@ -31,6 +31,7 @@ async function lines(p){
 async function verifyStableIntroduction(p,width,height){
  const shortLandscape=height<400&&width>height;
  let initial=null;
+ await p.locator('#world img.backdrop').evaluate(img=>img.decode());
  await p.evaluate(()=>{window.__e02StableBackdrop=document.querySelector('#world img.backdrop');});
  for(let index=0;index<13;index++){
   const geometry=await p.evaluate(()=>{
