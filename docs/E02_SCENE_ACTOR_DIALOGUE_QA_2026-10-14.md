@@ -130,3 +130,17 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 **Focused automated regression:** unit tests cover 25+ real sequential checkpoints from preview/opening through old-stones/gap, both supported recovery prompts, revision, Market mark, mid-Chronicle and completion. Explicit corrupted snapshots must never fabricate completion/Market progress or invalid camera locations. Browser test actually reloads a phone while Notebook intro, evidence-to-revision and Chronicle queues are pending, checking exact pending line order and unchanged events, then finishes and uses the already accepted E02 clean restart. E01 and static release byte-isolation must remain PASS.
 
 **Acceptance still open:** real mobile Safari/Chrome/Home Screen interrupted-session checks, owner reset and Chronicle acceptance, actual child/parent family trial, recorded audio and E03 authoring.
+
+### Engineering CI and deployed verification — 2026-10-14, PR #74
+
+[PR #74](https://github.com/edisontw/wondervale/pull/74) was squash-merged to code `e2104358f127874e130850a1eb4547fb0cdda220`, build `20261014-e02-checkpoint-guard6`.
+
+- [E02 engine + real-browser acceptance #38556405604](https://github.com/edisontw/wondervale/actions/runs/38556405604): **PASS**; includes 25+ valid snapshots, fake-completion corruption rejection, exact saved speech order after phone reload during Notebook, evidence-link/Revision, and Chronicle, plus end-to-end completion and reset.
+- [E01 independent runtime regression #38556405598](https://github.com/edisontw/wondervale/actions/runs/38556405598): **PASS**.
+- [MN4 E02 deployment #38556405611](https://github.com/edisontw/wondervale/actions/runs/38556405611): **PASS** including production deploy. Remote logs explicitly confirm `Verified E02 archive: 9 runtime files`, frozen E01 `20261014-e01-map-choice-compact1`, `PASS: E01 byte-identical; E02 artifact byte-verified`, and deployed matching code SHA.
+
+**Locked engineering:** validated E02 checkpoint consistency, lossless restoration of well-formed mid-dialogue progress, stable safe scene/reasoning gates, approved R0/R1/R2 art and 81 unchanged E02 lines, E01 untouched.
+
+**Still OPEN (human acceptance):** actual-owner iPhone/WebKit re-entry and clean Start Again behavior, full E02 Chronicle conclusion, parent/child family test, prerecorded narration/audio quality and Episode 03 authoring. This automatic test PASS is not an owner physical-device acceptance report.
+
+**Next focused task:** owner checks on the real phone that an interrupted Notebook/Chronicle resumes at the same line and that confirmed Start E02 again remains clear after reload, before proceeding to the final E02 acceptance checklist.
