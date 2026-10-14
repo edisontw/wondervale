@@ -379,7 +379,7 @@ try{
  // and completing without replaying any discovery/ledger event.
  assert.ok(chronicleCheckpoint,'568x320 run must reach Chronicle');
  {const {ctx:largerCtx,p:larger}=await open({width:667,height:375,touch:true});
-  await larger.evaluate(s=>localStorage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(s)),chronicleCheckpoint);
+  await largerCtx.addInitScript(s=>localStorage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(s)),chronicleCheckpoint);
   await larger.reload({waitUntil:'networkidle'});
   const restoredCheckpoint=await saved(larger);
   assert.equal(restoredCheckpoint.phase,'chronicle',
