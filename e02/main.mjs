@@ -124,7 +124,7 @@ function statusPanel(){
  (p.market?'Old route mark recorded':'')+'</div>';
 }
 function navigation(){
- if(state.queue.length&&state.phase!=='notebook')return '';
+ if(state.queue.length&&!['notebook','chronicle'].includes(state.phase))return '';
  const ph=state.phase,p=projected(state);
  if(ph==='preview')return '<section class="card"><h2>Follow the Riverside clue</h2><p>The old marker in Town Square pointed here. Milo, Nia, and Finn want to see what is really there.</p>'+
  button('Begin Riverside adventure','begin','',true)+'</section>';
@@ -150,11 +150,16 @@ function navigation(){
  if(ph==='market')return '<section class="card" id="market"><h2>A clue for another day</h2><p>Return by the public path to the safe lookout. Something old is on the nearby wayfinding fixture.</p>'+
  '<div class="actions">'+button('Go to public lookout','go-lookout')+
  (state.position==='lookoutView'?button('Look at the old mark','inspect-market','',true):'')+'</div></section>';
- if(ph==='chronicle')return '<section class="card" id="chronicle"><h2>Wondervale Chronicle · Then and Now</h2>'+
- '<div class="evidence"><div><img src="../public/art/s01e02-riverside-r1.webp" width="100%" alt="Old route stones"><p><strong>Then:</strong> the old crossing was here.</p></div>'+
- '<div><img src="../public/art/s01e02-riverside-r2.webp" width="100%" alt="Current open gap"><p><strong>Now:</strong> the deck is gone. We do not know why.</p></div></div>'+
- '<p>The Riverside Overlook is a safe place to revisit. A route mark points toward Market Lane.</p>'+
- (state.chronicleSeen?button('Finish this chapter','finish','',true):button('Read the Chronicle','chronicle','',true))+'</section>';
+ if(ph==='chronicle')return '<section class="card chronicle-sheet" id="chronicle" aria-label="Wondervale Chronicle">'+
+  '<div class="chronicle-scroll" tabindex="0"><h2>Wondervale Chronicle · Then and Now</h2>'+
+  '<div class="chronicle-mark" aria-label="Old mark toward Market Lane">MARKET LANE →</div>'+
+  '<div class="evidence chronicle-evidence"><div><img src="../public/art/s01e02-riverside-r1.webp" alt="Old route stones"><p><strong>Then:</strong> the old crossing was here.</p></div>'+
+  '<div><img src="../public/art/s01e02-riverside-r2.webp" alt="Current open gap"><p><strong>Now:</strong> the deck is gone. We do not know why.</p></div></div>'+
+  '<p>The Riverside Overlook is a safe place to revisit. A route mark points toward Market Lane.</p></div>'+
+  '<div class="chronicle-actions">'+(state.queue.length
+   ?'<span class="small" role="status">The story continues in the dialogue below.</span>'
+   :state.chronicleSeen?button('Finish this chapter','finish','',true)
+    :button('Read the Chronicle','chronicle','',true))+'</div></section>';
  if(ph==='completed')return '<section class="card"><h2>Chapter complete</h2><p>Milo changed his idea after looking at the evidence. The old bridge remains closed, and the safe lookout is remembered.</p><p>Next chapter: Market Lane (not yet available).</p>'+
  button(ui.completedReview?'Close Chronicle review':'Review the Chronicle','show-chronicle')+
  (ui.completedReview?'<p><strong>Then:</strong> old stones marked a crossing. <strong>Now:</strong> the deck is gone. <strong>Unknown:</strong> why it changed. The safe overlook remains available.</p>':'')+
@@ -176,10 +181,10 @@ function render(){
  const markup='<header><div><a class="brand" href="../">Wondervale</a><h1 class="title">Episode 02 · The Bridge That Stops</h1></div><button class="parent-toggle" data-a="parent" aria-expanded="'+ui.parent+'">Child / Parent View</button></header>'+
  '<main class="outer '+(ui.parent?'phone-parent-open':'')+'"><section class="child phase-'+esc(state.phase)+'"><div class="scene-card"><div class="headline"><div class="byline">Milo · Nia · Finn · Riverside</div><h1>Find the way that is safe today</h1>'+
  '<p>Closed old crossing · Open public path · Protected lookout</p></div>'+
- (['notebook','revision','completed'].includes(state.phase)?'':paintedWorld?'<div class="world-frame">'+paintedWorld+'</div>':'')+(['notebook','revision','completed'].includes(state.phase)?'':statusPanel())+navigation()+'</div>'+
+ (['notebook','revision','chronicle','completed'].includes(state.phase)?'':paintedWorld?'<div class="world-frame">'+paintedWorld+'</div>':'')+(['notebook','revision','chronicle','completed'].includes(state.phase)?'':statusPanel())+navigation()+'</div>'+
  (state.phase==='notebook'&&!state.queue.length?'':queuePanel())+
  (ui.map?'<div class="scene-modal" role="dialog" aria-modal="true" aria-label="Old map fragment"><section class="card" id="old-map"><h2>Old map fragment</h2><p>An old line points toward Riverside. We do not yet know how the present bank changed.</p>'+button('Close map','close-map')+'</section></div>':'')+
- (ui.resetConfirm?'<section class="card"><p>Start E02 again? This only clears the E02 draft; Town Square progress stays.</p>'+button('Yes, start E02 again','reset-confirm')+button('Cancel','reset-cancel')+'</section>':'')+
+ (ui.resetConfirm?'<div class="scene-modal" role="dialog" aria-modal="true" aria-label="Restart E02 confirmation"><section class="card"><p>Start E02 again? This only clears the E02 draft; Town Square progress stays.</p>'+button('Yes, start E02 again','reset-confirm')+button('Cancel','reset-cancel')+'</section></div>':'')+
  (ui.storageError?'<p class="warning">Saving is unavailable in this browser session. You can continue, but this progress may not survive a reload.</p>':'')+
  '<p class="footer">E02 first playable engineering preview · '+BUILD+' · C01 characters / captions · No recorded voice yet</p></section>'+parentPanel()+'</main>';
  // Keep a decoded background in place when a phase or dialogue ends.
