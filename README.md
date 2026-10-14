@@ -47,7 +47,7 @@ World/character state is derived from an event/progress ledger rather than being
 
 ## Current work sequence
 
-**Current next-work handoff (2026-10-14):** The existing E02 Riverside **core playable/mobile chapter is owner PASS** and its source is preserved. At the owner's direction, **prerecorded audio/music/SFX are deferred** (not completed, and not blocking E03). The next new conversation starts with **S01E03 Gate 1 — story/learning/interaction Episode Production Brief draft**, not images, script or implementation. See [E03 new-session kickoff](docs/E03_KICKOFF_2026-10-14.md). Formal family observation and broader device/audio QA stay separate and open. Historical status notes below are retained for provenance; this newer handoff governs current priority.
+**Current next-work handoff (2026-10-14, E03 Gate 2):** E01 is frozen and E02 playable/mobile core is owner PASS. E03 Gate 1 production brief is `approved_for_script`, and the English script/interaction drafts have received documentary QA (not owner dialogue or runtime PASS). The next focused task is **one Market Lane M0 painterly background candidate** following the [E03 Gate 2 visual reference](content/season-01/s01e03/VISUAL_REFERENCE_CONTRACT.md), its route graph and single-scene storyboard. **No E03 artwork, binary intake, game/runtime, or device PASS yet.** Audio/music/SFX remain deferred; captions and manual Listen continue. E01/E02 are not reopened. Historical status notes below are retained for provenance; this newer handoff governs current priority.
 
 
 1. Core trio — **locked**

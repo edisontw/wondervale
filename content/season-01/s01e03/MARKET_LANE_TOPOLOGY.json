@@ -1,0 +1,322 @@
+{
+  "schema": "wondervale-s01e03-gate2-layout-v1",
+  "status": "technical_storyboard_proposal_not_runtime",
+  "unit": "illustration_design_pixels_not_metres",
+  "artboard": {
+    "width": 1600,
+    "height": 900,
+    "protected_caption_y_start": 705,
+    "interactive_landmark_y_max": 665
+  },
+  "nodes": {
+    "H": {
+      "x": 180,
+      "y": 450,
+      "label": "Delivery Hub"
+    },
+    "S0": {
+      "x": 370,
+      "y": 345,
+      "label": "Steps entrance"
+    },
+    "S1": {
+      "x": 565,
+      "y": 240,
+      "label": "Upper landing"
+    },
+    "J": {
+      "x": 1120,
+      "y": 295,
+      "label": "Pedestrian junction"
+    },
+    "B": {
+      "x": 1350,
+      "y": 310,
+      "label": "Bookstall"
+    },
+    "N0": {
+      "x": 380,
+      "y": 480,
+      "label": "Arcade entrance"
+    },
+    "N1": {
+      "x": 650,
+      "y": 600,
+      "label": "Narrow bend"
+    },
+    "N2": {
+      "x": 870,
+      "y": 590,
+      "label": "Arcade exit"
+    },
+    "L0": {
+      "x": 390,
+      "y": 605,
+      "label": "Wide lane entry"
+    },
+    "L1": {
+      "x": 700,
+      "y": 660,
+      "label": "Wide outer bend"
+    },
+    "L2": {
+      "x": 960,
+      "y": 625,
+      "label": "Flower spur fork"
+    },
+    "W": {
+      "x": 1140,
+      "y": 530,
+      "label": "Wide shopfront junction"
+    },
+    "T": {
+      "x": 1330,
+      "y": 490,
+      "label": "Tea porch"
+    },
+    "F": {
+      "x": 1010,
+      "y": 540,
+      "label": "Flower stand"
+    }
+  },
+  "edges": [
+    {
+      "id": "s0",
+      "from": "H",
+      "to": "S0",
+      "allow": [
+        "walk",
+        "books",
+        "tray"
+      ],
+      "surface": "level"
+    },
+    {
+      "id": "s1",
+      "from": "S0",
+      "to": "S1",
+      "allow": [
+        "walk",
+        "books"
+      ],
+      "surface": "stairs"
+    },
+    {
+      "id": "s2",
+      "from": "S1",
+      "to": "J",
+      "allow": [
+        "walk",
+        "books"
+      ],
+      "surface": "upper_footpath"
+    },
+    {
+      "id": "s3",
+      "from": "J",
+      "to": "B",
+      "allow": [
+        "walk",
+        "books"
+      ],
+      "surface": "bookstall_footpath"
+    },
+    {
+      "id": "n0",
+      "from": "H",
+      "to": "N0",
+      "allow": [
+        "walk",
+        "books"
+      ],
+      "surface": "level"
+    },
+    {
+      "id": "n1",
+      "from": "N0",
+      "to": "N1",
+      "allow": [
+        "walk",
+        "books"
+      ],
+      "surface": "narrow_sharp_turn"
+    },
+    {
+      "id": "n2",
+      "from": "N1",
+      "to": "N2",
+      "allow": [
+        "walk",
+        "books"
+      ],
+      "surface": "narrow_arcade"
+    },
+    {
+      "id": "n3",
+      "from": "N2",
+      "to": "J",
+      "allow": [
+        "walk",
+        "books"
+      ],
+      "surface": "narrow_exit"
+    },
+    {
+      "id": "l0",
+      "from": "H",
+      "to": "L0",
+      "allow": [
+        "walk",
+        "books",
+        "cart",
+        "tray"
+      ],
+      "surface": "level_wide"
+    },
+    {
+      "id": "l1",
+      "from": "L0",
+      "to": "L1",
+      "allow": [
+        "walk",
+        "books",
+        "cart",
+        "tray"
+      ],
+      "surface": "level_wide"
+    },
+    {
+      "id": "l2",
+      "from": "L1",
+      "to": "L2",
+      "allow": [
+        "walk",
+        "books",
+        "cart",
+        "tray"
+      ],
+      "surface": "level_wide"
+    },
+    {
+      "id": "l3",
+      "from": "L2",
+      "to": "W",
+      "allow": [
+        "walk",
+        "books",
+        "cart",
+        "tray"
+      ],
+      "surface": "level_wide"
+    },
+    {
+      "id": "l4",
+      "from": "W",
+      "to": "T",
+      "allow": [
+        "walk",
+        "books",
+        "cart",
+        "tray"
+      ],
+      "surface": "level_wide"
+    },
+    {
+      "id": "l5",
+      "from": "T",
+      "to": "B",
+      "allow": [
+        "walk",
+        "books",
+        "cart",
+        "tray"
+      ],
+      "surface": "level_wide_shopfront"
+    },
+    {
+      "id": "l6",
+      "from": "L2",
+      "to": "F",
+      "allow": [
+        "walk",
+        "books",
+        "cart",
+        "tray"
+      ],
+      "surface": "level_flower_spur"
+    }
+  ],
+  "blocked": [
+    {
+      "id": "central_unloading",
+      "from": "H",
+      "to": "B",
+      "allow": [],
+      "reason": "active stall unloading prevents direct connector only; public S/N/L remain open"
+    }
+  ],
+  "routeFamilies": {
+    "S": [
+      "H",
+      "S0",
+      "S1",
+      "J",
+      "B"
+    ],
+    "N": [
+      "H",
+      "N0",
+      "N1",
+      "N2",
+      "J",
+      "B"
+    ],
+    "L": [
+      "H",
+      "L0",
+      "L1",
+      "L2",
+      "W",
+      "T",
+      "B"
+    ],
+    "flower": [
+      "H",
+      "L0",
+      "L1",
+      "L2",
+      "F"
+    ]
+  },
+  "deliveries": [
+    {
+      "name": "books",
+      "start": "H",
+      "end": "B",
+      "mode": "books"
+    },
+    {
+      "name": "tea_cart",
+      "start": "H",
+      "end": "T",
+      "mode": "cart"
+    },
+    {
+      "name": "flowers",
+      "start": "H",
+      "end": "F",
+      "mode": "tray"
+    }
+  ],
+  "visualOnly": {
+    "historical_glyph": {
+      "x": 1460,
+      "y": 355,
+      "role": "existing market stone; editable separate hidden/inspectable overlay, no baked solution"
+    },
+    "sign_Fork": "H",
+    "portrait_dock": "outside protected playable region",
+    "characters": "use existing C01 actors as separate sprites; do not bake into master background"
+  }
+}
