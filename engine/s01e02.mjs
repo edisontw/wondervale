@@ -1,7 +1,7 @@
 // E02 state machine and approved public route; separate from the E01 save key.
 export const E01_KEY='wondervale-progress-v1';
 export const KEY='wondervale-s01e02-progress-v1';
-export const VERSION='s01e02-script-v1',BUILD='20261014-e02-dialogue-stable2';
+export const VERSION='s01e02-script-v1',BUILD='20261014-e02-notebook-compact3';
 export const e01Ready=save=>Array.isArray(save?.ledger)&&['episode_completed:s01e01','s01e01_town_square_old_marker_revealed'].every(id=>save.ledger.includes(id));
 export const places={spawn:[170,801],plaza:[453,786],oldSpurFork:[746,763],oldStones:[748,683],promenadeEast:[1030,772],publicSideFork:[1120,758],sidePathMiddle:[1214,711],lookoutEntry:[1322,676],lookoutView:[1407,667]};
 export const edges=[['spawn','plaza'],['plaza','oldSpurFork'],['oldSpurFork','oldStones'],['oldSpurFork','promenadeEast'],['promenadeEast','publicSideFork'],['publicSideFork','sidePathMiddle'],['sidePathMiddle','lookoutEntry'],['lookoutEntry','lookoutView']];
@@ -80,7 +80,16 @@ export function dispatch(before,action){
   if(action.choice==='stones'){s.lastFeedback='The stones tell us about before. What is here now?';enqueue(s,speech.recovery,null,true);}
   if(action.choice==='gap'){s.linked=true;s.lastFeedback='A gap today cannot be explained by the fence alone.';enqueue(s,speech.link,'revision');}break;
  case 'unsure':
-  if(['notebook','revision'].includes(s.phase))s.lastFeedback='It is fine to wonder. Compare what was and what is here now.';break;
+  if(s.phase==='notebook'){
+   // Offer the approved recovery dialogue without awarding an observation,
+   // an evidence link, a revision, or any completion event.
+   s.lastFeedback='Look at what was here before and what is missing now.';
+   enqueue(s,speech.recovery,null,true);
+  }else if(s.phase==='revision'){
+   s.lastFeedback='It is fine to wonder. Compare what was and what is here now.';
+   enqueue(s,[id('NIA',18),id('NIA',19)],null,true);
+  }
+  break;
  case 'revision':
   if(s.phase==='revision'&&s.linked&&['A','B'].includes(action.choice)){
    s.revised=true;emit(s,EVENTS.revision);s.view='r0';
