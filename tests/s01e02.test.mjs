@@ -57,7 +57,7 @@ test('E02-06: order independence and station-specific intentional inspection',()
 test('E02-07: old-stones recovery and unsure never grant revision',()=>{
  let s=drain(dispatch(both(),{type:'notebook'}));assert.equal(s.offeredCue,true);
  s=drain(dispatch(s,{type:'fact',choice:'stones'}));assert.equal(s.phase,'notebook');
- s=dispatch(s,{type:'unsure'});assert.equal(s.linked,false);
+ s=dispatch(s,{type:'unsure'});assert.deepEqual(s.queue,speech.recovery,'Uncertain children receive spoken help');assert.equal(s.linked,false);s=drain(s);
  assert.equal(s.ledger.includes(EVENTS.revision),false);
  s=drain(dispatch(s,{type:'fact',choice:'gap'}));assert.equal(s.linked,true);assert.equal(s.phase,'revision');
 });
