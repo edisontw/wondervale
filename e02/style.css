@@ -173,3 +173,14 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
   min-height:44px;padding:3px 4px;font:600 12px/1.15 system-ui}
  .view-tag{top:45px;left:5px;font-size:11px}
 }
+
+/* Short-landscape evidence and map never spill below the viewport. */
+.scene-modal{position:fixed;inset:0;z-index:30;display:grid;place-items:center;
+ padding:12px;background:rgba(22,42,38,.68)}
+.scene-modal .card{width:min(100%,540px);max-height:calc(100dvh - 24px);margin:0;
+ overflow-y:auto;box-shadow:0 10px 28px #1b292450}
+@media(orientation:landscape) and (max-height:420px) and (max-width:760px) and (pointer:coarse){
+ .outer .child.phase-explore .status,.outer .child.phase-market .status{
+  position:absolute;width:1px;height:1px;max-height:1px;padding:0;margin:0;
+  white-space:nowrap;overflow:hidden;clip-path:inset(50%);}
+}
