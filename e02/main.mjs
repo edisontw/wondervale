@@ -154,7 +154,7 @@ function render(){
  '<p>Closed old crossing · Open public path · Protected lookout</p></div>'+
  (paintedWorld?'<div class="world-frame">'+paintedWorld+'</div>':'')+statusPanel()+navigation()+'</div>'+
  queuePanel()+
- (ui.map?'<section class="card" id="old-map"><h2>Old map fragment</h2><p>An old line points toward Riverside. We do not yet know how the present bank changed.</p>'+button('Close map','close-map')+'</section>':'')+
+ (ui.map?'<div class="scene-modal" role="dialog" aria-modal="true" aria-label="Old map fragment"><section class="card" id="old-map"><h2>Old map fragment</h2><p>An old line points toward Riverside. We do not yet know how the present bank changed.</p>'+button('Close map','close-map')+'</section></div>':'')+
  (ui.resetConfirm?'<section class="card"><p>Start E02 again? This only clears the E02 draft; Town Square progress stays.</p>'+button('Yes, start E02 again','reset-confirm')+button('Cancel','reset-cancel')+'</section>':'')+
  (ui.storageError?'<p class="warning">Saving is unavailable in this browser session. You can continue, but this progress may not survive a reload.</p>':'')+
  '<p class="footer">E02 first playable engineering preview · '+BUILD+' · C01 characters / captions · No recorded voice yet</p></section>'+parentPanel()+'</main>';
