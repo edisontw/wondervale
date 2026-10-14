@@ -29,3 +29,19 @@
 - Re-run E02 unit/browser/packaging and E01 full regression via Actions. E02 MN4 deploy must confirm byte-identical E01; PR CI is not a production release.
 - **OPEN:** actual iPhone Chrome / Home Screen App visual QA at 568×320 and 667×375 CSS equivalent, correct apparent actor feet relative to the approved painting, full text/controls, WebKit picture loading, family UX and recorded voices.
 - **Locked:** selected R0/R1/R2 art, C01 trio identity, the 81-line EFL/story, public path graph, closed crossing, evidence/revision/Market spoiler gates, E01 accepted application.
+
+## 2026-10-14 owner follow-up — Continue flashes, fifth line clipped, landscape lost
+
+**Owner observation (actual iPhone):** each Continue flashes the scene; around the fifth opening text box the dialogue slides beyond the right edge; after completing the opening, horizontal full-scene presentation is no longer preserved. These are **new blocking physical-device QA findings**, not a retroactive PASS of the prior build.
+
+**Diagnosis:** `doAction(next)` always rebuilt `#app.innerHTML`, including a fresh scene `<img>`, on every line; the `resize` listener also rebuilt the same image on WebKit viewport changes. The intro-specific CSS did not inherit the later short-landscape caption constraints applied to Explore/Market. The fifth opening line switches to Milo's C01 portrait, exercising that under-constrained layout. A first CI attempt also revealed a selector-order regression in the mobile Parent View state; it was corrected before merge.
+
+**Correction (E02-only build `20261014-e02-dialogue-stable2`):**
+
+- Continue while dialogue remains in one scene updates only speaker, text, portrait and line counter, retaining the actual decoded WebP node and Continue focus.
+- Phase change keeps the image DOM node if the source URL is the same; orientation/browser toolbar resize is entirely CSS-based, not a JS re-render.
+- Short iPhone landscape explicitly caps the caption width, height and nested content grid for Intro, Explore and Market **identically**; text can scroll internally, Continue/Listen remain 44px touch targets, and no element may force horizontal page overflow.
+- The exclusive mobile Parent View hidden-child CSS is ordered after these rules.
+- New Chromium test runs **all 13 lines**, including the exact fifth line screenshot, checking unchanged background element and geometry, full visible caption/control bounds, and the scene after the 13th Continue. Continue testing portrait (390×844) and 568×320 / 667×375 short landscape. Preserve all prior E02 route, asset-decode, story, save and E01 tests.
+
+**Locked unchanged:** R0/R1/R2 approved artwork, 81 E02 source/voice lines, safe-route and chronology engine, C01 identity, E01 app and released bytes. The owner must still approve the actual iPhone landscape after the updated MN4 deploy. Never claim Chrome CI represents a real WebKit approval.
