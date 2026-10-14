@@ -68,7 +68,7 @@ function travel(to){
 }
 function viewUrl(){return '../public/art/s01e02-riverside-'+state.view+'.webp'+(ui.artRetry?'?retry='+ui.artRetry:'');}
 function renderWorld(){
- if(['preview','intro'].includes(state.phase))return '';
+ if(state.phase==='preview')return '';
  const exploring=state.phase==='explore',market=state.phase==='market';
  const detail=state.view!=='r0';
  const alt=state.view==='r1'?'Old stone landings at the former connection':state.view==='r2'?'Current river gap and edge viewed safely from the public lookout':'Riverside public promenade, a closed old spur and a protected lookout';
