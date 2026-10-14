@@ -231,3 +231,13 @@ The owner corrected their earlier interpretation: the major offscreen problem ha
 **Accepted and locked in engineering:** the first-column one-click Old Stones inspection, safe route and preexisting observation/Chronicle gates, removal of the occluding Old stones overlay, Notebook's second-column visibility, preserved R1 lens and 81-line text/approved assets; E01 bytes untouched. This closes code and deployment QA **only**.
 
 **OPEN:** owner physical iPhone confirmation that Look-first and Notebook-second are both visible, no label covers Milo, and full E02 visual/parent/audio/family review; do not infer owner PASS from Chromium CI.
+
+### Owner iPhone PASS — direct old-stones action and Notebook visibility (2026-10-14)
+
+The owner replied **PASS** after the production deployment of [PR #77](https://github.com/edisontw/wondervale/pull/77), E02 build `20261014-e02-direct-stones9` (code SHA `81884c9e5c9efe0b7412970a33a3aa0d86a71282`).
+
+**Physical phone acceptance now CLOSED and locked for this focused repair:** `Look at old stones` is the first action and directly opens the R1 observation via the safe approach, there is no redundant `Walk to old stones` button or floating `Old stones` hotspot obscuring Milo, and `Open evidence notebook` becomes the visible second action when both observations are available. The previous complaint about Notebook being pushed off-screen is accepted as resolved for this tested interaction.
+
+**Preserved:** E01 frozen release, original approved R0/R1/R2 image bytes and R1 magnifier, E02 81 canonical lines, same-bank safe graph, Chronicle/Finish, persisted saves and user-approved reset/resume.
+
+**Still OPEN, distinct from this specific PASS:** holistic E02 closing Chronicle/family experience signoff, prerecorded voice/audio, cross-device accessibility/Home Screen variants and E03 planning. Do not infer an E02-wide product PASS from this single targeted acceptance. **Next focused task:** finish any outstanding E02 chapter-level usability/audio/family gates or explicitly defer them before E03 kickoff.
