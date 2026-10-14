@@ -367,9 +367,56 @@ try{
    await phone.getByRole('button',{name:'Close Chronicle review'}).tap();
    await phone.getByRole('button',{name:'Start E02 again'}).tap();
    assert.equal(await phone.getByRole('dialog',{name:'Restart E02 confirmation'}).count(),1);
+   assert.ok((await phone.getByRole('dialog',{name:'Restart E02 confirmation'}).innerText()).includes('Delete all saved Episode 02 progress'),
+    'Destructive confirmation must explicitly state what is erased');
    await phone.getByRole('button',{name:'Cancel'}).tap();
    assert.equal((await saved(phone)).phase,'completed','Cancel must preserve the completed chapter');
    assert.deepEqual(await phone.evaluate(()=>JSON.parse(localStorage.getItem('wondervale-progress-v1')).ledger),fakeE01.ledger);
+   // A storage failure must not falsely restart the chapter.
+   await phone.evaluate(()=>{
+    window.__originalE02Remove=Storage.prototype.removeItem;
+    Storage.prototype.removeItem=function(key){
+     if(key==='wondervale-s01e02-progress-v1')throw Error('storage denied');
+     return window.__originalE02Remove.call(this,key);
+    };
+   });
+   await phone.getByRole('button',{name:'Start E02 again'}).tap();
+   await phone.getByRole('button',{name:'Clear E02 and restart'}).tap();
+   assert.equal((await saved(phone)).phase,'completed','Blocked reset must preserve completion');
+   assert.equal(await phone.getByRole('alert').filter({hasText:'Could not erase saved E02 progress'}).count(),1);
+   await phone.evaluate(()=>{Storage.prototype.removeItem=window.__originalE02Remove;delete window.__originalE02Remove;});
+   // Explicitly clear the COMPLETE second chapter, not merely the onscreen UI.
+   await phone.getByRole('button',{name:'Start E02 again'}).tap();
+   await phone.getByRole('button',{name:'Clear E02 and restart'}).tap();
+   assert.equal(await phone.getByRole('button',{name:'Begin Riverside adventure'}).count(),1);
+   assert.equal(await phone.evaluate(()=>localStorage.getItem('wondervale-s01e02-progress-v1')),null,
+    'Confirmed restart must delete E02 saved record');
+   const cleared=await phone.evaluate(()=>({e01:JSON.parse(localStorage.getItem('wondervale-progress-v1')),keys:Object.keys(localStorage)}));
+   assert.deepEqual(cleared.e01.ledger,fakeE01.ledger,'E01 clues and completion survive E02 reset');
+   assert.equal(cleared.keys.filter(k=>k.includes('s01e02')).length,0);
+   assert.equal(await phone.locator('.child.phase-preview').count(),1);
+   await phone.reload({waitUntil:'networkidle'});
+   assert.equal(await phone.locator('.child.phase-preview').count(),1,'Cleared E02 stays at initial preview on reload');
+   assert.equal(await phone.evaluate(()=>localStorage.getItem('wondervale-s01e02-progress-v1')),null,
+    'visibilitychange must not re-create deleted E02 history');
+   assert.equal(await phone.getByRole('heading',{name:'Chapter complete'}).count(),0);
+   await phone.getByRole('button',{name:'Begin Riverside adventure'}).tap();
+   const replay=await saved(phone);
+   assert.equal(replay.phase,'intro');
+   assert.equal(replay.queue.length,13,'Replay begins with all thirteen original dialogue lines');
+   assert.equal(replay.queue[0],'S01E02-NARRATOR-001');
+   assert.deepEqual(replay.ledger,[]);
+   assert.deepEqual(replay.observed,[]);
+   assert.equal(replay.market,false);
+   assert.equal(replay.linked,false);
+   assert.equal(replay.revised,false);
+   assert.equal(replay.chronicleSeen,false);
+   assert.deepEqual(await phone.evaluate(()=>JSON.parse(localStorage.getItem('wondervale-progress-v1')).ledger),fakeE01.ledger);
+   await phone.reload({waitUntil:'networkidle'});
+   assert.equal((await saved(phone)).phase,'intro','Newly started E02 saves normally');
+   assert.equal((await saved(phone)).queue.length,13);
+   assert.deepEqual((await saved(phone)).ledger,[]);
+
    await phone.screenshot({path:'test-results/e02-chronicle-completed-'+width+'.png',fullPage:true});
   }
   await phone.screenshot({path:'test-results/e02-phone-landscape-'+width+'x'+height+'.png',fullPage:true});

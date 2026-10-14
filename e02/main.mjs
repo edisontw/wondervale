@@ -9,7 +9,7 @@ const line=id=>lines[id]||{speaker:'UI',text:'...'};
 const voice=id=>{if(!id||!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const l=line(id),u=new SpeechSynthesisUtterance(l.text);u.lang='en-US';u.rate=.87;speechSynthesis.speak(u);}catch{}};
 function read(key){try{return JSON.parse(localStorage.getItem(key));}catch{return null;}}
 const unlocked=e01Ready(read(E01_KEY));
-let state=restore(read(KEY)),ui={parent:false,map:false,storageError:false,moving:false,recentAudio:'',showCue:false,focus:null,resetConfirm:false,completedReview:false,artError:null,artRetry:0};
+let state=restore(read(KEY)),ui={parent:false,map:false,storageError:false,moving:false,recentAudio:'',showCue:false,focus:null,resetConfirm:false,completedReview:false,artError:null,artRetry:0,resetError:false};
 if(!unlocked)state=fresh();
 const button=(label,action,attrs='',primary=false)=>'<button '+(primary?'class="primary" ':'')+'data-a="'+esc(action)+'" '+attrs+'>'+esc(label)+'</button>';
 const ref=name=>({MILO:'60 0 465 1024',NIA:'545 0 450 1024',FINN:'1025 0 485 1024'})[name];
@@ -22,7 +22,31 @@ function portrait(name){
 }
 function save(){
  const p=payload(state);if(!p)return;
+ // No episode-local record exists before an E02 adventure begins. In
+ // particular, background/visibilitychange must NEVER restore the key
+ // immediately after a confirmed "Start E02 again" reset.
+ if(state.phase==='preview'&&!state.started)return;
  try{localStorage.setItem(KEY,JSON.stringify(p));ui.storageError=false;}catch{ui.storageError=true;}
+}
+function restartE02(){
+ // Fail closed: do not pretend all progress was cleared if the browser
+ // rejects the localStorage deletion or still exposes the E02 snapshot.
+ try{
+  localStorage.removeItem(KEY);
+  if(localStorage.getItem(KEY)!==null)throw Error('E02 save still present');
+ }catch{
+  ui.resetError=true;
+  ui.resetConfirm=false;
+  render();
+  return;
+ }
+ globalThis.speechSynthesis?.cancel();
+ state=fresh(); // resets position, all E02 events, observations, narration, Chronicle
+ ui.parent=false;ui.map=false;ui.storageError=false;ui.moving=false;
+ ui.recentAudio='';ui.showCue=false;ui.focus=null;
+ ui.resetConfirm=false;ui.completedReview=false;ui.artError=null;
+ ui.artRetry=0;ui.resetError=false;
+ render();
 }
 // Advance a line without replacing the scene, images, or focused Continue.
 function updateCurrentLine(){
@@ -161,6 +185,7 @@ function navigation(){
    :state.chronicleSeen?button('Finish this chapter','finish','',true)
     :button('Read the Chronicle','chronicle','',true))+'</div></section>';
  if(ph==='completed')return '<section class="card"><h2>Chapter complete</h2><p>Milo changed his idea after looking at the evidence. The old bridge remains closed, and the safe lookout is remembered.</p><p>Next chapter: Market Lane (not yet available).</p>'+
+ (ui.resetError?'<p class="warning" role="alert">Could not erase saved E02 progress in this browser. Nothing was reset. Allow site storage and try again.</p>':'')+
  button(ui.completedReview?'Close Chronicle review':'Review the Chronicle','show-chronicle')+
  (ui.completedReview?'<p><strong>Then:</strong> old stones marked a crossing. <strong>Now:</strong> the deck is gone. <strong>Unknown:</strong> why it changed. The safe overlook remains available.</p>':'')+
  button('Start E02 again','reset-prompt')+'</section>';
@@ -184,7 +209,8 @@ function render(){
  (['notebook','revision','chronicle','completed'].includes(state.phase)?'':paintedWorld?'<div class="world-frame">'+paintedWorld+'</div>':'')+(['notebook','revision','chronicle','completed'].includes(state.phase)?'':statusPanel())+navigation()+'</div>'+
  (state.phase==='notebook'&&!state.queue.length?'':queuePanel())+
  (ui.map?'<div class="scene-modal" role="dialog" aria-modal="true" aria-label="Old map fragment"><section class="card" id="old-map"><h2>Old map fragment</h2><p>An old line points toward Riverside. We do not yet know how the present bank changed.</p>'+button('Close map','close-map')+'</section></div>':'')+
- (ui.resetConfirm?'<div class="scene-modal" role="dialog" aria-modal="true" aria-label="Restart E02 confirmation"><section class="card"><p>Start E02 again? This only clears the E02 draft; Town Square progress stays.</p>'+button('Yes, start E02 again','reset-confirm')+button('Cancel','reset-cancel')+'</section></div>':'')+
+ (ui.resetConfirm?'<div class="scene-modal" role="dialog" aria-modal="true" aria-label="Restart E02 confirmation"><section class="card"><p>Delete all saved Episode 02 progress, discoveries, Chronicle and completion on this device? Episode 01 remains completed.</p>'+button('Clear E02 and restart','reset-confirm')+button('Cancel','reset-cancel')+'</section></div>':'')+
+ 
  (ui.storageError?'<p class="warning">Saving is unavailable in this browser session. You can continue, but this progress may not survive a reload.</p>':'')+
  '<p class="footer">E02 first playable engineering preview · '+BUILD+' · C01 characters / captions · No recorded voice yet</p></section>'+parentPanel()+'</main>';
  // Keep a decoded background in place when a phase or dialogue ends.
@@ -216,9 +242,9 @@ root.addEventListener('click',e=>{
  if(a==='inspect-market'){doAction({type:'market'});return;}
  if(a==='map'){ui.map=true;doAction({type:'map'});return;}
  if(a==='close-map'){ui.map=false;render();return;}
- if(a==='reset-prompt'){ui.resetConfirm=true;render();return;}
+ if(a==='reset-prompt'){ui.resetError=false;ui.resetConfirm=true;render();return;}
  if(a==='reset-cancel'){ui.resetConfirm=false;render();return;}
- if(a==='reset-confirm'){try{localStorage.removeItem(KEY);}catch{}state=fresh();ui.resetConfirm=false;render();return;}
+ if(a==='reset-confirm'){restartE02();return;}
  if(a==='show-chronicle'){ui.completedReview=!ui.completedReview;render();return;}
  doAction({type:a});
 });
