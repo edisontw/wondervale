@@ -78,7 +78,9 @@ function doAction(a){
 // topology. These are image-specific actor FEET locations on paved foreground.
 // Only the canonical graph controls where Milo is legally allowed to travel.
 const stageStops={
- spawn:[19,88],plaza:[30,88],oldSpurFork:[41,88],oldStones:[49,88],
+ // The approved R0 art places the old gate on the LEFT public path.
+ // Positions are R0 art percentages; the canonical safe graph is separate.
+ spawn:[19,88],plaza:[23,88],oldSpurFork:[28,88],oldStones:[32,88],
  promenadeEast:[59,88],publicSideFork:[66,88],sidePathMiddle:[71,88],
  lookoutEntry:[76,88],lookoutView:[81,88]
 };
@@ -123,6 +125,11 @@ function renderWorld(){
  return '<div class="world'+(detail?' inspection-view':'')+'" id="world" data-view="'+state.view+'" aria-label="Riverside illustrated scene with safe public paths">'+
   picture+
   (detail?'<span class="view-tag">'+(state.view==='r1'?'Old stones · Close-up':'Lookout · Close-up')+'</span>':'')+
+  // Keep the approved R1 painting intact. Reveal an art-only focus lens
+  // centered on the opposite-bank stone landing, not a walkable crossing.
+  (state.view==='r1'&&ui.artError!==state.view?
+   '<div class="old-stones-marker" aria-hidden="true"></div>'+
+   '<div class="old-stones-focus" role="img" aria-label="Magnified old stone bridge landing across the river. The bridge is not usable today."><span>Old bridge stones · Far bank</span></div>':'')+
   (!detail&&ui.artError!==state.view&&(exploring||market)
    ?'<button class="hotspot old" data-a="go-stones" aria-label="Walk to old stones">Old stones</button>'+
     '<button class="hotspot lookout" data-a="go-lookout" aria-label="Walk to public lookout">Lookout</button>'+
