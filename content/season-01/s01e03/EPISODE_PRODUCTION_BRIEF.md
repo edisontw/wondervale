@@ -1,6 +1,6 @@
 # S01E03 Episode Production Brief — Three Deliveries, One Wrong Turn
 
-> **Gate 1 design draft rev 1 — NOT owner-approved / NOT approved_for_script.** This proposal implements the already-approved Season 1 E03 purpose without silently canonizing new details. No script, pictures, sound, runtime or deploy are produced by this document.
+> **Gate 1 accepted design baseline (2026-10-14), approved for detailed script.** Owner instructed progression to the next stage following presentation of this draft. Approval covers story, learning, route and interaction intent; it does not approve downstream script/art/runtime or device QA.
 
 ## Identity and authority
 
@@ -9,8 +9,8 @@ episode_id: s01e03
 season_id: s01
 arc_id: s01a01
 working_title: "Three Deliveries, One Wrong Turn"
-brief_revision: 1
-brief_status: draft
+brief_revision: 2
+brief_status: approved_for_script
 content_version: pre-release
 estimated_duration_min: 12 # provisional, test with children
 estimated_duration_max: 20 # provisional, test with children
@@ -144,13 +144,13 @@ Fast Lane image intake in Gate 2: approve useful scene candidate(s) before trans
 | Question | Rev 1 disposition |
 |---|---|
 | Episode premise, Finn's learning arc, Market Lane improvement, conflicting memories to E04 | **Locked upstream**, preserved |
-| Three goods, three destinations and three S/N/L routes | **Proposed for owner Gate 1 signoff** |
-| Cart cannot use stairs/too-narrow turns; usable level lane exists | **Proposed physical contract for signoff** |
-| Brief structure, non-punitive choice/retry, meaningful load change | **Proposed interaction design for signoff** |
-| New event names, E02 read-only unlock, separate saves | **Proposed authoring contract**, exact E02 IDs verified; not coded |
+| Three goods, three destinations and three S/N/L routes | **Accepted Gate 1 design** |
+| Cart cannot use stairs/too-narrow turns; usable level lane exists | **Accepted Gate 1 physical contract** |
+| Brief structure, non-punitive choice/retry, meaningful load change | **Accepted Gate 1 interaction intent** |
+| New event names, E02 read-only unlock, separate saves | **Accepted as authoring proposal**; exact E02 IDs verified; not coded |
 | NPC identities/names, route coordinates, widths, precise timings, exact scene dialogue, ID list, visual framing | **Open for focused downstream design** within the approved intent |
 | E01/E02 audio and full family/device testing | **Explicitly deferred**, not PASS |
-| E03 Gate 1 | **DRAFT — owner approval outstanding** |
+| E03 Gate 1 | **APPROVED FOR SCRIPT (progression instruction 2026-10-14)** |
 | E03 Gate 2 image/art, Gate 3 running game, Gate 4 owner/deploy | **NOT STARTED** |
 
-**Next focused task:** owner reviews the *three delivery/physical route/character beat* design and marks Gate 1 PASS or a specific material correction. Only then promote to `approved_for_script` and create one compact E03 detailed script + interaction spec/test matrix with line IDs, followed by Gate 2 visual selection. Do not call this draft approved or create art/runtime preemptively.
+**Next focused task:** write and review a compact E03 detailed script and interaction specification/test matrix with stable line IDs. Gate 2 visual selection follows script/interaction authoring QA; no images or runtime yet. Do not call this draft approved or create art/runtime preemptively.
