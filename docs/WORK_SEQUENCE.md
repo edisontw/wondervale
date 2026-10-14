@@ -6,6 +6,8 @@ The goal is to prevent story, pedagogy, art, audio, prompts, and engineering fro
 
 **Execution shortcut (2026-10-12):** use the [Episode Production Fast Lane](EPISODE_PRODUCTION_FAST_LANE.md) and its [portable ChatGPT Skill](../skills/wondervale-episode-fast-lane/SKILL.md) for future episodes. It distinguishes story/learning, art selection + one media upload, playable browser acceptance, and deployment. It avoids repeated image generation and repetitive unscoped QA while preserving the gates below.
 
+**Current focused transition (2026-10-14):** E02's existing playable/mobile chapter is owner-accepted and **paused**; at owner request, recorded voice/music/SFX is **deferred** rather than silently accepted or required for E03. Start [S01E03 kickoff](E03_KICKOFF_2026-10-14.md) in a new conversation with **Gate 1: draft E03 Episode Production Brief** from the approved Season 1 Architecture and Learning Weave. Do not reopen E01/E02 gameplay, skip the narrative/learning gate, generate E03 art or write code in the handoff session. Retain captions/manual Listen and open family/cross-device QA as separate future gates.
+
 ## Source of truth
 
 GitHub `main` is the project source of truth.
