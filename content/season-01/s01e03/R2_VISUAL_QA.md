@@ -30,3 +30,17 @@ An audit of the R1 canvas and route-node positions revealed that the rendering w
 **Still OPEN:** human-reviewed full PNG/small-screen aesthetic and legibility PASS; real C01 sprites, object feet and cart turning; collision polygons; actual 44px browser controls and landscape/portrait game layout; production-ready painted decoration, full-size PNG/WebP hash handoff and final Gate 2 owner decision.
 
 **One next task:** inspect the actual R2 CI PNGs/browser viewport (especially the small Flower stand and arcade post clearance) and make only material **layer-local** art adjustments. After owner visually accepts the revised image, preserve original art and send one media-intake bundle. Do not begin E03 game deployment or prerecorded audio in Gate 2.
+
+## First actual raster review (GitHub run 38684646194, 2026-10-15)
+
+**Evidence:** the `e03-visual` job **PASS** on PR #85 initial HEAD `5a69ebf02a7c1878164b45be77902ba444730c77`; its 1600×900, 667×375, 568×320 and letterboxed portrait PNG files were downloaded and visually examined in the authoring session. This is genuine CairoSVG image output; it is **not** a gameplay-browser screenshot. Do not transfer this PASS to subsequent amended heads without a new run.
+
+**Human observations, not inferred from source only:**
+- Stair treads, narrow arch and lower wide route are visible as separate concepts, and the unloading cartons are shown over the central shortcut.
+- The 568×320 frame keeps the broad routes generally discernible but **the original R2 flower kiosk was too small** to function as a clear destination by itself. A single isolated stall group lacked the visual weight of the other two shops.
+- The composition is a **simple low-detail vector schematic**, visually inferior to previous rich, painterly image candidates. It should not be mistaken for approved finished environment art or proof of a 6–9-year-old's scene comprehension.
+- Bottom ~22% is intentionally neutral reserve for the later actual dialogue dock; the diagnostic overlay proves only the scaled reservation, **not** actual button typography, touch sizes, player feet or Parent View.
+
+**Targeted follow-up after that review:** add a new independently editable `flower-delivery-display-r2` foreground prop cluster adjacent to the F spur and outside the coarse narrow/wide road corridors. The small flower kiosk can remain an upper shop silhouette, but the delivery should land by a recognizable flower display. This is **not yet new art PASS** until current-HEAD PNG output is inspected.
+
+**Unresolved material visual concern:** final layered painterly finish and crop/actor integration remain open. An isolated high-quality painted texture/architecture pass, not another all-in-one environment rewrite, is the next art-production stage once source geometry is satisfactory.
