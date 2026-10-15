@@ -570,3 +570,11 @@ Owner replied **PASS** again after the direct-Look/Notebook phone fix had alread
 - Two image candidate previews were generated in the conversation for the Gate 2 Market Lane backdrop. **Neither is approved, committed, or uploaded**. See [E03 visual contract QA §8](../content/season-01/s01e03/VISUAL_REFERENCE_CONTRACT.md).
 - Material blockers: large route/shop names baked into scenery, breaking editable wayfinding-state rewards; first draft lacks a clear central unloading-only blockage; some waterfront bridge depiction may contradict intended bounded topology/E02 closure. **Aesthetic appeal does not constitute art PASS.**
 - Next targeted step: one no-text, background-only, physically legible Market Lane plate using the same R0 route graph; independent editable wayfinding and C01 actors remain separate. Stop image-transfer attempts until owner accepts a compliant candidate. No audio or runtime changes.
+
+
+## 2026-10-15 — E03 layered Market Lane R1 prototype (not art PASS)
+
+- **New documented design prototype:** [Layered R1 SVG](../content/season-01/s01e03/MARKET_LANE_LAYERED_R1.svg) + [layer manifest](../content/season-01/s01e03/MARKET_LANE_LAYERED_R1_MANIFEST.json), preserving [R0 route topology](../content/season-01/s01e03/MARKET_LANE_TOPOLOGY.json). Editable road/steps/arcade/buildings/unloading/sign mounts/stone separate from C01 character sprites and caption/UI; no baked labels, arrows, new bridge, or disclosed old-route answer.
+- **Actually checked:** XML-like SVG nesting, 18 unique layer IDs, required component groups, lack of visible SVG text elements, source route anchor correspondence (static authoring checks only). **Not tested:** raster/browser rendering, cart physical clearances, actual playable collisions, mobile sizes, owner visual PASS, source PNG/WebP hashes/upload.
+- **Still open:** aesthetically polished independent paint/textures, user visual review of R1, exact obstacle mask to graph, cart-turn fit, shop/action target visibility and one verified media handoff. E01/E02 freezes and deferred audio unaffected.
+- **Next:** visually inspect layered R1 in real 1600×900 and reduced mobile framing, correct substantive geometry/occlusion flaws, then add painterly detail per layer rather than regenerating a mismatched full image.
