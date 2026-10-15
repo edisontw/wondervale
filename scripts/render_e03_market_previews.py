@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parents[1]
 EP = ROOT / "content" / "season-01" / "s01e03"
 SOURCE = EP / "MARKET_LANE_LAYERED_R2.svg"
+DECOR = EP / "MARKET_LANE_DECOR_OVERLAY_R1.svg"
 GRAPH = json.loads((EP / "MARKET_LANE_TOPOLOGY_R2.json").read_text())
 OUT = ROOT / "artifacts" / "e03-market-r2"
 OUT.mkdir(parents=True, exist_ok=True)
@@ -18,8 +19,10 @@ BASIS = {"full_1600x900": (1600, 900),
          "landscape_568x320": (568, 320),
          "portrait_390x844": (390, 844)}
 svg_bytes = SOURCE.read_bytes()
+decor_bytes = DECOR.read_bytes()
 assert b"layer-path-level" in svg_bytes
 assert b"<text" not in svg_bytes
+assert b"<text" not in decor_bytes and b"<script" not in decor_bytes
 reports = []
 
 for name, (width, height) in BASIS.items():
@@ -28,12 +31,18 @@ for name, (width, height) in BASIS.items():
     iw, ih = round(1600 * scale), round(900 * scale)
     raw = cairosvg.svg2png(bytestring=svg_bytes, output_width=iw, output_height=ih)
     scene = Image.open(BytesIO(raw)).convert("RGBA")
+    decor_raw = cairosvg.svg2png(bytestring=decor_bytes, output_width=iw, output_height=ih)
+    decor = Image.open(BytesIO(decor_raw)).convert("RGBA")
     # Diagnostic image emulates unused letterboxed space only; not an actual game dock.
     canvas = Image.new("RGBA", (width, height), "#eee5d1")
     px, py = (width - iw) // 2, (height - ih) // 2
     canvas.alpha_composite(scene, (px, py))
     clean = OUT / (name + "_clean.png")
     canvas.save(clean)
+    decorated = canvas.copy()
+    decorated.alpha_composite(decor, (px, py))
+    decor_path = OUT / (name + "_decorated.png")
+    decorated.save(decor_path)
     # QA-only overlay; never production art or screenshot of playable UI.
     marked = canvas.copy()
     paint = ImageDraw.Draw(marked, "RGBA")
@@ -58,10 +67,10 @@ for name, (width, height) in BASIS.items():
     assert any(high-low > 60 for low, high in extrema), "Blank/low variance rendered image"
     reports.append({"size":name, "rendered_pixels": [width, height],
                     "svg_fit": [iw, ih], "scene_bbox": [px, py, px+iw, py+ih],
-                    "clean":clean.name, "diagnostic":marked_path.name,
+                    "clean":clean.name, "decorated":decor_path.name, "diagnostic":marked_path.name,
                     "actual_browser_qa": False})
 (OUT / "report.json").write_text(json.dumps({"status": "CAIROSVG_RASTER_PASS_NOT_BROWSER_QA",
-         "source": str(SOURCE.relative_to(ROOT)), "frames": reports,
+         "source": str(SOURCE.relative_to(ROOT)), "optional_decor":str(DECOR.relative_to(ROOT)), "frames": reports,
          "physical_cart_clearances": "NOT_TESTED", "owner_art_pass": False}, indent=2) + "\n")
 print("Gate 2 CairoSVG raster previews generated:", len(reports))
 for item in reports:

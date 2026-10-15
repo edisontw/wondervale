@@ -105,3 +105,11 @@ After the unsuccessful all-in-one raster concepts, E03 now has a **real layered 
 ## 10. R2 source and viewport review checkpoint (2026-10-15)
 
 See [R2 Visual QA](R2_VISUAL_QA.md), [R2 editable SVG](MARKET_LANE_LAYERED_R2.svg), and [derived R2 graph](MARKET_LANE_TOPOLOGY_R2.json). These are a refinement of the R0 story/route intent: move store decorative bounding footprints away from delivery arrival anchors and shift the outer cart lane clear of the bottom RPG dock reservation. R0 and R1 are still available for comparison. Automated SVG raster preview at full and phone-scene dimensions is separately tracked by the targeted workflow; this does **not** lock painterly art or demonstrate a playable mobile episode. Flower kiosk readability, arcade wall placement, C01 actor feet and physical turning remain open until the actual frames are inspected.
+
+## 11. Limited R2 owner layout PASS and isolated decoration pass (2026-10-15)
+
+The owner replied **PASS** to the previous R2 visual layout/scale review. **Only static position/topology and scale reference are accepted**. Do not present this as complete final art or E03 game/device acceptance.
+
+The unmodified [R2 geometry](MARKET_LANE_LAYERED_R2.svg) remains the exact basis for the next styling layer. [Market Lane decorative overlay R1](MARKET_LANE_DECOR_OVERLAY_R1.svg) provides separate roofs, foliage, bookstall inventory, teacup and flower displays and subtle palette accents. It is a **candidate compositing layer**, not canon, and includes no character, clue, labels, arrow solutions or added paths. The layout review page can independently hide/show it. [CI](../../../.github/workflows/e03-visual-qa.yml) generates both base and decorated PNGs for side-by-side assessment at full size and mobile-scale viewports. No finished PNG/WebP shipping asset is uploaded in this stage.
+
+**Still open:** comparison approval of overlay; whether vector-accent appearance reaches the project's painterly finish; viewports with real characters/captions, turns, signs and collision masks; final media intake and later engine/device gates.

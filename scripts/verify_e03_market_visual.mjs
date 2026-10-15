@@ -10,12 +10,17 @@ const graph=JSON.parse(fs.readFileSync(path.join(dir,"MARKET_LANE_TOPOLOGY_R2.js
 const manifest=JSON.parse(fs.readFileSync(path.join(dir,"MARKET_LANE_LAYERED_R2_MANIFEST.json"),"utf8"));
 const svg=fs.readFileSync(path.join(dir,"MARKET_LANE_LAYERED_R2.svg"),"utf8");
 const preview=fs.readFileSync(path.join(dir,"MARKET_LANE_R2_VISUAL_QA.html"),"utf8");
+const decor=fs.readFileSync(path.join(dir,"MARKET_LANE_DECOR_OVERLAY_R1.svg"),"utf8");
 const check=(x,msg)=>assert.ok(x,msg);
 const dist=(a,b)=>Math.hypot(graph.nodes[a].x-graph.nodes[b].x,graph.nodes[a].y-graph.nodes[b].y);
 function pathLength(ids,mode){let v=0;for(let i=1;i<ids.length;i++){const a=ids[i-1],b=ids[i],e=graph.edges.find(z=>(z.from===a&&z.to===b)||(z.from===b&&z.to===a));check(e,"Missing edge "+a+" -> "+b);check(e.allow.includes(mode),"Forbidden "+mode+" edge "+e.id);v+=dist(a,b)}return v}
 check(graph.artboard.width===1600&&graph.artboard.height===900,"Artboard must be 1600x900");
 check(graph.artboard.protected_caption_y_start===705,"Dock reservation changed");
 check(!/<text\b/i.test(svg),"Visible text baked into the backdrop");
+check(!/<text\b|<script\b|<foreignObject\b/i.test(decor),"Decorative layer must not include text, scripts or embedded media");
+check(decor.includes('viewBox="0 0 1600 900"'),"Decor must align to approved R2 geometry viewbox");
+const decorIds=[...decor.matchAll(/id="(decor-[^"]+)"/g)].map(m=>m[1]);
+check(decorIds.length===7&&new Set(decorIds).size===7,"Expected exactly seven independent decorative groups");
 const layers=[...svg.matchAll(/<g id="(layer-[^"]+)"/g)].map(m=>m[1]);
 check(layers.length===18&&new Set(layers).size===18,"Independent layer IDs invalid");
 for(const id of manifest.layers.map(l=>l.id))check(layers.includes(id),"Missing manifest layer "+id);
@@ -57,4 +62,5 @@ for(const e of graph.edges){
 for(const [id,n] of Object.entries(graph.nodes))for(const shop of shops)check(pointDist(n.x,n.y,shop.box)>=28,"Interactive node "+id+" overlaps "+shop.name);
 for(const size of ["1600,900","667,375","568,320","390,844"])check(preview.includes('data-size="'+size+'"'),"Missing viewport "+size);
 check(preview.includes('src="./MARKET_LANE_LAYERED_R2.svg"'),"QA page not linked to actual R2 SVG");
+check(preview.includes('src="./MARKET_LANE_DECOR_OVERLAY_R1.svg"'),"QA page must load editable optional accent layer");
 console.log(JSON.stringify({status:"SOURCE_QA_PASS_ONLY",routeLength:{steps:Math.round(step),arcade:Math.round(arcade),outer:Math.round(outer)},layers:layers.length,shopCount:shops.length,maxWideRoadY:maxRoadY,minShopRoadMargin:Math.round(minMargin),browserRender:"NOT_TESTED",ownerArtPASS:false},null,2));

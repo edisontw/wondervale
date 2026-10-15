@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/e03-visual-qa.yml'
       - 'content/season-01/s01e03/MARKET_LANE_*R2*'
+      - 'content/season-01/s01e03/MARKET_LANE_DECOR_OVERLAY_R1.svg'
       - 'content/season-01/s01e03/MARKET_LANE_R2_VISUAL_QA.html'
       - 'scripts/verify_e03_market_visual.mjs'
       - 'scripts/render_e03_market_previews.py'
