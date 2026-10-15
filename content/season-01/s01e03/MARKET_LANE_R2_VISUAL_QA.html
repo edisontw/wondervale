@@ -54,7 +54,7 @@ for(const [id,[x,y]] of Object.entries(anchors)){
 }
 let show=false;
 document.querySelector("#show-anchors").addEventListener("click",e=>{show=!show;e.currentTarget.setAttribute("aria-pressed",show?"true":"false");document.querySelectorAll(".anchor").forEach(el=>{el.style.display=show?"block":"none"})});
-function setSize(button){for(const b of btns)b.setAttribute("aria-pressed",String(b===button));const [w,h]=button.dataset.size.split(",").map(Number);stage.style.width=w+"px";stage.style.height=h+"px";const img=stage.querySelector("img");if(h>w){img.style.objectFit="contain";const real=390*900/1600;const blank=(h-real)/2;document.querySelector(".dock").style.top="78.33%";}else{img.style.objectFit="fill";document.querySelector(".dock").style.top="78.33%";}}
+function setSize(button){for(const b of btns)b.setAttribute("aria-pressed",String(b===button));const [w,h]=button.dataset.size.split(",").map(Number);stage.style.width=w+"px";stage.style.height=h+"px";const img=stage.querySelector("img");img.style.objectFit="contain";const scale=Math.min(w/1600,h/900),offsetX=(w-1600*scale)/2,offsetY=(h-900*scale)/2;for(const node of document.querySelectorAll(".anchor")){const [x,y]=anchors[node.dataset.id];node.style.left=(offsetX+x*scale)+"px";node.style.top=(offsetY+y*scale)+"px"}document.querySelector(".dock").style.top="78.33%";}
 for(const b of btns)b.addEventListener("click",()=>setSize(b));
 setSize(document.querySelector('[data-size="667,375"]'));
 </script>
