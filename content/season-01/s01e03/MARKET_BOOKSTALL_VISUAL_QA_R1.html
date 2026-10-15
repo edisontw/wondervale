@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wondervale E03 — independent Bookstall component proof</title>
+<style>
+*{box-sizing:border-box}body{font:15px/1.45 system-ui,sans-serif;background:#f2ead9;color:#284044;margin:0;padding:18px}
+main{max-width:1080px;margin:auto}h1{font-size:1.4rem;margin:0}
+p{color:#586b6c} .controls{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
+button{min-height:44px;border:2px solid #71867e;background:#fff6e5;color:#344c51;border-radius:7px;padding:7px 14px;font-weight:600;cursor:pointer}
+button[aria-pressed=true]{background:#365f62;color:white}
+.viewport{max-width:100%;overflow:auto;border:1px solid #a3a89f;padding:12px;background:#e0dbc9;border-radius:12px}
+#stage{height:320px;width:568px;position:relative;isolation:isolate;background:#f9efd9;overflow:hidden}
+.scene{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+#bookproof{position:absolute;inset:auto;pointer-events:none;max-width:none}
+#diagnostic{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#sim-dock{position:absolute;left:0;right:0;bottom:0;height:21.67%;background:#263f49bf;border-top:1px solid #f4ecda;color:#fff;text-align:center;padding:7px}
+.note{margin:12px 0}
+</style>
+</head>
+<body><main>
+<h1>Market Lane — Bookstall component R1</h1>
+<p>Single independent 340×286 transparent facade overlay at design coordinate (1170, −4). Owner R2 road geometry is unchanged. Preview only: no sprites, collision map, game buttons, or real mobile/device acceptance.</p>
+<div class="controls">
+<button data-view="1600,900">Full 1600×900</button>
+<button data-view="667,375">Landscape 667×375</button>
+<button data-view="568,320" aria-pressed="true">Landscape 568×320</button>
+<button data-view="390,844">Portrait 390×844</button>
+<button id="book-toggle" aria-pressed="true">Bookstall proof ON</button>
+<button id="decor-toggle" aria-pressed="false">Original decor OFF</button>
+<button id="dock-toggle" aria-pressed="true">Mock dock ON</button>
+</div>
+<div class="viewport"><div id="stage">
+<img class="scene" src="./MARKET_LANE_LAYERED_R2.svg" alt="R2 Market Lane fixed geometry">
+<img class="scene" src="./MARKET_LANE_DECOR_OVERLAY_R1.svg" id="decor" style="display:none" aria-hidden="true" alt="">
+<img src="./MARKET_BOOKSTALL_COMPONENT_R1.svg" id="bookproof" width="340" height="286" alt="" aria-hidden="true">
+<div id="sim-dock">Mock caption area — no actual game controls</div>
+</div></div>
+<p class="note">Check the bookstall is visually recognizable at 568×320, its edge remains clean, and the path to the bookstall in front of it stays visible. Do not infer final art quality from this viewport scaling alone.</p>
+</main>
+<script>
+const stage=document.querySelector("#stage"),book=document.querySelector("#bookproof"),simDock=document.querySelector("#sim-dock");
+function sizeStage(btn){
+ const [w,h]=btn.dataset.view.split(",").map(Number);
+ stage.style.width=w+"px";stage.style.height=h+"px";
+ document.querySelectorAll("button[data-view]").forEach(b=>b.setAttribute("aria-pressed",String(b===btn)));
+ const s=Math.min(w/1600,h/900),dx=(w-1600*s)/2,dy=(h-900*s)/2;
+ book.style.left=(1170*s+dx)+"px";
+ book.style.top=(-4*s+dy)+"px";
+ book.style.width=(340*s)+"px";
+ book.style.height=(286*s)+"px";
+}
+document.querySelectorAll("button[data-view]").forEach(btn=>btn.addEventListener("click",()=>sizeStage(btn)));
+const toggle=(id,target)=>{
+ const button=document.querySelector(id),el=document.querySelector(target);
+ button.addEventListener("click",()=>{
+  const now=button.getAttribute("aria-pressed")==="true";
+  button.setAttribute("aria-pressed",String(!now));
+  button.textContent=button.textContent.replace(now?"ON":"OFF",now?"OFF":"ON");
+  el.style.display=now?"none":"block";
+ });
+};
+toggle("#book-toggle","#bookproof");
+toggle("#decor-toggle","#decor");
+toggle("#dock-toggle","#sim-dock");
+sizeStage(document.querySelector('[data-view="568,320"]'));
+</script></body></html>
