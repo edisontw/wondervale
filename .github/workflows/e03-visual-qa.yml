@@ -1,0 +1,39 @@
+name: E03 Gate 2 visual source and raster QA
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/e03-visual-qa.yml'
+      - 'content/season-01/s01e03/MARKET_LANE_*R2*'
+      - 'content/season-01/s01e03/MARKET_LANE_R2_VISUAL_QA.html'
+      - 'scripts/verify_e03_market_visual.mjs'
+      - 'scripts/render_e03_market_previews.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e03-visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify route and scene broad-phase source geometry
+        run: node scripts/verify_e03_market_visual.mjs
+      - name: Install SVG raster QA requirements
+        run: python -m pip install --disable-pip-version-check cairosvg pillow
+      - name: Render full and small-screen diagnostic frames
+        run: python scripts/render_e03_market_previews.py
+      - name: Upload visual QA artifacts (not production media)
+        uses: actions/upload-artifact@v4
+        with:
+          name: e03-market-r2-visual-qa
+          path: artifacts/e03-market-r2/
+          retention-days: 7

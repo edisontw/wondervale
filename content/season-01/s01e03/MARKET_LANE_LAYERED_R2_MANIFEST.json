@@ -1,0 +1,209 @@
+{
+  "schema": "wondervale-s01e03-compositable-scene-r2",
+  "status": "gate2_geometry_review_r2_not_owner_art_accepted",
+  "source_svg": "content/season-01/s01e03/MARKET_LANE_LAYERED_R2.svg",
+  "source_graph": "content/season-01/s01e03/MARKET_LANE_TOPOLOGY_R2.json",
+  "canvas": {
+    "width": 1600,
+    "height": 900,
+    "protected_interactive_y_max": 665,
+    "caption_dock_start_y": 705
+  },
+  "layers": [
+    {
+      "id": "layer-sky-backdrop",
+      "external_reference_id": "layer-sky-backdrop",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-distant-houses",
+      "external_reference_id": "layer-distant-houses",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-land",
+      "external_reference_id": "layer-land",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-road-direct-closed",
+      "external_reference_id": "layer-road-direct-closed",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-path-level",
+      "external_reference_id": "layer-path-level",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-path-arcade",
+      "external_reference_id": "layer-path-arcade",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-path-stairs",
+      "external_reference_id": "layer-path-stairs",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-paving",
+      "external_reference_id": "layer-paving",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-terrain-terraces",
+      "external_reference_id": "layer-terrain-terraces",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-stair-treads",
+      "external_reference_id": "layer-stair-treads",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-narrow-arcade",
+      "external_reference_id": "layer-narrow-arcade",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-shop-buildings",
+      "external_reference_id": "layer-shop-buildings",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-stall-props",
+      "external_reference_id": "layer-stall-props",
+      "dynamic": false,
+      "production_note": ""
+    },
+    {
+      "id": "layer-unloading-blockage",
+      "external_reference_id": "layer-unloading-blockage",
+      "dynamic": false,
+      "production_note": "Temporary center shortcut only; all public routes stay open"
+    },
+    {
+      "id": "layer-existing-market-stone",
+      "external_reference_id": "layer-existing-market-stone",
+      "dynamic": false,
+      "production_note": "Unmarked ordinary stone; historical glyph must be separate gated overlay"
+    },
+    {
+      "id": "layer-blank-sign-mounts",
+      "external_reference_id": "layer-blank-sign-mounts",
+      "dynamic": true,
+      "production_note": "Use separate editable arrow/text after delivery events; art signboard remains blank"
+    },
+    {
+      "id": "layer-interactive-prop-slots",
+      "external_reference_id": "layer-interactive-prop-slots",
+      "dynamic": true,
+      "production_note": "Anchor locations only; C01 sprites separately owned, never generated or embedded"
+    },
+    {
+      "id": "layer-atmospheric-finish",
+      "external_reference_id": "layer-atmospheric-finish",
+      "dynamic": false,
+      "production_note": ""
+    }
+  ],
+  "pathWidths": {
+    "wide_level": 94,
+    "narrow_arcade": 42,
+    "stairs_pedestrian": 63,
+    "direct_blocked": 64,
+    "flower_spur": 80,
+    "unit": "visual_pixels_only_not_cart_clearance"
+  },
+  "routes": {
+    "books": [
+      "H",
+      "S0",
+      "S1",
+      "J",
+      "B"
+    ],
+    "tea_cart": [
+      "H",
+      "L0",
+      "L1",
+      "L2",
+      "W",
+      "T"
+    ],
+    "flower_tray": [
+      "H",
+      "L0",
+      "L1",
+      "L2",
+      "F"
+    ]
+  },
+  "route_rules": [
+    "All route anchors are derived from the MARKET_LANE_TOPOLOGY_R2.json node coordinates; painting must not redefine path canon",
+    "Cart never enters stairs or narrow arcade; direct connector visually shown but denied by obstacle",
+    "Real cart turn radius and collision polygons must be verified at Gate3, not implied by illustrative strokes"
+  ],
+  "identity": {
+    "characters": "C01 trio as independently imported existing sprites",
+    "npc": "placeholder roles only, not drawn",
+    "audio": "recorded voices/music/SFX deferred"
+  },
+  "do_not_package_with_e01_e02": true,
+  "qa": {
+    "markup_balanced": true,
+    "unique_layer_ids": true,
+    "no_visible_svg_text_elements": true,
+    "source_graph_reference_checked": true,
+    "actual_browser_render": "NOT_RUN",
+    "physical_clearances": "NOT_RUN",
+    "owner_art_pass": "PENDING",
+    "source_png_webp_hash_upload": "NOT_STARTED",
+    "source_road_shop_broadphase": "QA_SCRIPT_ADDED_NOT_YET_CI_CONFIRMED",
+    "svg_raster_preview": "PENDING_RENDER_JOB",
+    "phone_viewport_preview": "SIMULATION_ONLY_NOT_REAL_GAME"
+  },
+  "geometry_changes": {
+    "base_graph": "MARKET_LANE_TOPOLOGY.json remains unchanged as R0 historical design",
+    "anchor_y_changes": {
+      "L0": [
+        605,
+        565
+      ],
+      "L1": [
+        660,
+        602
+      ],
+      "L2": [
+        625,
+        592
+      ],
+      "B": [
+        310,
+        335
+      ]
+    },
+    "decorative_shop_transforms": {
+      "produce": "translate(20 -155) scale(0.95)",
+      "books": "translate(330 30) scale(0.75)",
+      "tea": "translate(340 220) scale(0.8)",
+      "flowers": "translate(790 237) scale(0.35)"
+    },
+    "arcade": "translate(-280 -120)",
+    "scope": "broad-phase decoration/route clearance only; physical collider and real cart turning remain Gate3"
+  },
+  "viewport_preview": "content/season-01/s01e03/MARKET_LANE_R2_VISUAL_QA.html",
+  "production_preview_status": "CI PNG raster render planned; no owner/device QA"
+}

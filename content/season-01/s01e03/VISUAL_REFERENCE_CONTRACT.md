@@ -101,3 +101,7 @@ After the unsuccessful all-in-one raster concepts, E03 now has a **real layered 
 - Production layering rule: source geometry → selectively painted storefront/architectural layers → separately positioned loads and props → *existing approved C01* characters → editable story/EFL UI and diegetic sign state. Use the eventual game viewport, not a standalone cropped image, for final small-screen acceptance.
 
 **One next focused task:** review R1 layered preview visually, fix **material** placement/occlusion defects in these independent SVG layers, and only then polish the separate decorative components / single media-intake bundle. Avoid a new complete AI-painted town scene.
+
+## 10. R2 source and viewport review checkpoint (2026-10-15)
+
+See [R2 Visual QA](R2_VISUAL_QA.md), [R2 editable SVG](MARKET_LANE_LAYERED_R2.svg), and [derived R2 graph](MARKET_LANE_TOPOLOGY_R2.json). These are a refinement of the R0 story/route intent: move store decorative bounding footprints away from delivery arrival anchors and shift the outer cart lane clear of the bottom RPG dock reservation. R0 and R1 are still available for comparison. Automated SVG raster preview at full and phone-scene dimensions is separately tracked by the targeted workflow; this does **not** lock painterly art or demonstrate a playable mobile episode. Flower kiosk readability, arcade wall placement, C01 actor feet and physical turning remain open until the actual frames are inspected.
