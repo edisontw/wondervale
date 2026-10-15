@@ -29,10 +29,10 @@ before=(EP/"MARKET_LANE_LAYERED_R2.svg").read_bytes()
 scene=Image.open(BytesIO(cairosvg.svg2png(bytestring=before,output_width=1600,output_height=900))).convert("RGBA")
 decor=Image.open(BytesIO(cairosvg.svg2png(bytestring=(EP/"MARKET_LANE_DECOR_OVERLAY_R1.svg").read_bytes(), output_width=1600,output_height=900))).convert("RGBA")
 assert scene.size==(1600,900)
-placement={"x":1170,"y":-4,"width":340,"height":286}
+placement={"x":1170,"y":8,"width":340,"height":286}
 # Hard guarantee: no nontransparent component alpha intersects the bookstall destination
 # approach disk radius 40 at the actual R2 B node, or path portion near that node.
-fullAlpha=Image.new("L",(1600,900),0)
+assert placement["y"]+bbox[1]>=8, "Rooftop too close to top crop edge"\nfullAlpha=Image.new("L",(1600,900),0)
 fullAlpha.paste(alpha,(placement["x"],placement["y"]))
 for node_id in ["B","J","T","W"]:
     n=graph["nodes"][node_id]
