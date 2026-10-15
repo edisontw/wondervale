@@ -34,11 +34,13 @@ small{display:block;color:#4c6162}
 <button data-size="568,320" aria-pressed="false">Landscape 568 × 320</button>
 <button data-size="390,844" aria-pressed="false">Portrait 390 × 844</button>
 <button id="show-anchors" aria-pressed="false">Show graph anchors</button>
+<button id="toggle-decor" aria-pressed="true">Decorative detail ON</button>
 </div>
 </header>
 <main class="sample">
 <div id="stage" class="stage">
 <img src="./MARKET_LANE_LAYERED_R2.svg" alt="E03 Market Lane layered R2 scene; shop and path artwork only" width="1600" height="900">
+<img id="decor-layer" src="./MARKET_LANE_DECOR_OVERLAY_R1.svg" alt="" aria-hidden="true" width="1600" height="900" style="pointer-events:none">
 <div class="dock">Simulated dialogue dock — actual game layout not tested</div>
 </div>
 </main>
@@ -53,8 +55,10 @@ for(const [id,[x,y]] of Object.entries(anchors)){
  const el=document.createElement("i");el.className="anchor";el.dataset.id=id;el.style.left=(100*x/1600)+"%";el.style.top=(100*y/900)+"%";el.style.display="none";stage.appendChild(el);
 }
 let show=false;
+let showDecor=true;
+document.querySelector("#toggle-decor").addEventListener("click",e=>{showDecor=!showDecor;e.currentTarget.setAttribute("aria-pressed",String(showDecor));e.currentTarget.textContent=showDecor?"Decorative detail ON":"Decorative detail OFF";document.querySelector("#decor-layer").style.display=showDecor?"block":"none"});
 document.querySelector("#show-anchors").addEventListener("click",e=>{show=!show;e.currentTarget.setAttribute("aria-pressed",show?"true":"false");document.querySelectorAll(".anchor").forEach(el=>{el.style.display=show?"block":"none"})});
-function setSize(button){for(const b of btns)b.setAttribute("aria-pressed",String(b===button));const [w,h]=button.dataset.size.split(",").map(Number);stage.style.width=w+"px";stage.style.height=h+"px";const img=stage.querySelector("img");img.style.objectFit="contain";const scale=Math.min(w/1600,h/900),offsetX=(w-1600*scale)/2,offsetY=(h-900*scale)/2;for(const node of document.querySelectorAll(".anchor")){const [x,y]=anchors[node.dataset.id];node.style.left=(offsetX+x*scale)+"px";node.style.top=(offsetY+y*scale)+"px"}document.querySelector(".dock").style.top="78.33%";}
+function setSize(button){for(const b of btns)b.setAttribute("aria-pressed",String(b===button));const [w,h]=button.dataset.size.split(",").map(Number);stage.style.width=w+"px";stage.style.height=h+"px";const img=stage.querySelector("img");for(const im of stage.querySelectorAll("img"))im.style.objectFit="contain";const scale=Math.min(w/1600,h/900),offsetX=(w-1600*scale)/2,offsetY=(h-900*scale)/2;for(const node of document.querySelectorAll(".anchor")){const [x,y]=anchors[node.dataset.id];node.style.left=(offsetX+x*scale)+"px";node.style.top=(offsetY+y*scale)+"px"}document.querySelector(".dock").style.top="78.33%";}
 for(const b of btns)b.addEventListener("click",()=>setSize(b));
 setSize(document.querySelector('[data-size="667,375"]'));
 </script>
