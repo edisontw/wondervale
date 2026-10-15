@@ -563,3 +563,10 @@ Owner replied **PASS** again after the direct-Look/Notebook phone fix had alread
 - **Proposed R0 technical visual reference, NOT owner art PASS:** one 16:9 Market Lane environment, readable stair S / narrow arcade N / wide level outer L, bookstall B / tea porch T / flower stand F, centered safe unloading blockage on direct through lane only. Storyboard and graph: [E03 visual contract](../content/season-01/s01e03/VISUAL_REFERENCE_CONTRACT.md). Basic 14-node/15-edge layout reachability and comparative book-route lengths source-checked; no physics or render pass.
 - **Open:** one actual high-quality painted M0 scene, owner art review, source PNG + WebP integrity transfer, exact collision/turn widths, mobile scene perception and playable E03. No new character appearances or canonical mystery answer approved here.
 - **Next:** generate one M0 **background-only** scene from R0, judge material visual defects, then prepare a single media handoff if accepted. Audio remains intentionally deferred.
+
+
+## 2026-10-15 — E03 M0 illustration QA (not accepted)
+
+- Two image candidate previews were generated in the conversation for the Gate 2 Market Lane backdrop. **Neither is approved, committed, or uploaded**. See [E03 visual contract QA §8](../content/season-01/s01e03/VISUAL_REFERENCE_CONTRACT.md).
+- Material blockers: large route/shop names baked into scenery, breaking editable wayfinding-state rewards; first draft lacks a clear central unloading-only blockage; some waterfront bridge depiction may contradict intended bounded topology/E02 closure. **Aesthetic appeal does not constitute art PASS.**
+- Next targeted step: one no-text, background-only, physically legible Market Lane plate using the same R0 route graph; independent editable wayfinding and C01 actors remain separate. Stop image-transfer attempts until owner accepts a compliant candidate. No audio or runtime changes.
