@@ -73,3 +73,17 @@ Once **one** background image is visually accepted, package the full-resolution 
 **Still open:** final painted master, exact art scene depth, cart/character collision clearances, mobile perceptual QA, NPC designs, visual state overlays, media intake and playable implementation.
 
 **Next focused task:** generate **one** M0 Market Lane painterly background candidate using this topology, show the real image, assess only material path/identity/spoiler defects; proceed to one transfer bundle only after it is accepted. No audio or runtime code in this step.
+
+## 8. M0 generated-image review, 2026-10-15 — NOT ART PASS
+
+Two ChatGPT-rendered **background-only** Market Lane candidate views were generated and reviewed in the originating conversation. They have **not** been accepted, uploaded to GitHub, or registered as source PNG/WebP production media. The image previews are conversation outputs, **not** a verified repository asset.
+
+**Material QA findings** (not merely stylistic variation):
+- Both versions paint English direction/location names (e.g., “Steps”, “Narrow Arcade”, “Level Road”, book/tea/flower names) directly onto large static wood signs. This violates the explicit requirement for editable diegetic current-day signage and spoils the child-led sign improvement; image text must not substitute for actual runtime labels.
+- First view does not visibly establish the temporary central through-route unloading closure. A later view makes the closure more apparent, but still embeds a premature instructional “Unloading Blocked” sign in the scene and retains painted route labels.
+- A prominent waterside road/bridge motif risks implying a new navigable water connection rather than the intended bounded Market Lane layout; do **not** silently inherit that visual deviation as route canon. The actual E02 Riverside crossing remains closed.
+- The illustrations are aesthetically usable as *style references* only. Background framing, connection geometry and text layers are **not approved for production**.
+
+**Focused next iteration:** retain the warm painterly architectural quality, but generate an **unlettered environmental plate** with **no text, directional arrows, educational route labels, route-colored strips, UI panels, characters or built-in NPCs**. A few **blank** physical mounting posts may exist but their text/arrows are independently composited after play. Distinguish stair, narrow pass and wide level cart lane through architecture/clearance alone; use cargo/shop props to recognize destinations. Show an ordinary stall-unloading pile closing only the *central direct connector*, leaving all three public routes clearly connected. Avoid a river bridge and do not conceal the player-space path behind foreground scenery. Compare to the [R0 graph](MARKET_LANE_TOPOLOGY.json); regenerate only as one materially improved candidate, not a series of cosmetic redraws.
+
+**Gate evidence boundary:** render generated = yes; technical visual acceptance = no; owner PASS = no; exact source/derivative hash/PNG-WebP transfer = no; real browser/device QA = no. E01/E02 freezes, EFL, layout graph and script are unchanged.
