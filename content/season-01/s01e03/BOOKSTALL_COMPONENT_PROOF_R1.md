@@ -1,7 +1,7 @@
 # E03 Gate 2 — Isolated Bookstall Component R1
 
 **Date:** 2026-10-15
-**Status:** **isolated alpha/media workflow SOURCE + RASTER PASS**, but **NOT owner painterly-art PASS**. This is one Bookstall proof only; Tea, Flower, C01 characters, game logic, E03 runtime, E01/E02 and audio are unaffected.
+**Status:** TECHNICAL ALPHA/RASTER EXPERIMENT ONLY, **REJECTED AS PRODUCTION ART by latest owner direction (2026-10-15)**. No SVG polishing or Bookstall art expansion. Technical test passing does not imply visual acceptability. This is one Bookstall proof only; Tea, Flower, C01 characters, game logic, E03 runtime, E01/E02 and audio are unaffected.
 
 ## Source of truth and provenance
 
