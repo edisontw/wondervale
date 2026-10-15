@@ -578,3 +578,10 @@ Owner replied **PASS** again after the direct-Look/Notebook phone fix had alread
 - **Actually checked:** XML-like SVG nesting, 18 unique layer IDs, required component groups, lack of visible SVG text elements, source route anchor correspondence (static authoring checks only). **Not tested:** raster/browser rendering, cart physical clearances, actual playable collisions, mobile sizes, owner visual PASS, source PNG/WebP hashes/upload.
 - **Still open:** aesthetically polished independent paint/textures, user visual review of R1, exact obstacle mask to graph, cart-turn fit, shop/action target visibility and one verified media handoff. E01/E02 freezes and deferred audio unaffected.
 - **Next:** visually inspect layered R1 in real 1600×900 and reduced mobile framing, correct substantive geometry/occlusion flaws, then add painterly detail per layer rather than regenerating a mismatched full image.
+
+
+## 2026-10-15 — E03 R2 visual clearance and viewport diagnostics
+
+- **Gate 2 design derivative only:** [R2 editable scene](../content/season-01/s01e03/MARKET_LANE_LAYERED_R2.svg), [derived R2 topology](../content/season-01/s01e03/MARKET_LANE_TOPOLOGY_R2.json) and [R2 QA note](../content/season-01/s01e03/R2_VISUAL_QA.md). R0/R1 remain untouched. Adjusted decorative shops and scene-space lane y positions to keep delivery feet/roads away from shop structures and dialogue dock; unchanged meaning of short stairs, narrow foot arcade and wide level cart path.
+- **New repeatable evidence gate:** source broad-phase script, GitHub workflow CairoSVG raster diagnostics at full and compact landscape dimensions, and an HTML viewport review page. The CI artifact is not final approved PNG/WebP; landscape/portrait scaled previews are **not browser gameplay testing**.
+- **OPEN:** visually review the R2 raster frames, flower-kiosk scale, narrow entrance and mobile legibility; determine final painterly overlays and owner visual PASS, verified binary media intake, real collision/turn masks and E03 runtime. No E01/E02 changes; prerecorded audio still deferred.
