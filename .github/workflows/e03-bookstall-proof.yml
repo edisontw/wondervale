@@ -1,0 +1,30 @@
+name: E03 Bookstall independent art proof
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/e03-bookstall-proof.yml'
+      - 'content/season-01/s01e03/MARKET_BOOKSTALL_COMPONENT_R1.svg'
+      - 'content/season-01/s01e03/MARKET_BOOKSTALL_VISUAL_QA_R1.html'
+      - 'scripts/render_e03_bookstall_proof.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bookstall-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install rasterizer
+        run: python -m pip install --disable-pip-version-check cairosvg pillow
+      - name: Produce transparent cutout and full/mobile composites
+        run: python scripts/render_e03_bookstall_proof.py
+      - name: Save QA-only png and manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: e03-bookstall-independent-r1-qa
+          path: artifacts/e03-bookstall-proof/
+          retention-days: 7
