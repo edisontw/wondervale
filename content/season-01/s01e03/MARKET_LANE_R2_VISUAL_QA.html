@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E03 Market Lane R2 — visual QA only</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#273b43;background:#f5eedb}
+*{box-sizing:border-box}body{margin:0;padding:20px;line-height:1.4}
+header{max-width:1080px;margin:0 auto 18px}h1{font-size:1.3rem;margin:.25rem 0}
+p{margin:.5rem 0;color:#465b5d}.status{font-weight:bold;color:#8b5636}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:12px 0}
+button{min-height:44px;padding:10px 16px;font-weight:600;cursor:pointer;background:#fffaf0;border:2px solid #71867e;border-radius:8px;color:#203c42}
+button[aria-pressed="true"]{background:#365f62;color:white}
+.sample{margin:16px auto;max-width:100%;overflow:auto;border:1px solid #b8b39e;border-radius:12px;background:#e3ddc8;padding:12px}
+.stage{position:relative;width:667px;height:375px;flex-shrink:0;isolation:isolate;background:#e7d8b8}
+.stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block}
+.dock{position:absolute;left:0;right:0;top:78.33%;bottom:0;background:rgba(37,57,64,.80);border-top:2px solid #fbf4d9;display:flex;align-items:center;justify-content:center;color:white;font-size:clamp(12px,1.5vw,16px)}
+.anchor{position:absolute;width:16px;height:16px;background:#f3c574;outline:2px solid #283c42;border-radius:100%;transform:translate(-50%,-50%);z-index:2;pointer-events:none}
+.anchor::after{content:attr(data-id);font-size:13px;background:#fff7df;padding:0 3px;border-radius:3px;position:absolute;left:12px;top:-6px;color:#293b40}
+#anchor-toggle:checked~.sample .anchor{display:block}
+details{max-width:1080px;margin:20px auto}
+small{display:block;color:#4c6162}
+</style>
+</head>
+<body>
+<header>
+<h1>S01E03 — Market Lane R2 visual QA</h1>
+<p class="status">Engineering/reference preview only: no actual episode controls, no C01 actors, no approval or device PASS.</p>
+<p>Check route continuity, shop access points, temporary unloading, crop and overlap. This page uses the exact standalone layered R2 SVG, with a <strong>simulated</strong> RPG bottom dock; game-engine behavior must be tested separately.</p>
+<div class="controls">
+<button data-size="1600,900" aria-pressed="false">Full 1600 × 900</button>
+<button data-size="667,375" aria-pressed="true">Landscape 667 × 375</button>
+<button data-size="568,320" aria-pressed="false">Landscape 568 × 320</button>
+<button data-size="390,844" aria-pressed="false">Portrait 390 × 844</button>
+<button id="show-anchors" aria-pressed="false">Show graph anchors</button>
+</div>
+</header>
+<main class="sample">
+<div id="stage" class="stage">
+<img src="./MARKET_LANE_LAYERED_R2.svg" alt="E03 Market Lane layered R2 scene; shop and path artwork only" width="1600" height="900">
+<div class="dock">Simulated dialogue dock — actual game layout not tested</div>
+</div>
+</main>
+<details><summary>Review scope and limitations</summary>
+<p>For landscape mode the 1600×900 drawing is proportionally scaled into the viewport. In portrait, geometry uses fit-contain/letterboxing rather than distorting the scene; controls still require a future dedicated portrait layout.</p>
+<p>Node markers are diagnostic, not shipping UI. Three deliveries: Hub→Bookstall (stairs/arcade/outer footpaths), Hub→Tea porch (wide level cart route), Hub→Flower stand (level spur). No one crosses the unloading area.</p></details>
+<script>
+"use strict";
+const anchors={"H":[180,450],"S0":[370,345],"S1":[565,240],"J":[1120,295],"B":[1350,335],"N0":[380,480],"N1":[650,600],"N2":[870,590],"L0":[390,565],"L1":[700,602],"L2":[960,592],"W":[1140,530],"T":[1330,490],"F":[1010,540]};
+const stage=document.querySelector("#stage"),btns=document.querySelectorAll("button[data-size]");
+for(const [id,[x,y]] of Object.entries(anchors)){
+ const el=document.createElement("i");el.className="anchor";el.dataset.id=id;el.style.left=(100*x/1600)+"%";el.style.top=(100*y/900)+"%";el.style.display="none";stage.appendChild(el);
+}
+let show=false;
+document.querySelector("#show-anchors").addEventListener("click",e=>{show=!show;e.currentTarget.setAttribute("aria-pressed",show?"true":"false");document.querySelectorAll(".anchor").forEach(el=>{el.style.display=show?"block":"none"})});
+function setSize(button){for(const b of btns)b.setAttribute("aria-pressed",String(b===button));const [w,h]=button.dataset.size.split(",").map(Number);stage.style.width=w+"px";stage.style.height=h+"px";const img=stage.querySelector("img");if(h>w){img.style.objectFit="contain";const real=390*900/1600;const blank=(h-real)/2;document.querySelector(".dock").style.top="78.33%";}else{img.style.objectFit="fill";document.querySelector(".dock").style.top="78.33%";}}
+for(const b of btns)b.addEventListener("click",()=>setSize(b));
+setSize(document.querySelector('[data-size="667,375"]'));
+</script>
+</body>
+</html>
