@@ -32,7 +32,8 @@ assert scene.size==(1600,900)
 placement={"x":1170,"y":8,"width":340,"height":286}
 # Hard guarantee: no nontransparent component alpha intersects the bookstall destination
 # approach disk radius 40 at the actual R2 B node, or path portion near that node.
-assert placement["y"]+bbox[1]>=8, "Rooftop too close to top crop edge"\nfullAlpha=Image.new("L",(1600,900),0)
+assert placement["y"]+bbox[1]>=8, "Rooftop too close to top crop edge"
+fullAlpha=Image.new("L",(1600,900),0)
 fullAlpha.paste(alpha,(placement["x"],placement["y"]))
 for node_id in ["B","J","T","W"]:
     n=graph["nodes"][node_id]
