@@ -173,7 +173,9 @@
     "source_png_webp_hash_upload": "NOT_STARTED",
     "source_road_shop_broadphase": "QA_SCRIPT_ADDED_NOT_YET_CI_CONFIRMED",
     "svg_raster_preview": "PENDING_RENDER_JOB",
-    "phone_viewport_preview": "SIMULATION_ONLY_NOT_REAL_GAME"
+    "phone_viewport_preview": "SIMULATION_ONLY_NOT_REAL_GAME",
+    "owner_geometry_layout_review": "PASS_2026-10-15",
+    "decorative_painterly_review": "PENDING"
   },
   "geometry_changes": {
     "base_graph": "MARKET_LANE_TOPOLOGY.json remains unchanged as R0 historical design",
@@ -205,5 +207,19 @@
     "scope": "broad-phase decoration/route clearance only; physical collider and real cart turning remain Gate3"
   },
   "viewport_preview": "content/season-01/s01e03/MARKET_LANE_R2_VISUAL_QA.html",
-  "production_preview_status": "CI PNG raster render planned; no owner/device QA"
+  "production_preview_status": "CI PNG raster render planned; no owner/device QA",
+  "owner_review": {
+    "date": "2026-10-15",
+    "decision": "PASS",
+    "scope": "R2 static scene geometry and scaled diagnostic previews only",
+    "not_approved": [
+      "final artwork",
+      "gameplay",
+      "device interaction",
+      "production media upload",
+      "audio"
+    ]
+  },
+  "decorative_overlay_candidate": "content/season-01/s01e03/MARKET_LANE_DECOR_OVERLAY_R1.svg",
+  "decorative_overlay_status": "new unapproved independent style enhancement"
 }
