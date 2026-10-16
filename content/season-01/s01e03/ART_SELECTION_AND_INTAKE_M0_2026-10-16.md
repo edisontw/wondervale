@@ -1,6 +1,6 @@
 # S01E03 Gate 2 — Existing painterly artwork selection and media intake (2026-10-16)
 
-**Decision status:** **M0 background chosen for single-asset manual intake** under owner's instruction, “前面生成了很多圖，如果沒太大問題可使用” (reuse previously generated images when no major problem). No new picture generation in this selection round. **Media upload and actual game QA remain PENDING**; the status is not Gate 3/Gate 4 PASS.
+**Decision status:** **M0 background chosen for single-asset manual intake** under owner's instruction, “前面生成了很多圖，如果沒太大問題可使用” (reuse previously generated images when no major problem). No new picture generation in this selection round. **Media upload verified on GitHub main; actual game QA remains PENDING**. This is not Gate 3/Gate 4 PASS.
 
 **Authoritative story:** E03 Production Brief rev 2; E01/E02 frozen; approved C01 identity; caption and manual Listen, prerecorded audio deferred. The earlier R2 SVGs are discarded as final-art candidates and preserved only as concept/route sketches. **Never force the accepted painterly illustration to match obsolete R2 SVG pixel coordinates.**
 
@@ -29,7 +29,7 @@ The exact original PNG files were verified locally. All seven are bright, high-r
 - **Flower shop near bottom-right:** in a simple full-frame 568×320 scene with a lower caption dock, its lower part becomes hidden. A camera **focus/crop of the same unchanged original PNG** restores meaningful view of the flower shop and right path. A 568×320 simulated focused preview was produced, but real in-game character/control and dock placement still need testing. No additional art required to test this.
 - **Signs & historic glyph:** current-day WALK/CART arrow text must be UI/state overlays, and the ancient glyph a separate intentionally inspected history layer. The original PNG contains no legible gameplay-answer labels. Do not reinterpret decorative banners as official old-route proof.
 
-## Single verified local media bundle — upload is still outstanding
+## Single media bundle — GitHub intake VERIFIED
 
 A single ZIP has been prepared with exactly **three repository-relative paths**, suitable for one manual GitHub intake:
 
@@ -37,6 +37,21 @@ A single ZIP has been prepared with exactly **three repository-relative paths**,
 2. `public/art/s01e03-market-lane-m0.webp` — same 1672×941, quality 88, 505,748 bytes, SHA-256 `f7d5b95dfbb5377027d9370a2b2be194b2a17e4673942790a0e20cb049b9351d`, Git blob `c0cd4e863c27b2b00a7ba512921d8d8363479e20`.
 3. `assets/production-candidates/s01e03/PRODUCTION_INTAKE_PENDING.json` — exact-byte manifest with source provenance and hard runtime warnings, **carried inside the ZIP, NOT committed alone**, so current main media discovery/CI does not fail for not-yet-uploaded binaries.
 
-Local SHA-256, Git blob IDs, PNG CRC, WebP riff/dimensions, Pillow verification and ZIP CRC passed. After owner uploads the three paths to main or a named branch, **re-fetch current GitHub main or that branch and verify all exact paths/blobs**, run `python scripts/verify_episode_media.py --manifest assets/production-candidates/s01e03/PRODUCTION_INTAKE_PENDING.json`, then integrate via episode-specific asset allowlist. **Do not claim media-intake PASS until real Git files are present.**
+## GitHub read-back and media QA — PASS (2026-10-16)
 
-**Next focused task:** user performs *one* upload of the three ZIP paths; assistant verifies the actual committed files and then plans a playable M0-based movement/route overlay. Other six illustrations remain reference/backup only, no unnecessary regeneration. This Gate 2 selection does not authorize new C01 art, audio, E02 changes, or E03 gameplay/deploy claims.
+Verified current GitHub main `f70ee1c69a413e43e6a1306702f31523a0c4672c`. All three exact paths are committed on main; no upload branch or second upload is needed. Both image blob IDs, byte lengths, SHA-256 values and 1672×941 dimensions match the table above exactly.
+
+The uploaded manifest itself is Git blob `f7aa17badf3a30d22cdc2170e96aa63ba161dd1b`, **2,901 Git-object bytes**, SHA-256 `445f69103e1527654f90f33afba2b91b190fd5184da6e09762749b0f69a3820a`. Use Git-object bytes for this text-file provenance; Windows checkout newline conversion is not evidence of a changed upload. This PR updates its status and metadata, so these values identify the original uploaded manifest, not the updated manifest.
+
+Actually run:
+- `python scripts/verify_episode_media.py --manifest assets/production-candidates/s01e03/PRODUCTION_INTAKE_PENDING.json`: PASS for both exact-byte files, PNG CRC/IEND and WebP RIFF/dimensions.
+- Default all-episode media verification: **15 files / 3 manifests PASS**.
+- Pillow 11.1.0 `verify()` plus full image decode: PASS for PNG and WebP.
+- Actual runtime WebP visual inspection confirms the selected painterly plate, with no baked route-answer text or C01 children. This is source-art review, not in-game QA.
+- Main [media integrity CI #38896915965](https://github.com/edisontw/wondervale/actions/runs/38896915965): PASS. Main [E01 regression #38896916014](https://github.com/edisontw/wondervale/actions/runs/38896916014): PASS for the uploaded main SHA.
+
+**Metadata correction:** the exact original PNG is RGBA, alpha extrema **143..249**, rather than the manifest's former `alpha:false`. The existing WebP is RGB and opaque. Correct the manifest, preserve both media files byte-for-byte, and use the verified WebP for gameplay. Do not regenerate, re-encode or silently substitute the master because of this metadata discrepancy.
+
+**Locked:** existing M0 selection and verified image bytes; latest owner rejection of SVG artwork; E01/E02 and C01 unchanged; recorded audio deferred with captions/manual Listen retained.
+
+**Next focused task — Gate 3:** implement one E03-owned playable path through the approved episode using only `public/art/s01e03-market-lane-m0.webp` and the existing C01 assets in an explicit asset allowlist. First author actual M0-aligned walk/cart graph, arrival footprints and obstacle/turn clearance; prove H→B/T/F and the crate-side arch entrance against the painting, without importing R2 pixel coordinates. Then verify actual C01 feet, flower focus and caption dock at 568×320, story/evidence/recovery gates, once-only ledger, restore, Chronicle and read-only replay with E03 tests and E01 regression on the PR head. Gate 3 implementation, browser/device acceptance and deployment remain OPEN. This scoped intake PR changes no runtime or release.

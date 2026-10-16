@@ -2,9 +2,9 @@
   "schema": "wondervale-e03-original-media-intake-v1",
   "episode_id": "s01e03",
   "composition_id": "m0",
-  "status": "intake_pending_github_upload",
+  "status": "media_uploaded_verified_runtime_pending",
   "selection": "existing_image_no_major_story_issue",
-  "selection_authority": "owner permitted reusing previously generated illustrations when no major problem; assistant selected candidate 01 for M0; awaits actual GitHub byte verification and playable visual check",
+  "selection_authority": "Owner permitted reusing previously generated illustrations when no major problem; candidate 01 selected for M0. Exact GitHub media bytes verified; playable visual check remains open.",
   "source": "Previously generated ChatGPT painterly market PNG preserved byte-for-byte; no new image-generation performed in this selection step.",
   "original_basename": "a_bright_detailed_hand_painted_illustration_st.png",
   "assets": [
@@ -20,11 +20,15 @@
         941
       ],
       "format": "png",
-      "alpha": false
+      "alpha": true,
+      "alpha_extrema": [
+        143,
+        249
+      ]
     },
     {
       "id": "m0",
-      "role": "runtime_derivative_pending_upload",
+      "role": "runtime_derivative_verified_not_integrated",
       "path": "public/art/s01e03-market-lane-m0.webp",
       "bytes": 505748,
       "sha256": "f7d5b95dfbb5377027d9370a2b2be194b2a17e4673942790a0e20cb049b9351d",
@@ -59,5 +63,22 @@
     "r2_note": "R2 SVG coordinates and visual textures are draft-only and NOT targets for pixel-accurate compositing; retained route semantics only."
   },
   "audio": "recorded audio/music/SFX deferred; use captions and manual Listen",
-  "git_readback": "NOT_RUN_UPLOAD_PENDING"
+  "git_readback": {
+    "status": "PASS",
+    "verified_main_sha": "f70ee1c69a413e43e6a1306702f31523a0c4672c",
+    "uploaded_manifest_blob": "f7aa17badf3a30d22cdc2170e96aa63ba161dd1b",
+    "uploaded_manifest_bytes": 2901,
+    "uploaded_manifest_sha256": "445f69103e1527654f90f33afba2b91b190fd5184da6e09762749b0f69a3820a",
+    "checks": [
+      "exact paths and Git blob SHA",
+      "bytes and SHA-256",
+      "PNG chunk CRC and IEND",
+      "WebP RIFF length and dimensions",
+      "Pillow verify and full decode"
+    ],
+    "source_alpha_note": "Original PNG is RGBA with alpha extrema 143..249; prior alpha:false metadata was incorrect. Preserve original bytes. Existing verified runtime WebP is RGB, with no alpha.",
+    "main_media_ci": "https://github.com/edisontw/wondervale/actions/runs/38896915965",
+    "runtime_qa": "NOT_RUN",
+    "device_qa": "NOT_RUN"
+  }
 }
