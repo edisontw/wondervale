@@ -1,0 +1,404 @@
+{
+  "episode": "s01e03",
+  "version": "s01e03-slice-v1",
+  "build": "20261016-e03-m0-slice1",
+  "count": 79,
+  "dialogueStatus": "candidate_pending_owner_dialogue_lock",
+  "lines": {
+    "S01E03-NARRATOR-001": {
+      "id": "S01E03-NARRATOR-001",
+      "speaker": "NARRATOR",
+      "text": "The old sign pointed to Market Lane."
+    },
+    "S01E03-MILO-001": {
+      "id": "S01E03-MILO-001",
+      "speaker": "MILO",
+      "text": "Let's see what is there!"
+    },
+    "S01E03-NIA-001": {
+      "id": "S01E03-NIA-001",
+      "speaker": "NIA",
+      "text": "The old way may have changed."
+    },
+    "S01E03-FINN-001": {
+      "id": "S01E03-FINN-001",
+      "speaker": "FINN",
+      "text": "This way is open today."
+    },
+    "S01E03-UI-001": {
+      "id": "S01E03-UI-001",
+      "speaker": "UI",
+      "text": "Begin the Market Lane adventure."
+    },
+    "S01E03-NARRATOR-002": {
+      "id": "S01E03-NARRATOR-002",
+      "speaker": "NARRATOR",
+      "text": "Market Lane is busy today."
+    },
+    "S01E03-NARRATOR-003": {
+      "id": "S01E03-NARRATOR-003",
+      "speaker": "NARRATOR",
+      "text": "A stall is unloading boxes."
+    },
+    "S01E03-COORDINATOR-001": {
+      "id": "S01E03-COORDINATOR-001",
+      "speaker": "COORDINATOR",
+      "text": "The middle way is blocked."
+    },
+    "S01E03-COORDINATOR-002": {
+      "id": "S01E03-COORDINATOR-002",
+      "speaker": "COORDINATOR",
+      "text": "Can you help with three deliveries?"
+    },
+    "S01E03-MILO-002": {
+      "id": "S01E03-MILO-002",
+      "speaker": "MILO",
+      "text": "Yes! Where do they go?"
+    },
+    "S01E03-COORDINATOR-003": {
+      "id": "S01E03-COORDINATOR-003",
+      "speaker": "COORDINATOR",
+      "text": "Books go to the bookstall."
+    },
+    "S01E03-COORDINATOR-004": {
+      "id": "S01E03-COORDINATOR-004",
+      "speaker": "COORDINATOR",
+      "text": "Cups go to the tea porch."
+    },
+    "S01E03-COORDINATOR-005": {
+      "id": "S01E03-COORDINATOR-005",
+      "speaker": "COORDINATOR",
+      "text": "Flowers go to the flower stand."
+    },
+    "S01E03-NIA-002": {
+      "id": "S01E03-NIA-002",
+      "speaker": "NIA",
+      "text": "Each load is different."
+    },
+    "S01E03-UI-002": {
+      "id": "S01E03-UI-002",
+      "speaker": "UI",
+      "text": "Look at the loads and paths."
+    },
+    "S01E03-FINN-002": {
+      "id": "S01E03-FINN-002",
+      "speaker": "FINN",
+      "text": "Look! The steps are shorter."
+    },
+    "S01E03-FINN-003": {
+      "id": "S01E03-FINN-003",
+      "speaker": "FINN",
+      "text": "Let's try that way!"
+    },
+    "S01E03-NIA-003": {
+      "id": "S01E03-NIA-003",
+      "speaker": "NIA",
+      "text": "We can carry these books."
+    },
+    "S01E03-UI-003": {
+      "id": "S01E03-UI-003",
+      "speaker": "UI",
+      "text": "Choose a path to the bookstall."
+    },
+    "S01E03-MILO-003": {
+      "id": "S01E03-MILO-003",
+      "speaker": "MILO",
+      "text": "The books are here!"
+    },
+    "S01E03-FINN-004": {
+      "id": "S01E03-FINN-004",
+      "speaker": "FINN",
+      "text": "That worked for the books!"
+    },
+    "S01E03-NIA-004": {
+      "id": "S01E03-NIA-004",
+      "speaker": "NIA",
+      "text": "This path works for books."
+    },
+    "S01E03-COORDINATOR-006": {
+      "id": "S01E03-COORDINATOR-006",
+      "speaker": "COORDINATOR",
+      "text": "Please keep the cups on the cart."
+    },
+    "S01E03-MILO-004": {
+      "id": "S01E03-MILO-004",
+      "speaker": "MILO",
+      "text": "Now we have a cart."
+    },
+    "S01E03-FINN-005": {
+      "id": "S01E03-FINN-005",
+      "speaker": "FINN",
+      "text": "The steps were so fast!"
+    },
+    "S01E03-FINN-006": {
+      "id": "S01E03-FINN-006",
+      "speaker": "FINN",
+      "text": "Maybe we can use them again."
+    },
+    "S01E03-UI-004": {
+      "id": "S01E03-UI-004",
+      "speaker": "UI",
+      "text": "Choose a path for the cart."
+    },
+    "S01E03-UI-005": {
+      "id": "S01E03-UI-005",
+      "speaker": "UI",
+      "text": "The cart stops at the steps."
+    },
+    "S01E03-NIA-005": {
+      "id": "S01E03-NIA-005",
+      "speaker": "NIA",
+      "text": "The cart cannot climb stairs."
+    },
+    "S01E03-FINN-007": {
+      "id": "S01E03-FINN-007",
+      "speaker": "FINN",
+      "text": "Oh! This way works for us."
+    },
+    "S01E03-FINN-008": {
+      "id": "S01E03-FINN-008",
+      "speaker": "FINN",
+      "text": "But not for the cart."
+    },
+    "S01E03-UI-006": {
+      "id": "S01E03-UI-006",
+      "speaker": "UI",
+      "text": "The arcade is too narrow."
+    },
+    "S01E03-NIA-006": {
+      "id": "S01E03-NIA-006",
+      "speaker": "NIA",
+      "text": "The cart needs more room."
+    },
+    "S01E03-MILO-005": {
+      "id": "S01E03-MILO-005",
+      "speaker": "MILO",
+      "text": "Let's look for another way."
+    },
+    "S01E03-UI-007": {
+      "id": "S01E03-UI-007",
+      "speaker": "UI",
+      "text": "Not sure yet? Look again."
+    },
+    "S01E03-UI-008": {
+      "id": "S01E03-UI-008",
+      "speaker": "UI",
+      "text": "Try another route."
+    },
+    "S01E03-MILO-006": {
+      "id": "S01E03-MILO-006",
+      "speaker": "MILO",
+      "text": "This way is longer."
+    },
+    "S01E03-NIA-007": {
+      "id": "S01E03-NIA-007",
+      "speaker": "NIA",
+      "text": "But it is wide and level."
+    },
+    "S01E03-FINN-009": {
+      "id": "S01E03-FINN-009",
+      "speaker": "FINN",
+      "text": "It works for the cart!"
+    },
+    "S01E03-MILO-007": {
+      "id": "S01E03-MILO-007",
+      "speaker": "MILO",
+      "text": "We made the tea delivery."
+    },
+    "S01E03-FINN-010": {
+      "id": "S01E03-FINN-010",
+      "speaker": "FINN",
+      "text": "Who can use this path?"
+    },
+    "S01E03-COORDINATOR-007": {
+      "id": "S01E03-COORDINATOR-007",
+      "speaker": "COORDINATOR",
+      "text": "These flowers must stay upright."
+    },
+    "S01E03-MILO-008": {
+      "id": "S01E03-MILO-008",
+      "speaker": "MILO",
+      "text": "We need a steady path."
+    },
+    "S01E03-UI-009": {
+      "id": "S01E03-UI-009",
+      "speaker": "UI",
+      "text": "Take the flowers to the flower stand."
+    },
+    "S01E03-NIA-008": {
+      "id": "S01E03-NIA-008",
+      "speaker": "NIA",
+      "text": "Think about the tray."
+    },
+    "S01E03-UI-010": {
+      "id": "S01E03-UI-010",
+      "speaker": "UI",
+      "text": "Look at the turns and steps."
+    },
+    "S01E03-MILO-009": {
+      "id": "S01E03-MILO-009",
+      "speaker": "MILO",
+      "text": "This path is easier for flowers."
+    },
+    "S01E03-COORDINATOR-008": {
+      "id": "S01E03-COORDINATOR-008",
+      "speaker": "COORDINATOR",
+      "text": "All three deliveries are done!"
+    },
+    "S01E03-FINN-011": {
+      "id": "S01E03-FINN-011",
+      "speaker": "FINN",
+      "text": "Different loads, different ways."
+    },
+    "S01E03-MILO-010": {
+      "id": "S01E03-MILO-010",
+      "speaker": "MILO",
+      "text": "People still look lost."
+    },
+    "S01E03-NIA-009": {
+      "id": "S01E03-NIA-009",
+      "speaker": "NIA",
+      "text": "The signs could be clearer."
+    },
+    "S01E03-FINN-012": {
+      "id": "S01E03-FINN-012",
+      "speaker": "FINN",
+      "text": "One sign for walking."
+    },
+    "S01E03-FINN-013": {
+      "id": "S01E03-FINN-013",
+      "speaker": "FINN",
+      "text": "And one for carts!"
+    },
+    "S01E03-UI-011": {
+      "id": "S01E03-UI-011",
+      "speaker": "UI",
+      "text": "Place clear route signs."
+    },
+    "S01E03-UI-012": {
+      "id": "S01E03-UI-012",
+      "speaker": "UI",
+      "text": "Check where each arrow points."
+    },
+    "S01E03-NARRATOR-004": {
+      "id": "S01E03-NARRATOR-004",
+      "speaker": "NARRATOR",
+      "text": "Market Lane is easier to use."
+    },
+    "S01E03-MILO-011": {
+      "id": "S01E03-MILO-011",
+      "speaker": "MILO",
+      "text": "Now people can find their way."
+    },
+    "S01E03-NIA-010": {
+      "id": "S01E03-NIA-010",
+      "speaker": "NIA",
+      "text": "Wait. Look at that old stone."
+    },
+    "S01E03-MILO-012": {
+      "id": "S01E03-MILO-012",
+      "speaker": "MILO",
+      "text": "It's the old route mark!"
+    },
+    "S01E03-FINN-014": {
+      "id": "S01E03-FINN-014",
+      "speaker": "FINN",
+      "text": "It's here in Market Lane!"
+    },
+    "S01E03-COORDINATOR-009": {
+      "id": "S01E03-COORDINATOR-009",
+      "speaker": "COORDINATOR",
+      "text": "I remember a way to the station."
+    },
+    "S01E03-RESIDENT-001": {
+      "id": "S01E03-RESIDENT-001",
+      "speaker": "RESIDENT",
+      "text": "I remember a way to the garden."
+    },
+    "S01E03-MILO-013": {
+      "id": "S01E03-MILO-013",
+      "speaker": "MILO",
+      "text": "The station? Or the garden?"
+    },
+    "S01E03-NIA-011": {
+      "id": "S01E03-NIA-011",
+      "speaker": "NIA",
+      "text": "We heard two memories."
+    },
+    "S01E03-NIA-012": {
+      "id": "S01E03-NIA-012",
+      "speaker": "NIA",
+      "text": "Let's write down both."
+    },
+    "S01E03-FINN-015": {
+      "id": "S01E03-FINN-015",
+      "speaker": "FINN",
+      "text": "Maybe the town changed."
+    },
+    "S01E03-MILO-014": {
+      "id": "S01E03-MILO-014",
+      "speaker": "MILO",
+      "text": "We need to learn more."
+    },
+    "S01E03-NARRATOR-005": {
+      "id": "S01E03-NARRATOR-005",
+      "speaker": "NARRATOR",
+      "text": "Two memories. One old route."
+    },
+    "S01E03-UI-013": {
+      "id": "S01E03-UI-013",
+      "speaker": "UI",
+      "text": "Open the Wondervale Chronicle."
+    },
+    "S01E03-NARRATOR-006": {
+      "id": "S01E03-NARRATOR-006",
+      "speaker": "NARRATOR",
+      "text": "Market Lane has clearer signs."
+    },
+    "S01E03-NARRATOR-007": {
+      "id": "S01E03-NARRATOR-007",
+      "speaker": "NARRATOR",
+      "text": "The old route is still a mystery."
+    },
+    "S01E03-UI-014": {
+      "id": "S01E03-UI-014",
+      "speaker": "UI",
+      "text": "Finish this chapter."
+    },
+    "S01E03-UI-015": {
+      "id": "S01E03-UI-015",
+      "speaker": "UI",
+      "text": "Listen."
+    },
+    "S01E03-UI-016": {
+      "id": "S01E03-UI-016",
+      "speaker": "UI",
+      "text": "Choose a path."
+    },
+    "S01E03-NIA-013": {
+      "id": "S01E03-NIA-013",
+      "speaker": "NIA",
+      "text": "Can this load use the steps?"
+    },
+    "S01E03-NIA-014": {
+      "id": "S01E03-NIA-014",
+      "speaker": "NIA",
+      "text": "Is that path wide enough?"
+    },
+    "S01E03-FINN-016": {
+      "id": "S01E03-FINN-016",
+      "speaker": "FINN",
+      "text": "Shorter is not always easier."
+    },
+    "S01E03-UI-017": {
+      "id": "S01E03-UI-017",
+      "speaker": "UI",
+      "text": "Go back to the market."
+    },
+    "S01E03-UI-018": {
+      "id": "S01E03-UI-018",
+      "speaker": "UI",
+      "text": "Try again."
+    }
+  }
+}

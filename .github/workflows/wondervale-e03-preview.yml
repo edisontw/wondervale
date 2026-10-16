@@ -1,0 +1,46 @@
+name: Wondervale E03 M0 engineering slice
+on:
+  pull_request:
+    paths: ['e03/**', 'engine/s01e03.mjs', 'public/s01e03.json', 'tests/s01e03*', 'scripts/compile_e03.py', 'scripts/package_e03.py', 'content/season-01/s01e03/**', '.github/workflows/wondervale-e03-preview.yml']
+  push:
+    branches: [main]
+    paths: ['e03/**', 'engine/s01e03.mjs', 'public/s01e03.json', 'tests/s01e03*', 'scripts/compile_e03.py', 'scripts/package_e03.py', '.github/workflows/wondervale-e03-preview.yml']
+permissions:
+  contents: read
+jobs:
+  e03:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check exact media and candidate script IDs
+        run: |
+          python3 scripts/verify_episode_media.py
+          python3 scripts/compile_e03.py
+          git diff --exit-code -- public/s01e03.json
+      - name: Test E03 routes, progression, prerequisites, restore and replay
+        run: node --test tests/s01e03.test.mjs
+      - name: Package isolated E03 preview
+        run: python3 scripts/package_e03.py
+      - run: npm install --ignore-scripts --package-lock=false
+      - run: npx playwright install --with-deps chromium
+      - name: Test actual E03 packaged desktop and touch scene
+        run: |
+          python3 -m http.server 4173 --directory dist/wondervale-e03-preview > /tmp/e03-server.log 2>&1 &
+          node tests/s01e03-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e03-engineering-evidence
+          path: test-results/e03-*
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: wondervale-e03-preview
+          path: dist/wondervale-e03-preview/

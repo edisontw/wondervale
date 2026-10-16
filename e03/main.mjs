@@ -1,0 +1,124 @@
+import {KEY,E02_KEY,VERSION,BUILD,places,restricted,e02Ready,fresh,restore,payload,dispatch,has} from '../engine/s01e03.mjs';
+const root=document.querySelector('#app');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const read=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
+let content;
+try{const r=await fetch('../public/s01e03.json');if(!r.ok)throw Error();content=await r.json();if(content.version!==VERSION||content.build!==BUILD||content.count!==79)throw Error();}
+catch{root.innerHTML='<main class="sheet"><h1>Market Lane could not open</h1><p>Please reload to try again.</p><button onclick="location.reload()">Reload</button></main>';throw Error('E03 content unavailable');}
+const canonicalReady=e02Ready(read(E02_KEY));
+let unlocked=canonicalReady;
+let state=unlocked?restore(read(KEY)):fresh();
+let ui={parent:false,modal:null,inspected:null,moving:false,artError:false,storageError:false,review:false,resetError:false,focus:null};
+let visual=[...places[state.position]],lastFocus=null,raf=0;
+const button=(label,a,primary=false,extra='')=>`<button data-a="${esc(a)}" ${primary?'class="primary"':''} ${extra}>${esc(label)}</button>`;
+const names={MILO:'Milo',NIA:'Nia',FINN:'Finn',COORDINATOR:'Market coordinator',RESIDENT:'Garden resident',NARRATOR:'Narrator',UI:'Story'};
+const full={MILO:'60 0 465 1024',NIA:'545 0 450 1024',FINN:'1025 0 485 1024'},heads={MILO:'95 12 425 474',NIA:'555 18 435 474',FINN:'1045 18 445 474'};
+const art=(who,portrait=false)=>{const crop=(portrait?heads:full)[who];return crop?`<svg aria-hidden="true" viewBox="${crop}" preserveAspectRatio="xMidYMid ${portrait?'slice':'meet'}"><image href="../public/art/trio-sprites.webp" width="1536" height="1024"/></svg>`:'<span aria-hidden="true">❧</span>';};
+function save(){const p=payload(state);if(!p)return;try{localStorage.setItem(KEY,JSON.stringify(p));ui.storageError=false;}catch{ui.storageError=true;}}
+function act(a){if(ui.moving&&a.type!=='step')return;state=dispatch(state,a);save();render();}
+function line(){return content.lines[state.queue[0]];}
+function listen(){if(!line()||!globalThis.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(line().text);u.lang='en-US';u.rate=.87;speechSynthesis.speak(u);}catch{}}
+function actorFeet(i){
+ if(i===0)return visual;
+ const trail=[places.front,places.bend,places.west,places.H,...state.history.filter(a=>a.type==='step').map(a=>places[a.to]),visual];
+ let remaining=i*155;
+ for(let n=trail.length-1;n>0;n--){const a=trail[n],b=trail[n-1],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(d>=remaining)return a.map((x,k)=>x+(b[k]-x)*remaining/d);remaining-=d;}
+ return i===1?[155,671]:[55,680];
+}
+function actor(who,i){const p=actorFeet(i);return `<div class="actor ${i?'companion':''}" data-actor="${who}" style="--x:${p[0]/16.72}%;--y:${p[1]/9.41}%">${art(who)}<span class="actor-label">${names[who]}</span>${i===0&&state.load!=='none'?`<span class="cargo ${state.load==='tea_cart'?'cart':''}">${({books:'Books',tea_cart:'Cups',flowers:'Flowers'})[state.load]}</span>`:''}</div>`;}
+// Fit the complete painting above the caption dock. Focus is a camera transform
+// of the same plate AND all world overlays, never new art or a teleported actor.
+function fit(){const space=root.querySelector('.world-space'),world=root.querySelector('.world');if(!space||!world)return;const w=Math.min(space.clientWidth,space.clientHeight*1672/941);world.style.width=w+'px';world.style.height=w*941/1672+'px';}
+function world(){const camera=ui.focus??(state.position==='F');const scale=camera?1.6:1;const tx=camera?-60:0,ty=camera?-60:0;
+ return `<div class="world-space"><div class="world" aria-label="Market Lane scene"><div class="plane" style="transform:translate(${tx}%,${ty}%) scale(${scale})"><img class="backdrop" src="../public/art/s01e03-market-lane-m0.webp" alt="Painted market with stairs above an arcade, unloading crates, and a wide outside path to books, tea and flowers">${actor('MILO',0)+actor('NIA',1)+actor('FINN',2)}${has(state,'signs')?'<div class="new-signs" aria-label="New signs: WALK to bookstall and CART to tea via the outer lane"><span>WALK · BOOKS →</span><span>CART · TEA →</span></div>':''}<img class="mark" src="../public/art/glyph.svg" alt="Faint old mark on existing stone"></div><div class="scene-note">${ui.moving?'':has(state,'signs')?'Market Lane · Clearer signs':state.load==='tea_cart'?'Cups stay on the cart':state.load==='flowers'?'Keep the flower tray steady':'Market Lane'}</div>${state.phase==='flowers'||state.position==='F'?button(camera?'Whole market':'Flower focus','focus',false,'class="camera"'):''}</div></div>`;}
+function caption(){if(!state.queue.length)return '';const l=line();return `<section class="caption" aria-label="Story dialogue"><div class="portrait">${art(l.speaker,true)}</div><div><div class="speaker">${names[l.speaker]}</div><p data-line="${l.id}" aria-live="polite">${esc(l.text)}</p></div><div class="caption-actions">${button('Continue','next',true)}${button('Listen','listen',false,'aria-label="Listen to this line"')}</div></section>`;}
+function toolbar(){if(state.queue.length)return '';let b='';
+ if(state.travel.length)b=button(ui.moving?'Walking…':'Continue walking','resume',true,ui.moving?'disabled':'');
+ else if(['books','tea','flowers'].includes(state.phase))b=state.position===({books:'B',tea:'T',flowers:'F'})[state.phase]?button('Make delivery','deliver',true):button('Walk outer lane','walk',true)+button('Look at paths','paths')+button('Not sure yet','unsure');
+ else if(state.phase.startsWith('return-'))b=button('Return for next load','return',true);
+ else if(state.phase==='comparison')b=button('Compare paths','compare-open',true)+button('Not sure yet','unsure');
+ else if(state.phase==='signs')b=button('Make route signs','signs-open',true);
+ else if(state.phase==='glyph')b=state.position==='stone'?button('Look at old stone','glyph',true):button('Go to old stone','go-glyph',true);
+ else if(state.phase==='memories')b=button(has(state,'station')?'Hear station memory again':'Talk to coordinator','station',!has(state,'station'))+button(has(state,'garden')?'Hear garden memory again':'Talk to garden resident','garden',!has(state,'garden'));
+ return b?`<div class="toolbar">${b}</div>`:'';
+}
+function chronicle(){return `<h2>Wondervale Chronicle</h2><p><strong>Today:</strong> books, cups and flowers reached their shops. The load changed which path could help. Market Lane has clearer signs.</p><div class="chronicle-memories"><p><strong>Market coordinator:</strong> remembers a way to the station.</p><p><strong>Garden resident:</strong> remembers a way to the garden.</p><p><strong>Not yet checked.</strong> These are two memories. We do not yet know when each was true.</p></div><p>The Riverside old crossing stays closed. The old route is still a mystery.</p>`;}
+function sheet(){
+ if(state.phase==='preview')return `<section class="sheet"><span class="badge">Chapter 03 · Market Lane</span><h1>Three Deliveries, One Wrong Turn</h1><img class="preview-art" src="../public/art/s01e03-market-lane-m0.webp" alt="Market Lane"><p>Help Milo carry three different loads. Look at the paths, compare what fits, and help people find the way.</p><p class="small">The outer lane is open in this preview. Steps and arcade can be inspected; their connecting paths are not open in this preview.</p>${button('Begin Market Lane adventure','begin',true)}</section>`;
+ if(state.phase==='chronicle')return `<section class="sheet">${chronicle()}${!state.queue.length?state.chronicleSeen?button('Finish this chapter','finish',true):button('Read the Chronicle','chronicle',true):''}</section>`;
+ if(state.phase==='completed')return `<section class="sheet"><span class="badge">Chapter complete</span><h1>Different loads, different ways</h1><p>Market Lane remembers the new signs. Two memories are waiting to be explored.</p>${ui.review?chronicle():''}<div class="actions">${button(ui.review?'Close Chronicle':'Review Chronicle','review')}${button('Replay this chapter','replay')}${state.mode==='canonical'?button('Start E03 again','reset-open'):button('Return to saved chapter','exit-replay')}</div></section>`;
+ return '';
+}
+function parent(){return `<aside class="parent" aria-label="Parent View"><h2>Parent View</h2><p>This chapter is about routes that fit different loads. Let the child look at the load and the paths, then choose.</p>${state.observed.some(x=>['S','N'].includes(x))&&['tea','comparison','return-tea','flowers','return-flowers','signs','glyph','memories','chronicle','completed'].includes(state.phase)?'<h3>After looking together</h3><p>Which route works for this delivery, and what makes it different from the others?</p><p>Who else might need the wider way?</p>':'<p class="small">A conversation cue appears after the child has seen the steps or narrow entrance with the cup delivery.</p>'}<p>All prompts are optional. The child makes the choice.</p><p class="small">${BUILD} · Captions and optional device Listen. Recorded audio deferred.</p></aside>`;}
+function crop(which){const [x,y,w,h]=restricted[which].crop;return `<div class="inspection" style="aspect-ratio:${w}/${h}"><img src="../public/art/s01e03-market-lane-m0.webp" alt="${which==='S'?'Real stone steps in Market Lane':'Real narrow arch entrance beside the unloading crates'}" style="width:${1672/w*100}%;left:${-x/w*100}%;top:${-y/h*100}%"></div>`;}
+function modal(){if(!ui.modal)return '';let body='';
+ if(ui.modal==='paths'||ui.modal==='comparison'){
+  const comparing=ui.modal==='comparison';body=`<h2>${comparing?'What changed for the cart?':'Look at the load and paths'}</h2><div class="path-options"><div>${crop('S')}<h3>Steps</h3><p>A short way for people on foot.</p>${button('Look closely at steps','inspect-S')}</div><div>${crop('N')}<h3>Narrow arcade</h3><p>A narrow entrance with a tight turn.</p>${button('Look closely at arcade','inspect-N')}</div></div><p class="small">The outer lane is the continuous paved way around the boxes. In this preview, look at the steps and arcade, then use the open outer lane.</p>${comparing?`<div class="actions">${button('The cart cannot climb steps','reason-steps',true,state.observed.includes('S')?'':'disabled')}${button('The cart needs more room','reason-width',true,state.observed.includes('N')?'':'disabled')}${button('Back to market','close')}</div>`:`<div class="actions">${button('Look at this load','load')}${button('Back to market','close',true)}</div>`}`;
+ }else if(ui.modal==='inspection')body=`<h2>${restricted[ui.inspected].label}</h2>${crop(ui.inspected)}<p>${ui.inspected==='S'?'Look at the steps. Can this load use them?':'Look at the entrance beside the crates. Is it wide enough for a loaded cart?'}</p><div class="actions">${button('I can see it','observe',true)}${button('Back','inspection-back')}</div>`;
+ else if(ui.modal==='signs')body=`<h2>Help people find their way</h2><p>Choose where each present-day sign points.</p><h3>WALK · Bookstall ${state.signs.includes('WALK')?'✓':''}</h3><div class="actions">${button('Outer lane to books','walk-sign',true)}${button('Through unloading boxes','bad-walk')}</div><h3>CART · Tea ${state.signs.includes('CART')?'✓':''}</h3><div class="actions">${button('Outer lane to tea','cart-sign',true)}${button('Up the steps','bad-cart')}</div>${button('Back to market','close')}`;
+ else if(ui.modal==='menu')body=`<h2>Adventure options</h2><p>Progress stays on this device. No child account or recording.</p><div class="actions">${state.mode==='canonical'?button('Start E03 again','reset-open'):button('Return to saved chapter','exit-replay')}${button('Back to market','close',true)}</div><p class="small">E03 engineering preview · ${BUILD}. Owner, physical-device and hidden-route checks remain open.</p>`;
+ else if(ui.modal==='reset')body=`<h2>Start E03 again?</h2><p>Erase only this chapter's saved progress and Chronicle on this device?</p><div class="actions">${button('Clear E03 and restart','reset-confirm')}${button('Cancel','close',true)}</div>`;
+ return `<div class="modal-wrap"><section class="modal" role="dialog" aria-modal="true" aria-label="${ui.modal==='inspection'?'Path inspection':ui.modal==='comparison'?'Compare paths':ui.modal==='signs'?'Route signs':'Adventure panel'}" tabindex="-1">${body}${state.feedback?`<p role="status">${esc(state.feedback)}</p>`:''}</section></div>`;
+}
+function render(){
+ const focused=root.querySelector(':focus')?.dataset.a;
+ if(!unlocked){root.innerHTML='<main class="sheet"><h1>Market Lane comes after Riverside</h1><p>Finish Riverside and record its Market Lane marker first.</p><a href="../e02/">Return to Riverside</a><p class="small">You can also look at this chapter without changing progress.</p><button data-a="preview">Preview without saving</button></main>';return;}
+ const special=sheet();
+ root.innerHTML=`<header><div><strong>Wondervale</strong> <span class="chapter">Three Deliveries, One Wrong Turn</span></div><nav>${button(ui.parent?'Child View':'Parent View','parent',false,'class="phone-parent" aria-expanded="'+ui.parent+'"')}${button('Options','menu',false,ui.moving?'disabled':'')}</nav></header><main class="layout ${ui.parent?'parent-open':''}"><section class="child" aria-label="Market Lane adventure" data-phase="${state.phase}">${state.mode!=='canonical'?'<p class="badge">'+(state.mode==='historical_replay'?'Historical replay':'Chapter preview')+' · no progress changes</p>':''}${special||world()}${ui.artError?'<p class="warning" role="alert">Picture could not load. Please reload before walking.</p>':''}${state.feedback&&!ui.modal?`<div class="feedback" role="status">${esc(state.feedback)}</div>`:''}${toolbar()}${caption()}${ui.storageError?'<p class="warning" role="alert">Saving is unavailable. Play can continue, but a reload may lose progress.</p>':''}${ui.resetError?'<p class="warning" role="alert">Saved E03 progress could not be erased. Nothing was reset.</p>':''}</section>${parent()}</main>${modal()}`;
+ fit();
+ if(ui.modal)root.querySelector('.modal')?.focus({preventScroll:true});else if(focused)root.querySelector(`[data-a="${focused}"]`)?.focus({preventScroll:true});
+ if(!ui.modal&&lastFocus){root.querySelector(`[data-a="${lastFocus}"]`)?.focus({preventScroll:true});lastFocus=null;}
+}
+function openModal(kind){lastFocus=document.activeElement?.dataset.a;ui.modal=kind;render();}
+function closeModal(){ui.modal=null;render();}
+// Animate and commit one legal graph edge at a time. Refresh restores the last
+// completed node and the remaining itinerary, never the destination prematurely.
+async function walk(){if(ui.moving||!state.travel.length||ui.artError)return;ui.moving=true;ui.focus=false;render();
+ while(state.travel.length){const to=state.travel[0],from=[...visual],dest=places[to];const duration=matchMedia('(prefers-reduced-motion: reduce)').matches?1:Math.max(180,Math.hypot(dest[0]-from[0],dest[1]-from[1])*3);
+  await new Promise(resolve=>{const start=performance.now();function tick(now){const t=Math.min(1,(now-start)/duration);visual=from.map((n,i)=>n+(dest[i]-n)*t);for(const [i,who] of ['MILO','NIA','FINN'].entries()){const el=root.querySelector('[data-actor="'+who+'"]'),p=actorFeet(i);if(el){el.style.setProperty('--x',p[0]/16.72+'%');el.style.setProperty('--y',p[1]/9.41+'%');}}if(t<1)raf=requestAnimationFrame(tick);else resolve();}raf=requestAnimationFrame(tick);});
+  state=dispatch(state,{type:'step',to});save();
+ }
+ ui.moving=false;ui.focus=null;visual=[...places[state.position]];render();
+}
+root.addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(!b||b.disabled)return;const a=b.dataset.a;
+ if(a==='preview'){unlocked=true;state=fresh('development_preview');visual=[...places.H];render();return;}
+ if(a==='listen'){listen();return;}
+ if(a==='parent'){ui.parent=!ui.parent;render();return;}
+ if(ui.moving)return;
+ if(a==='begin'){act({type:'begin',ready:unlocked});return;}
+ if(a==='next'){act({type:'next'});return;}
+ if(a==='focus'){ui.focus=!(ui.focus??(state.position==='F'));render();return;}
+ if(a==='paths'||a==='compare-open'){openModal(a==='paths'?'paths':'comparison');return;}
+ if(a==='inspect-S'||a==='inspect-N'){ui.inspected=a.at(-1);ui.back=ui.modal;openModal('inspection');return;}
+ if(a==='observe'){const img=root.querySelector('.inspection img');if(!img?.complete||!img.naturalWidth){state.feedback='Wait for the picture, or reload if it cannot load.';render();return;}state=dispatch(state,{type:'inspect',what:ui.inspected});save();ui.modal=ui.back;render();return;}
+ if(a==='inspection-back'){ui.modal=ui.back;render();return;}
+ if(a==='load'){act({type:'inspect',what:'load'});return;}
+ if(a==='close'){closeModal();return;}
+ if(a==='walk'){act({type:'take-route',route:'L'});walk();return;}
+ if(a==='return'){act({type:'return'});walk();return;}
+ if(a==='resume'){walk();return;}
+ if(a==='reason-steps'||a==='reason-width'){ui.modal=null;act({type:'compare',reason:a.slice(7)});return;}
+ if(a==='signs-open'){openModal('signs');return;}
+ if(['walk-sign','cart-sign','bad-walk','bad-cart'].includes(a)){
+  state=dispatch(state,{type:'sign',kind:a.includes('walk')?'WALK':'CART',to:a.startsWith('bad')?'blocked':'L'});save();if(has(state,'signs'))ui.modal=null;render();return;
+ }
+ if(a==='go-glyph'){act({type:'go-glyph'});walk();return;}
+ if(a==='station'||a==='garden'){act({type:'memory',which:a});return;}
+ if(a==='exit-replay'){unlocked=canonicalReady;state=canonicalReady?restore(read(KEY)):fresh();ui.modal=null;visual=[...places[state.position]];render();return;}
+ if(a==='review'){ui.review=!ui.review;render();return;}
+ if(a==='menu'){openModal('menu');return;}
+ if(a==='reset-open'){openModal('reset');return;}
+ if(a==='reset-confirm'&&state.mode==='canonical'){
+  try{localStorage.removeItem(KEY);if(localStorage.getItem(KEY)!==null)throw Error();}catch{ui.resetError=true;closeModal();return;}
+  globalThis.speechSynthesis?.cancel();state=fresh();visual=[...places.H];ui={...ui,modal:null,review:false,resetError:false,focus:null,storageError:false};render();return;
+ }
+ if(a==='replay'){state=fresh('historical_replay');visual=[...places.H];ui.review=false;render();return;}
+ act({type:a});
+});
+document.addEventListener('keydown',e=>{
+ if(ui.modal){const dialog=root.querySelector('.modal');if(e.key==='Escape'){e.preventDefault();closeModal();return;}if(e.key==='Tab'){const buttons=[...dialog.querySelectorAll('button:not(:disabled),a')];const i=buttons.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();buttons.at(-1)?.focus();}else if(!e.shiftKey&&(i<0||i===buttons.length-1)){e.preventDefault();buttons[0]?.focus();}}}
+});
+root.addEventListener('error',e=>{if(e.target.matches?.('.backdrop')&&!ui.artError){ui.artError=true;render();}},true);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){save();globalThis.speechSynthesis?.cancel();}});
+new ResizeObserver(fit).observe(root);
+render();
