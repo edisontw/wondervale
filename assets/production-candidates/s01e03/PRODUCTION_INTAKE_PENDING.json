@@ -1,0 +1,63 @@
+{
+  "schema": "wondervale-e03-original-media-intake-v1",
+  "episode_id": "s01e03",
+  "composition_id": "m0",
+  "status": "intake_pending_github_upload",
+  "selection": "existing_image_no_major_story_issue",
+  "selection_authority": "owner permitted reusing previously generated illustrations when no major problem; assistant selected candidate 01 for M0; awaits actual GitHub byte verification and playable visual check",
+  "source": "Previously generated ChatGPT painterly market PNG preserved byte-for-byte; no new image-generation performed in this selection step.",
+  "original_basename": "a_bright_detailed_hand_painted_illustration_st.png",
+  "assets": [
+    {
+      "id": "m0",
+      "role": "immutable_original",
+      "path": "assets/production-candidates/s01e03/market-lane-m0-original.png",
+      "bytes": 3768205,
+      "sha256": "26090e851ca857ec75283d85b51af09c3772a4f28b9f0a5cbb2c589ec5618e63",
+      "git_blob": "8adcc82dfd5a94485b19f07cccdc1a0c1b09f674",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "format": "png",
+      "alpha": false
+    },
+    {
+      "id": "m0",
+      "role": "runtime_derivative_pending_upload",
+      "path": "public/art/s01e03-market-lane-m0.webp",
+      "bytes": 505748,
+      "sha256": "f7d5b95dfbb5377027d9370a2b2be194b2a17e4673942790a0e20cb049b9351d",
+      "git_blob": "c0cd4e863c27b2b00a7ba512921d8d8363479e20",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "format": "webp",
+      "alpha": false,
+      "quality": 88
+    }
+  ],
+  "story_and_visual_qa": {
+    "accept_for": "single E03 Market Lane scenic background candidate, not a standalone physics/collision map",
+    "suitable_features": [
+      "bookstall on upper right accessible from upper footpath",
+      "obvious upper pedestrian stairs",
+      "lower archway as narrow pedestrian corridor",
+      "broad curved paving around temporary unloading cargo to tea and flowers",
+      "three visually distinct delivery destinations",
+      "no built-in answer text or C01 children"
+    ],
+    "remaining_engineering_checks": [
+      "author actual route graph/hit targets against this image, not R2 SVG pixels",
+      "demonstrate entrance into narrow arch without intersecting unloading crates",
+      "enforce stairs and arch off-limits for carts",
+      "keep decorative lower-left masonry/bridge-like edge non-interactive, with no implication old Riverside route reopened",
+      "check flower stand and player feet remain visible with actual RPG caption dock at 568x320",
+      "overlay editable present-day signs and old glyph at correct story state, never pre-baked"
+    ],
+    "r2_note": "R2 SVG coordinates and visual textures are draft-only and NOT targets for pixel-accurate compositing; retained route semantics only."
+  },
+  "audio": "recorded audio/music/SFX deferred; use captions and manual Listen",
+  "git_readback": "NOT_RUN_UPLOAD_PENDING"
+}
