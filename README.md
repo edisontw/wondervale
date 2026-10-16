@@ -47,7 +47,7 @@ World/character state is derived from an event/progress ledger rather than being
 
 ## Current work sequence
 
-**Current next-work handoff (2026-10-14, E03 Gate 2):** E01 is frozen and E02 playable/mobile core is owner PASS. E03 Gate 1 production brief is `approved_for_script`, and the English script/interaction drafts have received documentary QA (not owner dialogue or runtime PASS). The next focused task is **one Market Lane M0 painterly background candidate** following the [E03 Gate 2 visual reference](content/season-01/s01e03/VISUAL_REFERENCE_CONTRACT.md), its route graph and single-scene storyboard. **No E03 artwork, binary intake, game/runtime, or device PASS yet.** Audio/music/SFX remain deferred; captions and manual Listen continue. E01/E02 are not reopened. Historical status notes below are retained for provenance; this newer handoff governs current priority.
+**Current next-work handoff (2026-10-16, E03 M0 media intake VERIFIED):** All three exact upload paths are present on GitHub main `f70ee1c69a413e43e6a1306702f31523a0c4672c`; both image blobs/bytes/SHA-256/dimensions, PNG CRC, WebP RIFF and Pillow full decoding pass. See [M0 intake evidence](content/season-01/s01e03/ART_SELECTION_AND_INTAKE_M0_2026-10-16.md). Corrected source PNG alpha metadata; original PNG and runtime WebP bytes unchanged. **Next: Gate 3 playable E03** with a painting-aligned legal walk/cart graph, explicit episode art allowlist, C01 actors, flower focus/caption QA, evidence/recovery, save/Chronicle/replay and current-head browser tests. Runtime/device/deployment remain OPEN; no further image generation or SVG polish. E01/E02 frozen; recorded audio deferred; captions/Listen retained.
 
 
 1. Core trio — **locked**
