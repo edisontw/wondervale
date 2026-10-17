@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'dist/wondervale-e03-preview'
 manifest = json.loads((ROOT/'assets/production-candidates/s01e03/PRODUCTION_INTAKE_PENDING.json').read_text(encoding='utf-8'))
 assert manifest['status'].startswith('media_uploaded_verified')
-FILES = ['e03/index.html','e03/main.mjs','e03/style.css','e03/route-depth.mjs','engine/s01e03.mjs',
+FILES = ['e03/index.html','e03/main.mjs','e03/style.css','e03/perspective.mjs','engine/s01e03.mjs',
          'engine/s01e02.mjs',  # read-only prerequisite validator, frozen upstream
          'public/s01e03.json','public/art/s01e03-market-lane-m0.webp',
          'public/art/trio-sprites.webp','public/art/glyph.svg']
