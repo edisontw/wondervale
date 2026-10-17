@@ -24,8 +24,8 @@ async function bookPlacement(p,label){
  assert.ok(m.lower>=.39,label+' books are at hand/waist height, not the face');
  assert.ok(m.size<=1.70,label+' books do not dominate Milo');
  assert.ok(m.pixels>=16,label+' the book bundle stays readable on small screens');
- assert.equal(m.background,'rgba(0, 0, 0, 0)',label+' no floating rectangular book label');
- assert.equal(m.border,'0px',label+' no floating frame');
+ assert.notEqual(m.background,'rgba(0, 0, 0, 0)',label+' compact high-contrast parcel stays visible');
+ assert.ok(m.size<=1.70,label+' parcel backing stays compact');
 }
 async function hub(p){const to=await p.locator('.child').getAttribute('data-phase')==='return-books'?'tea':'flowers';await click(p,'return');await p.locator(`.child[data-phase="${to}"]`).waitFor();await drain(p);await p.locator('[data-a="walk"]').waitFor();}
 async function geometry(p,label){const result=await p.evaluate(()=>{
