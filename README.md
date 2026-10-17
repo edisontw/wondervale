@@ -47,7 +47,7 @@ World/character state is derived from an event/progress ledger rather than being
 
 ## Current work sequence
 
-**Current next-work handoff (2026-10-17, M1 art and actor-depth visual PASS):** Owner accepted the corrected feet, perspective and foreground occlusion with “pass” on review `?depth=2`, based on main `3ef426e1990c0cbe425e36b252450f2a428571f3`. [Acceptance and evidence](content/season-01/s01e03/M1_ART_REPAIR_QA_2026-10-17.md). Scene pixels and C01 remain unchanged. The review remains no-save and outside releases; the playable game still uses M0. **Next:** validate and integrate M1 ground/occlusion into actual E03 S/N/L routes, including cart constraints, save/replay and mobile perception. Physical clearance, full Gate 3, device/playable acceptance and deployment remain OPEN. Preserve E01/E02; recorded audio remains deferred. No further scene generation is needed.
+**Current next-work handoff (2026-10-17, E03 carried-prop implementation):** M1 art and actor-depth visual acceptance are locked. The playable E03 now renders separate book bundle, upright flower tray and tea-cup handcart visuals as Milo's carried load; each prop is attached to Milo's moving actor and follows the committed route polyline. The background, C01 and E01/E02 remain unchanged; no new scene generation is needed. **Next:** validate prop placement and cart clearances on the actual S/N/L route work, then complete save/replay and mobile perception checks. Physical clearance, full Gate 3, device/playable acceptance and deployment remain OPEN; recorded audio remains deferred.
 
 
 1. Core trio — **locked**

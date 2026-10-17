@@ -661,3 +661,7 @@ Actual screenshot regression checks foreground-over-actor pixels at terrace rail
 ## 2026-10-17 — M1 actor-depth owner visual PASS
 
 Owner replied “pass” to `e03/route-review.html?depth=2` at main `3ef426e1990c0cbe425e36b252450f2a428571f3`. Lock the review correction for feet, perspective and foreground occlusion alongside the previously accepted M1 scene art. This supersedes the pending owner-depth review item, preserving historical findings. Physical route/cart clearance, S/N/L game integration, save/replay, device/playable acceptance and deployment remain OPEN. Next focused task: validated M1 integration into actual E03. Preserve C01, E01/E02 and deferred recorded audio; no further scene generation.
+
+## 2026-10-17 — E03 carried delivery props implemented
+
+The first runtime prop layer is accepted for engineering review: books, upright flowers and the tea-cup cart are separate visual components attached to Milo, positioned at his hands/front or rolling behind him, and carried through the same route animation. They are cleared on delivery and do not change the immutable M0/M1 scene pixels, C01, E01/E02, or audio scope. Browser checks cover all three visuals during the canonical delivery sequence. Remaining open work is physical placement/clearance against actual S/N/L integration, responsive perception, save/replay and full Gate 3/device acceptance.

@@ -1,12 +1,14 @@
 # E03 M0 — one-path engineering slice (2026-10-16)
 
-**Baseline main:** `3d2a8a9a55288c407e83ae1ec5f5935c055a3259`, freshly fetched before work. **Build:** `20261016-e03-m0-slice1`. **Status:** runnable engineering preview; full Gate 3, owner dialogue/playable approval, physical-device acceptance and deployment **OPEN**.
+**Baseline main:** `adaa817d9270317e14a366626bb7b6da330c268c`, freshly fetched before work. **Build:** `20261016-e03-m0-slice1` plus carried-prop visual layer. **Status:** runnable engineering preview; full Gate 3, owner dialogue/playable approval, physical-device acceptance and deployment **OPEN**.
 
 ## Scope and unchanged authority
 
 Approved EPB rev 2, candidate script rev 2, interaction spec rev 2 and verified M0 intake govern this slice. No new story/canon, no new illustration, no SVG sketch modification, no prerecorded audio. All 79 candidate caption IDs and exact text compile from the current script; unused conditional stop-at-stairs lines are not falsely played on the L-first path. E01/E02 runtime, tests, art, ledgers and release scripts are unchanged.
 
 One usable path: begin → carry books to bookstall → return along the same real graph → take cup cart to tea → inspect steps/arcade and identify a cargo constraint → return → carry flowers on the stable outer spur → return → choose current-day WALK/CART signs → approach/inspect old stone → hear coordinator's station memory and garden resident's garden memory in either order → Chronicle → explicit finish. No timer, lost cargo or scored failure. Repeated help offers observation then confirmation without automatic reasoning credit.
+
+The three loads are now separate in-world visuals attached to Milo's actor: a book bundle sits at his hands, an upright flower tray sits in front of his body, and the tea-cup handcart rolls behind him with visible handle, cups and wheels. They are DOM/SVG presentation components, not new background art; they move whenever Milo's committed route animation moves and disappear on delivery. Browser coverage checks all three load visuals during the canonical story and verifies each remains inside Milo's actor.
 
 ## Visible geometry and honest limits
 

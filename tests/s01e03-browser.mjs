@@ -14,6 +14,7 @@ const click=(p,a)=>p.locator(`[data-a="${a}"]`).click();
 async function open(width=1366,height=900,authorized=true,reduced=true){const ctx=await browser.newContext({viewport:{width,height},hasTouch:width<900,isMobile:width<900,reducedMotion:reduced?'reduce':'no-preference'});const p=await ctx.newPage();p.on('pageerror',e=>errors.push(e.message));await p.goto(base+'/e03/');if(authorized){await p.evaluate(({prior,E02,E01})=>{localStorage.setItem(E02,JSON.stringify(prior));localStorage.setItem(E01,'{"sentinel":"E01 unchanged"}');},{prior,E02,E01});await p.reload();}return {ctx,p};}
 async function drain(p){let n=0;while(await p.locator('[data-a="next"]').count()){await click(p,'next');assert.ok(++n<50);}return n;}
 async function arrive(p,a='walk'){await click(p,a);await p.locator('[data-a="deliver"]').waitFor();}
+async function carriedProp(p,kind){const prop=p.locator(`[data-load-visual="${kind}"]`);assert.equal(await prop.count(),1,`Milo carries ${kind} visual`);assert.equal(await prop.evaluate(el=>el.closest('[data-actor="MILO"]')!==null),true,`${kind} visual follows Milo`);}
 async function hub(p){const to=await p.locator('.child').getAttribute('data-phase')==='return-books'?'tea':'flowers';await click(p,'return');await p.locator(`.child[data-phase="${to}"]`).waitFor();await drain(p);await p.locator('[data-a="walk"]').waitFor();}
 async function geometry(p,label){const result=await p.evaluate(()=>{
  const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom};};
@@ -27,12 +28,12 @@ async function geometry(p,label){const result=await p.evaluate(()=>{
  report.push({label,...result});
 }
 async function finish(p){
- await arrive(p);await click(p,'deliver');await drain(p);await hub(p);
+ await arrive(p);await carriedProp(p,'books');await click(p,'deliver');await drain(p);await hub(p);
  // L-first cart succeeds before any stair-stop or failure line.
- await arrive(p);await click(p,'deliver');await drain(p);
+ await arrive(p);await carriedProp(p,'cart');await click(p,'deliver');await drain(p);
  await click(p,'compare-open');assert.equal(await p.locator('[data-a="reason-steps"]').isDisabled(),true);
  await click(p,'inspect-S');await p.locator('.inspection img').evaluate(img=>img.decode());await click(p,'observe');await click(p,'reason-steps');await drain(p);await hub(p);
- await arrive(p);await geometry(p,'flowers-before-delivery');await p.screenshot({path:'test-results/e03-flower-focus.png'});await click(p,'deliver');await drain(p);
+ await arrive(p);await carriedProp(p,'flowers');await geometry(p,'flowers-before-delivery');await p.screenshot({path:'test-results/e03-flower-focus.png'});await click(p,'deliver');await drain(p);
  await click(p,'return');await p.locator('.child[data-phase="signs"]').waitFor();await drain(p);await p.locator('[data-a="signs-open"]').waitFor();
  await click(p,'signs-open');await click(p,'bad-cart');await p.getByText('Check the arrow.',{exact:false}).waitFor();
  await click(p,'walk-sign');await click(p,'cart-sign');await drain(p);assert.equal(await p.locator('.new-signs').count(),1);
@@ -62,7 +63,7 @@ try{
   await ctx.close();
  }
  // Real motion interruption is restored at the last completed graph node.
- {const {ctx,p}=await open(1366,900,true,false);await click(p,'begin');await drain(p);await click(p,'walk');await p.waitForTimeout(600);await p.reload();await p.locator('[data-a="resume"]').waitFor();await click(p,'resume');await p.locator('[data-a="deliver"]').waitFor();assert.equal(await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).position,KEY),'B');await ctx.close();report.push({label:'mid-route reload continues legal remaining edges',pass:true});}
+ {const {ctx,p}=await open(1366,900,true,false);await click(p,'begin');await drain(p);const before=await p.locator('[data-load-visual="books"]').boundingBox();await click(p,'walk');await p.waitForTimeout(250);const during=await p.locator('[data-load-visual="books"]').boundingBox();assert.ok(before&&during&&Math.abs(during.x-before.x)>1,'book visual moves with Milo');await p.waitForTimeout(350);await p.reload();await p.locator('[data-a="resume"]').waitFor();await click(p,'resume');await p.locator('[data-a="deliver"]').waitFor();assert.equal(await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).position,KEY),'B');await ctx.close();report.push({label:'mid-route reload and carried visual continue legal remaining edges',pass:true});}
  // Storage refusal remains playable and reset failure is reported truthfully.
  {const {ctx,p}=await open();await p.evaluate(()=>{Storage.prototype.setItem=()=>{throw Error('denied');};});await click(p,'begin');await p.getByRole('alert').getByText('Saving is unavailable.',{exact:false}).waitFor();await drain(p);await ctx.close();report.push({label:'storage refusal',pass:true});}
  assert.deepEqual(errors,[]);
