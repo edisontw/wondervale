@@ -2,7 +2,7 @@
 // S/N remain inspection targets until their occluded connections are validated.
 import {restore as restoreE02,projected as projectE02} from './s01e02.mjs';
 export const KEY='wondervale-s01e03-progress-v1',E02_KEY='wondervale-s01e02-progress-v1';
-export const VERSION='s01e03-slice-v1',BUILD='20261016-e03-m0-slice1';
+export const VERSION='s01e03-slice-v1',BUILD='20261017-e03-carried-props1';
 export const EVENTS={books:'s01e03_delivery_book_delivered',revision:'s01e03_cart_route_revised',tea:'s01e03_delivery_tea_delivered',flowers:'s01e03_delivery_flowers_delivered',signs:'s01e03_market_wayfinding_improved',glyph:'s01e03_old_market_marker_recorded',station:'s01e03_station_memory_recorded',garden:'s01e03_garden_memory_recorded',finish:'episode_completed:s01e03'};
 export const e02Ready=save=>{const s=restoreE02(save),p=projectE02(s);return s.phase==='completed'&&s.chronicleSeen&&p.completed&&p.market;};
 // Source-image pixels, feet on visible paving. No river/bridge foreground edge.

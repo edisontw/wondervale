@@ -1,6 +1,6 @@
 # E03 M0 — one-path engineering slice (2026-10-16)
 
-**Baseline main:** `adaa817d9270317e14a366626bb7b6da330c268c`, freshly fetched before work. **Build:** `20261016-e03-m0-slice1` plus carried-prop visual layer. **Status:** runnable engineering preview; full Gate 3, owner dialogue/playable approval, physical-device acceptance and deployment **OPEN**.
+**Baseline main:** `986689382718555490ef54fa142c0610c18cd028`, freshly fetched before work. **Build:** `20261017-e03-carried-props1`. **Status:** runnable engineering preview; full Gate 3, owner dialogue/playable approval and physical-device acceptance **OPEN**. MN4 deployment is a separate preview release gate.
 
 ## Scope and unchanged authority
 

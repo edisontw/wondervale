@@ -1,20 +1,20 @@
-# MN4 automatic E02 preview deployment (GitHub Actions)
+# MN4 automatic E02/E03 preview deployment (GitHub Actions)
 
-Status: **ACTIVE — first MN4 E02 deployment PASS on 2026-10-12** (GitHub Actions [run #38256457984](https://github.com/edisontw/wondervale/actions/runs/38256457984), source `main` `69ede242e1a2125a43e412016bef2772832389f3`). Both `verify-and-package` and `deploy-mn4` succeeded. Remote logs confirm byte-verified E02, frozen E01 byte identity and local HTTPS smoke checks. This is **not** owner/gameplay/physical-device/family acceptance; real-browser owner review remains open.
+Status: **ACTIVE — E02 is deployed; E03 preview deployment is now included in the same opt-in workflow**. E03 is packaged from its strict nine-file allowlist and deployed beside E02 at `/e03/` only when the existing `MN4_DEPLOY_ENABLED=true` gate and pinned SSH credentials are active. This remains a preview release: hidden S/N connections, physical clearance, owner/device and full Gate 3 acceptance remain open.
 
 ## Purpose and safety boundary
 
-When a commit touching E02 runtime/media/packaging lands on GitHub `main`, `.github/workflows/wondervale-mn4-auto-deploy.yml`:
+When a commit touching E02 or E03 runtime/media/packaging lands on GitHub `main`, `.github/workflows/wondervale-mn4-auto-deploy.yml`:
 
 1. Verifies source and derived image integrity.
 2. Recompiles and unit-tests E01, verifies its release package, and tests E02 state/route.
 3. Tests the real E02 experience in headless Chromium desktop and 320/360/390/430 responsive modes.
-4. Packages **E02 files only**, leaving E01 build and state untouched.
+4. Packages E02 and E03 files separately, leaving E01 build and state untouched.
 5. If explicitly enabled, sends the archive over pinned-host-key SSH to MN4.
 6. Extracts with a strict allowlist, verifies every transferred byte, verifies the frozen E01 baseline and prepares a new **immutable composite release**.
 7. Atomically switches `/srv/wondervale/current`, checks the local HTTPS virtual host for E01 byte identity and E02 entry/data/script/art availability, and **rolls back the symlink** if any check fails.
 
-Public paths: `https://wondervale.pepepow.net/` (frozen E01) and `https://wondervale.pepepow.net/e02/` (E02). A single hostname is intentional: browser localStorage for genuine E01 prerequisites is origin-scoped. E02 does not auto-unlock without real E01 completion.
+Public paths: `https://wondervale.pepepow.net/` (frozen E01), `https://wondervale.pepepow.net/e02/` (E02), and `https://wondervale.pepepow.net/e03/` (E03 preview). A single hostname is intentional: browser localStorage for genuine E01/E02 prerequisites is origin-scoped. E03 does not auto-unlock without real E02 completion.
 
 A successful deployment does **not** prove human screen/device/learning acceptance, nor make E02 recorded-voice ready.
 
@@ -102,7 +102,7 @@ Before that variable is set to exactly `true`, the GitHub workflow still builds/
 ## First deployment and future updates
 
 1. Merge the approved workflow/scripts to `main`. The first `main` push runs the new CI; with deployment disabled it is a harmless rehearsal.
-2. Check **Actions → Wondervale MN4 E02 continuous preview deployment** for `verify-and-package` PASS.
+2. Check **Actions → Wondervale MN4 E02/E03 continuous preview deployment** for `verify-and-package` PASS.
 3. Configure the user/secrets and `MN4_DEPLOY_ENABLED=true`.
 4. In Actions, choose that workflow → **Run workflow** → branch `main` (one initial manual trigger). Confirm `deploy-mn4` PASS and the remote HTTPS checks in its log.
 5. Visit `https://wondervale.pepepow.net/` and `https://wondervale.pepepow.net/e02/` in a real browser. E02 should remain locked until genuine E01 completion on the **same browser/origin**; test a new E01 run as needed.

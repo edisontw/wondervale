@@ -665,3 +665,7 @@ Owner replied “pass” to `e03/route-review.html?depth=2` at main `3ef426e1990
 ## 2026-10-17 — E03 carried delivery props implemented
 
 The first runtime prop layer is accepted for engineering review: books, upright flowers and the tea-cup cart are separate visual components attached to Milo, positioned at his hands/front or rolling behind him, and carried through the same route animation. They are cleared on delivery and do not change the immutable M0/M1 scene pixels, C01, E01/E02, or audio scope. Browser checks cover all three visuals during the canonical delivery sequence. Remaining open work is physical placement/clearance against actual S/N/L integration, responsive perception, save/replay and full Gate 3/device acceptance.
+
+## 2026-10-17 — E03 preview deployment and carried-prop visibility
+
+The local review found the first book visual too easy to miss. Keep the same prop artwork and route attachment, but move the book bundle to Milo's hand-height and increase its contrast/scale; the flower tray and tea-cup cart retain their front/behind placement. Build `20261017-e03-carried-props1` now packages E03 beside the existing E01/E02 composite through the opt-in MN4 workflow. Deployment creates `/e03/` as an engineering preview only; hidden S/N connections, physical clearance, owner/device acceptance and full Gate 3 remain open.
