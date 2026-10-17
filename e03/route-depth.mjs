@@ -1,5 +1,6 @@
-// M1 review-only depth registration. Polygons sample the SAME immutable plate;
-// they do not invent a floor, alter art pixels, or authorize collision edges.
+// The accepted M1 actorHeight / spriteBox are shared with the E03 playable scene.
+// Foreground polygons remain isolated review-only: no passage or cart edge is authorized.
+// This module computes presentation scale, never collision clearance.
 export const spriteBox={x:60,y:0,width:490,height:990};
 export function actorHeight([,y]){return Math.max(88,Math.min(156,88+(y-210)*68/446));}
 export function contains([x,y],polygon){
