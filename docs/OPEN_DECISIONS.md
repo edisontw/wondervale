@@ -668,4 +668,11 @@ The first runtime prop layer is accepted for engineering review: books, upright 
 
 ## 2026-10-17 — E03 preview deployment and carried-prop visibility
 
-The local review found the first book visual too easy to miss. Keep the same prop artwork and route attachment, but move the book bundle to Milo's hand-height and increase its contrast/scale; the flower tray and tea-cup cart retain their front/behind placement. Build `20261017-e03-carried-props1` now packages E03 beside the existing E01/E02 composite through the opt-in MN4 workflow. Deployment creates `/e03/` as an engineering preview only; hidden S/N connections, physical clearance, owner/device acceptance and full Gate 3 remain open.
+The local review found the first book visual too easy to miss. Keep the same prop artwork and route attachment, but move the book bundle to Milo's hand-height and increase its contrast/scale; the flower tray and tea-cup cart retain their front/behind placement. Build `20261017-e03-carried-props2` now packages E03 beside the existing E01/E02 composite through the opt-in MN4 workflow. Deployment creates `/e03/` as an engineering preview only; hidden S/N connections, physical clearance, owner/device acceptance and full Gate 3 remain open.
+
+
+## 2026-10-17 — E03 opening carried-prop visibility and dialogue stability
+
+The deployed E03 review found two presentation defects: the opening arrival dialogue made Milo's book bundle too easy to miss, and advancing dialogue could remount the whole scene and make the characters flash. Build `20261017-e03-carried-props2` keeps the same inline carried-prop artwork and route attachment, reduces the book/flower/cart display scale, adds a small high-contrast book backing for the opening market background, and preserves the backdrop and unchanged actor DOM nodes across dialogue-only renders. The initial arrival dialogue now has a browser assertion for a visible book prop and a mounted Milo visual across the first dialogue advance.
+
+This is a presentation correction only. E01, E02, C01, the M0 source PNG/WebP, route graph and recorded-audio deferral remain unchanged. Owner visual/device acceptance, physical clearance, hidden S/N route checks and full Gate 3 remain OPEN.
