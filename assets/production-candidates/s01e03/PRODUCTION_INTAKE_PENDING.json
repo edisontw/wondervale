@@ -117,7 +117,7 @@
     "generator": "built-in image_gen; precise-object-edit",
     "source_m0_sha256": "26090e851ca857ec75283d85b51af09c3772a4f28b9f0a5cbb2c589ec5618e63",
     "runtime_selection": "M0 remains in the game; M1 is available only in the separate route review.",
-    "status": "owner_art_pass_depth_fix_review_runtime_pending",
+    "status": "owner_art_and_depth_visual_pass_runtime_pending",
     "notes": [
       "Left staircase now reaches lower paving",
       "Right-side arcade opening now meets outer lane",
@@ -131,6 +131,13 @@
       "date": "2026-10-17",
       "instruction": "pass，勉強可以，但人物會出現在，欄杆前面，像出現在空中",
       "scope": "scene art accepted; actor depth correction requested; no full Gate 3/device PASS"
+    },
+    "owner_depth_acceptance": {
+      "date": "2026-10-17",
+      "instruction": "pass",
+      "reviewedMain": "3ef426e1990c0cbe425e36b252450f2a428571f3",
+      "reviewUrl": "e03/route-review.html?depth=2",
+      "scope": "Owner visual PASS for actor feet, perspective and foreground occlusion in the isolated M1 review; physical clearance, actual gameplay, devices and deployment remain OPEN"
     }
   }
 }
