@@ -1,5 +1,5 @@
 import {KEY,E02_KEY,VERSION,BUILD,places,restricted,e02Ready,fresh,restore,payload,dispatch,has} from '../engine/s01e03.mjs';
-import {actorHeight,spriteBox} from './route-depth.mjs';
+import {actorHeight,spriteBox} from './perspective.mjs';
 const root=document.querySelector('#app');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const read=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
