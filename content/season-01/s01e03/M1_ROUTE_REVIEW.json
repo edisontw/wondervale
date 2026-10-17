@@ -1,0 +1,241 @@
+{
+  "status": "candidate_route_clearance_failed_not_for_runtime",
+  "art": "public/art/s01e03-market-lane-m1-candidate.webp",
+  "dimensions": [
+    1672,
+    941
+  ],
+  "start": [
+    275,
+    656
+  ],
+  "destination": [
+    1432,
+    305
+  ],
+  "routes": {
+    "S": {
+      "label": "階梯",
+      "cartStopIndex": 1,
+      "points": [
+        [
+          275,
+          656
+        ],
+        [
+          350,
+          605
+        ],
+        [
+          385,
+          558
+        ],
+        [
+          475,
+          445
+        ],
+        [
+          570,
+          335
+        ],
+        [
+          660,
+          250
+        ],
+        [
+          735,
+          222
+        ],
+        [
+          805,
+          215
+        ],
+        [
+          930,
+          215
+        ],
+        [
+          1060,
+          230
+        ],
+        [
+          1160,
+          260
+        ],
+        [
+          1260,
+          275
+        ],
+        [
+          1432,
+          305
+        ]
+      ],
+      "review": "階梯下端已接到公共鋪面；上端至書攤的欄杆、植栽與腳點需逐點檢視。"
+    },
+    "N": {
+      "label": "窄拱廊",
+      "cartStopIndex": 3,
+      "points": [
+        [
+          275,
+          656
+        ],
+        [
+          350,
+          691
+        ],
+        [
+          485,
+          700
+        ],
+        [
+          495,
+          650
+        ],
+        [
+          530,
+          609
+        ],
+        [
+          600,
+          609
+        ],
+        [
+          735,
+          609
+        ],
+        [
+          845,
+          599
+        ],
+        [
+          900,
+          553
+        ],
+        [
+          965,
+          525
+        ],
+        [
+          1020,
+          490
+        ],
+        [
+          1120,
+          480
+        ],
+        [
+          1180,
+          520
+        ],
+        [
+          1220,
+          490
+        ],
+        [
+          1285,
+          428
+        ],
+        [
+          1394,
+          342
+        ],
+        [
+          1432,
+          305
+        ]
+      ],
+      "review": "箱子後方新增窄鋪面、右側新增門洞；門柱後方的遮擋與真正通行寬度尚未通過驗證。"
+    },
+    "L": {
+      "label": "外側寬路",
+      "cartStopIndex": null,
+      "points": [
+        [
+          275,
+          656
+        ],
+        [
+          350,
+          691
+        ],
+        [
+          470,
+          747
+        ],
+        [
+          670,
+          788
+        ],
+        [
+          880,
+          790
+        ],
+        [
+          1085,
+          731
+        ],
+        [
+          1160,
+          644
+        ],
+        [
+          1190,
+          535
+        ],
+        [
+          1285,
+          428
+        ],
+        [
+          1394,
+          342
+        ],
+        [
+          1432,
+          305
+        ]
+      ],
+      "review": "原外側路線沿用作比較基準；M1 的局部變化仍須重新核對障礙物與推車轉彎。"
+    }
+  },
+  "open": [
+    "C01 feet and upper terrace clearance",
+    "arcade pillar occlusion and exit continuity",
+    "cargo side passage width",
+    "S/N/L length ordering",
+    "cart swept footprint and turning",
+    "mobile perception",
+    "owner art and playable review"
+  ],
+  "knownIssues": [
+    {
+      "route": "S",
+      "index": 8,
+      "point": [
+        930,
+        215
+      ],
+      "finding": "C01 feet overlap upper terrace stone/railing edge; source line is not proof of floor."
+    },
+    {
+      "route": "N",
+      "index": 5,
+      "point": [
+        600,
+        609
+      ],
+      "finding": "C01 feet overlap rear/top of unloading cargo; sidewalk clearance not established."
+    },
+    {
+      "route": "N",
+      "index": 10,
+      "point": [
+        1020,
+        490
+      ],
+      "finding": "C01 overlaps arcade side pier/ivy; no validated floor plus occlusion mask."
+    }
+  ]
+}

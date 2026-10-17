@@ -34,6 +34,10 @@ jobs:
         run: |
           python3 -m http.server 4173 --directory dist/wondervale-e03-preview > /tmp/e03-server.log 2>&1 &
           node tests/s01e03-browser.mjs
+      - name: Review isolated M1 candidate; preserve unresolved clearance evidence
+        run: |
+          python3 -m http.server 4174 --directory . > /tmp/e03-art-review-server.log 2>&1 &
+          TEST_ART_BASE_URL=http://127.0.0.1:4174 node tests/s01e03-art-review.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
