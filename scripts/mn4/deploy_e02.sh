@@ -78,7 +78,7 @@ import hashlib, json, pathlib, posixpath, shutil, sys, tarfile
 archive, destination = sys.argv[1:]
 destination = pathlib.Path(destination)
 allowed = {
-    "e03/index.html", "e03/style.css", "e03/main.mjs",
+    "e03/index.html", "e03/style.css", "e03/main.mjs", "e03/perspective.mjs",
     "engine/s01e03.mjs", "engine/s01e02.mjs", "public/s01e03.json",
     "public/art/s01e03-market-lane-m0.webp", "public/art/trio-sprites.webp",
     "public/art/glyph.svg",
