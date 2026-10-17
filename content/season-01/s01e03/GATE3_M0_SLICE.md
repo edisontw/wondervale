@@ -54,3 +54,12 @@ Owner accepted prior E03 visual positioning and explicitly requested the latest 
 The inline book bundle has transparent surrounding pixels instead of the former cardboard-looking rectangular backing; the flower tray has multiple layered blooms and foliage. The coordinator and resident now each receive a separate E03-only illustrated dialogue icon at the same portrait slot/size as the current caption UI. These are **provisional visual role identifiers**, not owner-locked NPC identity sheets. Regression coverage verifies transparency, petal detail, and NPC heads during their respective speech lines; physical-device legibility and final NPC appearance still need owner confirmation.
 
 Build `20261017-e03-market-props-npc1`. Hidden S/N path integration, cart physical clearance, full Gate 3/device acceptance and prerecorded audio remain OPEN. Do not reopen E01/E02, C01 or Season story/learning decisions.
+
+
+## 2026-10-18 — Source-image perspective in actual E03 playable scene
+
+Verified starting main: `4c77d62f77783a3fbac459d263cfcac5d16a7fc4` (PR #101). M1 actor-depth review previously owner PASS; the main game still used fixed-size actors on L, so Milo appeared too large at the elevated bookstall. This scoped implementation imports the **same** review curve (`actorHeight`) and shoe-grounded C01 Milo viewBox (`60 0 490 990`) into the game. Nia/Finn use 90% perspective scale and their existing C01 atlas crops. All three actors' width and height interpolate at each animation frame, and cargo remains a descendant of Milo, scaling with him. No independent sprite teleport, opacity fade, new art, or save/ledger change.
+
+Tests validate source height and shoe alignment at 568×320 and seven mobile/desktop sizes, reduction toward the distant bookstall and current checkpoint/replay isolation. The package allowlists `e03/route-depth.mjs` as a tenth runtime dependency. **Foreground occlusion polygons are not applied in the playable runtime** in this step: L remains the only implemented continuous route. Additional occlusion/physical cart clearance needs a separate validation. Candidate build `20261018-e03-perspective1`; owner/device PASS and full Gate 3 remain OPEN.
+
+A direct diagnostic overlay on the current 1672×941 image revealed that N's review centerline passes through the tops or occluded back of central unloading crates, not demonstrably on walkable pavement. Do not promote the N route just because a line can be drawn. S terrace floor continuity and L cart turns also remain unverified. E01/E02/C01 and the selected WebP are unchanged.
