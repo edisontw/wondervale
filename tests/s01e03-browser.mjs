@@ -15,6 +15,17 @@ async function open(width=1366,height=900,authorized=true,reduced=true){const ct
 async function drain(p){let n=0;while(await p.locator('[data-a="next"]').count()){await click(p,'next');assert.ok(++n<50);}return n;}
 async function arrive(p,a='walk'){await click(p,a);await p.locator('[data-a="deliver"]').waitFor();}
 async function carriedProp(p,kind){const prop=p.locator(`[data-load-visual="${kind}"]`);assert.equal(await prop.count(),1,`Milo carries ${kind} visual`);assert.equal(await prop.evaluate(el=>el.closest('[data-actor="MILO"]')!==null),true,`${kind} visual follows Milo`);const box=await prop.boundingBox();assert.ok(box&&box.width>=12&&box.height>=8,`${kind} visual has visible size`);}
+async function bookPlacement(p,label){
+ const m=await p.locator('[data-load-visual="books"]').evaluate(el=>{
+  const a=el.closest('[data-actor="MILO"]').getBoundingClientRect(),b=el.getBoundingClientRect(),s=getComputedStyle(el);
+  return {side:(b.left-a.left)/a.width,lower:(b.top-a.top)/a.height,size:b.width/a.width,background:s.backgroundColor,border:s.borderTopWidth};
+ });
+ assert.ok(m.side>=.60,label+' books leave Milo face/torso visible');
+ assert.ok(m.lower>=.39,label+' books are at hand/waist height, not the face');
+ assert.ok(m.size<=1.35,label+' books do not dominate Milo');
+ assert.equal(m.background,'rgba(0, 0, 0, 0)',label+' no floating rectangular book label');
+ assert.equal(m.border,'0px',label+' no floating frame');
+}
 async function hub(p){const to=await p.locator('.child').getAttribute('data-phase')==='return-books'?'tea':'flowers';await click(p,'return');await p.locator(`.child[data-phase="${to}"]`).waitFor();await drain(p);await p.locator('[data-a="walk"]').waitFor();}
 async function geometry(p,label){const result=await p.evaluate(()=>{
  const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom};};
@@ -46,7 +57,7 @@ try{
  {const {ctx,p}=await open(568,320,false);await p.getByRole('heading',{name:'Market Lane comes after Riverside'}).waitFor();assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),null);assert.equal(await p.locator('[data-a="begin"]').count(),0);await click(p,'preview');await click(p,'begin');await drain(p);await p.reload();await p.getByRole('heading',{name:'Market Lane comes after Riverside'}).waitFor();assert.deepEqual(await p.evaluate(({KEY,E02,E01})=>[localStorage.getItem(KEY),localStorage.getItem(E02),localStorage.getItem(E01)],{KEY,E02,E01}),[null,null,null]);await ctx.close();report.push({label:'canonical prerequisite locked; explicit preview never fabricates progress',pass:true});}
  const {ctx,p}=await open(568,320);
  const originals=await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02});
- await click(p,'begin');await carriedProp(p,'books');await p.locator('[data-actor="MILO"]').evaluate(el=>{window.__miloActor=el});await click(p,'next');assert.equal(await p.locator('[data-actor="MILO"]').evaluate(el=>el===window.__miloActor),true,'dialogue advance keeps Milo visual mounted');await geometry(p,'568-opening');await p.screenshot({path:'test-results/e03-568-opening.png'});
+ await click(p,'begin');await carriedProp(p,'books');await bookPlacement(p,'568-opening');await p.locator('[data-actor="MILO"]').evaluate(el=>{window.__miloActor=el});await click(p,'next');assert.equal(await p.locator('[data-actor="MILO"]').evaluate(el=>el===window.__miloActor),true,'dialogue advance keeps Milo visual mounted');await geometry(p,'568-opening');await p.screenshot({path:'test-results/e03-568-opening.png'});
  await p.evaluate(()=>{window.__spoken=[];Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{cancel(){},speak(u){window.__spoken.push(u.text);}}});});const beforeListen=await p.evaluate(k=>localStorage.getItem(k),KEY);await click(p,'listen');assert.equal(await p.evaluate(()=>window.__spoken.length),1);assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),beforeListen);
  await click(p,'next');const savedLine=await p.locator('[data-line]').getAttribute('data-line');await p.reload();assert.equal(await p.locator('[data-line]').getAttribute('data-line'),savedLine);
  await drain(p);await geometry(p,'568-books');await p.screenshot({path:'test-results/e03-568-market.png'});
@@ -58,7 +69,7 @@ try{
  await click(p,'exit-replay');await click(p,'reset-open');await click(p,'reset-confirm');await p.reload();assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),null);assert.deepEqual(await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02}),originals);
  await ctx.close();report.push({label:'full touch story, reload, repeat, replay and isolated reset',pass:true});
  for(const [w,h]of [[320,740],[360,780],[390,844],[430,932],[667,375],[1366,900],[1024,600]]){
-  const {ctx,p}=await open(w,h);await click(p,'begin');await geometry(p,`${w}x${h} dialogue`);await drain(p);await geometry(p,`${w}x${h} controls`);await p.screenshot({path:`test-results/e03-${w}x${h}.png`});
+  const {ctx,p}=await open(w,h);await click(p,'begin');await bookPlacement(p,`${w}x${h}-opening`);await geometry(p,`${w}x${h} dialogue`);await drain(p);await geometry(p,`${w}x${h} controls`);await p.screenshot({path:`test-results/e03-${w}x${h}.png`});
   if(w<900){await click(p,'parent');assert.equal(await p.locator('.parent').isVisible(),true);await click(p,'parent');}
   await ctx.close();
  }
