@@ -65,11 +65,26 @@ function modal(){if(!ui.modal)return '';let body='';
  else if(ui.modal==='reset')body=`<h2>Start E03 again?</h2><p>Erase only this chapter's saved progress and Chronicle on this device?</p><div class="actions">${button('Clear E03 and restart','reset-confirm')}${button('Cancel','close',true)}</div>`;
  return `<div class="modal-wrap"><section class="modal" role="dialog" aria-modal="true" aria-label="${ui.modal==='inspection'?'Path inspection':ui.modal==='comparison'?'Compare paths':ui.modal==='signs'?'Route signs':'Adventure panel'}" tabindex="-1">${body}${state.feedback?`<p role="status">${esc(state.feedback)}</p>`:''}</section></div>`;
 }
+function preserveWorldVisuals(oldWorld){
+ const nextWorld=root.querySelector('.world');
+ if(!oldWorld||!nextWorld)return;
+ const oldBackdrop=oldWorld.querySelector('.backdrop'),nextBackdrop=nextWorld.querySelector('.backdrop');
+ if(oldBackdrop&&nextBackdrop)nextBackdrop.replaceWith(oldBackdrop);
+ for(const who of ['MILO','NIA','FINN']){
+  const oldActor=oldWorld.querySelector('[data-actor="'+who+'"]'),nextActor=nextWorld.querySelector('[data-actor="'+who+'"]');
+  if(!oldActor||!nextActor)continue;
+  const oldLoad=oldActor.querySelector('[data-load-visual]')?.getAttribute('data-load-visual')||'none';
+  const nextLoad=nextActor.querySelector('[data-load-visual]')?.getAttribute('data-load-visual')||'none';
+  if(oldLoad===nextLoad)nextActor.replaceWith(oldActor);
+ }
+}
 function render(){
  const focused=root.querySelector(':focus')?.dataset.a;
  if(!unlocked){root.innerHTML='<main class="sheet"><h1>Market Lane comes after Riverside</h1><p>Finish Riverside and record its Market Lane marker first.</p><a href="../e02/">Return to Riverside</a><p class="small">You can also look at this chapter without changing progress.</p><button data-a="preview">Preview without saving</button></main>';return;}
  const special=sheet();
+ const oldWorld=root.querySelector('.world');
  root.innerHTML=`<header><div><strong>Wondervale</strong> <span class="chapter">Three Deliveries, One Wrong Turn</span></div><nav>${button(ui.parent?'Child View':'Parent View','parent',false,'class="phone-parent" aria-expanded="'+ui.parent+'"')}${button('Options','menu',false,ui.moving?'disabled':'')}</nav></header><main class="layout ${ui.parent?'parent-open':''}"><section class="child" aria-label="Market Lane adventure" data-phase="${state.phase}">${state.mode!=='canonical'?'<p class="badge">'+(state.mode==='historical_replay'?'Historical replay':'Chapter preview')+' · no progress changes</p>':''}${special||world()}${ui.artError?'<p class="warning" role="alert">Picture could not load. Please reload before walking.</p>':''}${state.feedback&&!ui.modal?`<div class="feedback" role="status">${esc(state.feedback)}</div>`:''}${toolbar()}${caption()}${ui.storageError?'<p class="warning" role="alert">Saving is unavailable. Play can continue, but a reload may lose progress.</p>':''}${ui.resetError?'<p class="warning" role="alert">Saved E03 progress could not be erased. Nothing was reset.</p>':''}</section>${parent()}</main>${modal()}`;
+ preserveWorldVisuals(oldWorld);
  fit();
  if(ui.modal)root.querySelector('.modal')?.focus({preventScroll:true});else if(focused)root.querySelector(`[data-a="${focused}"]`)?.focus({preventScroll:true});
  if(!ui.modal&&lastFocus){root.querySelector(`[data-a="${lastFocus}"]`)?.focus({preventScroll:true});lastFocus=null;}
