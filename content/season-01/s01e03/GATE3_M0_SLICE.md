@@ -45,3 +45,12 @@ The low-left masonry stays noninteractive. Flower focus transforms the same unch
 Local Windows E01/E02 regression and Linux PR-head CI are recorded separately. A frozen E02 local browser assertion about minimum Chronicle scroll overflow failed with content 211px vs visible 208px under Windows fonts; do not change accepted E02 to accommodate this environment. Linux current-head E02 CI must pass before merge. Local E01 browser baseline PASS (no page/HTTP errors); E01/E02 engine regression: 46 groups PASS. All-episode media integrity: 15 images / 3 manifests PASS.
 
 **Next focused task:** resolve S/N occluded pedestrian connections in a bounded same-art inspection/staging solution; then demonstrate all promised book routes, cart boundary recovery, continuous clearance and mobile perception before full Gate 3 acceptance. Keep M0/C01 and E01/E02 frozen.
+
+
+## 2026-10-17 — Owner scene / props / portrait handoff update
+
+Owner accepted prior E03 visual positioning and explicitly requested the latest Market Lane scene, book bundle without its floating parchment background, a richer flower delivery object, and distinct coordinator / garden-resident RPG dialogue headshots. The current runtime M0 WebP has the **exact** SHA-256 of an independently generated Q88 WebP of the user-supplied 1672×941 screenshot; no second scene WebP transfer was needed. However GitHub's current M0 PNG is an RGB copy of the prior M1 image rather than byte-identical to the latest user-supplied RGBA PNG. The updated production manifest records this distinction and actual blob hashes. Source media bytes and C01/E01/E02 remain unchanged by this scoped runtime revision.
+
+The inline book bundle has transparent surrounding pixels instead of the former cardboard-looking rectangular backing; the flower tray has multiple layered blooms and foliage. The coordinator and resident now each receive a separate E03-only illustrated dialogue icon at the same portrait slot/size as the current caption UI. These are **provisional visual role identifiers**, not owner-locked NPC identity sheets. Regression coverage verifies transparency, petal detail, and NPC heads during their respective speech lines; physical-device legibility and final NPC appearance still need owner confirmation.
+
+Build `20261017-e03-market-props-npc1`. Hidden S/N path integration, cart physical clearance, full Gate 3/device acceptance and prerecorded audio remain OPEN. Do not reopen E01/E02, C01 or Season story/learning decisions.
