@@ -60,8 +60,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Shell syntax check for MN4 deploy and bootstrap
-        run: bash -n scripts/mn4/bootstrap_deploy_user.sh scripts/mn4/deploy_e02.sh
+      - name: Shell syntax and E03 package/deploy allowlist parity
+        run: |
+          bash -n scripts/mn4/bootstrap_deploy_user.sh scripts/mn4/deploy_e02.sh
+          python3 scripts/verify_mn4_e03_allowlist.py
       - name: Verify both episodes' original and derived media
         run: python3 scripts/verify_episode_media.py
       - name: Guard E01 source and static release contract
