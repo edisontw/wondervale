@@ -47,7 +47,7 @@ World/character state is derived from an event/progress ledger rather than being
 
 ## Current work sequence
 
-**Current next-work handoff (2026-10-17, E03 carried-prop implementation):** M1 art and actor-depth visual acceptance are locked. The playable E03 now renders separate book bundle, upright flower tray and tea-cup handcart visuals as Milo's carried load; each prop is attached to Milo's moving actor and follows the committed route polyline. The background, C01 and E01/E02 remain unchanged; no new scene generation is needed. **Next:** validate prop placement and cart clearances on the actual S/N/L route work, then complete save/replay and mobile perception checks. Physical clearance, full Gate 3, device/playable acceptance and deployment remain OPEN; recorded audio remains deferred.
+**Current next-work handoff (2026-10-17, E03 carried-prop implementation):** M1 art and actor-depth visual acceptance are locked. The playable E03 now renders separate book bundle, upright flower tray and tea-cup handcart visuals as Milo's carried load; each prop is attached to Milo's moving actor and follows the committed route polyline. The preview build is `20261017-e03-carried-props1`; the background, C01 and E01/E02 remain unchanged. **Next:** owner checks the deployed preview, then validate prop placement and cart clearances on the actual S/N/L route work and complete save/replay/mobile perception checks. Physical clearance, full Gate 3 and device/playable acceptance remain OPEN; recorded audio remains deferred.
 
 
 1. Core trio — **locked**

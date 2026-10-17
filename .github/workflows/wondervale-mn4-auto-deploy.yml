@@ -1,4 +1,4 @@
-name: Wondervale MN4 E02 continuous preview deployment
+name: Wondervale MN4 E02/E03 continuous preview deployment
 
 on:
   push:
@@ -11,6 +11,13 @@ on:
       - 'public/art/trio-sprites.webp'
       - 'assets/production-candidates/s01e02/**'
       - 'scripts/package_e02.py'
+      - 'e03/**'
+      - 'engine/s01e03.mjs'
+      - 'public/s01e03.json'
+      - 'public/art/s01e03-market-lane-m0.webp'
+      - 'scripts/package_e03.py'
+      - 'scripts/compile_e03.py'
+      - 'tests/s01e03*'
       - 'scripts/verify_episode_media.py'
       - 'scripts/mn4/**'
       - '.github/workflows/wondervale-mn4-auto-deploy.yml'
@@ -22,6 +29,13 @@ on:
       - 'public/art/s01e02-riverside-*.webp'
       - 'scripts/mn4/**'
       - 'scripts/package_e02.py'
+      - 'e03/**'
+      - 'engine/s01e03.mjs'
+      - 'public/s01e03.json'
+      - 'public/art/s01e03-market-lane-m0.webp'
+      - 'scripts/package_e03.py'
+      - 'scripts/compile_e03.py'
+      - 'tests/s01e03*'
       - '.github/workflows/wondervale-mn4-auto-deploy.yml'
   workflow_dispatch:
 
@@ -59,6 +73,12 @@ jobs:
         run: node --test tests/s01e02.test.mjs
       - name: Package isolated E02 static preview
         run: python3 scripts/package_e02.py
+      - name: Compile and package E03 carried-prop preview
+        run: |
+          python3 scripts/compile_e03.py
+          git diff --exit-code -- public/s01e03.json
+          node --test tests/s01e03.test.mjs
+          python3 scripts/package_e03.py
       - name: Install pinned Playwright dependency
         run: npm install --ignore-scripts --package-lock=false
       - name: Install Chromium
@@ -67,21 +87,23 @@ jobs:
         run: |
           python3 -m http.server 4173 --directory . > /tmp/wondervale-mn4-ci-server.log 2>&1 &
           node tests/s01e02-browser.mjs
-      - name: Package E02-only files for SSH transfer
+          TEST_BASE_URL=http://127.0.0.1:4173 node tests/s01e03-browser.mjs
+      - name: Package E02 and E03 files for SSH transfer
         run: |
           tar -czf "dist/wondervale-e02-${GITHUB_SHA}.tar.gz" -C dist/wondervale-e02-preview .
+          tar -czf "dist/wondervale-e03-${GITHUB_SHA}.tar.gz" -C dist/wondervale-e03-preview .
       - uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: wondervale-mn4-e02-package
-          path: dist/wondervale-e02-*.tar.gz
+          name: wondervale-mn4-e02-e03-package
+          path: dist/wondervale-e0*-*.tar.gz
           if-no-files-found: error
           retention-days: 14
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: wondervale-mn4-e02-browser-evidence
-          path: test-results/e02-*
+          name: wondervale-mn4-e02-e03-browser-evidence
+          path: test-results/e0*-*
           if-no-files-found: ignore
           retention-days: 14
 
@@ -95,7 +117,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: wondervale-mn4-e02-package
+          name: wondervale-mn4-e02-e03-package
           path: dist
       - name: Authenticate with pinned MN4 SSH host key and deploy
         shell: bash
@@ -121,9 +143,13 @@ jobs:
           key="$RUNNER_TEMP/mn4-deploy-key"
           userhost="$MN4_SSH_USER@$MN4_SSH_HOST"
           archive="dist/wondervale-e02-${GITHUB_SHA}.tar.gz"
+          e03_archive="dist/wondervale-e03-${GITHUB_SHA}.tar.gz"
           test -f "$archive"
+          test -f "$e03_archive"
           scp -i "$key" -P "$port" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=12 \
             "$archive" "$userhost:/srv/wondervale/incoming/e02-${GITHUB_SHA}.tar.gz"
+          scp -i "$key" -P "$port" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=12 \
+            "$e03_archive" "$userhost:/srv/wondervale/incoming/e03-${GITHUB_SHA}.tar.gz"
           ssh -i "$key" -p "$port" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=12 \
-            "$userhost" "bash -s -- ${GITHUB_SHA}" < scripts/mn4/deploy_e02.sh
-          echo "Deployed E02 from ${GITHUB_SHA}: https://wondervale.pepepow.net/e02/"
+            "$userhost" "bash -s -- ${GITHUB_SHA} ${GITHUB_SHA}" < scripts/mn4/deploy_e02.sh
+          echo "Deployed E02/E03 from ${GITHUB_SHA}: https://wondervale.pepepow.net/e02/ and /e03/"
