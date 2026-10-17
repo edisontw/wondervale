@@ -2,7 +2,7 @@
   "schema": "wondervale-e03-original-media-intake-v1",
   "episode_id": "s01e03",
   "composition_id": "m0",
-  "status": "current_market_scene_runtime_verified_visual_owner_approved_routes_open",
+  "status": "media_uploaded_verified_owner_scene_current",
   "selection": "owner_2026_10_17_supplied_market_scene",
   "selection_authority": "Owner explicitly approved supplied 1672x941 screenshot as the E03 play scene on 2026-10-17; current GitHub runtime WebP is an exact SHA-256 match for WebP Q88 conversion of that supplied image. Replaced M0 repo PNG is a different RGB-source encoding of this scene (not identical to the owner's separately supplied RGBA PNG). Physical path acceptance remains open.",
   "source": "User-provided 'market new.png' approved visually; current GitHub M0 WebP matches conversion exactly. GitHub M0 PNG is an existing M1-derived RGB copy with same approved visual composition, not the user's RGBA original bytes.",
