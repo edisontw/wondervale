@@ -38,6 +38,8 @@ async function pixelCheck(label){
 }
 try{
  await p.goto(base+'/e03/route-review.html');await p.locator('#plate').evaluate(i=>i.decode());
+ assert.match(await p.locator('script[type="module"]').getAttribute('src'),/depth=2/);
+ assert.match(await p.locator('link[rel="stylesheet"]').getAttribute('href'),/depth=2/);
  const startHeight=await p.locator('#actor').getAttribute('data-source-height');
  await node('S',8);assert.match(await p.locator('#actor').getAttribute('data-depth'),/terrace-front/);assert.ok(+await p.locator('#actor').getAttribute('data-source-height')<+startHeight*.7);
  await pixelCheck('terrace-railing');
