@@ -15,6 +15,18 @@ async function open(width=1366,height=900,authorized=true,reduced=true){const ct
 async function drain(p){let n=0;while(await p.locator('[data-a="next"]').count()){await click(p,'next');assert.ok(++n<50);}return n;}
 async function arrive(p,a='walk'){await click(p,a);await p.locator('[data-a="deliver"]').waitFor();}
 async function carriedProp(p,kind){const prop=p.locator(`[data-load-visual="${kind}"]`);assert.equal(await prop.count(),1,`Milo carries ${kind} visual`);assert.equal(await prop.evaluate(el=>el.closest('[data-actor="MILO"]')!==null),true,`${kind} visual follows Milo`);const box=await prop.boundingBox();assert.ok(box&&box.width>=12&&box.height>=8,`${kind} visual has visible size`);}
+async function perspectiveFoot(p,label){
+ const result=await p.locator('[data-actor="MILO"]').evaluate(el=>{
+  const world=document.querySelector('.world').getBoundingClientRect(),r=el.getBoundingClientRect();
+  return {source:+el.dataset.sourceHeight,footY:+el.dataset.footY,
+   expected:Math.max(88,Math.min(156,88+(+el.dataset.footY-210)*68/446)),
+   actual:r.height,worldHeight:world.height,bottom:r.bottom,expectedFoot:world.y+world.height*(+el.dataset.footY)/941};
+ });
+ assert.ok(Math.abs(result.source-result.expected)<.02,label+' source-perspective height');
+ assert.ok(Math.abs(result.actual-result.source*result.worldHeight/941)<1,label+' rendered perspective height');
+ assert.ok(Math.abs(result.bottom-result.expectedFoot)<1,label+' shoes remain registered to actual pavement');
+ return result;
+}
 async function hub(p){const to=await p.locator('.child').getAttribute('data-phase')==='return-books'?'tea':'flowers';await click(p,'return');await p.locator(`.child[data-phase="${to}"]`).waitFor();await drain(p);await p.locator('[data-a="walk"]').waitFor();}
 async function geometry(p,label){const result=await p.evaluate(()=>{
  const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom};};
@@ -28,7 +40,8 @@ async function geometry(p,label){const result=await p.evaluate(()=>{
  report.push({label,...result});
 }
 async function finish(p){
- await arrive(p);await carriedProp(p,'books');await click(p,'deliver');await drain(p);await hub(p);
+ const start=await perspectiveFoot(p,'book hub');
+ await arrive(p);const destination=await perspectiveFoot(p,'bookstall');assert.ok(destination.source<start.source*.85,'Milo gets smaller at distant upper bookstall');await carriedProp(p,'books');await click(p,'deliver');await drain(p);await hub(p);
  // L-first cart succeeds before any stair-stop or failure line.
  await arrive(p);await carriedProp(p,'cart');await click(p,'deliver');await drain(p);
  await click(p,'compare-open');assert.equal(await p.locator('[data-a="reason-steps"]').isDisabled(),true);
@@ -46,7 +59,7 @@ try{
  {const {ctx,p}=await open(568,320,false);await p.getByRole('heading',{name:'Market Lane comes after Riverside'}).waitFor();assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),null);assert.equal(await p.locator('[data-a="begin"]').count(),0);await click(p,'preview');await click(p,'begin');await drain(p);await p.reload();await p.getByRole('heading',{name:'Market Lane comes after Riverside'}).waitFor();assert.deepEqual(await p.evaluate(({KEY,E02,E01})=>[localStorage.getItem(KEY),localStorage.getItem(E02),localStorage.getItem(E01)],{KEY,E02,E01}),[null,null,null]);await ctx.close();report.push({label:'canonical prerequisite locked; explicit preview never fabricates progress',pass:true});}
  const {ctx,p}=await open(568,320);
  const originals=await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02});
- await click(p,'begin');await carriedProp(p,'books');assert.equal(await p.locator('[data-load-visual="books"]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgba(0, 0, 0, 0)','books have no opaque tile');await p.locator('[data-actor="MILO"]').evaluate(el=>{window.__miloActor=el});await click(p,'next');assert.equal(await p.locator('[data-actor="MILO"]').evaluate(el=>el===window.__miloActor),true,'dialogue advance keeps Milo visual mounted');await geometry(p,'568-opening');await p.screenshot({path:'test-results/e03-568-opening.png'});
+ await click(p,'begin');await perspectiveFoot(p,'568-opening');await carriedProp(p,'books');assert.equal(await p.locator('[data-load-visual="books"]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgba(0, 0, 0, 0)','books have no opaque tile');await p.locator('[data-actor="MILO"]').evaluate(el=>{window.__miloActor=el});await click(p,'next');assert.equal(await p.locator('[data-actor="MILO"]').evaluate(el=>el===window.__miloActor),true,'dialogue advance keeps Milo visual mounted');await geometry(p,'568-opening');await p.screenshot({path:'test-results/e03-568-opening.png'});
  await p.evaluate(()=>{window.__spoken=[];Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{cancel(){},speak(u){window.__spoken.push(u.text);}}});});const beforeListen=await p.evaluate(k=>localStorage.getItem(k),KEY);await click(p,'listen');assert.equal(await p.evaluate(()=>window.__spoken.length),1);assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),beforeListen);
  await click(p,'next');const savedLine=await p.locator('[data-line]').getAttribute('data-line');await p.reload();assert.equal(await p.locator('[data-line]').getAttribute('data-line'),savedLine);
  await drain(p);await geometry(p,'568-books');await p.screenshot({path:'test-results/e03-568-market.png'});
@@ -58,7 +71,7 @@ try{
  await click(p,'exit-replay');await click(p,'reset-open');await click(p,'reset-confirm');await p.reload();assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),null);assert.deepEqual(await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02}),originals);
  await ctx.close();report.push({label:'full touch story, reload, repeat, replay and isolated reset',pass:true});
  for(const [w,h]of [[320,740],[360,780],[390,844],[430,932],[667,375],[1366,900],[1024,600]]){
-  const {ctx,p}=await open(w,h);await click(p,'begin');await geometry(p,`${w}x${h} dialogue`);await drain(p);await geometry(p,`${w}x${h} controls`);await p.screenshot({path:`test-results/e03-${w}x${h}.png`});
+  const {ctx,p}=await open(w,h);await click(p,'begin');await perspectiveFoot(p,`${w}x${h} opening`);await geometry(p,`${w}x${h} dialogue`);await drain(p);await geometry(p,`${w}x${h} controls`);await p.screenshot({path:`test-results/e03-${w}x${h}.png`});
   if(w<900){await click(p,'parent');assert.equal(await p.locator('.parent').isVisible(),true);await click(p,'parent');}
   await ctx.close();
  }
