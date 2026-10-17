@@ -18,11 +18,12 @@ async function carriedProp(p,kind){const prop=p.locator(`[data-load-visual="${ki
 async function bookPlacement(p,label){
  const m=await p.locator('[data-load-visual="books"]').evaluate(el=>{
   const a=el.closest('[data-actor="MILO"]').getBoundingClientRect(),b=el.getBoundingClientRect(),s=getComputedStyle(el);
-  return {side:(b.left-a.left)/a.width,lower:(b.top-a.top)/a.height,size:b.width/a.width,background:s.backgroundColor,border:s.borderTopWidth};
+  return {side:(b.left-a.left)/a.width,lower:(b.top-a.top)/a.height,size:b.width/a.width,pixels:b.width,background:s.backgroundColor,border:s.borderTopWidth};
  });
  assert.ok(m.side>=.60,label+' books leave Milo face/torso visible');
  assert.ok(m.lower>=.39,label+' books are at hand/waist height, not the face');
- assert.ok(m.size<=1.35,label+' books do not dominate Milo');
+ assert.ok(m.size<=1.70,label+' books do not dominate Milo');
+ assert.ok(m.pixels>=16,label+' the book bundle stays readable on small screens');
  assert.equal(m.background,'rgba(0, 0, 0, 0)',label+' no floating rectangular book label');
  assert.equal(m.border,'0px',label+' no floating frame');
 }
