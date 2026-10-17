@@ -2,37 +2,33 @@
   "schema": "wondervale-e03-original-media-intake-v1",
   "episode_id": "s01e03",
   "composition_id": "m0",
-  "status": "media_uploaded_verified_runtime_pending",
-  "selection": "existing_image_no_major_story_issue",
-  "selection_authority": "Owner permitted reusing previously generated illustrations when no major problem; candidate 01 selected for M0. Exact GitHub media bytes verified; playable visual check remains open.",
-  "source": "Previously generated ChatGPT painterly market PNG preserved byte-for-byte; no new image-generation performed in this selection step.",
-  "original_basename": "a_bright_detailed_hand_painted_illustration_st.png",
+  "status": "current_market_scene_runtime_verified_visual_owner_approved_routes_open",
+  "selection": "owner_2026_10_17_supplied_market_scene",
+  "selection_authority": "Owner explicitly approved supplied 1672x941 screenshot as the E03 play scene on 2026-10-17; current GitHub runtime WebP is an exact SHA-256 match for WebP Q88 conversion of that supplied image. Replaced M0 repo PNG is a different RGB-source encoding of this scene (not identical to the owner's separately supplied RGBA PNG). Physical path acceptance remains open.",
+  "source": "User-provided 'market new.png' approved visually; current GitHub M0 WebP matches conversion exactly. GitHub M0 PNG is an existing M1-derived RGB copy with same approved visual composition, not the user's RGBA original bytes.",
+  "original_basename": "market-lane-m1-connected-candidate.png (RGB copy under m0 path)",
   "assets": [
     {
       "id": "m0",
-      "role": "immutable_original",
+      "role": "selected_scene_source_rgb",
       "path": "assets/production-candidates/s01e03/market-lane-m0-original.png",
-      "bytes": 3768205,
-      "sha256": "26090e851ca857ec75283d85b51af09c3772a4f28b9f0a5cbb2c589ec5618e63",
-      "git_blob": "8adcc82dfd5a94485b19f07cccdc1a0c1b09f674",
+      "bytes": 3148682,
+      "sha256": "86b916f04ebf69d46e27ed42bd43dd9afc1edb486cbde36c523c7b1aaedb5ac0",
+      "git_blob": "60593f8fa38dbf2b4a83a2e127e00887e357e283",
       "dimensions": [
         1672,
         941
       ],
       "format": "png",
-      "alpha": true,
-      "alpha_extrema": [
-        143,
-        249
-      ]
+      "alpha": false
     },
     {
       "id": "m0",
-      "role": "runtime_derivative_verified_not_integrated",
+      "role": "selected_scene_runtime_webp",
       "path": "public/art/s01e03-market-lane-m0.webp",
-      "bytes": 505748,
-      "sha256": "f7d5b95dfbb5377027d9370a2b2be194b2a17e4673942790a0e20cb049b9351d",
-      "git_blob": "c0cd4e863c27b2b00a7ba512921d8d8363479e20",
+      "bytes": 470326,
+      "sha256": "1a174ab8913786b7573dda0035af71725c0051e898d801b41a0d1530e731f5b1",
+      "git_blob": "f0c544413fb9caeaa55755b3c272c10d5bcd7589",
       "dimensions": [
         1672,
         941
@@ -94,7 +90,7 @@
   },
   "audio": "recorded audio/music/SFX deferred; use captions and manual Listen",
   "git_readback": {
-    "status": "PASS",
+    "status": "HISTORICAL_M0_INTAKE_ONLY_CURRENT_MANIFEST_SHA_UPDATED",
     "verified_main_sha": "f70ee1c69a413e43e6a1306702f31523a0c4672c",
     "uploaded_manifest_blob": "f7aa17badf3a30d22cdc2170e96aa63ba161dd1b",
     "uploaded_manifest_bytes": 2901,
@@ -109,14 +105,16 @@
     "source_alpha_note": "Original PNG is RGBA with alpha extrema 143..249; prior alpha:false metadata was incorrect. Preserve original bytes. Existing verified runtime WebP is RGB, with no alpha.",
     "main_media_ci": "https://github.com/edisontw/wondervale/actions/runs/38896915965",
     "runtime_qa": "NOT_RUN",
-    "device_qa": "NOT_RUN"
+    "device_qa": "NOT_RUN",
+    "current_main_before_fix": "d715ca0b1ee858878d326a0f82cc58f19b5ac711",
+    "current_scene_note": "2026-10-17 repo tree readback: current M0 PNG Git blob 60593f8fa38dbf2b4a83a2e127e00887e357e283 and WebP f0c544413fb9caeaa55755b3c272c10d5bcd7589; matches approved visual through exact WebP Q88 derivative SHA-256 1a174ab8913786b7573dda0035af71725c0051e898d801b41a0d1530e731f5b1. Historical M0 source data above does not apply to current selected scene."
   },
   "m1_candidate": {
     "authorization": "Owner chose A: preserve three-route play and allow localized road-connection edits. Latest continue instructs resuming interrupted edit.",
     "date": "2026-10-17",
     "generator": "built-in image_gen; precise-object-edit",
     "source_m0_sha256": "26090e851ca857ec75283d85b51af09c3772a4f28b9f0a5cbb2c589ec5618e63",
-    "runtime_selection": "M0 remains in the game; M1 is available only in the separate route review.",
+    "runtime_selection": "M1 visually promoted to E03 M0 runtime image by owner media upload on 2026-10-17. Only the existing M0 outer path is playable; S/N connections, physical cart clearance and full Gate 3 remain open.",
     "status": "owner_art_and_depth_visual_pass_runtime_pending",
     "notes": [
       "Left staircase now reaches lower paving",
@@ -139,5 +137,14 @@
       "reviewUrl": "e03/route-review.html?depth=2",
       "scope": "Owner visual PASS for actor feet, perspective and foreground occlusion in the isolated M1 review; physical clearance, actual gameplay, devices and deployment remain OPEN"
     }
+  },
+  "owner_scene_2026_10_17": {
+    "user_supplied_png": "market new.png",
+    "user_supplied_png_bytes": 4183546,
+    "user_supplied_png_sha256": "2a390e58c1c3b312bcd16b470dc7bc3d0b18eb7bb00353f368bbf4aa4ac5b6d5",
+    "user_supplied_png_blob_if_uploaded": "b15c135e7955e34c4acad4143585de5208378b21",
+    "user_supplied_png_note": "RGBA (alpha fully opaque), same 1672x941 visible scene as selected runtime WebP; not byte-identical to repo M0 PNG, and no claim of uploading this precise user PNG.",
+    "derived_webp_sha256": "1a174ab8913786b7573dda0035af71725c0051e898d801b41a0d1530e731f5b1",
+    "source_of_truth": "Current runtime WebP present in GitHub as same output; no additional scene regeneration or upload required for rendered E03 scene."
   }
 }
