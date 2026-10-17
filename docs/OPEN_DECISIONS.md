@@ -639,3 +639,12 @@ Continue instruction authorizes the next Gate 3 engineering layer. [Runtime cont
 **Material limitation, not an upstream redesign:** the M0 plate does not expose continuous S/N approach/exit geometry. This preview only walks the visible outer pavement and allows stairs/arcade inspection. Do not animate through masonry or reuse R2 coordinates to pretend alternative routes are proven. The narrower graph accepts all currently implemented stable edges for flower movement; additional physically valid routes remain an open implementation requirement. Present WALK/CART signs both direct to valid outer-lane destinations; full fork comparison remains open.
 
 **Next:** resolve the occluded pedestrian connections with a bounded same-art inspection/staging plan, then prove all walking alternatives, cart boundary behavior, collision/turn clearance, flower alternatives and actual phone perception. Automated single-path tests do not close full Gate 3, Gate 4, owner dialogue/playable PASS or deployment. No new image generation or SVG polishing is authorized by this limitation.
+
+
+## 2026-10-17 — Owner selects A; localized M1 art repair candidate, clearance FAILED
+
+**Latest explicit owner choice:** A, keep the approved three-route play and permit localized illustration repair. This supersedes the previous no-image-production restriction **only for those bounded road connections**; original M0 stays immutable, SVG drafts remain excluded, C01/E01/E02 and deferred audio unchanged.
+
+Built-in image editing produced a separate 1672×941 M1 candidate with the stair approach, arcade right-side opening and cargo-side paving. PNG/WebP exact-byte and decode checks pass. **Not gameplay acceptance:** actual C01 source-image review found S feet on a terrace/railing edge `(930,215)`, N feet on cargo `(600,609)`, and unresolved pier/ivy occlusion `(1020,490)`. Lines or correct graph endpoints do not prove a walkable floor. [Evidence, hashes and final edit prompt](../content/season-01/s01e03/M1_ART_REPAIR_QA_2026-10-17.md); [independent no-save review](../e03/route-review.html).
+
+**Disposition:** archive candidate/provenance and known failures; do not swap it into the playable runtime or package, declare Gate 3 PASS, or continue serial whole-scene generation. **Next focused task:** register defensible feet, ground clearances and arcade occlusion before any runtime integration. Retain upstream S/N/L requirements; do not silently reduce to one route. Owner art/playable review, physical-device testing and deployment remain OPEN.

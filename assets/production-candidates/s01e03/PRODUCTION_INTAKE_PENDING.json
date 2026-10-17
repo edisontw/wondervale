@@ -40,6 +40,36 @@
       "format": "webp",
       "alpha": false,
       "quality": 88
+    },
+    {
+      "id": "m1-connected-candidate",
+      "role": "candidate_original",
+      "path": "assets/production-candidates/s01e03/market-lane-m1-connected-candidate.png",
+      "bytes": 3148682,
+      "sha256": "86b916f04ebf69d46e27ed42bd43dd9afc1edb486cbde36c523c7b1aaedb5ac0",
+      "git_blob": "60593f8fa38dbf2b4a83a2e127e00887e357e283",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "format": "png",
+      "alpha": false,
+      "acceptance": "candidate_not_owner_or_runtime_pass"
+    },
+    {
+      "id": "m1-connected-candidate",
+      "role": "candidate_derivative",
+      "path": "public/art/s01e03-market-lane-m1-candidate.webp",
+      "bytes": 470326,
+      "sha256": "1a174ab8913786b7573dda0035af71725c0051e898d801b41a0d1530e731f5b1",
+      "git_blob": "f0c544413fb9caeaa55755b3c272c10d5bcd7589",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "format": "webp",
+      "alpha": false,
+      "acceptance": "candidate_not_owner_or_runtime_pass"
     }
   ],
   "story_and_visual_qa": {
@@ -80,5 +110,21 @@
     "main_media_ci": "https://github.com/edisontw/wondervale/actions/runs/38896915965",
     "runtime_qa": "NOT_RUN",
     "device_qa": "NOT_RUN"
+  },
+  "m1_candidate": {
+    "authorization": "Owner chose A: preserve three-route play and allow localized road-connection edits. Latest continue instructs resuming interrupted edit.",
+    "date": "2026-10-17",
+    "generator": "built-in image_gen; precise-object-edit",
+    "source_m0_sha256": "26090e851ca857ec75283d85b51af09c3772a4f28b9f0a5cbb2c589ec5618e63",
+    "runtime_selection": "M0 remains in the game; M1 is available only in the separate route review.",
+    "status": "candidate_media_verified_route_clearance_failed_not_for_runtime",
+    "notes": [
+      "Left staircase now reaches lower paving",
+      "Right-side arcade opening now meets outer lane",
+      "Local flowerpots/cargo moved to expose a narrow rear-sidewalk approach",
+      "Covered arcade pillar occlusion and upper-terrace feet still require actual route review",
+      "No E01/E02/C01, SVG drafts or audio changes"
+    ],
+    "qa_record": "content/season-01/s01e03/M1_ART_REPAIR_QA_2026-10-17.md"
   }
 }
