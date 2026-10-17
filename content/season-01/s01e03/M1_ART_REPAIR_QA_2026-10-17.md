@@ -1,4 +1,18 @@
-# E03 M1 localized art repair — candidate and failed clearance review
+# E03 M1 — scene visual PASS, actor-depth correction and prior clearance review
+
+**LATEST OWNER DECISION (2026-10-17):** M1 scene art is accepted as usable: “pass，勉強可以，但人物會出現在，欄杆前面，像出現在空中”. This supersedes the earlier **unaccepted art** disposition below, while preserving its physical-route caveats. Owner requested actor depth correction; acceptance of that correction, full game routes, actual devices and deployment are still OPEN. Baseline for this fix: freshly fetched main `e75b2f3da7b23ebcb41ec8f055e80c18cecc31a8`.
+
+## Actor-depth correction (review page only)
+
+- `e03/route-depth.mjs` provides source-image foreground polygons for the upper terrace parapet/wood rails, sign pier, unloading cargo and arcade piers/jambs. A polygon is activated only from its registered **behind-object ground region**, so actors on the front road stay in front. The renderer clips and redraws pixels from the **same unchanged M1 plate** above the actor on every frame. It does not generate, edit, fade or replace any art.
+- C01 Milo retains the same atlas bytes. A review-local `60 0 490 990` viewBox includes the shoes and removes transparent bottom padding; height varies continuously from 156 source pixels near the hub to about 89 on the upper terrace. A small ground-contact shadow follows the foot point underneath the same foreground. No shadow or name remains floating when the actor is fully covered.
+- The N cargo point `(600,609)` moves to `(600,595)`, the following point to `(735,597)`. The exit uses `(1150,480) → (1180,560) → (1260,540)` to avoid side-door planters. These are presentation registrations, not a swept-collision proof.
+- The actor is always rendered at opacity 1, even while a pier fully occludes it. Position, perspective and foreground are updated continuously between nodes, with no fade or skipped edge. Names hide only when the body is substantially covered; the actor itself is hidden by real foreground pixels.
+- `tests/s01e03-depth.mjs` compares **actual Chromium screenshots**: foreground ON vs actor-hidden background vs foreground OFF. At fully opaque interior witnesses where the unmasked C01 changes the image, the corrected foreground restores background pixels. Local results: terrace railing **141/141**, sign pier **403/403**, arcade pier **1037/1037** exact restored witnesses (0 channel error). Clip edges are excluded because CSS downsampling legitimately blends them. Tests also verify perspective, 568×320/390×844 layer alignment, masks updating during normal-motion travel, no stale mask on front road/M0, opacity 1 and zero save writes. These prove compositing, **not physical clearance**.
+- `tests/s01e03-art-review.mjs` retains all 41 review stops and release exclusion. Old failure records remain in `priorFindings` for provenance. PNG/WebP bytes and hashes below remain unchanged; owner art acceptance is metadata only. No game runtime, release asset allowlist, E01/E02 or audio behavior changed.
+
+**Next:** validate/integrate M1 ground and occlusion into actual E03 routes and test cart boundaries, state, replay and mobile perception; owner review of this correction remains a separate open acceptance item. No further scene generation is needed for this defect.
+
 
 **Baseline main:** `cee30b9fe4ff65c08d7e0454fec87b57d8742806`, freshly fetched 2026-10-17. **Owner decision:** A — retain three-route play and allow localized road-connection editing, keeping M0 original unchanged. **Outcome:** candidate media PASS; actual route/feet clearance **FAIL / OPEN**, not accepted for game integration. Full Gate 3/Gate 4 stay OPEN.
 
@@ -20,7 +34,7 @@ The image retains the same framing, shops, warm style, foreground boundary, oute
 - Source-pixel polyline lengths: S 1349.28, N 1350.40, L 1405.56. This is screen-space math only, not meters or validated physical route lengths; the tiny S/N difference does not establish a perceptually shorter stair route.
 - Browser review controls exercised 41 node stops in Chromium, original/candidate switching, draft cart stop and 568×320 no horizontal overflow; no page exceptions/storage changes. This verifies the review tool, **not** collision or route legality. Screenshots emitted as `e03-m1-review-*` CI evidence.
 
-## Material failures — do not promote
+## Initial clearance findings before owner PASS and depth correction (historical)
 
 | Route / index | Source feet | Actual rendered finding |
 |---|---|---|

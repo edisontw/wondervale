@@ -54,7 +54,7 @@
       ],
       "format": "png",
       "alpha": false,
-      "acceptance": "candidate_not_owner_or_runtime_pass"
+      "acceptance": "owner_art_pass_runtime_pending"
     },
     {
       "id": "m1-connected-candidate",
@@ -69,7 +69,7 @@
       ],
       "format": "webp",
       "alpha": false,
-      "acceptance": "candidate_not_owner_or_runtime_pass"
+      "acceptance": "owner_art_pass_runtime_pending"
     }
   ],
   "story_and_visual_qa": {
@@ -117,14 +117,20 @@
     "generator": "built-in image_gen; precise-object-edit",
     "source_m0_sha256": "26090e851ca857ec75283d85b51af09c3772a4f28b9f0a5cbb2c589ec5618e63",
     "runtime_selection": "M0 remains in the game; M1 is available only in the separate route review.",
-    "status": "candidate_media_verified_route_clearance_failed_not_for_runtime",
+    "status": "owner_art_pass_depth_fix_review_runtime_pending",
     "notes": [
       "Left staircase now reaches lower paving",
       "Right-side arcade opening now meets outer lane",
       "Local flowerpots/cargo moved to expose a narrow rear-sidewalk approach",
       "Covered arcade pillar occlusion and upper-terrace feet still require actual route review",
-      "No E01/E02/C01, SVG drafts or audio changes"
+      "No E01/E02/C01, SVG drafts or audio changes",
+      "Owner accepted M1 scene as usable; no new image generation. Same-plate foreground masks and perspective register the review actor behind railings/pillars; gameplay still uses M0."
     ],
-    "qa_record": "content/season-01/s01e03/M1_ART_REPAIR_QA_2026-10-17.md"
+    "qa_record": "content/season-01/s01e03/M1_ART_REPAIR_QA_2026-10-17.md",
+    "owner_art_acceptance": {
+      "date": "2026-10-17",
+      "instruction": "pass，勉強可以，但人物會出現在，欄杆前面，像出現在空中",
+      "scope": "scene art accepted; actor depth correction requested; no full Gate 3/device PASS"
+    }
   }
 }

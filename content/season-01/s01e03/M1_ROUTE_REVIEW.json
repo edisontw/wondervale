@@ -1,5 +1,5 @@
 {
-  "status": "candidate_route_clearance_failed_not_for_runtime",
+  "status": "owner_art_pass_depth_registration_review",
   "art": "public/art/s01e03-market-lane-m1-candidate.webp",
   "dimensions": [
     1672,
@@ -71,7 +71,7 @@
           305
         ]
       ],
-      "review": "階梯下端已接到公共鋪面；上端至書攤的欄杆、植栽與腳點需逐點檢視。"
+      "review": "角色隨遠近縮小；上層欄杆與石牆位於角色前景。腳點深度修正不代表推車與通行空間已通過。"
     },
     "N": {
       "label": "窄拱廊",
@@ -99,11 +99,11 @@
         ],
         [
           600,
-          609
+          595
         ],
         [
           735,
-          609
+          597
         ],
         [
           845,
@@ -122,16 +122,16 @@
           490
         ],
         [
-          1120,
+          1150,
           480
         ],
         [
           1180,
-          520
+          560
         ],
         [
-          1220,
-          490
+          1260,
+          540
         ],
         [
           1285,
@@ -146,7 +146,7 @@
           305
         ]
       ],
-      "review": "箱子後方新增窄鋪面、右側新增門洞；門柱後方的遮擋與真正通行寬度尚未通過驗證。"
+      "review": "修正貨箱後方腳點、避開側門花盆；角色經過門柱後方時由原圖前景遮擋，沒有淡出或跳點。"
     },
     "L": {
       "label": "外側寬路",
@@ -201,15 +201,25 @@
     }
   },
   "open": [
-    "C01 feet and upper terrace clearance",
-    "arcade pillar occlusion and exit continuity",
-    "cargo side passage width",
-    "S/N/L length ordering",
-    "cart swept footprint and turning",
-    "mobile perception",
-    "owner art and playable review"
+    "physical floor and swept cart clearance",
+    "S/N/L perceptual route comparison",
+    "actual game integration and save/replay testing",
+    "owner review of the actor-depth correction",
+    "device/playable acceptance"
   ],
-  "knownIssues": [
+  "ownerArtAcceptance": {
+    "date": "2026-10-17",
+    "instruction": "pass，勉強可以，但人物會出現在，欄杆前面，像出現在空中",
+    "scope": "M1 scene art accepted with actor-depth defect; not full route/gameplay/device PASS"
+  },
+  "depthRegistration": {
+    "renderer": "e03/route-depth.mjs",
+    "method": "Perspective-scaled C01 with shoe-bound viewBox, ground contact, and same-plate polygon foreground redraw on every frame",
+    "artBytesChanged": false,
+    "physicalRouteAcceptance": "OPEN",
+    "ownerFixReview": "PENDING"
+  },
+  "priorFindings": [
     {
       "route": "S",
       "index": 8,
