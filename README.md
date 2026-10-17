@@ -47,7 +47,7 @@ World/character state is derived from an event/progress ledger rather than being
 
 ## Current work sequence
 
-**Current next-work handoff (2026-10-17, M1 scene owner visual PASS; actor-depth fix):** Owner accepted M1 as usable and reported Milo drawing in front of railings / appearing airborne. [Updated review evidence](content/season-01/s01e03/M1_ART_REPAIR_QA_2026-10-17.md) records a review-only fix: perspective scale, shoe-bound anchor, cargo-side feet and same-image foreground masks at the terrace and arcade. No image pixels regenerated or changed. [Review page](e03/route-review.html) remains no-save and outside all releases. M0 playable runtime, C01 and E01/E02 unchanged. **Next:** owner checks the depth correction, then integrate validated M1 ground/occlusion into the E03 game with cargo constraints and save/replay tests. Full Gate 3, actual device/playable acceptance and deployment remain OPEN; audio deferred.
+**Current next-work handoff (2026-10-17, M1 art and actor-depth visual PASS):** Owner accepted the corrected feet, perspective and foreground occlusion with “pass” on review `?depth=2`, based on main `3ef426e1990c0cbe425e36b252450f2a428571f3`. [Acceptance and evidence](content/season-01/s01e03/M1_ART_REPAIR_QA_2026-10-17.md). Scene pixels and C01 remain unchanged. The review remains no-save and outside releases; the playable game still uses M0. **Next:** validate and integrate M1 ground/occlusion into actual E03 S/N/L routes, including cart constraints, save/replay and mobile perception. Physical clearance, full Gate 3, device/playable acceptance and deployment remain OPEN. Preserve E01/E02; recorded audio remains deferred. No further scene generation is needed.
 
 
 1. Core trio — **locked**

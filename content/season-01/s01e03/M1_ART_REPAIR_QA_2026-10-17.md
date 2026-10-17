@@ -1,6 +1,8 @@
-# E03 M1 — scene visual PASS, actor-depth correction and prior clearance review
+# E03 M1 — art and actor-depth visual PASS; runtime pending
 
-**LATEST OWNER DECISION (2026-10-17):** M1 scene art is accepted as usable: “pass，勉強可以，但人物會出現在，欄杆前面，像出現在空中”. This supersedes the earlier **unaccepted art** disposition below, while preserving its physical-route caveats. Owner requested actor depth correction; acceptance of that correction, full game routes, actual devices and deployment are still OPEN. Baseline for this fix: freshly fetched main `e75b2f3da7b23ebcb41ec8f055e80c18cecc31a8`.
+**LATEST OWNER DECISION (2026-10-17):** Owner replied “pass” to the corrected review `e03/route-review.html?depth=2`, accepting feet, perspective and foreground occlusion visually. Reviewed main: `3ef426e1990c0cbe425e36b252450f2a428571f3` (PR #94; E01, E02, E03 and media CI all PASS). This closes the actor-depth owner-review item only. M1 art and this review correction are locked; physical cart clearance, S/N/L runtime integration, save/replay, actual device/playable acceptance and deployment remain OPEN. No media bytes or runtime changed for this acceptance.
+
+**Previous owner decision (2026-10-17):** M1 scene art is accepted as usable: “pass，勉強可以，但人物會出現在，欄杆前面，像出現在空中”. This supersedes the earlier **unaccepted art** disposition below, while preserving its physical-route caveats. Owner requested actor depth correction; acceptance of that correction, full game routes, actual devices and deployment are still OPEN. Baseline for this fix: freshly fetched main `e75b2f3da7b23ebcb41ec8f055e80c18cecc31a8`.
 
 ## Actor-depth correction (review page only)
 
@@ -11,7 +13,7 @@
 - `tests/s01e03-depth.mjs` compares **actual Chromium screenshots**: foreground ON vs actor-hidden background vs foreground OFF. At fully opaque interior witnesses where the unmasked C01 changes the image, the corrected foreground restores background pixels. Local results: terrace railing **141/141**, sign pier **403/403**, arcade pier **1037/1037** exact restored witnesses (0 channel error). Clip edges are excluded because CSS downsampling legitimately blends them. Tests also verify perspective, 568×320/390×844 layer alignment, masks updating during normal-motion travel, no stale mask on front road/M0, opacity 1 and zero save writes. These prove compositing, **not physical clearance**.
 - `tests/s01e03-art-review.mjs` retains all 41 review stops and release exclusion. Old failure records remain in `priorFindings` for provenance. PNG/WebP bytes and hashes below remain unchanged; owner art acceptance is metadata only. No game runtime, release asset allowlist, E01/E02 or audio behavior changed.
 
-**Next:** validate/integrate M1 ground and occlusion into actual E03 routes and test cart boundaries, state, replay and mobile perception; owner review of this correction remains a separate open acceptance item. No further scene generation is needed for this defect.
+**Next:** validate/integrate M1 ground and occlusion into actual E03 routes and test cart boundaries, state, replay and mobile perception; owner visual review of this correction is now PASS; physical/game/device acceptance remains open. No further scene generation is needed for this defect.
 
 
 **Baseline main:** `cee30b9fe4ff65c08d7e0454fec87b57d8742806`, freshly fetched 2026-10-17. **Owner decision:** A — retain three-route play and allow localized road-connection editing, keeping M0 original unchanged. **Outcome:** candidate media PASS; actual route/feet clearance **FAIL / OPEN**, not accepted for game integration. Full Gate 3/Gate 4 stay OPEN.

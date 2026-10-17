@@ -1,5 +1,5 @@
 {
-  "status": "owner_art_pass_depth_registration_review",
+  "status": "owner_art_and_depth_visual_pass_runtime_pending",
   "art": "public/art/s01e03-market-lane-m1-candidate.webp",
   "dimensions": [
     1672,
@@ -204,7 +204,6 @@
     "physical floor and swept cart clearance",
     "S/N/L perceptual route comparison",
     "actual game integration and save/replay testing",
-    "owner review of the actor-depth correction",
     "device/playable acceptance"
   ],
   "ownerArtAcceptance": {
@@ -217,7 +216,14 @@
     "method": "Perspective-scaled C01 with shoe-bound viewBox, ground contact, and same-plate polygon foreground redraw on every frame",
     "artBytesChanged": false,
     "physicalRouteAcceptance": "OPEN",
-    "ownerFixReview": "PENDING"
+    "ownerFixReview": "PASS",
+    "ownerAcceptance": {
+      "date": "2026-10-17",
+      "instruction": "pass",
+      "reviewedMain": "3ef426e1990c0cbe425e36b252450f2a428571f3",
+      "reviewUrl": "e03/route-review.html?depth=2",
+      "scope": "Owner visual PASS for actor feet, perspective and foreground occlusion in the isolated M1 review; physical clearance, actual gameplay, devices and deployment remain OPEN"
+    }
   },
   "priorFindings": [
     {

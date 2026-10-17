@@ -3,7 +3,8 @@ import {chromium} from 'playwright';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const data=JSON.parse(await readFile('content/season-01/s01e03/M1_ROUTE_REVIEW.json'));
-assert.equal(data.status,'owner_art_pass_depth_registration_review');
+assert.equal(data.status,'owner_art_and_depth_visual_pass_runtime_pending');
+assert.equal(data.depthRegistration.ownerFixReview,'PASS');
 assert.equal(data.priorFindings.length,3);
 await mkdir('test-results',{recursive:true});
 const browser=await chromium.launch(),p=await browser.newPage({viewport:{width:1440,height:1100},reducedMotion:'reduce'}),errors=[];
@@ -27,7 +28,7 @@ try{
  assert.equal(await p.evaluate(()=>localStorage.length),0);assert.deepEqual(errors,[]);
  const release=JSON.parse(await readFile('dist/wondervale-e03-preview/RELEASE_INTEGRITY.json'));
  assert.ok(release.files.every(x=>!x.path.includes('m1')&&!x.path.includes('route-review')&&!x.path.includes('route-depth')));
- const report={viewerChecks:'PASS',nodeStops:41,errors,storageWrites:0,runtimeLeak:false,ownerArt:'PASS_WITH_DEPTH_DEFECT',physicalRouteAcceptance:'OPEN',priorFindings:data.priorFindings};
+ const report={viewerChecks:'PASS',nodeStops:41,errors,storageWrites:0,runtimeLeak:false,ownerArt:'PASS',ownerDepth:'PASS',physicalRouteAcceptance:'OPEN',priorFindings:data.priorFindings};
  await writeFile('test-results/e03-m1-review-report.json',JSON.stringify(report,null,2));
  console.log('PASS isolated M1 viewer controls and release exclusion. Art owner PASS; physical route clearance remains OPEN.');
 }finally{await browser.close();}
