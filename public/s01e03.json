@@ -1,7 +1,7 @@
 {
   "episode": "s01e03",
   "version": "s01e03-slice-v1",
-  "build": "20261017-e03-market-props-npc1",
+  "build": "20261018-e03-perspective1",
   "count": 79,
   "dialogueStatus": "candidate_pending_owner_dialogue_lock",
   "lines": {

@@ -1,7 +1,7 @@
-// M1 review-only depth registration. Polygons sample the SAME immutable plate;
-// they do not invent a floor, alter art pixels, or authorize collision edges.
-export const spriteBox={x:60,y:0,width:490,height:990};
-export function actorHeight([,y]){return Math.max(88,Math.min(156,88+(y-210)*68/446));}
+// Foreground occlusion remains review-only; no unvalidated wall/route masks ship.
+// The actor-sizing curve is shared with E03 gameplay via perspective.mjs.
+import {actorHeight,spriteBox} from './perspective.mjs';
+export {actorHeight,spriteBox};
 export function contains([x,y],polygon){
  let inside=false;for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){
   const [ax,ay]=polygon[i],[bx,by]=polygon[j];
