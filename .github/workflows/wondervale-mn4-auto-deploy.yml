@@ -16,6 +16,7 @@ on:
       - 'public/s01e03.json'
       - 'public/art/s01e03-market-lane-m0.webp'
       - 'scripts/package_e03.py'
+      - 'scripts/audit_e03_cart_sweep.mjs'
       - 'scripts/compile_e03.py'
       - 'tests/s01e03*'
       - 'scripts/verify_episode_media.py'
@@ -34,6 +35,7 @@ on:
       - 'public/s01e03.json'
       - 'public/art/s01e03-market-lane-m0.webp'
       - 'scripts/package_e03.py'
+      - 'scripts/audit_e03_cart_sweep.mjs'
       - 'scripts/compile_e03.py'
       - 'tests/s01e03*'
       - '.github/workflows/wondervale-mn4-auto-deploy.yml'
@@ -80,6 +82,7 @@ jobs:
           python3 scripts/compile_e03.py
           git diff --exit-code -- public/s01e03.json
           node --test tests/s01e03.test.mjs
+          node scripts/audit_e03_cart_sweep.mjs
           python3 scripts/package_e03.py
       - name: Install pinned Playwright dependency
         run: npm install --ignore-scripts --package-lock=false
