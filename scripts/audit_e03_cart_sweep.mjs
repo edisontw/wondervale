@@ -93,7 +93,7 @@ const reverse=audit([...forward].reverse());
 const overlapEdges=segments.filter(s=>s.overlapSamples>0).map(s=>s.edge);
 const result={
  baseline:'E03 accepted image / cart CSS, conservative axis-aligned decoration envelope',
- approval:'OPEN — not physical turn/wheel/terrain clearance',
+ approval:'2D display-envelope screen PASS; physical turn/wheel/terrain clearance OPEN',
  coordinateSystem:'source image 1672 × 941 (CSS width and actor perspective projected back to image)',
  model:{css:style,visibleSvgViewBox:view,conservativeVisibleSvgBounds:ink,
    cargoApproximatePolygon:cargo,frameStepPx:3,rotation:'not modeled; actual cart CSS does not yaw at turns'},
@@ -125,5 +125,11 @@ await writeFile('test-results/e03-cart-sweep-overlay.svg',svg);
 assert.ok(segments.every(s=>s.samples>=2),'sweep must sample every segment');
 assert.ok(segments.every(s=>Number.isFinite(s.minEnvelopeGapPx)),'sweep gaps must be valid');
 assert.ok(reverse.segments.length===segments.length,'reverse cart traversal must also be screened');
-console.log('E03 CART SWEEP AUDIT: '+overlapEdges.length+' segments with potential painted-cargo overlap ('+
-  overlapEdges.join(', ')+'); physical/cart clearance remains OPEN. Report and SVG written.');
+assert.deepEqual(overlapEdges,[],'cart CSS ink-envelope must not intersect estimated cargo in L forward trip');
+assert.ok(segments.every(s=>s.minEnvelopeGapPx>=4),'forward projected cart has at least 4 source-pixel screening margin');
+assert.ok(reverse.segments.every(s=>s.minEnvelopeGapPx>=4&&s.overlapSamples===0),
+ 'reverse cart screening must also remain outside estimated cargo');
+// These are conservative 2D art-only checks: a PASS does not approve cart wheel turns,
+// railing/flowers, actual road widths, orientation, or physical Gate 3.
+
+console.log('E03 CART SWEEP SCREEN PASS: zero estimated painted-cargo overlap on L cart path; physical clearance / wheel-turns / Gate 3 remain OPEN. Report and SVG written.');
