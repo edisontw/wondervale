@@ -686,3 +686,7 @@ The two role-specific illustrated NPC dialogue heads are **provisional local E03
 ## 2026-10-18 — E03 actor perspective integrated, route clearance still open
 
 The approved M1 depth-review perspective is shared with E03 outer-lane gameplay, including frame-by-frame trio and load scaling and a shoe-grounded Milo crop. This is a presentation correction and **does not** approve S/N walking connections or cart swept-clearance. Approved Market Lane art, C01 and E01/E02 remain unchanged. Review foreground polygons are not a validated collision map. Build `20261018-e03-perspective1` requires browser CI and owner device inspection. Next: register N sidewalk against cargo silhouettes, verify S terrace floor and L cart turns, then enable only validated graph edges. Full Gate 3 and recorded voices remain OPEN.
+
+## 2026-10-18 — E03 route clearance numbers must be evidential
+
+During the next E03 QA pass, all E03 edges were found to carry invented `clearance:80` metadata. Replace the unused property with `null` until actual projected clearance is measured. A source-pixel painted-cargo screen finds ~37–41 px separation on two L-route turns, so a centerline-only no-overlap test does **not** prove cart clearance. Keep S/N unpromoted (N review waypoints cross unverified unloading, S lacks confirmed terrace ground), preserve existing accepted L preview, and keep physical cart swept-turn approval OPEN. No upstream narrative/EFL, E01/E02/C01, visual master, character or save-contract changes.
