@@ -1,10 +1,10 @@
 name: Wondervale E03 M0 engineering slice
 on:
   pull_request:
-    paths: ['e03/**', 'engine/s01e03.mjs', 'public/s01e03.json', 'tests/s01e03*', 'scripts/compile_e03.py', 'scripts/package_e03.py', 'content/season-01/s01e03/**', '.github/workflows/wondervale-e03-preview.yml']
+    paths: ['e03/**', 'engine/s01e03.mjs', 'public/s01e03.json', 'tests/s01e03*', 'scripts/compile_e03.py', 'scripts/package_e03.py', 'scripts/audit_e03_cart_sweep.mjs', 'content/season-01/s01e03/**', '.github/workflows/wondervale-e03-preview.yml']
   push:
     branches: [main]
-    paths: ['e03/**', 'engine/s01e03.mjs', 'public/s01e03.json', 'tests/s01e03*', 'scripts/compile_e03.py', 'scripts/package_e03.py', '.github/workflows/wondervale-e03-preview.yml']
+    paths: ['e03/**', 'engine/s01e03.mjs', 'public/s01e03.json', 'tests/s01e03*', 'scripts/compile_e03.py', 'scripts/package_e03.py', 'scripts/audit_e03_cart_sweep.mjs', '.github/workflows/wondervale-e03-preview.yml']
 permissions:
   contents: read
 jobs:
@@ -26,6 +26,8 @@ jobs:
           git diff --exit-code -- public/s01e03.json
       - name: Test E03 routes, progression, prerequisites, restore and replay
         run: node --test tests/s01e03.test.mjs
+      - name: Audit swept cart display envelope against painted unloading
+        run: node scripts/audit_e03_cart_sweep.mjs
       - name: Package isolated E03 preview
         run: python3 scripts/package_e03.py
       - run: npm install --ignore-scripts --package-lock=false
