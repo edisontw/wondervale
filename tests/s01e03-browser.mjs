@@ -15,6 +15,17 @@ async function open(width=1366,height=900,authorized=true,reduced=true){const ct
 async function drain(p){let n=0;while(await p.locator('[data-a="next"]').count()){await click(p,'next');assert.ok(++n<50);}return n;}
 async function arrive(p,a='walk'){await click(p,a);await p.locator('[data-a="deliver"]').waitFor();}
 async function carriedProp(p,kind){const prop=p.locator(`[data-load-visual="${kind}"]`);assert.equal(await prop.count(),1,`Milo carries ${kind} visual`);assert.equal(await prop.evaluate(el=>el.closest('[data-actor="MILO"]')!==null),true,`${kind} visual follows Milo`);const box=await prop.boundingBox();assert.ok(box&&box.width>=12&&box.height>=8,`${kind} visual has visible size`);}
+async function cartFrame(p,label){
+ const g=await p.locator('[data-load-visual="cart"]').evaluate(el=>{
+  const actor=el.closest('[data-actor="MILO"]').getBoundingClientRect();
+  const cart=el.getBoundingClientRect();
+  return {relativeWidth:cart.width/actor.width,relativeHeight:cart.height/actor.height,
+   bottomAfterFeet:(cart.bottom-actor.bottom)/actor.height};
+ });
+ assert.ok(g.relativeWidth>=1.82&&g.relativeWidth<=1.88,label+' cart remains readable but bounded');
+ assert.ok(g.relativeHeight>=.48&&g.relativeHeight<=.52,label+' cart remains compact');
+ assert.ok(g.bottomAfterFeet>=.08&&g.bottomAfterFeet<=.12,label+' cart wheels visually meet foreground paving near Milo feet');
+}
 async function perspectiveFoot(p,label){
  const result=await p.locator('[data-actor="MILO"]').evaluate(el=>{
   const world=document.querySelector('.world').getBoundingClientRect(),r=el.getBoundingClientRect();
@@ -43,7 +54,7 @@ async function finish(p){
  const start=await perspectiveFoot(p,'book hub');
  await arrive(p);const destination=await perspectiveFoot(p,'bookstall');assert.ok(destination.source<start.source*.85,'Milo gets smaller at distant upper bookstall');await carriedProp(p,'books');await click(p,'deliver');await drain(p);await hub(p);
  // L-first cart succeeds before any stair-stop or failure line.
- await arrive(p);await carriedProp(p,'cart');await click(p,'deliver');await drain(p);
+ await arrive(p);await carriedProp(p,'cart');await cartFrame(p,'tea-cart at delivery');await p.screenshot({path:'test-results/e03-tea-cart-focus.png'});await click(p,'deliver');await drain(p);
  await click(p,'compare-open');assert.equal(await p.locator('[data-a="reason-steps"]').isDisabled(),true);
  await click(p,'inspect-S');await p.locator('.inspection img').evaluate(img=>img.decode());await click(p,'observe');await click(p,'reason-steps');await drain(p);await hub(p);
  await arrive(p);await carriedProp(p,'flowers');assert.ok(await p.locator('[data-load-visual="flowers"] .flower-bloom').count()>=5,'flower tray has detailed colorful blossoms');await geometry(p,'flowers-before-delivery');await p.screenshot({path:'test-results/e03-flower-focus.png'});await click(p,'deliver');await drain(p);
