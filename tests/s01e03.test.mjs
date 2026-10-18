@@ -22,6 +22,28 @@ test('visible graph is bidirectional and cargo-specific; no inferred S/N through
  const inside=([x,y])=>{let yes=false;for(let i=0,j=cargo.length-1;i<cargo.length;j=i++){const [ax,ay]=cargo[i],[bx,by]=cargo[j];if((ay>y)!==(by>y)&&x<(bx-ax)*(y-ay)/(by-ay)+ax)yes=!yes;}return yes;};
  for(const e of edges){const a=places[e.a],b=places[e.b];for(let t=0;t<=1;t+=.01){assert.equal(inside([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]),false,`crate collision ${e.a}-${e.b}`);}}
 });
+// This is a centerline-to-painted-cargo SCREEN, not physical cart-width approval.
+test('route audit: no invented 80px clearance and narrow cargo pinch stays explicitly open',()=>{
+ const cargo=[[430,628],[580,579],[730,580],[785,620],[860,640],[880,689],[785,727],[600,728],[490,709],[430,688]];
+ const gap=(p,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],n=dx*dx+dy*dy,t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/n));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);};
+ function boundaryGap(a,b){
+  const steps=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/2);let closest=Infinity;
+  for(let i=0;i<=steps;i++){const p=[a[0]+(b[0]-a[0])*i/steps,a[1]+(b[1]-a[1])*i/steps];
+   for(let j=0;j<cargo.length;j++)closest=Math.min(closest,gap(p,cargo[j],cargo[(j+1)%cargo.length]));}
+  return closest;
+ }
+ assert.ok(edges.every(e=>e.clearance===null),'unverified corridor width must be null, not a fabricated 80px');
+ const audit=edges.filter(e=>e.cart).map(e=>({edge:e.a+'-'+e.b,gap:boundaryGap(places[e.a],places[e.b])}));
+ const pinch=audit.filter(e=>e.gap<50);
+ assert.ok(pinch.some(e=>e.edge==='west-bend'),'west-bend narrow paint-level corridor must be revisited');
+ assert.ok(pinch.some(e=>e.edge==='bend-front'),'bend-front narrow paint-level corridor must be revisited');
+ for(const e of pinch)assert.ok(e.gap>0,'current allowed cart centerline must stay outside this painted cargo boundary: '+e.edge);
+ const m1=JSON.parse(readFileSync(new URL('../content/season-01/s01e03/M1_ROUTE_REVIEW.json',import.meta.url)));
+ const inside=([x,y])=>{let yes=false;for(let i=0,j=cargo.length-1;i<cargo.length;j=i++){const a=cargo[i],b=cargo[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])yes=!yes;}return yes;};
+ assert.ok(m1.routes.N.points.some(inside),'review-only narrow arcade route still intersects/backs onto unverified cargo');
+ assert.equal(route('H','arch','tea_cart').length,0,'cart stays outside arch');
+ console.log('E03 clearance SCREEN ONLY: '+pinch.map(e=>e.edge+' '+e.gap.toFixed(1)+'px').join(', ')+'; cart swept width and floor remain UNVERIFIED');
+});
 test('one complete L-first path, once-only ledger, attributed memories in either order',()=>{
  for(const order of [['station','garden'],['garden','station']]){const s=whole('canonical',order);assert.equal(s.phase,'completed');assert.equal(s.ledger.length,9);assert.equal(new Set(s.ledger).size,9);assert.ok(Object.values(EVENTS).every(e=>s.ledger.includes(e)));assert.deepEqual(restore(payload(s)),s);assert.deepEqual(dispatch(s,{type:'finish'}).ledger,s.ledger);}
 });
