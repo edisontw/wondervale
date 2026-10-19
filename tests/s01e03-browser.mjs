@@ -25,6 +25,15 @@ async function deliveryGuidance(p,item,destination,cta){
  const fit=await p.locator('.delivery-guide').evaluate(el=>{const a=el.getBoundingClientRect(),w=el.closest('.world').getBoundingClientRect();return {visible:a.width>0&&a.height>0,left:a.left,right:a.right,worldLeft:w.left,worldRight:w.right};});
  assert.ok(fit.visible&&fit.left>=fit.worldLeft-1&&fit.right<=fit.worldRight+1,'delivery guide remains in scene');
 }
+async function markerClearOfMilo(p,label){
+ const positions=await p.evaluate(()=>{
+  const marker=document.querySelector('.delivery-marker')?.getBoundingClientRect();
+  const milo=document.querySelector('[data-actor="MILO"]')?.getBoundingClientRect();
+  if(!marker||!milo)return null;
+  return {overlap:!(marker.right<=milo.left||marker.left>=milo.right||marker.bottom<=milo.top||marker.top>=milo.bottom)};
+ });
+ assert.ok(positions&&!positions.overlap,label+' destination label does not cover Milo on arrival');
+}
 async function destinationGone(p){
  assert.equal(await p.locator('[data-active-delivery]').count(),0,'guide disappears after delivery');
  assert.equal(await p.locator('.delivery-marker').count(),0,'marker disappears after delivery');
@@ -67,13 +76,13 @@ async function geometry(p,label){const result=await p.evaluate(()=>{
 async function finish(p){
  const start=await perspectiveFoot(p,'book hub');
  await deliveryGuidance(p,'Books','Bookstall','Go to bookstall');
- await arrive(p);const destination=await perspectiveFoot(p,'bookstall');assert.ok(destination.source<start.source*.85,'Milo gets smaller at distant upper bookstall');await carriedProp(p,'books');await click(p,'deliver');await drain(p);await destinationGone(p);await hub(p);
+ await arrive(p);await markerClearOfMilo(p,'bookstall');const destination=await perspectiveFoot(p,'bookstall');assert.ok(destination.source<start.source*.85,'Milo gets smaller at distant upper bookstall');await carriedProp(p,'books');await click(p,'deliver');await drain(p);await destinationGone(p);await hub(p);
  // L-first cart succeeds before any stair-stop or failure line.
  await deliveryGuidance(p,'Tea cart','Tea stall','Push to tea stall');
- await arrive(p);await carriedProp(p,'cart');await cartFrame(p,'tea-cart at delivery');await p.screenshot({path:'test-results/e03-tea-cart-focus.png'});await click(p,'deliver');await drain(p);await destinationGone(p);
+ await arrive(p);await markerClearOfMilo(p,'tea stall');await carriedProp(p,'cart');await cartFrame(p,'tea-cart at delivery');await p.screenshot({path:'test-results/e03-tea-cart-focus.png'});await click(p,'deliver');await drain(p);await destinationGone(p);
  await click(p,'compare-open');assert.equal(await p.locator('[data-a="reason-steps"]').isDisabled(),true);
  await click(p,'inspect-S');await p.locator('.inspection img').evaluate(img=>img.decode());await click(p,'observe');await click(p,'reason-steps');await drain(p);await hub(p);
- await deliveryGuidance(p,'Flowers','Garden','Walk to garden');await arrive(p);await carriedProp(p,'flowers');assert.ok(await p.locator('[data-load-visual="flowers"] .flower-bloom').count()>=5,'flower tray has detailed colorful blossoms');await geometry(p,'flowers-before-delivery');await p.screenshot({path:'test-results/e03-flower-focus.png'});await click(p,'deliver');await drain(p);await destinationGone(p);
+ await deliveryGuidance(p,'Flowers','Garden','Walk to garden');await arrive(p);await markerClearOfMilo(p,'garden');await carriedProp(p,'flowers');assert.ok(await p.locator('[data-load-visual="flowers"] .flower-bloom').count()>=5,'flower tray has detailed colorful blossoms');await geometry(p,'flowers-before-delivery');await p.screenshot({path:'test-results/e03-flower-focus.png'});await click(p,'deliver');await drain(p);await destinationGone(p);
  await click(p,'return');await p.locator('.child[data-phase="signs"]').waitFor();await drain(p);await p.locator('[data-a="signs-open"]').waitFor();
  await click(p,'signs-open');await click(p,'bad-cart');await p.getByText('Check the arrow.',{exact:false}).waitFor();
  await click(p,'walk-sign');await click(p,'cart-sign');await drain(p);assert.equal(await p.locator('.new-signs').count(),1);
