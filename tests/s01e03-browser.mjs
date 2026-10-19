@@ -15,6 +15,20 @@ async function open(width=1366,height=900,authorized=true,reduced=true){const ct
 async function drain(p){let n=0;while(await p.locator('[data-a="next"]').count()){await click(p,'next');assert.ok(++n<50);}return n;}
 async function arrive(p,a='walk'){await click(p,a);await p.locator('[data-a="deliver"]').waitFor();}
 async function carriedProp(p,kind){const prop=p.locator(`[data-load-visual="${kind}"]`);assert.equal(await prop.count(),1,`Milo carries ${kind} visual`);assert.equal(await prop.evaluate(el=>el.closest('[data-actor="MILO"]')!==null),true,`${kind} visual follows Milo`);const box=await prop.boundingBox();assert.ok(box&&box.width>=12&&box.height>=8,`${kind} visual has visible size`);}
+async function deliveryGuidance(p,item,destination,cta){
+ const bar=p.locator('[data-active-delivery]');
+ assert.equal(await bar.count(),1,'one active delivery guide');
+ assert.ok((await bar.getAttribute('aria-label')).includes('Carrying '+item+'. Destination: '+destination+'.'),'item and destination both explicit');
+ assert.equal(await p.locator('.delivery-marker').count(),1,'exactly one scene destination marker');
+ assert.equal(await p.locator('.delivery-marker').getAttribute('aria-label'),'Destination: '+destination);
+ assert.equal(await p.locator('[data-a="walk"]').textContent(),cta);
+ const fit=await p.locator('.delivery-guide').evaluate(el=>{const a=el.getBoundingClientRect(),w=el.closest('.world').getBoundingClientRect();return {visible:a.width>0&&a.height>0,left:a.left,right:a.right,worldLeft:w.left,worldRight:w.right};});
+ assert.ok(fit.visible&&fit.left>=fit.worldLeft-1&&fit.right<=fit.worldRight+1,'delivery guide remains in scene');
+}
+async function destinationGone(p){
+ assert.equal(await p.locator('[data-active-delivery]').count(),0,'guide disappears after delivery');
+ assert.equal(await p.locator('.delivery-marker').count(),0,'marker disappears after delivery');
+}
 async function cartFrame(p,label){
  const g=await p.locator('[data-load-visual="cart"]').evaluate(el=>{
   const actor=el.closest('[data-actor="MILO"]').getBoundingClientRect();
@@ -52,12 +66,14 @@ async function geometry(p,label){const result=await p.evaluate(()=>{
 }
 async function finish(p){
  const start=await perspectiveFoot(p,'book hub');
- await arrive(p);const destination=await perspectiveFoot(p,'bookstall');assert.ok(destination.source<start.source*.85,'Milo gets smaller at distant upper bookstall');await carriedProp(p,'books');await click(p,'deliver');await drain(p);await hub(p);
+ await deliveryGuidance(p,'Books','Bookstall','Go to bookstall');
+ await arrive(p);const destination=await perspectiveFoot(p,'bookstall');assert.ok(destination.source<start.source*.85,'Milo gets smaller at distant upper bookstall');await carriedProp(p,'books');await click(p,'deliver');await drain(p);await destinationGone(p);await hub(p);
  // L-first cart succeeds before any stair-stop or failure line.
- await arrive(p);await carriedProp(p,'cart');await cartFrame(p,'tea-cart at delivery');await p.screenshot({path:'test-results/e03-tea-cart-focus.png'});await click(p,'deliver');await drain(p);
+ await deliveryGuidance(p,'Tea cart','Tea stall','Push to tea stall');
+ await arrive(p);await carriedProp(p,'cart');await cartFrame(p,'tea-cart at delivery');await p.screenshot({path:'test-results/e03-tea-cart-focus.png'});await click(p,'deliver');await drain(p);await destinationGone(p);
  await click(p,'compare-open');assert.equal(await p.locator('[data-a="reason-steps"]').isDisabled(),true);
  await click(p,'inspect-S');await p.locator('.inspection img').evaluate(img=>img.decode());await click(p,'observe');await click(p,'reason-steps');await drain(p);await hub(p);
- await arrive(p);await carriedProp(p,'flowers');assert.ok(await p.locator('[data-load-visual="flowers"] .flower-bloom').count()>=5,'flower tray has detailed colorful blossoms');await geometry(p,'flowers-before-delivery');await p.screenshot({path:'test-results/e03-flower-focus.png'});await click(p,'deliver');await drain(p);
+ await deliveryGuidance(p,'Flowers','Garden','Walk to garden');await arrive(p);await carriedProp(p,'flowers');assert.ok(await p.locator('[data-load-visual="flowers"] .flower-bloom').count()>=5,'flower tray has detailed colorful blossoms');await geometry(p,'flowers-before-delivery');await p.screenshot({path:'test-results/e03-flower-focus.png'});await click(p,'deliver');await drain(p);await destinationGone(p);
  await click(p,'return');await p.locator('.child[data-phase="signs"]').waitFor();await drain(p);await p.locator('[data-a="signs-open"]').waitFor();
  await click(p,'signs-open');await click(p,'bad-cart');await p.getByText('Check the arrow.',{exact:false}).waitFor();
  await click(p,'walk-sign');await click(p,'cart-sign');await drain(p);assert.equal(await p.locator('.new-signs').count(),1);
@@ -70,10 +86,10 @@ try{
  {const {ctx,p}=await open(568,320,false);await p.getByRole('heading',{name:'Market Lane comes after Riverside'}).waitFor();assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),null);assert.equal(await p.locator('[data-a="begin"]').count(),0);await click(p,'preview');await click(p,'begin');await drain(p);await p.reload();await p.getByRole('heading',{name:'Market Lane comes after Riverside'}).waitFor();assert.deepEqual(await p.evaluate(({KEY,E02,E01})=>[localStorage.getItem(KEY),localStorage.getItem(E02),localStorage.getItem(E01)],{KEY,E02,E01}),[null,null,null]);await ctx.close();report.push({label:'canonical prerequisite locked; explicit preview never fabricates progress',pass:true});}
  const {ctx,p}=await open(568,320);
  const originals=await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02});
- await click(p,'begin');await perspectiveFoot(p,'568-opening');await carriedProp(p,'books');assert.equal(await p.locator('[data-load-visual="books"]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgba(0, 0, 0, 0)','books have no opaque tile');await p.locator('[data-actor="MILO"]').evaluate(el=>{window.__miloActor=el});await click(p,'next');assert.equal(await p.locator('[data-actor="MILO"]').evaluate(el=>el===window.__miloActor),true,'dialogue advance keeps Milo visual mounted');await geometry(p,'568-opening');await p.screenshot({path:'test-results/e03-568-opening.png'});
+ await click(p,'begin');assert.equal(await p.locator('[data-active-delivery="arrival"]').count(),0,'arrival phase must not invent delivery phase');await perspectiveFoot(p,'568-opening');await carriedProp(p,'books');assert.equal(await p.locator('[data-load-visual="books"]').evaluate(el=>getComputedStyle(el).backgroundColor),'rgba(0, 0, 0, 0)','books have no opaque tile');await p.locator('[data-actor="MILO"]').evaluate(el=>{window.__miloActor=el});await click(p,'next');assert.equal(await p.locator('[data-actor="MILO"]').evaluate(el=>el===window.__miloActor),true,'dialogue advance keeps Milo visual mounted');await geometry(p,'568-opening');await p.screenshot({path:'test-results/e03-568-opening.png'});
  await p.evaluate(()=>{window.__spoken=[];Object.defineProperty(window,'speechSynthesis',{configurable:true,value:{cancel(){},speak(u){window.__spoken.push(u.text);}}});});const beforeListen=await p.evaluate(k=>localStorage.getItem(k),KEY);await click(p,'listen');assert.equal(await p.evaluate(()=>window.__spoken.length),1);assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),beforeListen);
  await click(p,'next');const savedLine=await p.locator('[data-line]').getAttribute('data-line');await p.reload();assert.equal(await p.locator('[data-line]').getAttribute('data-line'),savedLine);
- await drain(p);await geometry(p,'568-books');await p.screenshot({path:'test-results/e03-568-market.png'});
+ await drain(p);await deliveryGuidance(p,'Books','Bookstall','Go to bookstall');await geometry(p,'568-books');await p.screenshot({path:'test-results/e03-568-market.png'});
  // Modal focus, Escape and Listen stay operable without prerecorded audio.
  await click(p,'paths');await p.keyboard.press('Tab');assert.equal(await p.locator('.modal button:focus').count(),1);await p.keyboard.press('Escape');assert.equal(await p.locator('[role="dialog"]').count(),0);
  await finish(p);const canonical=await p.evaluate(k=>localStorage.getItem(k),KEY);assert.equal(JSON.parse(canonical).ledger.length,9);
@@ -82,7 +98,7 @@ try{
  await click(p,'exit-replay');await click(p,'reset-open');await click(p,'reset-confirm');await p.reload();assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),null);assert.deepEqual(await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02}),originals);
  await ctx.close();report.push({label:'full touch story, reload, repeat, replay and isolated reset',pass:true});
  for(const [w,h]of [[320,740],[360,780],[390,844],[430,932],[667,375],[1366,900],[1024,600]]){
-  const {ctx,p}=await open(w,h);await click(p,'begin');await perspectiveFoot(p,`${w}x${h} opening`);await geometry(p,`${w}x${h} dialogue`);await drain(p);await geometry(p,`${w}x${h} controls`);await p.screenshot({path:`test-results/e03-${w}x${h}.png`});
+  const {ctx,p}=await open(w,h);await click(p,'begin');await perspectiveFoot(p,`${w}x${h} opening`);await geometry(p,`${w}x${h} dialogue`);await drain(p);await deliveryGuidance(p,'Books','Bookstall','Go to bookstall');await geometry(p,`${w}x${h} controls`);await p.screenshot({path:`test-results/e03-${w}x${h}.png`});
   if(w<900){await click(p,'parent');assert.equal(await p.locator('.parent').isVisible(),true);await click(p,'parent');}
   await ctx.close();
  }
