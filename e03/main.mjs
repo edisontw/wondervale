@@ -58,7 +58,9 @@ const deliveryGuides={
 function activeDelivery(){const phase=state.phase==='arrival'?'books':state.phase;const d=deliveryGuides[phase];return d&&d.load===state.load?d:null;}
 function destinationMarker(d){
  const [x,y]=d.foot;
- return `<div class="delivery-marker" data-destination="${state.phase}" aria-label="Destination: ${d.place}" style="--marker-x:${x/16.72}%;--marker-y:${(y-72)/9.41}%"><span aria-hidden="true" class="marker-pin">◆</span><span>${d.place}</span></div>`;
+ // Keep the destination label near the stall, not directly over Milo on arrival.
+ const markerX=x+(d===deliveryGuides.flowers?140:-140);
+ return `<div class="delivery-marker" data-destination="${state.phase}" aria-label="Destination: ${d.place}" style="--marker-x:${markerX/16.72}%;--marker-y:${(y-72)/9.41}%"><span aria-hidden="true" class="marker-pin">◆</span><span>${d.place}</span></div>`;
 }
 function deliveryGuide(d){
  return `<div class="delivery-guide" data-active-delivery="${state.phase}" aria-label="Carrying ${d.item}. Destination: ${d.place}."><span class="guide-load">Carrying: <strong>${d.item}</strong></span><span class="guide-destination">To: <strong>${d.place}</strong></span></div>`;
