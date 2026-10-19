@@ -8,3 +8,12 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 .load-visual{position:absolute;display:block;pointer-events:none;z-index:3;filter:drop-shadow(0 2px 1px #1d302855)}.load-visual svg{display:block;width:100%;height:100%}.load-books{left:28%;top:43%;width:105%;height:45%;transform:rotate(-5deg)}.load-flowers{left:15%;top:39%;width:138%;height:58%;transform:rotate(-3deg)}.load-cart{left:-122%;top:36%;width:235%;height:76%;z-index:1}.actor.has-cart>svg{position:relative;z-index:2}.actor-label{z-index:5}
 .load-books{left:77%;top:52%;width:clamp(18px,100%,45px);height:clamp(13px,40%,31px);z-index:6;transform:rotate(-9deg);background:transparent;border:0;padding:0;filter:drop-shadow(0 0 1.5px #fff4d7) drop-shadow(0 1px 1px #3d2a1d)}.load-flowers{left:48%;top:15%;width:clamp(23px,143%,61px);height:clamp(21px,67%,49px);z-index:6;transform:rotate(-5deg);filter:drop-shadow(0 1px 2px #31492e77)}.load-cart{left:-148%;top:60%;width:185%;height:50%;z-index:1}
+
+/* E03 active-delivery hints occupy existing scene space, not the caption dock. */
+.delivery-guide{position:absolute;z-index:10;top:6px;left:7px;display:flex;align-items:center;flex-wrap:wrap;gap:3px 9px;max-width:calc(100% - 68px);padding:5px 8px;border-radius:8px;background:#fff9eaf2;border:1px solid #b6ab89;color:#263f33;box-shadow:0 1px 3px #263a3333;font:600 clamp(10px,1.2vw,13px)/1.2 system-ui;pointer-events:none}
+.delivery-guide strong{font-weight:800}
+.guide-destination{border-left:1px solid #baa984;padding-left:9px}
+.delivery-marker{position:absolute;left:var(--marker-x);top:var(--marker-y);transform:translate(-50%,-50%);z-index:7;max-width:22%;padding:3px 7px 3px 5px;border:1px solid #af9661;border-radius:7px;background:#fff5ddeb;color:#2a4638;box-shadow:0 1px 4px #1b2c2544;font:800 clamp(9px,1vw,13px)/1.1 system-ui;white-space:nowrap;pointer-events:none;display:flex;align-items:center;gap:4px}
+.marker-pin{color:#a1642a;font-size:12px}
+@media(max-width:750px){.delivery-guide{left:3px;top:3px;max-width:calc(100% - 47px);padding:3px 5px;gap:2px 6px;font-size:10px}.guide-destination{padding-left:6px}.delivery-marker{font-size:9px;padding:2px 4px;gap:2px}.marker-pin{font-size:9px}}
+@media(max-width:400px){.delivery-guide{max-width:calc(100% - 9px)}.delivery-marker{font-size:9px}}
