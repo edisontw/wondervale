@@ -55,7 +55,7 @@ const deliveryGuides={
  tea:{load:'tea_cart',item:'Tea cart',place:'Tea stall',cta:'Push to tea stall',foot:places.T},
  flowers:{load:'flowers',item:'Flowers',place:'Garden',cta:'Walk to garden',foot:places.F}
 };
-function activeDelivery(){const d=deliveryGuides[state.phase];return d&&d.load===state.load?d:null;}
+function activeDelivery(){const phase=state.phase==='arrival'?'books':state.phase;const d=deliveryGuides[phase];return d&&d.load===state.load?d:null;}
 function destinationMarker(d){
  const [x,y]=d.foot;
  return `<div class="delivery-marker" data-destination="${state.phase}" aria-label="Destination: ${d.place}" style="--marker-x:${x/16.72}%;--marker-y:${(y-72)/9.41}%"><span aria-hidden="true" class="marker-pin">◆</span><span>${d.place}</span></div>`;
