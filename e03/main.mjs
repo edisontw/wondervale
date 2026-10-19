@@ -49,12 +49,26 @@ function actor(who,i){const p=actorFeet(i),load=i===0?state.load:'none';return `
 // Fit the complete painting above the caption dock. Focus is a camera transform
 // of the same plate AND all world overlays, never new art or a teleported actor.
 function fit(){const space=root.querySelector('.world-space'),world=root.querySelector('.world');if(!space||!world)return;const w=Math.min(space.clientWidth,space.clientHeight*1672/941);world.style.width=w+'px';world.style.height=w*941/1672+'px';}
-function world(){const camera=ui.focus??(state.position==='F');const scale=camera?1.6:1;const tx=camera?-60:0,ty=camera?-60:0;
- return `<div class="world-space"><div class="world" aria-label="Market Lane scene"><div class="plane" style="transform:translate(${tx}%,${ty}%) scale(${scale})"><img class="backdrop" src="../public/art/s01e03-market-lane-m0.webp" alt="Painted market with stairs above an arcade, unloading crates, and a wide outside path to books, tea and flowers">${actor('MILO',0)+actor('NIA',1)+actor('FINN',2)}${has(state,'signs')?'<div class="new-signs" aria-label="New signs: WALK to bookstall and CART to tea via the outer lane"><span>WALK · BOOKS →</span><span>CART · TEA →</span></div>':''}<img class="mark" src="../public/art/glyph.svg" alt="Faint old mark on existing stone"></div><div class="scene-note">${ui.moving?'':has(state,'signs')?'Market Lane · Clearer signs':state.load==='tea_cart'?'Cups stay on the cart':state.load==='flowers'?'Keep the flower tray steady':'Market Lane'}</div>${state.phase==='flowers'||state.position==='F'?button(camera?'Whole market':'Flower focus','focus',false,'class="camera"'):''}</div></div>`;}
+// UI guidance derives only from the active carried load; it never writes gameplay state.
+const deliveryGuides={
+ books:{load:'books',item:'Books',place:'Bookstall',cta:'Go to bookstall',foot:places.B},
+ tea:{load:'tea_cart',item:'Tea cart',place:'Tea stall',cta:'Push to tea stall',foot:places.T},
+ flowers:{load:'flowers',item:'Flowers',place:'Garden',cta:'Walk to garden',foot:places.F}
+};
+function activeDelivery(){const d=deliveryGuides[state.phase];return d&&d.load===state.load?d:null;}
+function destinationMarker(d){
+ const [x,y]=d.foot;
+ return `<div class="delivery-marker" data-destination="${state.phase}" aria-label="Destination: ${d.place}" style="--marker-x:${x/16.72}%;--marker-y:${(y-72)/9.41}%"><span aria-hidden="true" class="marker-pin">◆</span><span>${d.place}</span></div>`;
+}
+function deliveryGuide(d){
+ return `<div class="delivery-guide" data-active-delivery="${state.phase}" aria-label="Carrying ${d.item}. Destination: ${d.place}."><span class="guide-load">Carrying: <strong>${d.item}</strong></span><span class="guide-destination">To: <strong>${d.place}</strong></span></div>`;
+}
+function world(){const camera=ui.focus??(state.position==='F');const scale=camera?1.6:1;const tx=camera?-60:0,ty=camera?-60:0;const delivery=activeDelivery();
+ return `<div class="world-space"><div class="world" aria-label="Market Lane scene"><div class="plane" style="transform:translate(${tx}%,${ty}%) scale(${scale})"><img class="backdrop" src="../public/art/s01e03-market-lane-m0.webp" alt="Painted market with stairs above an arcade, unloading crates, and a wide outside path to books, tea and flowers">${actor('MILO',0)+actor('NIA',1)+actor('FINN',2)}${delivery?destinationMarker(delivery):''}${has(state,'signs')?'<div class="new-signs" aria-label="New signs: WALK to bookstall and CART to tea via the outer lane"><span>WALK · BOOKS →</span><span>CART · TEA →</span></div>':''}<img class="mark" src="../public/art/glyph.svg" alt="Faint old mark on existing stone"></div>${delivery?deliveryGuide(delivery):`<div class="scene-note">${ui.moving?'':has(state,'signs')?'Market Lane · Clearer signs':'Market Lane'}</div>`}${state.phase==='flowers'||state.position==='F'?button(camera?'Whole market':'Flower focus','focus',false,'class="camera"'):''}</div></div>`;}
 function caption(){if(!state.queue.length)return '';const l=line();return `<section class="caption" aria-label="Story dialogue"><div class="portrait">${art(l.speaker,true)}</div><div><div class="speaker">${names[l.speaker]}</div><p data-line="${l.id}" aria-live="polite">${esc(l.text)}</p></div><div class="caption-actions">${button('Continue','next',true)}${button('Listen','listen',false,'aria-label="Listen to this line"')}</div></section>`;}
 function toolbar(){if(state.queue.length)return '';let b='';
  if(state.travel.length)b=button(ui.moving?'Walking…':'Continue walking','resume',true,ui.moving?'disabled':'');
- else if(['books','tea','flowers'].includes(state.phase))b=state.position===({books:'B',tea:'T',flowers:'F'})[state.phase]?button('Make delivery','deliver',true):button('Walk outer lane','walk',true)+button('Look at paths','paths')+button('Not sure yet','unsure');
+ else if(['books','tea','flowers'].includes(state.phase))b=state.position===({books:'B',tea:'T',flowers:'F'})[state.phase]?button('Make delivery','deliver',true):button(activeDelivery()?.cta||'Walk outer lane','walk',true)+button('Look at paths','paths')+button('Not sure yet','unsure');
  else if(state.phase.startsWith('return-'))b=button('Return for next load','return',true);
  else if(state.phase==='comparison')b=button('Compare paths','compare-open',true)+button('Not sure yet','unsure');
  else if(state.phase==='signs')b=button('Make route signs','signs-open',true);
