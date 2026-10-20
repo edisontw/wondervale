@@ -35,11 +35,14 @@ jobs:
           npm run test:browser
       - uses: actions/upload-artifact@v4
         if: always()
+        continue-on-error: true # Evidence upload quota must not override actual browser-test results.
         with:
           name: e01-runtime-evidence
           path: test-results/
+          retention-days: 3
       - uses: actions/upload-artifact@v4
         if: success()
+        continue-on-error: true # Preview archive is optional; not used to deploy.
         with:
           name: wondervale-e01-static
           path: dist/wondervale-e01-static/
