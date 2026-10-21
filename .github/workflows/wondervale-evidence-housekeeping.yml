@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'scripts/prune_actions_evidence.sh'
+      - 'tests/test_actions_evidence_prune.py'
       - '.github/workflows/wondervale-evidence-housekeeping.yml'
   push:
     branches: [main]
@@ -32,6 +33,7 @@ jobs:
         run: |
           set -euo pipefail
           bash -n scripts/prune_actions_evidence.sh
+          python3 -m unittest discover -s tests -p 'test_actions_evidence_prune.py' -v
           grep -q 'refs/heads/main' scripts/prune_actions_evidence.sh
           grep -Fq '[[ "$GH_REPO" == "edisontw/wondervale" ]]' scripts/prune_actions_evidence.sh
           ! grep -Eiq 'case .*package|^[[:space:]]*wondervale-mn4-e02-e03-package([|)])' scripts/prune_actions_evidence.sh
