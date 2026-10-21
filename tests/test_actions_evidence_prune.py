@@ -33,11 +33,11 @@ class PruneActionsEvidenceTests(unittest.TestCase):
         old = (datetime.now(timezone.utc) - timedelta(days=8)).strftime("%Y-%m-%dT%H:%M:%SZ")
         recent = (datetime.now(timezone.utc) - timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
         self.tsv.write_text(
-            f"101\\te03-engineering-evidence\\t{old}\\t9000\\tfalse\n"
-            f"102\\twondervale-mn4-e02-e03-package\\t{old}\\t9000\\tfalse\n"
-            f"103\\te03-engineering-evidence\\t{recent}\\t9000\\tfalse\n"
-            f"104\\tunknown-artifact\\t{old}\\t9000\\tfalse\n"
-            f"105\\twondervale-mn4-e02-e03-browser-evidence\\t{old}\\t1000\\tfalse\n"
+            f"101\te03-engineering-evidence\t{old}\t9000\tfalse\n"
+            f"102\twondervale-mn4-e02-e03-package\t{old}\t9000\tfalse\n"
+            f"103\te03-engineering-evidence\t{recent}\t9000\tfalse\n"
+            f"104\tunknown-artifact\t{old}\t9000\tfalse\n"
+            f"105\twondervale-mn4-e02-e03-browser-evidence\t{old}\t1000\tfalse\n"
         )
         self.env = dict(
             os.environ,
