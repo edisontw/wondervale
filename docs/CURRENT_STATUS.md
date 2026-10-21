@@ -1,6 +1,6 @@
 # Wondervale — Current Status
 
-**Snapshot:** 2026-10-22 (Asia/Taipei). **Verified source baseline:** GitHub `main` at `76d852e4e6e70e31ec1a00700cc8efac4817a768` after PR #112, before this status-only update. **Never treat this SHA as permanently current:** refetch `main` each session.
+**Snapshot:** 2026-10-22 (Asia/Taipei). **Verified source baseline:** GitHub `main` at `3b14249bf00fee0c2a8ca035cb2d128369dbe711` before this status-only update. **Never treat this SHA as permanently current:** refetch `main` each session.
 
 This is the **short operational entrypoint**, not a second source of product canon. Canon is in the approved Season 1 architecture / learning weave, episode briefs, scripts, and applicable accepted decisions; live work status is in issues/PRs. Keep this file short and replace stale status instead of appending historical logs.
 
@@ -21,13 +21,13 @@ This is the **short operational entrypoint**, not a second source of product can
 | E03 Market Lane | One playable L-path engineering preview; accepted painterly scene / approved M1 depth-review reference; core delivery/Chronicle/ledger partly exercised | Full S/N walking connections, wheel/turn/paving clearance, complete three-route choice, full Gate 3 and actual owner phone/device Gate 4 |
 | E04 | Arc 1 closing story role approved in Season architecture | Episode-specific Brief, dialogue, interaction, assets, runtime and acceptance not yet completed |
 | E05–E11 | Season story / learning backbone approved | Detailed episode production, art/audio/runtime/QA remain future work |
-| CI/deploy | Existing MN4 static release workflow with strict allowlists | [Evidence housekeeping](ACTIONS_ARTIFACT_HOUSEKEEPING.md) merged via PR #112 (main Actions [run #39647815398](https://github.com/edisontw/wondervale/actions/runs/39647815398)). Mandatory release-package upload/deployment **not yet reverified**; PR #107 is **not** merged/deployed |
+| CI/deploy | Existing MN4 static release workflow with strict allowlists | [Evidence housekeeping](ACTIONS_ARTIFACT_HOUSEKEEPING.md) merged via PR #112 (main Actions [run #39647815398](https://github.com/edisontw/wondervale/actions/runs/39647815398)). Main housekeeping [run #39647815398](https://github.com/edisontw/wondervale/actions/runs/39647815398) **PASS**, deleted 150 old optional evidence artifacts (~1.06 GiB); main E01 [run #39647815321](https://github.com/edisontw/wondervale/actions/runs/39647815321) still failed evidence upload with quota warning during GitHub's usage recalculation. Mandatory release-package upload/deployment **not yet reverified**; PR #107 is **not** merged/deployed |
 
 **Important:** a CI PASS, a review-page owner PASS, a deployed preview, and a full episode owner/device PASS are different states. Never collapse them into one status.
 
 ## Active queue: priority and links
 
-1. **P0 release blocker:** [#110 — mandatory Actions artifact availability](https://github.com/edisontw/wondervale/issues/110). PR [#112](https://github.com/edisontw/wondervale/pull/112) installed main-only bounded optional-evidence cleanup; confirm the Actions cleanup result, then **actually upload and download** a new mandatory MN4 package. Leave #110 OPEN until successful main deployment; do not weaken existing release validators.
+1. **P0 release blocker:** [#110 — mandatory Actions artifact availability](https://github.com/edisontw/wondervale/issues/110). PR [#112](https://github.com/edisontw/wondervale/pull/112) installed main-only bounded optional-evidence cleanup; main [cleanup run #39647815398](https://github.com/edisontw/wondervale/actions/runs/39647815398) deleted 150 eligible items (~1.06 GiB), but E01 evidence still hit GitHub's storage-quota recalculation delay. **Actually upload and download** a new mandatory MN4 package when storage is available. Leave #110 OPEN until successful main deployment; do not weaken existing release validators.
 2. **P1 task clarity, code prepared but not live:** [PR #107 — delivery item and destination labels](https://github.com/edisontw/wondervale/pull/107). Tests previously passed on PR head, but evidence uploads and main deployment are affected by artifact quota. Do not claim live acceptance.
 3. **P0 playable geometry:** [#108 — S/N walking routes](https://github.com/edisontw/wondervale/issues/108), preserve three-route narrative; do not invent occluded connections.
 4. **P0 cart safety / visual consistency:** [#109 — actual cart swept clearance](https://github.com/edisontw/wondervale/issues/109). Prior 2D display-envelope clearance is a diagnostic, not physical/cart-turn PASS.
