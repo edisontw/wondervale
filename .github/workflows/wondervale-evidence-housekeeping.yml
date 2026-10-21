@@ -1,0 +1,55 @@
+name: Wondervale optional evidence artifact housekeeping
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/prune_actions_evidence.sh'
+      - '.github/workflows/wondervale-evidence-housekeeping.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/prune_actions_evidence.sh'
+      - '.github/workflows/wondervale-evidence-housekeeping.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '31 3 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wondervale-optional-evidence-housekeeping
+  cancel-in-progress: false
+
+jobs:
+  check-script:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell syntax and protected artifact policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/prune_actions_evidence.sh
+          grep -q 'refs/heads/main' scripts/prune_actions_evidence.sh
+          grep -q '[[ "$GH_REPO" == "edisontw/wondervale" ]]' scripts/prune_actions_evidence.sh
+          ! grep -Eiq 'case .*package|^[[:space:]]*wondervale-mn4-e02-e03-package([|)])' scripts/prune_actions_evidence.sh
+
+  prune:
+    needs: check-script
+    # PRs never receive an Actions-write token or invoke the delete path.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Delete only >4-day optional Wondervale evidence
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: bash scripts/prune_actions_evidence.sh --apply
