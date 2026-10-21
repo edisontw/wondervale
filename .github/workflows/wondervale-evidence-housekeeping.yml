@@ -33,7 +33,7 @@ jobs:
           set -euo pipefail
           bash -n scripts/prune_actions_evidence.sh
           grep -q 'refs/heads/main' scripts/prune_actions_evidence.sh
-          grep -q '[[ "$GH_REPO" == "edisontw/wondervale" ]]' scripts/prune_actions_evidence.sh
+          grep -Fq '[[ "$GH_REPO" == "edisontw/wondervale" ]]' scripts/prune_actions_evidence.sh
           ! grep -Eiq 'case .*package|^[[:space:]]*wondervale-mn4-e02-e03-package([|)])' scripts/prune_actions_evidence.sh
 
   prune:
