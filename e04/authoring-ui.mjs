@@ -61,6 +61,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   let state=opened.session;
   let disposed=false;
   let resetPending=false;
+  let resetError=false;
   const read=()=>structuredClone(state);
   function update(action,key) {
     if(disposed)return;
@@ -71,11 +72,22 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   }
   function reset() {
     if(disposed)return false;
-    resetPending=false;
-    state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
+    // Do not show a fresh draft if the old checkpoint still survives on disk.
+    // Otherwise reloading the page can silently resurrect a supposedly cleared draft.
     if(mode==='draft_preview' && storage) {
-      try {storage.removeItem(DRAFT_KEY);} catch {/* no storage */ }
+      try {
+        storage.removeItem(DRAFT_KEY);
+        if(storage.getItem(DRAFT_KEY)!==null) throw new Error('Draft checkpoint still present');
+      } catch {
+        resetPending=true;
+        resetError=true;
+        render('confirm-reset');
+        return false;
+      }
     }
+    resetPending=false;
+    resetError=false;
+    state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
     render('reset');
     return true;
   }
@@ -204,10 +216,16 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     if(resetPending) {
       footer.append(el('p','e04-reset-warning',
         'Start again? Only this Episode 04 draft will be cleared. Earlier chapters stay saved.'));
-      button(footer,'Keep this draft',()=>{resetPending=false;render('reset');},'keep-reset');
+      if(resetError) {
+        const warning=el('p','e04-reset-error',
+          'Could not clear this draft on this device. Your work is still here. Try again.');
+        warning.setAttribute('role','alert');
+        footer.append(warning);
+      }
+      button(footer,'Keep this draft',()=>{resetPending=false;resetError=false;render('reset');},'keep-reset');
       button(footer,'Clear Episode 04 draft',reset,'confirm-reset');
     } else {
-      button(footer,'Start this draft again',()=>{resetPending=true;render('keep-reset');},'reset');
+      button(footer,'Start this draft again',()=>{resetPending=true;resetError=false;render('keep-reset');},'reset');
     }
     box.append(footer);
     root.replaceChildren(box);
