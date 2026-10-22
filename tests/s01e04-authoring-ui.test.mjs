@@ -114,6 +114,7 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   tap(root,'explain');
   assert.equal(root.find('finish').disabled,true);
   tap(root,'chronicle');
+  assert.ok(root.allText().includes('Our draft timeline'));
   assert.equal(root.find('finish').disabled,false);
   tap(root,'finish');
   assert.equal(ui.getState().phase,'completed');
