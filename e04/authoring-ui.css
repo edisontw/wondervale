@@ -57,7 +57,8 @@
 .e04-button:disabled { opacity: .55; cursor: not-allowed; }
 .e04-button:focus-visible { outline: 3px solid #b75e13; outline-offset: 3px; }
 .e04-choices .e04-button { width: 100%; margin: 0; }
-.e04-footer { display: flex; justify-content: flex-end; margin-block-start: 1rem; }
+.e04-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .35rem; margin-block-start: 1rem; }
+.e04-reset-warning { flex: 1 0 100%; margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 560px) {
   .e04-timeline { grid-template-columns: 1fr; }
   .e04-choices { grid-template-columns: 1fr; }
