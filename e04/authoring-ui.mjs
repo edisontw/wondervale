@@ -60,15 +60,18 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   const opened=openE04Authoring(e02Save,e03Save,sources,load(storage,mode),mode);
   let state=opened.session;
   let disposed=false;
+  let resetPending=false;
   const read=()=>structuredClone(state);
   function update(action,key) {
     if(disposed)return;
+    resetPending=false;
     state=dispatch(state,action,sources);
     persist(storage,mode,state);
     render(key);
   }
   function reset() {
     if(disposed)return false;
+    resetPending=false;
     state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
     if(mode==='draft_preview' && storage) {
       try {storage.removeItem(DRAFT_KEY);} catch {/* no storage */ }
@@ -198,7 +201,14 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     if(state.phase==='completed')decisions.append(el('p','e04-status','Draft timeline complete. This does not unlock another episode.'));
     box.append(decisions);
     const footer=el('footer','e04-footer');
-    button(footer,'Start this draft again',reset,'reset');
+    if(resetPending) {
+      footer.append(el('p','e04-reset-warning',
+        'Start again? Only this Episode 04 draft will be cleared. Earlier chapters stay saved.'));
+      button(footer,'Keep this draft',()=>{resetPending=false;render('reset');},'keep-reset');
+      button(footer,'Clear Episode 04 draft',reset,'confirm-reset');
+    } else {
+      button(footer,'Start this draft again',()=>{resetPending=true;render('keep-reset');},'reset');
+    }
     box.append(footer);
     root.replaceChildren(box);
     if(focusKey && focusables.has(focusKey))focusables.get(focusKey).focus();
