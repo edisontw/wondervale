@@ -81,7 +81,7 @@ jobs:
         run: |
           python3 scripts/compile_e03.py
           git diff --exit-code -- public/s01e03.json
-          node --test tests/s01e03.test.mjs
+          node --test tests/s01e03.test.mjs tests/s01e03-e04-handoff.test.mjs
           node scripts/audit_e03_cart_sweep.mjs
           python3 scripts/package_e03.py
       - name: Install pinned Playwright dependency
