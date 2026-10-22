@@ -107,7 +107,11 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   tap(root,'place:undated-photo:uncertain');
   assert.equal(root.find('explain').disabled,false);
   assert.equal(doc.activeElement.dataset.focusKey,'place:undated-photo:uncertain');
-  tap(root,'explain');tap(root,'chronicle');tap(root,'finish');
+  tap(root,'explain');
+  assert.equal(root.find('finish').disabled,true);
+  tap(root,'chronicle');
+  assert.equal(root.find('finish').disabled,false);
+  tap(root,'finish');
   assert.equal(ui.getState().phase,'completed');
   assert.ok(storage.getItem(DRAFT_KEY));
   assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),before02);
