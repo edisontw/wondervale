@@ -1,0 +1,35 @@
+name: Wondervale E04 authoring and handoff QA
+
+on:
+  pull_request:
+    paths:
+      - 'engine/s01e04-*.mjs'
+      - 'e04/**'
+      - 'tests/s01e04-*.mjs'
+      - 'tests/s01e03-e04-handoff.test.mjs'
+      - '.github/workflows/wondervale-e04-authoring.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'engine/s01e04-*.mjs'
+      - 'e04/**'
+      - 'tests/s01e04-*.mjs'
+      - 'tests/s01e03-e04-handoff.test.mjs'
+      - '.github/workflows/wondervale-e04-authoring.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e04-authoring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate E03 to E04 canonical entry and isolated E04 chronology
+        run: |
+          node --test tests/s01e03-e04-handoff.test.mjs tests/s01e04-chronology.test.mjs tests/s01e04-authoring-ui.test.mjs

@@ -1,3 +1,5 @@
+import {openE04Authoring,resetE04Authoring} from '../engine/s01e04-authoring-entry.mjs';
+import {dispatch as draftAction,draftPayload} from '../engine/s01e04-chronology.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fresh as fresh02, dispatch as dispatch02, payload as payload02, EVENTS as EVENTS02} from '../engine/s01e02.mjs';
@@ -82,4 +84,36 @@ test('E03 replay/reset and an E02 reset never manufacture E04 eligibility',()=>{
   assert.equal(payload03(fresh03('historical_replay')),null,'historical replay cannot persist');
   assert.equal(e04Ready(e02,realE03()),true,'read-only guard may inspect a canonical checkpoint without changing it');
   assert.equal(e04Ready(e02,dispatch03(fresh03(),{type:'begin',ready:true})),false);
+});
+
+test('E04 authoring preview requires verified earlier chapters and has an isolated reset/replay',()=>{
+  const pack={
+    id:'gate-test-only',revision:'test-r1',
+    cards:[{id:'old-map',label:'Old map',kind:'map'},{id:'new-map',label:'Updated map',kind:'map'}],
+    clues:[{id:'update-note',label:'Map revision',text:'An update links the second copy to the first.'}],
+    relativeOrder:{earlier:'old-map',later:'new-map',basis:'update-note'}
+  };
+  const e02=payload02(realE02()),e03=payload03(realE03());
+  const before02=JSON.stringify(e02),before03=JSON.stringify(e03);
+  for(const [a,b] of [[null,e03],[e02,null],[e02,{ledger:Object.values(EVENTS03)}]]){
+    const blocked=openE04Authoring(a,b,pack);
+    assert.equal(blocked.ready,false);
+    assert.equal(blocked.session,null,'cannot view authoring session without canonical completion');
+  }
+  const opened=openE04Authoring(e02,e03,pack);
+  assert.equal(opened.ready,true);
+  assert.equal(opened.session.phase,'sources');
+  assert.equal(opened.sources.station,EVENTS03.station);
+  assert.equal(opened.sources.garden,EVENTS03.garden);
+  const progressed=draftAction(opened.session,{type:'inspect-memory',which:'station'},pack);
+  const resume=openE04Authoring(e02,e03,pack,draftPayload(progressed));
+  assert.deepEqual(resume.session,progressed);
+  const reset=resetE04Authoring(e02,e03,pack);
+  assert.equal(reset.session.history.length,0);
+  assert.equal(reset.session.phase,'sources');
+  const replay=openE04Authoring(e02,e03,pack,null,'historical_replay');
+  assert.equal(replay.session.mode,'historical_replay');
+  assert.equal(draftPayload(replay.session),null);
+  assert.equal(JSON.stringify(e02),before02,'E04 operations must never modify E02');
+  assert.equal(JSON.stringify(e03),before03,'E04 operations must never modify E03');
 });
