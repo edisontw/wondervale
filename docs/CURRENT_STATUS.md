@@ -1,6 +1,6 @@
 # Wondervale — Current Status
 
-**Snapshot:** 2026-10-22 (Asia/Taipei). **Verified source baseline:** GitHub `main` at `3b14249bf00fee0c2a8ca035cb2d128369dbe711` before this status-only update. **Never treat this SHA as permanently current:** refetch `main` each session.
+**Snapshot:** 2026-10-22 (Asia/Taipei), revised for Owner E03 PASS; this status change is a PR candidate, not a main release. **Verified source baseline:** GitHub `main` at `3b14249bf00fee0c2a8ca035cb2d128369dbe711` before this status-only update. **Never treat this SHA as permanently current:** refetch `main` each session.
 
 This is the **short operational entrypoint**, not a second source of product canon. Canon is in the approved Season 1 architecture / learning weave, episode briefs, scripts, and applicable accepted decisions; live work status is in issues/PRs. Keep this file short and replace stale status instead of appending historical logs.
 
@@ -18,7 +18,7 @@ This is the **short operational entrypoint**, not a second source of product can
 | --- | --- | --- |
 | E01 Town Square | Playable; scoped owner PASS; frozen | Broader family UX and final audio/animation; do not reopen for routine polish |
 | E02 Riverside | Playable; scoped owner PASS; frozen | Broader family UX; no speculative change to E02 save or narrative |
-| E03 Market Lane | One playable L-path engineering preview; accepted painterly scene / approved M1 depth-review reference; core delivery/Chronicle/ledger partly exercised | Full S/N walking connections, wheel/turn/paving clearance, complete three-route choice, full Gate 3 and actual owner phone/device Gate 4 |
+| E03 Market Lane | **Owner PASS reported 2026-10-22 for the playable E03 experience**; accepted scene, delivery story, Chronicle and current UI are protected from routine reopening | Separately tracked engineering/CI issues (#108 S/N geometry, #109 cart clearance, #110 release artifact) are **not** automatically certified by Owner PASS; verify before claiming those technical gates |
 | E04 | Arc 1 closing story role approved in Season architecture | Episode-specific Brief, dialogue, interaction, assets, runtime and acceptance not yet completed |
 | E05–E11 | Season story / learning backbone approved | Detailed episode production, art/audio/runtime/QA remain future work |
 | CI/deploy | Existing MN4 static release workflow with strict allowlists | [Evidence housekeeping](ACTIONS_ARTIFACT_HOUSEKEEPING.md) merged via PR #112 (main Actions [run #39647815398](https://github.com/edisontw/wondervale/actions/runs/39647815398)). Main housekeeping [run #39647815398](https://github.com/edisontw/wondervale/actions/runs/39647815398) **PASS**, deleted 150 old optional evidence artifacts (~1.06 GiB); main E01 [run #39647815321](https://github.com/edisontw/wondervale/actions/runs/39647815321) still failed evidence upload with quota warning during GitHub's usage recalculation. Mandatory release-package upload/deployment **not yet reverified**; PR #107 is **not** merged/deployed |
@@ -33,7 +33,7 @@ This is the **short operational entrypoint**, not a second source of product can
 4. **P0 cart safety / visual consistency:** [#109 — actual cart swept clearance](https://github.com/edisontw/wondervale/issues/109). Prior 2D display-envelope clearance is a diagnostic, not physical/cart-turn PASS.
 5. **P1 verification:** real phone portrait/short-landscape, keyboard, readable UI, scene foreground/actor/cargo, progression/reload/replay, and scoped owner playable PASS. A feature becomes P0 if it blocks completion, corrupts state, reveals an unsafe route, or breaks release.
 
-**Next focused implementation:** unblock mandatory artifact packaging (#110), then finish/ship/owner-check PR #107; address #108 and #109 before claiming full E03 Gate 3. Narrative **E04 Gate 1 can proceed in a separate scoped workstream**, but E04 playable integration must respect the gate below.
+**Next focused implementation (Owner direction 2026-10-22):** preserve E03 Owner PASS and advance E03→E04 canonical progress handoff and E04 Gate 1 drafting on separate branches. Merge only tested, reviewed changes. Keep #108/#109/#110 tracked as distinct technical/release risks, without repeatedly demanding E03 Owner replay; E04 static production deployment remains unimplemented.
 
 ## Acceptance / context policy
 
