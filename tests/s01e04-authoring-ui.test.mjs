@@ -115,6 +115,8 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   assert.equal(root.find('finish').disabled,true);
   tap(root,'chronicle');
   assert.ok(root.allText().includes('Our draft timeline'));
+  assert.ok(root.allText().includes('Not sure yet: Undated photo'));
+  assert.ok(root.allText().indexOf('Earlier First map')<root.allText().indexOf('Later Later record'));
   assert.equal(root.find('finish').disabled,false);
   tap(root,'finish');
   assert.equal(ui.getState().phase,'completed');
