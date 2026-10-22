@@ -97,7 +97,11 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
   assert.equal(ui.ready,true);
   assert.equal(root.find('place:first-map:earlier').disabled,true);
-  tap(root,'memory:station');tap(root,'memory:garden');
+  assert.equal(root.allText().includes('way to the station'),false);
+  tap(root,'memory:station');
+  assert.equal(root.allText().includes('way to the station'),true);
+  tap(root,'memory:garden');
+  assert.equal(root.allText().includes('way to the garden'),true);
   for(const id of pack.cards.map(c=>c.id))tap(root,'inspect:'+id);
   tap(root,'clue:revision-note');
   tap(root,'place:first-map:later');
