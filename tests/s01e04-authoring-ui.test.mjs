@@ -118,7 +118,10 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   assert.ok(root.allText().includes('Not sure yet: Undated photo'));
   assert.ok(root.allText().indexOf('Earlier First map')<root.allText().indexOf('Later Later record'));
   assert.equal(root.find('finish').disabled,false);
-  tap(root,'finish');
+  tap(root,'place:first-map:later');
+  assert.equal(root.find('finish').disabled,true);
+  tap(root,'place:first-map:earlier');
+  tap(root,'explain');tap(root,'chronicle');tap(root,'finish');
   assert.equal(ui.getState().phase,'completed');
   assert.ok(storage.getItem(DRAFT_KEY));
   assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),before02);
