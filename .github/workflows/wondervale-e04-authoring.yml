@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'engine/s01e04-*.mjs'
+      - 'e04/**'
       - 'tests/s01e04-*.mjs'
       - 'tests/s01e03-e04-handoff.test.mjs'
       - '.github/workflows/wondervale-e04-authoring.yml'
@@ -11,6 +12,7 @@ on:
     branches: [main]
     paths:
       - 'engine/s01e04-*.mjs'
+      - 'e04/**'
       - 'tests/s01e04-*.mjs'
       - 'tests/s01e03-e04-handoff.test.mjs'
       - '.github/workflows/wondervale-e04-authoring.yml'
@@ -30,4 +32,4 @@ jobs:
           node-version: '24'
       - name: Validate E03 to E04 canonical entry and isolated E04 chronology
         run: |
-          node --test tests/s01e03-e04-handoff.test.mjs tests/s01e04-chronology.test.mjs
+          node --test tests/s01e03-e04-handoff.test.mjs tests/s01e04-chronology.test.mjs tests/s01e04-authoring-ui.test.mjs
