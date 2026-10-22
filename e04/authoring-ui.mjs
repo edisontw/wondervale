@@ -1,6 +1,7 @@
 // E04 chronology authoring preview: accessible, dependency-free DOM controller.
 // No route, production evidence, artwork, or canonical E04 progress is provided here.
 import {openE04Authoring} from '../engine/s01e04-authoring-entry.mjs';
+import {e04Handoff} from '../engine/s01e04-handoff.mjs';
 import {
   DRAFT_KEY,dispatch,draftPayload,timelineSupported,chronicleProjection,validateSourcePack
 } from '../engine/s01e04-chronology.mjs';
@@ -30,7 +31,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   if (!root || typeof root.replaceChildren!=='function' || !root.ownerDocument)
     throw new TypeError('E04 preview needs a DOM root');
   // Check actual E02/E03 event-replayed saves before inspecting or showing source data.
-  const gate=openE04Authoring(e02Save,e03Save,null);
+  const gate=e04Handoff(e02Save,e03Save);
   const doc=root.ownerDocument;
   const el=(tag,cls='',label='')=>{
     const n=doc.createElement(tag);
