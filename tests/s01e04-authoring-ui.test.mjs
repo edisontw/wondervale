@@ -142,6 +142,68 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
   ui.destroy();resumed.destroy();
 });
+test('invalid E04 checkpoints show a recovery warning without deleting saved bytes',()=>{
+  const e02=realE02(),e03=realE03();
+  for(const bad of [
+    '{invalid json',
+    'null',
+    JSON.stringify({schema:1,history:[{type:'finish'}]}),
+    'x'.repeat(60001)
+  ]) {
+    const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+    storage.setItem(DRAFT_KEY,bad);
+    storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+    storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+    const old02=storage.getItem('wondervale-s01e02-progress-v1');
+    const old03=storage.getItem('wondervale-s01e03-progress-v1');
+    const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+    assert.equal(ui.getState().phase,'sources');
+    assert.deepEqual(ui.getState().history,[]);
+    assert.match(root.allText(),/previous Episode 04 draft could not be restored/);
+    assert.equal(storage.getItem(DRAFT_KEY),bad,'Opening must preserve original invalid bytes');
+    tap(root,'memory:station');
+    assert.doesNotMatch(root.allText(),/previous Episode 04 draft could not be restored/);
+    assert.notEqual(storage.getItem(DRAFT_KEY),bad,'A new valid action replaces invalid bytes');
+    assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),old02);
+    assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),old03);
+    const resumed=mountE04Authoring(doc.root(),{pack,e02Save:e02,e03Save:e03,storage});
+    assert.deepEqual(resumed.getState().memoryViewed,['station']);
+    assert.doesNotMatch(doc.root().allText(),/previous Episode 04 draft could not be restored/);
+    ui.destroy();resumed.destroy();
+  }
+});
+
+test('unreadable storage warns, while empty and valid checkpoints do not',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage(),e02=realE02(),e03=realE03();
+  const freshRoot=doc.root();
+  const clean=mountE04Authoring(freshRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.doesNotMatch(freshRoot.allText(),/could not be restored/);
+  tap(freshRoot,'memory:station');
+  const saved=storage.getItem(DRAFT_KEY);
+  clean.destroy();
+  const validRoot=doc.root();
+  const valid=mountE04Authoring(validRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.deepEqual(valid.getState().memoryViewed,['station']);
+  assert.doesNotMatch(validRoot.allText(),/could not be restored/);
+  valid.destroy();
+  const originalGet=storage.getItem.bind(storage);
+  let failRead=true;
+  storage.getItem=k=>{
+    if(k===DRAFT_KEY && failRead)throw new Error('Storage read denied');
+    return originalGet(k);
+  };
+  const root=doc.root();
+  const unreadable=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.match(root.allText(),/previous Episode 04 draft could not be restored/);
+  assert.deepEqual(unreadable.getState().history,[]);
+  failRead=false;
+  assert.equal(storage.getItem(DRAFT_KEY),saved);
+  tap(root,'memory:garden');
+  assert.doesNotMatch(root.allText(),/could not be restored/);
+  assert.deepEqual(unreadable.getState().memoryViewed,['garden']);
+  unreadable.destroy();
+});
+
 test('historical replay does not read or overwrite draft checkpoint',()=>{
   const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
   const e02=realE02(),e03=realE03();
