@@ -143,6 +143,52 @@ try {
       localStorage.getItem('wondervale-s01e03-progress-v1')
     ]);
     assert.deepEqual(unchanged,[JSON.stringify(e02Save),JSON.stringify(e03Save)]);
+    // Real keyboard regression: cancel restart without losing progress, then
+    // confirm via Tab/Enter. The new draft should begin in view, not at its footer.
+    const focusKey=()=>page.evaluate(()=>document.activeElement?.dataset?.focusKey??null);
+    const saved=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    assert.ok(saved,'Completed draft has a local checkpoint');
+    await page.locator('[data-focus-key="reset"]').focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await focusKey(),'keep-reset','Restart confirmation starts at the safe option');
+    await page.keyboard.press('Enter');
+    assert.equal(await focusKey(),'reset','Cancel returns focus to restart control');
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),saved);
+    assert.equal(await page.evaluate(()=>window.__e04.getState().phase),'completed');
+    await page.keyboard.press('Enter');
+    assert.equal(await focusKey(),'keep-reset');
+    await page.keyboard.press('Tab');
+    assert.equal(await focusKey(),'confirm-reset','Confirmation reachable by keyboard');
+    await page.keyboard.press('Enter');
+    assert.equal(await page.evaluate(()=>window.__e04.getState().phase),'sources');
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),null);
+    const heading=page.locator('.e04-authoring h2');
+    assert.equal(await heading.evaluate(node=>document.activeElement===node),true,
+      'After clearing, focus should return to the beginning of the new draft');
+    const headingPosition=await heading.evaluate(node=>({
+      top:node.getBoundingClientRect().top,height:innerHeight
+    }));
+    assert.ok(headingPosition.top>=-1 && headingPosition.top<headingPosition.height,
+      'Restart heading should be visible on short screens: '+JSON.stringify(headingPosition));
+    await page.keyboard.press('Tab');
+    assert.equal(await focusKey(),'memory:station','Tab from heading enters the first action');
+    await page.keyboard.press('Tab');
+    assert.equal(await focusKey(),'memory:garden');
+    await page.keyboard.press('Enter');
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState().memoryViewed),['garden']);
+    assert.equal(await focusKey(),'inspect:first-map',
+      'Inspecting a memory must not strand focus on its disabled button');
+    await page.keyboard.press('Enter');
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState().cardViewed),['first-map']);
+    assert.equal(await focusKey(),'place:first-map:earlier',
+      'Inspecting a card advances focus to an enabled placement');
+    await page.keyboard.press('Enter');
+    assert.equal(await page.evaluate(()=>window.__e04.getState().slots['first-map']),'earlier');
+    assert.deepEqual(await page.evaluate(()=>[
+      localStorage.getItem('wondervale-s01e02-progress-v1'),
+      localStorage.getItem('wondervale-s01e03-progress-v1')
+    ]),unchanged,'Keyboard restart and new draft must not modify earlier episodes');
+    await layout('keyboard and restart '+size.width);
     assert.deepEqual(errors,[],'No browser exceptions');
     await context.close();
     console.log('PASS E04 browser responsive, Chronicle, storage retry: '+size.width+'x'+size.height);
