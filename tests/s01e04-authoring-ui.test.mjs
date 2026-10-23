@@ -501,6 +501,33 @@ test('250-action safety cap explains the limit, preserves draft, and allows a sc
   resumed.destroy();
 });
 
+test('the 250th action can retry a failed save without changing the capped draft',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  let state=dispatch04(fresh04(pack),{type:'inspect-card',id:'first-map'},pack);
+  for(let i=1;i<MAX_ACTIONS-1;i++)
+    state=dispatch04(state,{type:'place',id:'first-map',slot:i%2?'earlier':'later'},pack);
+  const oldCheckpoint=JSON.stringify(state);
+  storage.setItem(DRAFT_KEY,oldCheckpoint);
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  const originalSet=storage.setItem.bind(storage);
+  storage.setItem=()=>{throw new Error('Storage denied');};
+  tap(root,'place:first-map:earlier');
+  assert.equal(ui.getState().history.length,MAX_ACTIONS);
+  assert.equal(storage.getItem(DRAFT_KEY),oldCheckpoint);
+  assert.match(root.allText(),/250-change safety limit/);
+  assert.match(root.allText(),/This draft is not saved on this device/);
+  assert.equal(root.find('retry-save').disabled,false);
+  storage.setItem=originalSet;
+  tap(root,'retry-save');
+  assert.equal(ui.getState().history.length,MAX_ACTIONS);
+  assert.equal(storage.getItem(DRAFT_KEY),JSON.stringify(ui.getState()));
+  assert.doesNotMatch(root.allText(),/This draft is not saved on this device/);
+  assert.match(root.allText(),/250-change safety limit/);
+  assert.equal(root.find('place:first-map:later').disabled,true);
+  ui.destroy();
+});
+
 test('E04 CSS keeps 320px choices touchable and wraps narrow-screen content',()=>{
   const css=readFileSync(new URL('../e04/authoring-ui.css',import.meta.url),'utf8');
   assert.match(css,/\.e04-authoring\s*\{[^}]*width:\s*100%;[^}]*min-width:\s*0;/);
