@@ -438,3 +438,23 @@ test('E04 CSS keeps 320px choices touchable and wraps narrow-screen content',()=
   assert.match(css,/@media\s*\(min-width:\s*400px\)\s*and\s*\(max-width:\s*560px\)/);
   assert.match(css,/\.e04-save-warning\s*\{[^}]*flex-wrap:\s*wrap;/);
 });
+
+// The canonical E02/E03 unlock must run before any E04 draft inspection.
+test('locked E04 does not read or mutate an invalid preview checkpoint',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const invalid='{invalid json';
+  storage.setItem(DRAFT_KEY,invalid);
+  const originalGet=storage.getItem.bind(storage);
+  let draftReads=0;
+  storage.getItem=k=>{
+    if(k===DRAFT_KEY)draftReads++;
+    return originalGet(k);
+  };
+  const blocked=mountE04Authoring(root,{pack,e02Save:null,e03Save:null,storage});
+  assert.equal(blocked.ready,false);
+  assert.equal(draftReads,0,'A locked chapter must not inspect the E04 draft');
+  assert.doesNotMatch(root.allText(),/previous Episode 04 draft could not be restored/);
+  assert.doesNotMatch(root.allText(),/First map/);
+  assert.equal(originalGet(DRAFT_KEY),invalid);
+  blocked.destroy();
+});
