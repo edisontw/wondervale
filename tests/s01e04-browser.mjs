@@ -279,7 +279,7 @@ try {
       return {count:state.history.length,slot:state.slots['first-map']};
     },{pack,key:DRAFT_KEY});
     assert.equal(nearCap.count,249);
-    assert.equal(nearCap.slot,'earlier');
+    assert.equal(nearCap.slot,'later');
     await page.reload();
     await page.evaluate(async ({pack,e02Save,e03Save})=>{
       const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
@@ -287,7 +287,7 @@ try {
         pack,e02Save,e03Save,storage:localStorage
       });
     },{pack,e02Save,e03Save});
-    await page.locator('[data-focus-key="place:first-map:later"]').focus();
+    await page.locator('[data-focus-key="place:first-map:earlier"]').focus();
     await page.keyboard.press('Enter');
     assert.equal(await page.evaluate(()=>window.__e04.getState().history.length),250);
     const capAlert=page.locator('.e04-save-warning[role="alert"]').first();
@@ -300,7 +300,7 @@ try {
     assert.ok(capPosition.top>=-1&&capPosition.top<capPosition.height,
       'Limit alert must be visible on short screens: '+JSON.stringify(capPosition));
     await layout('250-action cap '+size.width);
-    assert.equal(await page.locator('[data-focus-key="place:first-map:later"]').isDisabled(),true);
+    assert.equal(await page.locator('[data-focus-key="place:first-map:earlier"]').isDisabled(),true);
     await page.keyboard.press('Tab');
     assert.equal(await focusKey(),'reset','Tab from the alert reaches the only enabled action');
     await page.keyboard.press('Enter');
