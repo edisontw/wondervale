@@ -99,11 +99,15 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   assert.equal(root.find('place:first-map:earlier').disabled,true);
   assert.equal(root.allText().includes('way to the station'),false);
   tap(root,'memory:station');
+  assert.equal(doc.activeElement.dataset.focusKey,'memory:garden', 'keyboard focus follows completed memory inspection');
   assert.equal(root.allText().includes('way to the station'),true);
   tap(root,'memory:garden');
+  assert.equal(doc.activeElement.dataset.focusKey,'inspect:first-map', 'focus advances to available source');
   assert.equal(root.allText().includes('way to the garden'),true);
   for(const id of pack.cards.map(c=>c.id))tap(root,'inspect:'+id);
   tap(root,'clue:revision-note');
+  assert.equal(doc.activeElement.disabled,false, 'focus cannot remain on disabled clue');
+  assert.match(doc.activeElement.dataset.focusKey,/^place:/, 'focus returns to available placements');
   tap(root,'place:first-map:later');
   assert.equal(root.find('explain').disabled,true);
   tap(root,'place:first-map:earlier');
@@ -114,6 +118,7 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   tap(root,'explain');
   assert.equal(root.find('finish').disabled,true);
   tap(root,'chronicle');
+  assert.equal(doc.activeElement.dataset.focusKey,'finish', 'Chronicle review transfers focus to completion');
   assert.ok(root.allText().includes('Our draft timeline'));
   assert.ok(root.allText().includes('Not sure yet: Undated photo'));
   assert.ok(root.allText().indexOf('Earlier First map')<root.allText().indexOf('Later Later record'));
