@@ -49,7 +49,7 @@ function completedE03(){
   return payload03(s);
 }
 const e02Save=completedE02(),e03Save=completedE03();
-const browser=await chromium.launch({headless:true});
+// Use a system Chromium when running local QA without Playwright's downloaded browser.\nconst browser=await chromium.launch({\n  headless:true,\n  ...(process.env.E04_CHROMIUM_EXECUTABLE\n    ? {executablePath:process.env.E04_CHROMIUM_EXECUTABLE}\n    : {})\n});
 const cases=[{width:320,height:640},{width:568,height:320},{width:1366,height:768}];
 try {
   for(const size of cases){
