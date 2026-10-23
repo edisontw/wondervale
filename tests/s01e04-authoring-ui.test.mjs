@@ -174,6 +174,41 @@ test('invalid E04 checkpoints show a recovery warning without deleting saved byt
   }
 });
 
+test('Retry saving clears a corrupt-checkpoint warning only after verified recovery',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const bad='{invalid json';
+  storage.setItem(DRAFT_KEY,bad);
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const before02=storage.getItem('wondervale-s01e02-progress-v1');
+  const before03=storage.getItem('wondervale-s01e03-progress-v1');
+  const originalSet=storage.setItem.bind(storage);
+  storage.setItem=()=>{throw new Error('Storage temporarily blocked');};
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.match(root.allText(),/previous Episode 04 draft could not be restored/);
+  tap(root,'memory:station');
+  assert.equal(storage.getItem(DRAFT_KEY),bad);
+  assert.match(root.allText(),/previous Episode 04 draft could not be restored/);
+  assert.match(root.allText(),/This draft is not saved on this device/);
+  tap(root,'retry-save');
+  assert.equal(storage.getItem(DRAFT_KEY),bad);
+  assert.match(root.allText(),/previous Episode 04 draft could not be restored/);
+  storage.setItem=originalSet;
+  const before=ui.getState();
+  tap(root,'retry-save');
+  assert.deepEqual(ui.getState(),before,'Retry must not change story state');
+  assert.doesNotMatch(root.allText(),/previous Episode 04 draft could not be restored/);
+  assert.doesNotMatch(root.allText(),/This draft is not saved on this device/);
+  assert.match(root.allText(),/Draft saved on this device/);
+  assert.notEqual(storage.getItem(DRAFT_KEY),bad);
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),before02);
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
+  const resumed=mountE04Authoring(doc.root(),{pack,e02Save:e02,e03Save:e03,storage});
+  assert.deepEqual(resumed.getState(),before);
+  ui.destroy();resumed.destroy();
+});
+
 test('unreadable storage warns, while empty and valid checkpoints do not',()=>{
   const doc=new FakeDocument(),storage=new MemoryStorage(),e02=realE02(),e03=realE03();
   const freshRoot=doc.root();
