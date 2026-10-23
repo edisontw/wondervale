@@ -189,6 +189,80 @@ try {
       localStorage.getItem('wondervale-s01e03-progress-v1')
     ]),unchanged,'Keyboard restart and new draft must not modify earlier episodes');
     await layout('keyboard and restart '+size.width);
+    // A browser reload must recover the exact draft checkpoint, not just the
+    // visible phase. Synthetic fixture only; no production E04 route is served.
+    const beforeReload=await page.evaluate(()=>window.__e04.getState());
+    const checkpoint=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    assert.ok(checkpoint,'Partial draft should persist before reload');
+    await page.reload();
+    await page.evaluate(async ({pack,e02Save,e03Save})=>{
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      window.__e04=mountE04Authoring(document.getElementById('e04-root'),{
+        pack,e02Save,e03Save,storage:localStorage
+      });
+    },{pack,e02Save,e03Save});
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),beforeReload,
+      'Reload must restore the exact event-replayed draft');
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),checkpoint);
+
+    // Historical replay is isolated even when a valid draft exists on disk.
+    const replay=await page.evaluate(async ({pack,e02Save,e03Save,key})=>{
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      const root=document.createElement('div');
+      root.id='e04-replay-probe';
+      document.body.append(root);
+      const ui=mountE04Authoring(root,{
+        pack,e02Save,e03Save,storage:localStorage,mode:'historical_replay'
+      });
+      root.querySelector('[data-focus-key="memory:station"]').click();
+      const state=ui.getState();
+      ui.reset();
+      const after=localStorage.getItem(key);
+      ui.destroy();root.remove();
+      return {ready:ui.ready,state,after};
+    },{pack,e02Save,e03Save,key:DRAFT_KEY});
+    assert.equal(replay.ready,true);
+    assert.equal(replay.state.mode,'historical_replay');
+    assert.deepEqual(replay.state.memoryViewed,['station']);
+    assert.equal(replay.after,checkpoint,'Historical replay must not overwrite E04 draft');
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),beforeReload,
+      'Historical replay must not mutate the mounted draft');
+
+    // Corrupt or forged storage is rejected on reload without erasing the
+    // earlier episodes; a subsequent valid action can replace the bad bytes.
+    const corrupt='{"schema":1,"history":[{"type":"finish"}]}';
+    await page.evaluate(({key,corrupt})=>localStorage.setItem(key,corrupt),
+      {key:DRAFT_KEY,corrupt});
+    await page.reload();
+    await page.evaluate(async ({pack,e02Save,e03Save})=>{
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      window.__e04=mountE04Authoring(document.getElementById('e04-root'),{
+        pack,e02Save,e03Save,storage:localStorage
+      });
+    },{pack,e02Save,e03Save});
+    const recovered=await page.evaluate(()=>window.__e04.getState());
+    assert.equal(recovered.phase,'sources','Corrupt checkpoint must open a clean draft');
+    assert.deepEqual(recovered.history,[],'Forged history must not be replayed');
+    assert.deepEqual(recovered.memoryViewed,[]);
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),corrupt,
+      'Loading must not silently delete or rewrite storage');
+    await action('memory:station');
+    const repaired=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    assert.ok(repaired && repaired!==corrupt,'A valid action replaces corrupt storage');
+    await page.reload();
+    await page.evaluate(async ({pack,e02Save,e03Save})=>{
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      window.__e04=mountE04Authoring(document.getElementById('e04-root'),{
+        pack,e02Save,e03Save,storage:localStorage
+      });
+    },{pack,e02Save,e03Save});
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState().memoryViewed),['station'],
+      'Repaired checkpoint must survive another reload');
+    assert.deepEqual(await page.evaluate(()=>[
+      localStorage.getItem('wondervale-s01e02-progress-v1'),
+      localStorage.getItem('wondervale-s01e03-progress-v1')
+    ]),unchanged,'Reload, replay and corruption recovery must preserve E02/E03');
+    await layout('reload and replay '+size.width);
     assert.deepEqual(errors,[],'No browser exceptions');
     await context.close();
     console.log('PASS E04 browser responsive, Chronicle, storage retry: '+size.width+'x'+size.height);
