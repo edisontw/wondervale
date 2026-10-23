@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {fresh as fresh02,dispatch as dispatch02,payload as payload02} from '../engine/s01e02.mjs';
 import {fresh as fresh03,dispatch as dispatch03,payload as payload03} from '../engine/s01e03.mjs';
 import {DRAFT_KEY} from '../engine/s01e04-chronology.mjs';
@@ -294,4 +295,16 @@ test('Retry saving remains available after repeated storage failures',()=>{
   assert.ok(storage.getItem(DRAFT_KEY));
   assert.doesNotMatch(root.allText(),/This draft is not saved on this device/);
   ui.destroy();
+});
+
+
+test('E04 CSS keeps 320px choices touchable and wraps narrow-screen content',()=>{
+  const css=readFileSync(new URL('../e04/authoring-ui.css',import.meta.url),'utf8');
+  assert.match(css,/\.e04-authoring\s*\{[^}]*width:\s*100%;[^}]*min-width:\s*0;/);
+  assert.match(css,/\.e04-panel\s*\{[^}]*min-width:\s*0;[^}]*overflow-wrap:\s*anywhere;/);
+  assert.match(css,/\.e04-button\s*\{[^}]*min-height:\s*44px;[^}]*min-width:\s*0;[^}]*max-width:\s*100%;[^}]*overflow-wrap:\s*anywhere;/);
+  assert.match(css,/@media\s*\(max-width:\s*560px\)[\s\S]*?\.e04-choices\s*\{\s*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css,/\.e04-choices\s+\.e04-button:last-child\s*\{\s*grid-column:\s*1\s*\/\s*-1;/);
+  assert.match(css,/@media\s*\(min-width:\s*400px\)\s*and\s*\(max-width:\s*560px\)/);
+  assert.match(css,/\.e04-save-warning\s*\{[^}]*flex-wrap:\s*wrap;/);
 });
