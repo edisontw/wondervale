@@ -92,6 +92,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     if(disposed || !saveError)return false;
     saveError=!persist(storage,mode,state);
     saveRecovered=!saveError;
+    if (!saveError) restoreWarning=false;
     render('retry-save');
     return !saveError;
   }
