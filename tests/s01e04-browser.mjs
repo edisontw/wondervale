@@ -244,9 +244,13 @@ try {
     assert.equal(recovered.phase,'sources','Corrupt checkpoint must open a clean draft');
     assert.deepEqual(recovered.history,[],'Forged history must not be replayed');
     assert.deepEqual(recovered.memoryViewed,[]);
+    assert.equal(await page.getByText('The previous Episode 04 draft could not be restored',{exact:false}).count(),1,
+      'Corrupt checkpoint must visibly warn the user');
     assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),corrupt,
       'Loading must not silently delete or rewrite storage');
     await action('memory:station');
+    assert.equal(await page.getByText('The previous Episode 04 draft could not be restored',{exact:false}).count(),0,
+      'Warning clears after a valid replacement checkpoint');
     const repaired=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
     assert.ok(repaired && repaired!==corrupt,'A valid action replaces corrupt storage');
     await page.reload();
