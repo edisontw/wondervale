@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fresh as fresh02,dispatch as dispatch02,payload as payload02} from '../engine/s01e02.mjs';
 import {fresh as fresh03,dispatch as dispatch03,payload as payload03} from '../engine/s01e03.mjs';
-import {DRAFT_KEY} from '../engine/s01e04-chronology.mjs';
+import {DRAFT_KEY,MAX_ACTIONS,dispatch as dispatch04,fresh as fresh04} from '../engine/s01e04-chronology.mjs';
 import {mountE04Authoring} from '../e04/authoring-ui.mjs';
 
 // Synthetic evidence pack: test-only. No approved E04 source art or script.
@@ -461,6 +461,45 @@ test('Retry saving remains available after repeated storage failures',()=>{
   ui.destroy();
 });
 
+
+test('250-action safety cap explains the limit, preserves draft, and allows a scoped restart',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const before02=storage.getItem('wondervale-s01e02-progress-v1');
+  const before03=storage.getItem('wondervale-s01e03-progress-v1');
+  let state=dispatch04(fresh04(pack),{type:'inspect-card',id:'first-map'},pack);
+  for(let i=1;i<MAX_ACTIONS-1;i++)
+    state=dispatch04(state,{type:'place',id:'first-map',slot:i%2?'earlier':'later'},pack);
+  assert.equal(state.history.length,MAX_ACTIONS-1);
+  storage.setItem(DRAFT_KEY,JSON.stringify(state));
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.equal(root.find('place:first-map:earlier').disabled,false);
+  assert.doesNotMatch(root.allText(),/250-change safety limit/);
+  tap(root,'place:first-map:earlier');
+  assert.equal(ui.getState().history.length,MAX_ACTIONS);
+  assert.match(root.allText(),/250-change safety limit/);
+  const cappedSave=storage.getItem(DRAFT_KEY);
+  for(const key of ['memory:station','inspect:later-record','place:first-map:later','clue:revision-note','explain','chronicle','finish'])
+    assert.equal(root.find(key).disabled,true,'At cap, action is disabled: '+key);
+  root.find('place:first-map:later').click();
+  assert.equal(storage.getItem(DRAFT_KEY),cappedSave);
+  ui.destroy();
+  const resumedRoot=doc.root();
+  const resumed=mountE04Authoring(resumedRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.equal(resumed.getState().history.length,MAX_ACTIONS);
+  assert.match(resumedRoot.allText(),/250-change safety limit/);
+  tap(resumedRoot,'reset');
+  tap(resumedRoot,'confirm-reset');
+  assert.equal(resumed.getState().history.length,0);
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  assert.doesNotMatch(resumedRoot.allText(),/250-change safety limit/);
+  assert.equal(resumedRoot.find('memory:station').disabled,false);
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),before02);
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
+  resumed.destroy();
+});
 
 test('E04 CSS keeps 320px choices touchable and wraps narrow-screen content',()=>{
   const css=readFileSync(new URL('../e04/authoring-ui.css',import.meta.url),'utf8');
