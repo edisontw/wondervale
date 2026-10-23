@@ -252,3 +252,46 @@ test('failed overwrite warns instead of presenting an old checkpoint as current'
   assert.ok(resumed.getState().cardViewed.includes('first-map'));
   ui.destroy();resumed.destroy();
 });
+
+test('Retry saving persists the same in-memory draft without changing story progress',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const originalSet=storage.setItem.bind(storage);
+  storage.setItem=()=>{}; // Silent write failure.
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(root,'memory:station');
+  const before=ui.getState();
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  assert.match(root.allText(),/This draft is not saved on this device/);
+  assert.equal(root.find('retry-save').disabled,false);
+  storage.setItem=originalSet;
+  tap(root,'retry-save');
+  assert.deepEqual(ui.getState(),before,'Retry must not dispatch a story action');
+  assert.ok(storage.getItem(DRAFT_KEY),'Retry should persist the complete draft');
+  assert.equal(root.find('retry-save'),null,'Retry control disappears after success');
+  assert.match(root.allText(),/Draft saved on this device/);
+  const resumed=mountE04Authoring(doc.root(),{pack,e02Save:e02,e03Save:e03,storage});
+  assert.deepEqual(resumed.getState(),before);
+  ui.destroy();resumed.destroy();
+});
+
+test('Retry saving remains available after repeated storage failures',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const originalSet=storage.setItem.bind(storage);
+  storage.setItem=()=>{throw new Error('Quota exceeded');};
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(root,'memory:station');
+  const before=ui.getState();
+  tap(root,'retry-save');
+  assert.deepEqual(ui.getState(),before);
+  assert.match(root.allText(),/This draft is not saved on this device/);
+  assert.equal(root.find('retry-save').disabled,false);
+  assert.equal(doc.activeElement.dataset.focusKey,'retry-save');
+  storage.setItem=originalSet;
+  tap(root,'retry-save');
+  assert.deepEqual(ui.getState(),before);
+  assert.ok(storage.getItem(DRAFT_KEY));
+  assert.doesNotMatch(root.allText(),/This draft is not saved on this device/);
+  ui.destroy();
+});
