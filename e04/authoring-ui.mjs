@@ -229,7 +229,23 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     box.append(footer);
     root.replaceChildren(box);
-    if(focusKey && focusables.has(focusKey))focusables.get(focusKey).focus();
+    // A completed inspection disables its original button. Never send keyboard
+    // focus to a disabled/detached control after replacing the DOM tree.
+    if(focusKey) {
+      const controls=[...focusables.values()];
+      const original=focusables.get(focusKey);
+      let target=original && !original.disabled ? original : null;
+      if(!target && original) {
+        const index=controls.indexOf(original);
+        for(let distance=1;distance<controls.length && !target;distance++) {
+          const after=controls[index+distance],before=controls[index-distance];
+          if(after && !after.disabled)target=after;
+          else if(before && !before.disabled)target=before;
+        }
+      }
+      if(!target)target=controls.find(control=>!control.disabled);
+      target?.focus();
+    }
   }
   render();
   return {
