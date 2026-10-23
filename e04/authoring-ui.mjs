@@ -16,11 +16,14 @@ const MEMORY_LABELS=[
 const MAX_SAVE_CHARS=60000;
 
 function load(storage,mode) {
-  if (!storage || mode!=='draft_preview') return null;
+  if (!storage || mode!=='draft_preview') return {raw:null,present:false,problem:false};
   try {
     const text=storage.getItem(DRAFT_KEY);
-    return text && text.length<=MAX_SAVE_CHARS ? JSON.parse(text) : null;
-  } catch { return null; }
+    if (text===null) return {raw:null,present:false,problem:false};
+    if (typeof text!=='string' || text.length>MAX_SAVE_CHARS)
+      return {raw:null,present:true,problem:true};
+    return {raw:JSON.parse(text),present:true,problem:false};
+  } catch { return {raw:null,present:true,problem:true}; }
 }
 function persist(storage,mode,state) {
   if (!storage || mode!=='draft_preview') return true;
@@ -63,8 +66,13 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   }
   // No built-in source pack: owner-reviewed evidence must be supplied by a future integrator.
   const sources=validateSourcePack(pack);
-  const opened=openE04Authoring(e02Save,e03Save,sources,load(storage,mode),mode);
+  const checkpoint=load(storage,mode);
+  const opened=openE04Authoring(e02Save,e03Save,sources,checkpoint.raw,mode);
   let state=opened.session;
+  // Restore is strict event replay: any mismatched/invalid checkpoint starts fresh.
+  // Keep the old bytes untouched until a new valid action explicitly saves.
+  let restoreWarning=checkpoint.problem ||
+    (checkpoint.present && JSON.stringify(opened.session)!==JSON.stringify(checkpoint.raw));
   let disposed=false;
   let resetPending=false;
   let resetError=false;
@@ -76,6 +84,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     resetPending=false;
     state=dispatch(state,action,sources);
     saveError=!persist(storage,mode,state);
+    if (!saveError) restoreWarning=false;
     saveRecovered=false;
     render(key);
   }
@@ -105,6 +114,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     resetError=false;
     saveError=false;
     saveRecovered=false;
+    restoreWarning=false;
     state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
     render('start-over');
     return true;
@@ -125,6 +135,13 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     status.setAttribute('role','status');
     status.setAttribute('aria-live','polite');
     box.append(status);
+    if(restoreWarning) {
+      const warning=el('p','e04-save-warning',
+        'The previous Episode 04 draft could not be restored. This preview starts fresh. '+
+        'The old saved data has not been deleted; continuing may replace it.');
+      warning.setAttribute('role','alert');
+      box.append(warning);
+    }
     if(saveError) {
       const warning=el('div','e04-save-warning');
       const message=el('p','',
