@@ -139,7 +139,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     box.append(status);
     if(atLimit) {
       const warning=el('p','e04-save-warning',
-        'This preview has reached its 250-change safety limit. Your draft remains saved, but no more changes can be made. Start this draft again to create a new draft.');
+        'This preview has reached its 250-change safety limit. Your draft stays available on this page, but no more changes can be made. Start this draft again to create a new draft.');
       warning.setAttribute('role','alert');
       box.append(warning);
     }
