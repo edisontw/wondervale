@@ -153,6 +153,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       warning.setAttribute('role','alert');
       box.append(warning);
     }
+    let saveStatus=null;
     if(saveError) {
       const warning=el('div','e04-save-warning');
       const message=el('p','',
@@ -164,6 +165,8 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     } else if(saveRecovered) {
       const message=el('p','e04-save-success','Draft saved on this device.');
       message.setAttribute('role','status');
+      if(atLimit)message.tabIndex=-1;
+      saveStatus=message;
       box.append(message);
     }
     function button(parent,label,action,key,disabled=false,pressed=null) {
@@ -295,6 +298,11 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     // instead of silently jumping to the restart button at the page footer.
     if(atLimit && focusKey && !['reset','keep-reset','confirm-reset','retry-save'].includes(focusKey)) {
       limitWarning?.focus();
+      return;
+    }
+    // Keep successful capped-save recovery in view for keyboard and screen-reader users.
+    if(atLimit && focusKey==='retry-save' && saveStatus) {
+      saveStatus.focus();
       return;
     }
     if(focusKey==='start-over') {

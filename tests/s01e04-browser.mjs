@@ -287,9 +287,14 @@ try {
         pack,e02Save,e03Save,storage:localStorage
       });
     },{pack,e02Save,e03Save});
+    await page.evaluate(()=>{window.__e04Blocked=true;});
+    const checkpoint249=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
     await page.locator('[data-focus-key="place:first-map:earlier"]').focus();
     await page.keyboard.press('Enter');
     assert.equal(await page.evaluate(()=>window.__e04.getState().history.length),250);
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),checkpoint249,
+      'A blocked 250th write leaves the 249-action checkpoint intact');
+    assert.equal(await page.locator('[data-focus-key="retry-save"]').count(),1);
     const capAlert=page.locator('.e04-save-warning[role="alert"]').first();
     assert.match(await capAlert.innerText(),/250-change safety limit/);
     assert.equal(await capAlert.evaluate(node=>document.activeElement===node),true,
@@ -302,7 +307,20 @@ try {
     await layout('250-action cap '+size.width);
     assert.equal(await page.locator('[data-focus-key="place:first-map:earlier"]').isDisabled(),true);
     await page.keyboard.press('Tab');
-    assert.equal(await focusKey(),'reset','Tab from the alert reaches the only enabled action');
+    assert.equal(await focusKey(),'retry-save','Failed capped save keeps Retry saving reachable');
+    await page.keyboard.press('Enter');
+    assert.equal(await focusKey(),'retry-save','A failed retry retains keyboard focus');
+    await page.evaluate(()=>{window.__e04Blocked=false;});
+    await page.keyboard.press('Enter');
+    assert.equal(await page.evaluate(()=>window.__e04.getState().history.length),250);
+    const savedStatus=page.locator('.e04-save-success[role="status"]');
+    assert.equal(await savedStatus.count(),1);
+    assert.equal(await savedStatus.evaluate(node=>document.activeElement===node),true,
+      'Successful retry must focus the save confirmation, not the restart footer');
+    assert.notEqual(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),checkpoint249);
+    await layout('250-action retry recovered '+size.width);
+    await page.keyboard.press('Tab');
+    assert.equal(await focusKey(),'reset','Tab from saved status reaches the enabled restart action');
     await page.keyboard.press('Enter');
     assert.equal(await focusKey(),'keep-reset');
     await page.keyboard.press('Enter');

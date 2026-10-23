@@ -521,13 +521,25 @@ test('the 250th action can retry a failed save without changing the capped draft
   assert.match(root.allText(),/250-change safety limit/);
   assert.match(root.allText(),/This draft is not saved on this device/);
   assert.equal(root.find('retry-save').disabled,false);
+  tap(root,'retry-save');
+  assert.equal(doc.activeElement.dataset.focusKey,'retry-save',
+    'Repeated failure keeps Retry saving focused and usable');
+  assert.equal(storage.getItem(DRAFT_KEY),oldCheckpoint);
   storage.setItem=originalSet;
   tap(root,'retry-save');
   assert.equal(ui.getState().history.length,MAX_ACTIONS);
+  assert.equal(doc.activeElement.tagName,'P','Successful retry focuses the saved status');
+  assert.equal(doc.activeElement.attributes.role,'status');
+  assert.match(doc.activeElement.textContent,/Draft saved on this device/);
+  assert.equal(doc.activeElement.tabIndex,-1);
   assert.equal(storage.getItem(DRAFT_KEY),JSON.stringify(ui.getState()));
   assert.doesNotMatch(root.allText(),/This draft is not saved on this device/);
   assert.match(root.allText(),/250-change safety limit/);
   assert.equal(root.find('place:first-map:later').disabled,true);
+  tap(root,'reset');
+  tap(root,'keep-reset');
+  assert.equal(ui.getState().history.length,MAX_ACTIONS,'Cancelling restart keeps capped draft');
+  assert.equal(storage.getItem(DRAFT_KEY),JSON.stringify(ui.getState()));
   ui.destroy();
 });
 
