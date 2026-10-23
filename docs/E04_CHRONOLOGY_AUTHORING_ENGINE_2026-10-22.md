@@ -14,7 +14,7 @@
 - `tests/s01e04-chronology.test.mjs`: seven draft-engine regression tests.
 - `e04/authoring-ui.mjs` and `.css`: responsive, accessible preview with the two exact approved E03 witness lines shown on inspection, source placement and a readable draft Chronicle summary (earlier/later/undated). No unapproved E04 art or evidence cards.
 - Restart in the E04 preview now asks for confirmation before clearing only the E04 draft. The earlier E02/E03 progress records remain untouched; cancel preserves the current draft.
-- `tests/s01e04-authoring-ui.test.mjs`: exercises memory inspection, timeline review, persistence and revision.
+- `tests/s01e04-authoring-ui.test.mjs`: exercises memory inspection, timeline review, persistence and revision; keyboard focus must relocate to a **currently enabled** nearby control when the inspected source/clue or reviewed Chronicle button becomes disabled after a DOM rerender.
 - Extended `tests/s01e03-e04-handoff.test.mjs`: verifies guarded entry, interrupted draft resume, chapter-local reset, replay isolation and read-only E02/E03 sources.
 - `.github/workflows/wondervale-e04-authoring.yml`: Node 24 unit checks only, **no artifacts or deployment**, so GitHub artifact storage quota does not obscure the authoring test result.
 
