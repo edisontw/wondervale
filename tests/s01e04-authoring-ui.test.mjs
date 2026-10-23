@@ -272,6 +272,40 @@ test('source-pack revision change warns and preserves prior draft until a new va
   revised.destroy();resumed.destroy();
 });
 
+test('same-revision evidence edits invalidate stale E04 drafts without changing earlier saves',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const before02=storage.getItem('wondervale-s01e02-progress-v1');
+  const before03=storage.getItem('wondervale-s01e03-progress-v1');
+  const originalRoot=doc.root();
+  const original=mountE04Authoring(originalRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(originalRoot,'memory:station');
+  const oldCheckpoint=storage.getItem(DRAFT_KEY);
+  original.destroy();
+
+  // Even an accidental content edit without a revision bump must not replay
+  // an old draft against changed source evidence.
+  const changedPack={...pack,clues:pack.clues.map(clue=>({
+    ...clue,text:clue.text+' [synthetic edit]'
+  }))};
+  assert.equal(changedPack.revision,pack.revision);
+  const root=doc.root();
+  const revised=mountE04Authoring(root,{pack:changedPack,e02Save:e02,e03Save:e03,storage});
+  assert.deepEqual(revised.getState().history,[]);
+  assert.match(root.allText(),/previous Episode 04 draft could not be restored/);
+  assert.equal(storage.getItem(DRAFT_KEY),oldCheckpoint,'Do not erase a stale checkpoint on load');
+  tap(root,'memory:garden');
+  assert.doesNotMatch(root.allText(),/previous Episode 04 draft could not be restored/);
+  assert.notEqual(storage.getItem(DRAFT_KEY),oldCheckpoint);
+  const resumed=mountE04Authoring(doc.root(),{pack:changedPack,e02Save:e02,e03Save:e03,storage});
+  assert.deepEqual(resumed.getState().memoryViewed,['garden']);
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),before02);
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
+  revised.destroy();resumed.destroy();
+});
+
 test('historical replay does not read or overwrite draft checkpoint',()=>{
   const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
   const e02=realE02(),e03=realE03();
