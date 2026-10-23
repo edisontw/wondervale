@@ -23,13 +23,19 @@ function load(storage,mode) {
   } catch { return null; }
 }
 function persist(storage,mode,state) {
-  if (!storage || mode!=='draft_preview') return;
+  if (!storage || mode!=='draft_preview') return true;
   try {
     const payload=draftPayload(state);
-    if (!payload) { storage.removeItem(DRAFT_KEY); return; }
+    if (!payload) {
+      storage.removeItem(DRAFT_KEY);
+      return storage.getItem(DRAFT_KEY)===null;
+    }
     const text=JSON.stringify(payload);
-    if (text.length<=MAX_SAVE_CHARS) storage.setItem(DRAFT_KEY,text);
-  } catch { /* Storage may be unavailable; never block play. */ }
+    if (text.length>MAX_SAVE_CHARS) return false;
+    storage.setItem(DRAFT_KEY,text);
+    // Some storage shims fail silently; only report saved after readback.
+    return storage.getItem(DRAFT_KEY)===text;
+  } catch { return false; } // Keep the in-memory draft playable.
 }
 
 export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='draft_preview'}={}) {
@@ -62,12 +68,13 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   let disposed=false;
   let resetPending=false;
   let resetError=false;
+  let saveError=false;
   const read=()=>structuredClone(state);
   function update(action,key) {
     if(disposed)return;
     resetPending=false;
     state=dispatch(state,action,sources);
-    persist(storage,mode,state);
+    saveError=!persist(storage,mode,state);
     render(key);
   }
   function reset() {
@@ -87,6 +94,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     resetPending=false;
     resetError=false;
+    saveError=false;
     state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
     render('reset');
     return true;
@@ -104,6 +112,12 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     status.setAttribute('role','status');
     status.setAttribute('aria-live','polite');
     box.append(status);
+    if(saveError) {
+      const warning=el('p','e04-save-warning',
+        'This draft is not saved on this device. Keep this page open; try another action to retry saving.');
+      warning.setAttribute('role','alert');
+      box.append(warning);
+    }
     function button(parent,label,action,key,disabled=false,pressed=null) {
       const b=el('button','e04-button',label);
       b.type='button';
