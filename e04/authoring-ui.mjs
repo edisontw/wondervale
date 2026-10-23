@@ -137,10 +137,13 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     status.setAttribute('role','status');
     status.setAttribute('aria-live','polite');
     box.append(status);
+    let limitWarning=null;
     if(atLimit) {
       const warning=el('p','e04-save-warning',
         'This preview has reached its 250-change safety limit. Your draft stays available on this page, but no more changes can be made. Start this draft again to create a new draft.');
       warning.setAttribute('role','alert');
+      warning.tabIndex=-1;
+      limitWarning=warning;
       box.append(warning);
     }
     if(restoreWarning) {
@@ -288,6 +291,12 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     box.append(footer);
     root.replaceChildren(box);
+    // The last permitted edit disables its control. Focus the visible alert
+    // instead of silently jumping to the restart button at the page footer.
+    if(atLimit && focusKey && !['reset','keep-reset','confirm-reset','retry-save'].includes(focusKey)) {
+      limitWarning?.focus();
+      return;
+    }
     if(focusKey==='start-over') {
       heading.focus(); // Also scrolls the new draft heading into view on short screens.
       return;

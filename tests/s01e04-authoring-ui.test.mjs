@@ -480,6 +480,9 @@ test('250-action safety cap explains the limit, preserves draft, and allows a sc
   tap(root,'place:first-map:earlier');
   assert.equal(ui.getState().history.length,MAX_ACTIONS);
   assert.match(root.allText(),/250-change safety limit/);
+  assert.equal(doc.activeElement.tagName,'P','The 250th edit focuses the limit alert');
+  assert.equal(doc.activeElement.attributes.role,'alert');
+  assert.match(doc.activeElement.textContent,/250-change safety limit/);
   const cappedSave=storage.getItem(DRAFT_KEY);
   for(const key of ['memory:station','inspect:later-record','place:first-map:later','clue:revision-note','explain','chronicle','finish'])
     assert.equal(root.find(key).disabled,true,'At cap, action is disabled: '+key);

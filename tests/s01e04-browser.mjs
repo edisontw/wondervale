@@ -267,6 +267,52 @@ try {
       localStorage.getItem('wondervale-s01e03-progress-v1')
     ]),unchanged,'Reload, replay and corruption recovery must preserve E02/E03');
     await layout('reload and replay '+size.width);
+
+    // Near-cap keyboard/touch regression: synthesize only the setup history,
+    // then make the 250th edit through the actual browser UI.
+    const nearCap=await page.evaluate(async ({pack,key})=>{
+      const {fresh,dispatch,MAX_ACTIONS}=await import('/engine/s01e04-chronology.mjs');
+      let state=dispatch(fresh(pack),{type:'inspect-card',id:'first-map'},pack);
+      for(let i=1;i<MAX_ACTIONS-1;i++)
+        state=dispatch(state,{type:'place',id:'first-map',slot:i%2?'earlier':'later'},pack);
+      localStorage.setItem(key,JSON.stringify(state));
+      return {count:state.history.length,slot:state.slots['first-map']};
+    },{pack,key:DRAFT_KEY});
+    assert.equal(nearCap.count,249);
+    assert.equal(nearCap.slot,'earlier');
+    await page.reload();
+    await page.evaluate(async ({pack,e02Save,e03Save})=>{
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      window.__e04=mountE04Authoring(document.getElementById('e04-root'),{
+        pack,e02Save,e03Save,storage:localStorage
+      });
+    },{pack,e02Save,e03Save});
+    await page.locator('[data-focus-key="place:first-map:later"]').focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await page.evaluate(()=>window.__e04.getState().history.length),250);
+    const capAlert=page.locator('.e04-save-warning[role="alert"]').first();
+    assert.match(await capAlert.innerText(),/250-change safety limit/);
+    assert.equal(await capAlert.evaluate(node=>document.activeElement===node),true,
+      'The final edit must focus the limit alert, not an off-screen restart control');
+    const capPosition=await capAlert.evaluate(node=>({
+      top:node.getBoundingClientRect().top,bottom:node.getBoundingClientRect().bottom,height:innerHeight
+    }));
+    assert.ok(capPosition.top>=-1&&capPosition.top<capPosition.height,
+      'Limit alert must be visible on short screens: '+JSON.stringify(capPosition));
+    await layout('250-action cap '+size.width);
+    assert.equal(await page.locator('[data-focus-key="place:first-map:later"]').isDisabled(),true);
+    await page.keyboard.press('Tab');
+    assert.equal(await focusKey(),'reset','Tab from the alert reaches the only enabled action');
+    await page.keyboard.press('Enter');
+    assert.equal(await focusKey(),'keep-reset');
+    await page.keyboard.press('Enter');
+    assert.equal(await focusKey(),'reset');
+    assert.equal(await page.evaluate(()=>window.__e04.getState().history.length),250,
+      'Cancelling restart must retain the capped draft');
+    assert.deepEqual(await page.evaluate(()=>[
+      localStorage.getItem('wondervale-s01e02-progress-v1'),
+      localStorage.getItem('wondervale-s01e03-progress-v1')
+    ]),unchanged,'Near-cap editing must not touch earlier chapter saves');
     assert.deepEqual(errors,[],'No browser exceptions');
     await context.close();
     console.log('PASS E04 browser responsive, Chronicle, storage retry: '+size.width+'x'+size.height);
