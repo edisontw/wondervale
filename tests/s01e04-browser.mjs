@@ -1,0 +1,150 @@
+// Browser-only E04 authoring regression. Synthetic source cards are engineering fixtures,
+// never canonical evidence or approved Episode 04 story content.
+import assert from 'node:assert/strict';
+import {chromium} from 'playwright';
+import {fresh as fresh02,dispatch as dispatch02,payload as payload02} from '../engine/s01e02.mjs';
+import {fresh as fresh03,dispatch as dispatch03,payload as payload03} from '../engine/s01e03.mjs';
+import {DRAFT_KEY} from '../engine/s01e04-chronology.mjs';
+
+const base=process.env.TEST_BASE_URL||'http://127.0.0.1:4173';
+const pack={
+  id:'browser-layout-fixture',revision:'test-r1',
+  cards:[
+    {id:'first-map',label:'First map',kind:'map'},
+    {id:'later-record',label:'Later record',kind:'document'},
+    {id:'undated-photo',label:'VeryLongUnbrokenSyntheticPhotoLabelForNarrowViewportWrapping',kind:'photo'}
+  ],
+  clues:[{id:'revision-note',label:'Revision note',text:'A synthetic note about a changed map.'}],
+  relativeOrder:{earlier:'first-map',later:'later-record',basis:'revision-note'}
+};
+const drain02=s=>{while(s.queue.length)s=dispatch02(s,{type:'next'});return s;};
+const drain03=s=>{while(s.queue.length)s=dispatch03(s,{type:'next'});return s;};
+const move03=s=>{while(s.travel.length)s=dispatch03(s,{type:'step',to:s.travel[0]});return s;};
+function completedE02(){
+  let s=fresh02();
+  const a=x=>{s=drain02(dispatch02(s,x));};
+  for(const action of [
+    {type:'begin'},{type:'go',to:'oldStones'},{type:'inspect',what:'stones'},
+    {type:'close-detail'},{type:'go',to:'lookoutView'},{type:'inspect',what:'gap'},
+    {type:'close-detail'},{type:'notebook'},{type:'fact',choice:'gap'},
+    {type:'revision',choice:'A'},{type:'market'},{type:'chronicle'},{type:'finish'}
+  ])a(action);
+  assert.equal(s.phase,'completed');
+  return payload02(s);
+}
+function completedE03(){
+  let s=drain03(dispatch03(fresh03(),{type:'begin',ready:true}));
+  const deliver=state=>drain03(dispatch03(move03(dispatch03(state,{type:'take-route',route:'L'})),{type:'deliver'}));
+  s=deliver(s);s=drain03(move03(dispatch03(s,{type:'return'})));
+  s=deliver(s);s=dispatch03(s,{type:'inspect',what:'S'});
+  s=drain03(dispatch03(s,{type:'compare',reason:'steps'}));
+  s=drain03(move03(dispatch03(s,{type:'return'})));
+  s=deliver(s);s=drain03(move03(dispatch03(s,{type:'return'})));
+  for(const kind of ['WALK','CART'])s=drain03(dispatch03(s,{type:'sign',kind,to:'L'}));
+  s=move03(dispatch03(s,{type:'go-glyph'}));
+  s=drain03(dispatch03(s,{type:'glyph'}));
+  for(const which of ['garden','station'])s=drain03(dispatch03(s,{type:'memory',which}));
+  s=drain03(dispatch03(s,{type:'chronicle'}));s=dispatch03(s,{type:'finish'});
+  assert.equal(s.phase,'completed');
+  return payload03(s);
+}
+const e02Save=completedE02(),e03Save=completedE03();
+const browser=await chromium.launch({headless:true});
+const cases=[{width:320,height:640},{width:568,height:320},{width:1366,height:768}];
+try {
+  for(const size of cases){
+    const mobile=size.width<900;
+    const context=await browser.newContext({
+      viewport:size,isMobile:mobile,hasTouch:mobile,reducedMotion:'reduce'
+    });
+    const page=await context.newPage(),errors=[];
+    page.on('pageerror',e=>errors.push(e.message));
+    // No E04 production route exists. This intercepted HTML is test-only and
+    // loads the actual E04 JS/CSS from the repository's local static server.
+    await page.route('**/__e04_browser_probe__',route=>route.fulfill({
+      status:200,contentType:'text/html',
+      body:'<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/e04/authoring-ui.css"></head><body style="margin:0"><main id="e04-root"></main></body></html>'
+    }));
+    await page.goto(base+'/__e04_browser_probe__');
+    await page.evaluate(async ({pack,e02Save,e03Save})=>{
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      localStorage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02Save));
+      localStorage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03Save));
+      window.__e04=mountE04Authoring(document.getElementById('e04-root'),{
+        pack,e02Save,e03Save,storage:localStorage
+      });
+    },{pack,e02Save,e03Save});
+    assert.equal(await page.evaluate(()=>window.__e04.ready),true,'Canonical entry gate');
+    const action=async key=>{
+      const b=page.locator('[data-focus-key="'+key+'"]');
+      if(mobile)await b.tap();else await b.click();
+    };
+    const layout=async label=>{
+      const geometry=await page.evaluate(()=>{
+        const buttons=[...document.querySelectorAll('.e04-authoring button')];
+        return {
+          viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+          buttons:buttons.map(b=>{
+            const r=b.getBoundingClientRect();
+            return {name:b.dataset.focusKey,x:r.x,right:r.right,width:r.width,height:r.height};
+          })
+        };
+      });
+      assert.ok(geometry.scrollWidth<=geometry.viewport+1,
+        label+' horizontal overflow: '+JSON.stringify(geometry));
+      for(const b of geometry.buttons){
+        assert.ok(b.x>=-1&&b.right<=geometry.viewport+1,
+          label+' clipped control '+JSON.stringify(b));
+        assert.ok(b.height>=43.5,label+' touch target too short '+JSON.stringify(b));
+      }
+    };
+    await layout('initial '+size.width);
+    const choices=await page.locator('.e04-choices').first().locator('button').evaluateAll(
+      nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return {top:r.top,width:r.width};})
+    );
+    if(size.width===320){
+      assert.ok(Math.abs(choices[0].top-choices[1].top)<2,'320px: first two choices share row');
+      assert.ok(choices[2].top>choices[1].top+20,'320px: uncertainty moves to next row');
+    } else {
+      assert.ok(Math.abs(choices[0].top-choices[2].top)<2,'wider view: three choices share row');
+    }
+    // Trigger a real browser Storage write failure, then retry without story mutation.
+    await page.evaluate(key=>{
+      window.__e04Blocked=true;
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(k,v){
+        if(k===key&&window.__e04Blocked)throw new Error('Simulated quota');
+        return original.call(this,k,v);
+      };
+    },DRAFT_KEY);
+    await action('memory:station');
+    const beforeRetry=await page.evaluate(()=>window.__e04.getState());
+    assert.equal(await page.locator('[data-focus-key="retry-save"]').count(),1);
+    await layout('save warning '+size.width);
+    await action('retry-save');
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),beforeRetry);
+    await page.evaluate(()=>{window.__e04Blocked=false;});
+    await action('retry-save');
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),beforeRetry);
+    assert.equal(await page.locator('[data-focus-key="retry-save"]').count(),0);
+    await action('memory:garden');
+    for(const id of ['first-map','later-record','undated-photo'])await action('inspect:'+id);
+    await action('clue:revision-note');
+    await action('place:first-map:earlier');
+    await action('place:later-record:later');
+    await action('place:undated-photo:uncertain');
+    await action('explain');await action('chronicle');
+    assert.equal(await page.locator('.e04-timeline-step').count(),2);
+    await layout('Chronicle '+size.width);
+    await action('finish');
+    assert.equal(await page.evaluate(()=>window.__e04.getState().phase),'completed');
+    const unchanged=await page.evaluate(()=>[
+      localStorage.getItem('wondervale-s01e02-progress-v1'),
+      localStorage.getItem('wondervale-s01e03-progress-v1')
+    ]);
+    assert.deepEqual(unchanged,[JSON.stringify(e02Save),JSON.stringify(e03Save)]);
+    assert.deepEqual(errors,[],'No browser exceptions');
+    await context.close();
+    console.log('PASS E04 browser responsive, Chronicle, storage retry: '+size.width+'x'+size.height);
+  }
+} finally {await browser.close();}
