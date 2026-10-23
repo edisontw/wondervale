@@ -106,7 +106,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     saveError=false;
     saveRecovered=false;
     state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
-    render('reset');
+    render('start-over');
     return true;
   }
   function render(focusKey=null) {
@@ -114,7 +114,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     const focusables=new Map();
     const box=el('section','e04-authoring');
     box.setAttribute('aria-label','Episode 04 chronology authoring preview');
-    box.append(el('h2','','What changed over time?'));
+    const heading=el('h2','','What changed over time?');
+    // Restart returns keyboard and screen-reader users to the beginning of the draft.
+    if(focusKey==='start-over')heading.tabIndex=-1;
+    box.append(heading);
     box.append(el('p','e04-notice','Interaction preview only. This is not a completed episode, and no canonical progress is saved.'));
     const seen=state.cardViewed.length+state.clueViewed.length+state.memoryViewed.length;
     const total=sources.cards.length+sources.clues.length+MEMORY_LABELS.length;
@@ -260,6 +263,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     box.append(footer);
     root.replaceChildren(box);
+    if(focusKey==='start-over') {
+      heading.focus(); // Also scrolls the new draft heading into view on short screens.
+      return;
+    }
     // A completed inspection disables its original button. Never send keyboard
     // focus to a disabled/detached control after replacing the DOM tree.
     if(focusKey) {
