@@ -69,13 +69,22 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   let resetPending=false;
   let resetError=false;
   let saveError=false;
+  let saveRecovered=false;
   const read=()=>structuredClone(state);
   function update(action,key) {
     if(disposed)return;
     resetPending=false;
     state=dispatch(state,action,sources);
     saveError=!persist(storage,mode,state);
+    saveRecovered=false;
     render(key);
+  }
+  function retrySave() {
+    if(disposed || !saveError)return false;
+    saveError=!persist(storage,mode,state);
+    saveRecovered=!saveError;
+    render('retry-save');
+    return !saveError;
   }
   function reset() {
     if(disposed)return false;
@@ -95,6 +104,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     resetPending=false;
     resetError=false;
     saveError=false;
+    saveRecovered=false;
     state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
     render('reset');
     return true;
@@ -113,10 +123,17 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     status.setAttribute('aria-live','polite');
     box.append(status);
     if(saveError) {
-      const warning=el('p','e04-save-warning',
-        'This draft is not saved on this device. Keep this page open; try another action to retry saving.');
-      warning.setAttribute('role','alert');
+      const warning=el('div','e04-save-warning');
+      const message=el('p','',
+        'This draft is not saved on this device. Keep this page open and retry saving.');
+      message.setAttribute('role','alert');
+      warning.append(message);
+      button(warning,'Retry saving',retrySave,'retry-save');
       box.append(warning);
+    } else if(saveRecovered) {
+      const message=el('p','e04-save-success','Draft saved on this device.');
+      message.setAttribute('role','status');
+      box.append(message);
     }
     function button(parent,label,action,key,disabled=false,pressed=null) {
       const b=el('button','e04-button',label);
