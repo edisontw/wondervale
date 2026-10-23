@@ -3,7 +3,7 @@
 import {openE04Authoring} from '../engine/s01e04-authoring-entry.mjs';
 import {e04Handoff} from '../engine/s01e04-handoff.mjs';
 import {
-  DRAFT_KEY,dispatch,draftPayload,timelineSupported,chronicleProjection,validateSourcePack
+  DRAFT_KEY,MAX_ACTIONS,dispatch,draftPayload,timelineSupported,chronicleProjection,validateSourcePack
 } from '../engine/s01e04-chronology.mjs';
 
 const SLOTS=[['earlier','Earlier'],['later','Later'],['uncertain','Not sure yet']];
@@ -80,7 +80,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   let saveRecovered=false;
   const read=()=>structuredClone(state);
   function update(action,key) {
-    if(disposed)return;
+    if(disposed || state.history.length>=MAX_ACTIONS)return;
     resetPending=false;
     state=dispatch(state,action,sources);
     saveError=!persist(storage,mode,state);
@@ -130,12 +130,19 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     if(focusKey==='start-over')heading.tabIndex=-1;
     box.append(heading);
     box.append(el('p','e04-notice','Interaction preview only. This is not a completed episode, and no canonical progress is saved.'));
+    const atLimit=state.history.length>=MAX_ACTIONS && state.phase!=='completed';
     const seen=state.cardViewed.length+state.clueViewed.length+state.memoryViewed.length;
     const total=sources.cards.length+sources.clues.length+MEMORY_LABELS.length;
     const status=el('p','e04-status',`Sources inspected: ${seen} of ${total}. Stage: ${state.phase.replaceAll('_',' ')}.`);
     status.setAttribute('role','status');
     status.setAttribute('aria-live','polite');
     box.append(status);
+    if(atLimit) {
+      const warning=el('p','e04-save-warning',
+        'This preview has reached its 250-change safety limit. Your draft remains saved, but no more changes can be made. Start this draft again to create a new draft.');
+      warning.setAttribute('role','alert');
+      box.append(warning);
+    }
     if(restoreWarning) {
       const warning=el('p','e04-save-warning',
         'The previous Episode 04 draft could not be restored. This preview starts fresh. '+
@@ -159,7 +166,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     function button(parent,label,action,key,disabled=false,pressed=null) {
       const b=el('button','e04-button',label);
       b.type='button';
-      b.disabled=disabled;
+      b.disabled=disabled || (atLimit && !['reset','keep-reset','confirm-reset','retry-save'].includes(key));
       b.dataset.focusKey=key;
       if(pressed!==null)b.setAttribute('aria-pressed',String(pressed));
       b.addEventListener('click',()=>action());
