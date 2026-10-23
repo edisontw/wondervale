@@ -206,3 +206,49 @@ test('failed checkpoint deletion retains draft, reports error and permits retry'
   assert.deepEqual(ui.getState().memoryViewed,[]);
   assert.equal(ui.getState().phase,'sources');
 });
+
+test('failed draft writes are reported and recover after a later action',()=>{
+  for(const failure of ['throw','silent']) {
+    const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+    const e02=realE02(),e03=realE03();
+    const originalSet=storage.setItem.bind(storage);
+    storage.setItem=failure==='throw'
+      ? ()=>{throw new Error('Quota exceeded');}
+      : ()=>{};
+    const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+    tap(root,'memory:station');
+    assert.deepEqual(ui.getState().memoryViewed,['station']);
+    assert.equal(storage.getItem(DRAFT_KEY),null,'Failed write must not claim a checkpoint');
+    assert.match(root.allText(),/This draft is not saved on this device/);
+    storage.setItem=originalSet;
+    tap(root,'memory:garden');
+    assert.ok(storage.getItem(DRAFT_KEY),'Later action retries the complete draft');
+    assert.doesNotMatch(root.allText(),/This draft is not saved on this device/);
+    const resumed=mountE04Authoring(doc.root(),{pack,e02Save:e02,e03Save:e03,storage});
+    assert.deepEqual(resumed.getState().memoryViewed,['station','garden']);
+    ui.destroy();resumed.destroy();
+  }
+});
+
+test('failed overwrite warns instead of presenting an old checkpoint as current',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(root,'memory:station');
+  const prior=storage.getItem(DRAFT_KEY);
+  assert.ok(prior);
+  const originalSet=storage.setItem.bind(storage);
+  storage.setItem=()=>{throw new Error('Storage blocked');};
+  tap(root,'memory:garden');
+  assert.deepEqual(ui.getState().memoryViewed,['station','garden']);
+  assert.equal(storage.getItem(DRAFT_KEY),prior,'Old checkpoint must not be mistaken for the latest state');
+  assert.match(root.allText(),/This draft is not saved on this device/);
+  storage.setItem=originalSet;
+  tap(root,'inspect:first-map');
+  assert.notEqual(storage.getItem(DRAFT_KEY),prior);
+  assert.doesNotMatch(root.allText(),/This draft is not saved on this device/);
+  const resumed=mountE04Authoring(doc.root(),{pack,e02Save:e02,e03Save:e03,storage});
+  assert.deepEqual(resumed.getState().memoryViewed,['station','garden']);
+  assert.ok(resumed.getState().cardViewed.includes('first-map'));
+  ui.destroy();resumed.destroy();
+});
