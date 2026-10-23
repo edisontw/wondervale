@@ -287,7 +287,16 @@ try {
         pack,e02Save,e03Save,storage:localStorage
       });
     },{pack,e02Save,e03Save});
-    await page.evaluate(()=>{window.__e04Blocked=true;});
+    // Page reload resets the earlier Storage.prototype test hook; reinstall it
+    // before the capped write so this is a real browser failure, not a no-op flag.
+    await page.evaluate(key=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(k,v){
+        if(k===key && window.__e04Blocked)throw new Error('Simulated quota at cap');
+        return original.call(this,k,v);
+      };
+      window.__e04Blocked=true;
+    },DRAFT_KEY);
     const checkpoint249=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
     await page.locator('[data-focus-key="place:first-map:earlier"]').focus();
     await page.keyboard.press('Enter');
