@@ -97,7 +97,11 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
   assert.equal(ui.ready,true);
   assert.equal(root.find('place:first-map:earlier').disabled,true);
-  tap(root,'memory:station');tap(root,'memory:garden');
+  assert.equal(root.allText().includes('way to the station'),false);
+  tap(root,'memory:station');
+  assert.equal(root.allText().includes('way to the station'),true);
+  tap(root,'memory:garden');
+  assert.equal(root.allText().includes('way to the garden'),true);
   for(const id of pack.cards.map(c=>c.id))tap(root,'inspect:'+id);
   tap(root,'clue:revision-note');
   tap(root,'place:first-map:later');
@@ -107,6 +111,16 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   tap(root,'place:undated-photo:uncertain');
   assert.equal(root.find('explain').disabled,false);
   assert.equal(doc.activeElement.dataset.focusKey,'place:undated-photo:uncertain');
+  tap(root,'explain');
+  assert.equal(root.find('finish').disabled,true);
+  tap(root,'chronicle');
+  assert.ok(root.allText().includes('Our draft timeline'));
+  assert.ok(root.allText().includes('Not sure yet: Undated photo'));
+  assert.ok(root.allText().indexOf('Earlier First map')<root.allText().indexOf('Later Later record'));
+  assert.equal(root.find('finish').disabled,false);
+  tap(root,'place:first-map:later');
+  assert.equal(root.find('finish').disabled,true);
+  tap(root,'place:first-map:earlier');
   tap(root,'explain');tap(root,'chronicle');tap(root,'finish');
   assert.equal(ui.getState().phase,'completed');
   assert.ok(storage.getItem(DRAFT_KEY));
@@ -133,4 +147,57 @@ test('historical replay does not read or overwrite draft checkpoint',()=>{
   assert.equal(storage.getItem(DRAFT_KEY),'invalid-not-json');
   replay.reset();
   assert.equal(storage.getItem(DRAFT_KEY),'invalid-not-json');
+});
+
+
+test('restart confirmation is cancellable and clears only E04 draft',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const before02=storage.getItem('wondervale-s01e02-progress-v1');
+  const before03=storage.getItem('wondervale-s01e03-progress-v1');
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(root,'memory:station');
+  const checkpoint=storage.getItem(DRAFT_KEY);
+  assert.ok(checkpoint);
+  tap(root,'reset');
+  assert.match(root.allText(),/Only this Episode 04 draft/);
+  assert.equal(storage.getItem(DRAFT_KEY),checkpoint);
+  tap(root,'keep-reset');
+  assert.equal(storage.getItem(DRAFT_KEY),checkpoint);
+  assert.deepEqual(ui.getState().memoryViewed,['station']);
+  tap(root,'reset');
+  tap(root,'confirm-reset');
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  assert.deepEqual(ui.getState().memoryViewed,[]);
+  assert.equal(ui.getState().phase,'sources');
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),before02);
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
+});
+
+test('failed checkpoint deletion retains draft, reports error and permits retry',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(root,'memory:station');
+  const checkpoint=storage.getItem(DRAFT_KEY);
+  const originalRemove=storage.removeItem.bind(storage);
+  storage.removeItem=()=>{throw new Error('Storage denied');};
+  tap(root,'reset');
+  tap(root,'confirm-reset');
+  assert.equal(storage.getItem(DRAFT_KEY),checkpoint);
+  assert.deepEqual(ui.getState().memoryViewed,['station']);
+  assert.match(root.allText(),/Could not clear this draft/);
+  assert.equal(root.find('confirm-reset').disabled,false);
+  storage.removeItem=()=>{};
+  tap(root,'confirm-reset');
+  assert.equal(storage.getItem(DRAFT_KEY),checkpoint);
+  assert.deepEqual(ui.getState().memoryViewed,['station']);
+  assert.match(root.allText(),/Could not clear this draft/);
+  storage.removeItem=originalRemove;
+  tap(root,'confirm-reset');
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  assert.deepEqual(ui.getState().memoryViewed,[]);
+  assert.equal(ui.getState().phase,'sources');
 });

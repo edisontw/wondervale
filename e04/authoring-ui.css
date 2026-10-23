@@ -20,6 +20,30 @@
 .e04-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; padding-block: .5rem; }
 .e04-card { border: 1px solid #b8c9c1; border-radius: .65rem; padding: .75rem; margin-block: .75rem; background: #f5faf7; min-width: 0; }
 .e04-kind { text-transform: capitalize; color: #425d56; }
+.e04-memory-quote {
+  margin: .1rem 0 .85rem; padding: .65rem .8rem;
+  border-inline-start: 3px solid #6e8b7e; background: #f3f8f4;
+  overflow-wrap: anywhere;
+}
+.e04-memory-quote p { margin: 0 0 .25rem; }
+.e04-memory-quote cite { font-size: .9rem; color: #425d56; }
+.e04-chronicle {
+  margin-block: .85rem; padding: .8rem;
+  border: 2px solid #6e8b7e; border-radius: .7rem;
+  background: #f5faf7; min-width: 0; overflow-wrap: anywhere;
+}
+.e04-timeline {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .65rem; list-style: none; margin: .65rem 0; padding: 0;
+}
+.e04-timeline-step {
+  display: flex; flex-direction: column; gap: .25rem; min-width: 0;
+  padding: .65rem; border: 1px solid #b8c9c1; border-radius: .5rem;
+  background: #fff;
+}
+.e04-timeline-step strong { color: #184f46; }
+.e04-uncertain { padding: .55rem .7rem; background: #fff9e9; border-radius: .45rem; }
+
 .e04-choices { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .45rem; margin-block-start: .55rem; }
 .e04-button {
   display: inline-flex; align-items: center; justify-content: center;
@@ -33,8 +57,10 @@
 .e04-button:disabled { opacity: .55; cursor: not-allowed; }
 .e04-button:focus-visible { outline: 3px solid #b75e13; outline-offset: 3px; }
 .e04-choices .e04-button { width: 100%; margin: 0; }
-.e04-footer { display: flex; justify-content: flex-end; margin-block-start: 1rem; }
+.e04-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .35rem; margin-block-start: 1rem; }
+.e04-reset-warning { flex: 1 0 100%; margin: 0; overflow-wrap: anywhere; }
 @media (max-width: 560px) {
+  .e04-timeline { grid-template-columns: 1fr; }
   .e04-choices { grid-template-columns: 1fr; }
   .e04-row { align-items: stretch; }
   .e04-row .e04-button { width: 100%; }

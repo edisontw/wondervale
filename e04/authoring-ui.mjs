@@ -7,7 +7,12 @@ import {
 } from '../engine/s01e04-chronology.mjs';
 
 const SLOTS=[['earlier','Earlier'],['later','Later'],['uncertain','Not sure yet']];
-const MEMORY_LABELS=[['station','Market coordinator'],['garden','Garden resident']];
+// Exact accepted E03 witness lines, from DETAILED_SCRIPT.md (COORDINATOR-009 / RESIDENT-001).
+// These remain attributed memories, not verified historical dates or E04 source cards.
+const MEMORY_LABELS=[
+  ['station','Market coordinator','I remember a way to the station.','S01E03-COORDINATOR-009'],
+  ['garden','Garden resident','I remember a way to the garden.','S01E03-RESIDENT-001']
+];
 const MAX_SAVE_CHARS=60000;
 
 function load(storage,mode) {
@@ -55,19 +60,34 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   const opened=openE04Authoring(e02Save,e03Save,sources,load(storage,mode),mode);
   let state=opened.session;
   let disposed=false;
+  let resetPending=false;
+  let resetError=false;
   const read=()=>structuredClone(state);
   function update(action,key) {
     if(disposed)return;
+    resetPending=false;
     state=dispatch(state,action,sources);
     persist(storage,mode,state);
     render(key);
   }
   function reset() {
     if(disposed)return false;
-    state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
+    // Do not show a fresh draft if the old checkpoint still survives on disk.
+    // Otherwise reloading the page can silently resurrect a supposedly cleared draft.
     if(mode==='draft_preview' && storage) {
-      try {storage.removeItem(DRAFT_KEY);} catch {/* no storage */ }
+      try {
+        storage.removeItem(DRAFT_KEY);
+        if(storage.getItem(DRAFT_KEY)!==null) throw new Error('Draft checkpoint still present');
+      } catch {
+        resetPending=true;
+        resetError=true;
+        render('confirm-reset');
+        return false;
+      }
     }
+    resetPending=false;
+    resetError=false;
+    state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
     render('reset');
     return true;
   }
@@ -98,13 +118,20 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     const memories=el('section','e04-panel');
     memories.append(el('h3','','Two memories'));
     memories.append(el('p','','These are attributed accounts, not proof that either speaker is wrong.'));
-    for(const [which,name] of MEMORY_LABELS) {
+    for(const [which,name,quote,sourceId] of MEMORY_LABELS) {
       const row=el('div','e04-row');
       row.append(el('span','e04-label',name+' memory'));
       const inspected=state.memoryViewed.includes(which);
       button(row,inspected?'Memory inspected':'Inspect memory',()=>update({type:'inspect-memory',which},'memory:'+which),
         'memory:'+which,inspected);
       memories.append(row);
+      if(inspected) {
+        const quotation=el('blockquote','e04-memory-quote');
+        quotation.dataset.sourceId=sourceId;
+        quotation.append(el('p','',`“${quote}”`));
+        quotation.append(el('cite','',name+' · Market Lane'));
+        memories.append(quotation);
+      }
     }
     box.append(memories);
     const evidence=el('section','e04-panel');
@@ -158,12 +185,48 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     button(decisions,'Review draft Chronicle',()=>update({type:'chronicle'},'chronicle'),
       'chronicle',state.phase!=='chronicle');
+    if(state.chronicleSeen) {
+      const summary=chronicleProjection(state,sources);
+      const review=el('section','e04-chronicle');
+      review.setAttribute('aria-label','Draft Chronicle timeline');
+      review.append(el('h4','','Our draft timeline'));
+      review.append(el('p','','Earlier and later show source order, not confirmed calendar dates.'));
+      const timeline=el('ol','e04-timeline');
+      for(const [label,id] of [['Earlier',summary.relativeOrder?.earlier],['Later',summary.relativeOrder?.later]]) {
+        if(!id)continue;
+        const item=el('li','e04-timeline-step');
+        item.append(el('strong','',label));
+        item.append(el('span','',sources.cards.find(c=>c.id===id)?.label??id));
+        timeline.append(item);
+      }
+      review.append(timeline);
+      if(summary.uncertain.length)review.append(el('p','e04-uncertain',
+        'Not sure yet: '+summary.uncertain.map(id=>sources.cards.find(c=>c.id===id)?.label??id).join(', ')+'.'));
+      review.append(el('p','e04-memory-note',
+        'Market coordinator and Garden resident gave two memories. Neither memory has a verified date.'));
+      review.append(el('p','e04-explanation',
+        'Different times could explain both memories. We do not need to call either person wrong.'));
+      decisions.append(review);
+    }
     button(decisions,'Complete draft timeline',()=>update({type:'finish'},'finish'),
       'finish',state.phase!=='ready_to_finish');
     if(state.phase==='completed')decisions.append(el('p','e04-status','Draft timeline complete. This does not unlock another episode.'));
     box.append(decisions);
     const footer=el('footer','e04-footer');
-    button(footer,'Start this draft again',reset,'reset');
+    if(resetPending) {
+      footer.append(el('p','e04-reset-warning',
+        'Start again? Only this Episode 04 draft will be cleared. Earlier chapters stay saved.'));
+      if(resetError) {
+        const warning=el('p','e04-reset-error',
+          'Could not clear this draft on this device. Your work is still here. Try again.');
+        warning.setAttribute('role','alert');
+        footer.append(warning);
+      }
+      button(footer,'Keep this draft',()=>{resetPending=false;resetError=false;render('reset');},'keep-reset');
+      button(footer,'Clear Episode 04 draft',reset,'confirm-reset');
+    } else {
+      button(footer,'Start this draft again',()=>{resetPending=true;resetError=false;render('keep-reset');},'reset');
+    }
     box.append(footer);
     root.replaceChildren(box);
     if(focusKey && focusables.has(focusKey))focusables.get(focusKey).focus();
