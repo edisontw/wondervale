@@ -166,9 +166,10 @@ test('invalid E04 checkpoints show a recovery warning without deleting saved byt
     assert.notEqual(storage.getItem(DRAFT_KEY),bad,'A new valid action replaces invalid bytes');
     assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),old02);
     assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),old03);
-    const resumed=mountE04Authoring(doc.root(),{pack,e02Save:e02,e03Save:e03,storage});
+    const resumedRoot=doc.root();
+    const resumed=mountE04Authoring(resumedRoot,{pack,e02Save:e02,e03Save:e03,storage});
     assert.deepEqual(resumed.getState().memoryViewed,['station']);
-    assert.doesNotMatch(doc.root().allText(),/previous Episode 04 draft could not be restored/);
+    assert.doesNotMatch(resumedRoot.allText(),/previous Episode 04 draft could not be restored/);
     ui.destroy();resumed.destroy();
   }
 });
