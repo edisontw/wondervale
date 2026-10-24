@@ -18,6 +18,11 @@
 - Extended `tests/s01e03-e04-handoff.test.mjs`: verifies guarded entry, interrupted draft resume, chapter-local reset, replay isolation and read-only E02/E03 sources.
 - `.github/workflows/wondervale-e04-authoring.yml`: Node 24 unit checks only, **no artifacts or deployment**, so GitHub artifact storage quota does not obscure the authoring test result.
 
+## Short-screen Chronicle navigation (2026-10-25 engineering follow-up)
+- Opening **Review draft Chronicle** must focus the newly revealed **Our draft timeline** heading, not skip directly to **Complete draft timeline** when the review button disables itself.
+- The heading is programmatically focusable without adding a Tab stop; the next Tab reaches the completion control. Visible focus styling and 320×640 / 568×320 / 1366×768 Chromium checks protect this behavior.
+- Navigation changes no source placement, checkpoint, E02/E03 content, or canonical Chronicle. This remains an E04 engineering preview, not a production release.
+
 ## Remaining work
 1. Obtain approval of plausible visible chronology source cards, their evidence and EFL wording under E04 Gate 1 (PR #114).
 2. Integrate the approved source pack into the existing keyboard/touch authoring UI; replace synthetic test fixtures only after Gate 1 approval, and do not promote SVG draft placeholders to production art.

@@ -67,6 +67,7 @@
 }
 .e04-timeline-step strong { color: #184f46; }
 .e04-uncertain { padding: .55rem .7rem; background: #fff9e9; border-radius: .45rem; }
+.e04-chronicle h4:focus { outline: 3px solid #b75e13; outline-offset: 3px; }
 
 .e04-choices { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .45rem; margin-block-start: .55rem; }
 .e04-save-warning { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .6rem; border: 1px solid #987035; border-radius: .5rem; background: #fff9e9; }

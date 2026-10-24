@@ -275,6 +275,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     let resumeTarget=null;
     let reviewCue=null;
     let positionReviewHeading=null;
+    let chronicleHeading=null;
     const box=el('section','e04-authoring');
     box.setAttribute('aria-label','Episode 04 chronology authoring preview');
     const heading=el('h2','','What changed over time?');
@@ -543,7 +544,9 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       const summary=chronicleProjection(state,sources);
       const review=el('section','e04-chronicle');
       review.setAttribute('aria-label','Draft Chronicle timeline');
-      review.append(el('h4','','Our draft timeline'));
+      chronicleHeading=el('h4','','Our draft timeline');
+      chronicleHeading.tabIndex=-1; // Read the timeline before reaching the completion control.
+      review.append(chronicleHeading);
       review.append(el('p','','Earlier and later show source order, not confirmed calendar dates.'));
       const timeline=el('ol','e04-timeline');
       for(const [label,id] of [['Earlier',summary.relativeOrder?.earlier],['Later',summary.relativeOrder?.later]]) {
@@ -649,6 +652,12 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     // Keep successful save recovery in view at any action count.
     if(focusKey==='retry-save' && saveStatus) {
       saveStatus.focus();
+      return;
+    }
+    if(focusKey==='chronicle' && chronicleHeading) {
+      // A disabled Chronicle button previously skipped straight to Finish,
+      // hiding the newly revealed timeline on 320px/short landscape screens.
+      chronicleHeading.focus();
       return;
     }
     if(focusKey==='finish' && completionStatus) {
