@@ -28,6 +28,11 @@
 - Neither navigation control dispatches a chronology action, changes source positions, rewrites the draft checkpoint or affects E02/E03. The return control disappears if a placement revision invalidates the Chronicle review.
 - Synthetic Node DOM and actual Chromium 320×640 / 568×320 / 1366×768 regression must pass on the exact PR head and merged main before claiming acceptance. This is engineering-preview navigation only; no canonical sources, story, art or E04 release.
 
+## Long draft Chronicle readability (2026-10-25 engineering follow-up)
+- The **Not sure yet** group now renders each undated source as a separate semantic list item rather than a single comma-separated sentence. This makes long synthetic labels individually scannable and allows wrapping on 320px portrait and 568px landscape.
+- Earlier/later relative order, uncertainty, E03 memory attribution and the original source labels remain unchanged. This is presentation-only: no event dispatch, source-order inference, checkpoint mutation, canonical source approval or public E04 route.
+- DOM tests assert list semantics; actual Chromium regression uses the bounded eight-card synthetic pack, including an unbroken long label, and checks viewport overflow plus read-only Chronicle/source round trips. Check the exact PR and merged-main CI before claiming PASS.
+
 ## Remaining work
 1. Obtain approval of plausible visible chronology source cards, their evidence and EFL wording under E04 Gate 1 (PR #114).
 2. Integrate the approved source pack into the existing keyboard/touch authoring UI; replace synthetic test fixtures only after Gate 1 approval, and do not promote SVG draft placeholders to production art.
