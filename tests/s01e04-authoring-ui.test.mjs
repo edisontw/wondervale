@@ -827,3 +827,41 @@ test('locked E04 does not read or mutate an invalid preview checkpoint',()=>{
   assert.equal(originalGet(DRAFT_KEY),invalid);
   blocked.destroy();
 });
+
+
+test('corrupt checkpoint focuses a visible alert once and keeps earlier saves intact',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const old02=JSON.stringify(e02),old03=JSON.stringify(e03);
+  const corrupt='{"schema":1,"history":[{"type":"finish"}]}';
+  storage.setItem('wondervale-s01e02-progress-v1',old02);
+  storage.setItem('wondervale-s01e03-progress-v1',old03);
+  storage.setItem(DRAFT_KEY,corrupt);
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.equal(ui.ready,true);
+  assert.deepEqual(ui.getState().history,[]);
+  const alert=root.children[0].children.find(n=>n.className==='e04-save-warning' && n.attributes.role==='alert');
+  assert.ok(alert,'Rejected checkpoint must expose a screen-reader alert');
+  assert.equal(alert.tabIndex,-1,'Alert is focusable programmatically, not an extra Tab stop');
+  assert.equal(doc.activeElement,alert,'Initial mount focuses the rejected checkpoint warning');
+  assert.equal(root.find('resume'),null,'Corrupt drafts must never offer Continue draft');
+  assert.equal(storage.getItem(DRAFT_KEY),corrupt,'Warning does not erase old bytes');
+  tap(root,'reset');
+  assert.equal(doc.activeElement.dataset.focusKey,'keep-reset');
+  tap(root,'keep-reset');
+  assert.equal(doc.activeElement.dataset.focusKey,'reset');
+  assert.equal(storage.getItem(DRAFT_KEY),corrupt,'Cancel restart must preserve old bytes');
+  tap(root,'memory:station');
+  assert.equal(doc.activeElement.dataset.focusKey,'memory:garden',
+    'A subsequent edit must not steal focus back to the restore warning');
+  assert.doesNotMatch(root.allText(),/could not be restored/);
+  assert.notEqual(storage.getItem(DRAFT_KEY),corrupt,'Valid edit replaces rejected checkpoint');
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),old02);
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),old03);
+  ui.destroy();
+  const validDoc=new FakeDocument(),validRoot=validDoc.root();
+  const valid=mountE04Authoring(validRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.equal(validDoc.activeElement,undefined,'Valid restore does not forcibly move focus');
+  assert.equal(validRoot.find('resume')?.dataset.focusKey,'resume');
+  valid.destroy();
+});

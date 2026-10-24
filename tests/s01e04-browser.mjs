@@ -295,6 +295,19 @@ try {
     assert.deepEqual(recovered.memoryViewed,[]);
     assert.equal(await page.getByText('The previous Episode 04 draft could not be restored',{exact:false}).count(),1,
       'Corrupt checkpoint must visibly warn the user');
+    const restoreAlert=page.locator('.e04-save-warning[role="alert"]');
+    assert.equal(await restoreAlert.count(),1,'Rejected checkpoint must have an accessible alert');
+    assert.equal(await restoreAlert.getAttribute('tabindex'),'-1');
+    const restoreRect=await restoreAlert.evaluate(node=>({
+      top:node.getBoundingClientRect().top,height:innerHeight,
+      focused:document.activeElement===node
+    }));
+    assert.ok(restoreRect.focused && restoreRect.top>=-1 && restoreRect.top<restoreRect.height,
+      'Rejected checkpoint alert must be focused and visible: '+JSON.stringify(restoreRect));
+    await layout('corrupt checkpoint '+size.width);
+    await page.keyboard.press('Tab');
+    assert.equal(await focusKey(),'memory:station',
+      'Tab from the restore warning reaches the first fresh-draft action');
     assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),corrupt,
       'Loading must not silently delete or rewrite storage');
     await action('memory:station');

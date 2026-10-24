@@ -182,11 +182,16 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       limitWarning=warning;
       box.append(warning);
     }
+    let restoreAlert=null;
     if(restoreWarning) {
       const warning=el('p','e04-save-warning',
         'The previous Episode 04 draft could not be restored. This preview starts fresh. '+
         'The old saved data has not been deleted; continuing may replace it.');
       warning.setAttribute('role','alert');
+      // Announce a rejected checkpoint before the user edits a fresh draft.
+      // Focus only on initial mount, not on later rerenders or valid restores.
+      warning.tabIndex=-1;
+      restoreAlert=warning;
       box.append(warning);
     }
     let saveStatus=null;
@@ -419,6 +424,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       limitWarning?.focus();
       return;
     }
+    if(focusKey==='restore-warning' && restoreAlert) {
+      restoreAlert.focus(); // Scroll the rejected-checkpoint warning into view on short screens.
+      return;
+    }
     if(focusKey==='save-failed' && saveWarning) {
       saveWarning.focus(); // Visible alert before any off-screen editing controls.
       return;
@@ -454,7 +463,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       target?.focus();
     }
   }
-  render();
+  render(restoreWarning ? 'restore-warning' : null);
   return {
     ready:true,reason:null,sources:opened.sources,getState:read,reset,
     destroy:()=>{disposed=true;root.replaceChildren();}
