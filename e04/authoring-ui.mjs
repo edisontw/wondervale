@@ -135,6 +135,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     const cardHeadings=new Map();
     let resumeTarget=null;
     let reviewCue=null;
+    let positionReviewHeading=null;
     const box=el('section','e04-authoring');
     box.setAttribute('aria-label','Episode 04 chronology authoring preview');
     const heading=el('h2','','What changed over time?');
@@ -250,6 +251,11 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
           'place:'+card.id+':'+slot,!inspected||state.phase==='completed',selected);
       }
       cardBox.append(choices);
+      if(needsOrderReview) {
+        const back=button(cardBox,'Back to review list',()=>positionReviewHeading?.focus(),
+          'back-to-review:'+card.id);
+        back.setAttribute('aria-label','Back to review list from '+card.label);
+      }
       evidence.append(cardBox);
     }
     box.append(evidence);
@@ -275,6 +281,26 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       button(cue,'Review source positions',()=>sourceHeading.focus(),'review-positions');
       decisions.append(cue);
       reviewCue=cue;
+      // A bounded overview of the child's own choices, never the correct order.
+      // Review links only move focus/scroll; they do not dispatch or save events.
+      const overview=el('section','e04-position-review');
+      overview.setAttribute('aria-label','Your draft source positions');
+      positionReviewHeading=el('h4','','Your choices so far');
+      positionReviewHeading.tabIndex=-1;
+      overview.append(positionReviewHeading);
+      overview.append(el('p','','These are your choices, not verified answers. Revisit any source to compare it with the clues.'));
+      const list=el('ul','e04-position-list');
+      for(const card of sources.cards) {
+        const item=el('li','e04-position-item');
+        const chosen=SLOTS.find(([slot])=>state.slots[card.id]===slot)?.[1];
+        item.append(el('span','e04-position-label',card.label+' · '+chosen));
+        const jump=button(item,'Review source',()=>cardHeadings.get(card.id)?.focus(),
+          'review-card:'+card.id);
+        jump.setAttribute('aria-label','Review '+card.label+' (your choice: '+chosen+')');
+        list.append(item);
+      }
+      overview.append(list);
+      decisions.append(overview);
     }
     const ready=timelineSupported(state,sources) &&
       MEMORY_LABELS.every(([which])=>state.memoryViewed.includes(which)) &&
