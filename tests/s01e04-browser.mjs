@@ -169,7 +169,7 @@ try {
     await page.keyboard.press('Tab');
     assert.equal(await focusKey(),'confirm-reset','Confirmation reachable by keyboard');
     const scopeId=await page.locator('[data-focus-key="confirm-reset"]').getAttribute('aria-describedby');
-    assert.match(scopeId,/^e04-reset-prompt-\\d+$/);
+    assert.match(scopeId,/^e04-reset-prompt-[0-9]+$/);
     assert.equal(await page.locator('[data-focus-key="keep-reset"]').getAttribute('aria-describedby'),scopeId);
     assert.match(await page.locator('#'+scopeId).innerText(),/Earlier chapters stay saved/);
     // Force a real Storage removal error: both buttons must then describe the
@@ -186,7 +186,14 @@ try {
     assert.equal(await focusKey(),'confirm-reset','Failed reset keeps retry in focus');
     assert.equal(await page.locator('.e04-reset-error').getAttribute('role'),'alert');
     const failureDescription=await page.locator('[data-focus-key="confirm-reset"]').getAttribute('aria-describedby');
-    assert.match(failureDescription,new RegExp('^'+scopeId+' e04-reset-error-\\\\d+
+    assert.equal(failureDescription,scopeId+' e04-reset-error-'+scopeId.split('-').at(-1));
+    assert.equal(await page.locator('[data-focus-key="keep-reset"]').getAttribute('aria-describedby'),failureDescription);
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),saved,
+      'Failed reset must preserve the saved checkpoint');
+    await layout('failed reset '+size.width);
+    await page.evaluate(()=>{window.__e04ResetBlocked=false;});
+    await page.keyboard.press('Enter');
+    assert.equal(await page.evaluate(()=>window.__e04.getState().phase),'sources');
     assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),null);
     const heading=page.locator('.e04-authoring h2');
     assert.equal(await heading.evaluate(node=>document.activeElement===node),true,
