@@ -557,6 +557,73 @@ try {
       localStorage.getItem('wondervale-s01e03-progress-v1')
     ]),unchanged,'Eight-card review cannot modify earlier chapter saves');
 
+    // A temporarily unreadable E04 checkpoint must be recoverable through an
+    // accessible, read-only retry on portrait, landscape and desktop. Never
+    // overwrite existing bytes just because the initial getItem threw.
+    await page.evaluate(async ({pack,e02Save,e03Save})=>{
+      const {fresh,dispatch,DRAFT_KEY}=await import('/engine/s01e04-chronology.mjs');
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      const saved=dispatch(fresh(pack),{type:'inspect-memory',which:'station'},pack);
+      const store={
+        value:JSON.stringify(saved),blocked:true,writes:0,
+        getItem(k){
+          if(k!==DRAFT_KEY)return null;
+          if(this.blocked)throw new Error('Simulated transient read denial');
+          return this.value;
+        },
+        setItem(k,v){if(k===DRAFT_KEY){this.writes++;this.value=v;}},
+        removeItem(k){if(k===DRAFT_KEY)this.value=null;}
+      };
+      const root=document.createElement('div');
+      root.id='e04-read-probe';document.body.append(root);
+      window.__readStore=store;
+      window.__readExpected=saved;
+      window.__readUI=mountE04Authoring(root,{pack,e02Save,e03Save,storage:store});
+    },{pack,e02Save,e03Save});
+    const readRoot=page.locator('#e04-read-probe');
+    const readAlert=readRoot.locator('.e04-save-warning[role="alert"]');
+    assert.equal(await readAlert.count(),1);
+    assert.equal(await readAlert.evaluate(node=>document.activeElement===node),true);
+    const readRect=await readAlert.evaluate(node=>({
+      top:node.getBoundingClientRect().top,height:innerHeight
+    }));
+    assert.ok(readRect.top>=-1&&readRect.top<readRect.height,
+      'Unreadable checkpoint warning must be visible: '+JSON.stringify(readRect));
+    await layout('unreadable checkpoint '+size.width);
+    await page.keyboard.press('Tab');
+    const readRetry=readRoot.locator('[data-focus-key="retry-read"]');
+    assert.equal(await readRetry.evaluate(node=>document.activeElement===node),true,
+      'Tab from read warning reaches read-only retry');
+    await page.keyboard.press('Enter');
+    assert.equal(await readRetry.evaluate(node=>document.activeElement===node),true,
+      'Repeated read failure keeps keyboard focus on retry');
+    assert.equal(await page.evaluate(()=>window.__readStore.writes),0);
+    await page.evaluate(()=>{window.__readStore.blocked=false;});
+    await page.keyboard.press('Enter');
+    assert.deepEqual(await page.evaluate(()=>window.__readUI.getState()),
+      await page.evaluate(()=>window.__readExpected));
+    const recoveredResume=readRoot.locator('[data-focus-key="resume"]');
+    assert.equal(await recoveredResume.evaluate(node=>document.activeElement===node),true,
+      'Successful read focuses Continue draft without creating an event');
+    assert.equal(await readRetry.count(),0);
+    assert.equal(await readRoot.getByText('The previous Episode 04 draft could not be restored',
+      {exact:false}).count(),0);
+    assert.equal(await page.evaluate(()=>window.__readStore.writes),0,
+      'Read recovery must not rewrite the checkpoint');
+    await layout('read-only recovery '+size.width);
+    await page.keyboard.press('Enter');
+    assert.equal(await readRoot.locator('[data-focus-key="memory:garden"]').evaluate(
+      node=>document.activeElement===node),true,
+    'Continue draft must focus the next unfinished memory');
+    await page.evaluate(()=>{
+      window.__readUI.destroy();document.getElementById('e04-read-probe').remove();
+      delete window.__readUI;delete window.__readStore;delete window.__readExpected;
+    });
+    assert.deepEqual(await page.evaluate(()=>[
+      localStorage.getItem('wondervale-s01e02-progress-v1'),
+      localStorage.getItem('wondervale-s01e03-progress-v1')
+    ]),unchanged,'Read-only recovery cannot modify E02/E03 checkpoints');
+
     // Near-cap keyboard/touch regression: synthesize only the setup history,
     // then make the 250th edit through the actual browser UI.
     const nearCap=await page.evaluate(async ({pack,key})=>{
