@@ -563,8 +563,19 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
         timeline.append(item);
       }
       review.append(timeline);
-      if(summary.uncertain.length)review.append(el('p','e04-uncertain',
-        'Not sure yet: '+summary.uncertain.map(id=>sources.cards.find(c=>c.id===id)?.label??id).join(', ')+'.'));
+      if(summary.uncertain.length) {
+        // Keep undated sources distinct for screen readers and short screens.
+        // A long comma-separated sentence is difficult to scan and can overflow
+        // a narrow landscape viewport with the bounded eight-card source pack.
+        const uncertain=el('div','e04-uncertain');
+        uncertain.append(el('p','','Not sure yet:'));
+        const items=el('ul','e04-uncertain-list');
+        items.setAttribute('aria-label','Sources without a confirmed time');
+        for(const id of summary.uncertain)
+          items.append(el('li','',sources.cards.find(c=>c.id===id)?.label??id));
+        uncertain.append(items);
+        review.append(uncertain);
+      }
       review.append(el('p','e04-memory-note',
         'Market coordinator and Garden resident gave two memories. Neither memory has a verified date.'));
       review.append(el('p','e04-explanation',
