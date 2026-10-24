@@ -276,6 +276,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     let reviewCue=null;
     let positionReviewHeading=null;
     let chronicleHeading=null;
+    let uncertainHeading=null;
     const box=el('section','e04-authoring');
     box.setAttribute('aria-label','Episode 04 chronology authoring preview');
     const heading=el('h2','','What changed over time?');
@@ -376,12 +377,14 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       const b=el('button','e04-button',label);
       b.type='button';
       const reviewOnly=key==='review-positions' || key==='chronicle-sources' || key==='back-to-chronicle' ||
+        key==='chronicle-undated' || key==='back-to-timeline-start' ||
         key.startsWith('review-card:') || key.startsWith('back-to-review:');
       const conflictAction=['review-latest','keep-conflict','confirm-conflict'].includes(key);
       b.disabled=disabled || (conflict && !reviewOnly && !conflictAction) ||
         (atLimit && !['reset','keep-reset','confirm-reset','retry-save',
           'review-latest','keep-conflict','confirm-conflict',
-          'chronicle-sources','back-to-chronicle'].includes(key));
+          'chronicle-sources','back-to-chronicle',
+          'chronicle-undated','back-to-timeline-start'].includes(key));
       b.dataset.focusKey=key;
       if(pressed!==null)b.setAttribute('aria-pressed',String(pressed));
       b.addEventListener('click',()=>action());
@@ -554,6 +557,14 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       chronicleHeading.tabIndex=-1; // Read the timeline before reaching the completion control.
       review.append(chronicleHeading);
       review.append(el('p','','Earlier and later show source order, not confirmed calendar dates.'));
+      // Long synthetic timelines need a visible, read-only way to reach the
+      // undated group on short screens without skipping the timeline context.
+      if(summary.uncertain.length>=3) {
+        review.append(el('p','e04-chronicle-count',
+          `${summary.uncertain.length} sources have no confirmed time.`));
+        button(review,'Review sources without dates',()=>uncertainHeading?.focus(),
+          'chronicle-undated');
+      }
       const timeline=el('ol','e04-timeline');
       for(const [label,id] of [['Earlier',summary.relativeOrder?.earlier],['Later',summary.relativeOrder?.later]]) {
         if(!id)continue;
@@ -568,12 +579,20 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
         // A long comma-separated sentence is difficult to scan and can overflow
         // a narrow landscape viewport with the bounded eight-card source pack.
         const uncertain=el('div','e04-uncertain');
-        uncertain.append(el('p','','Not sure yet:'));
+        const uncertainLabel=el('h5','','Not sure yet:');
+        if(summary.uncertain.length>=3) {
+          uncertainLabel.tabIndex=-1;
+          uncertainHeading=uncertainLabel;
+        }
+        uncertain.append(uncertainLabel);
         const items=el('ul','e04-uncertain-list');
         items.setAttribute('aria-label','Sources without a confirmed time');
         for(const id of summary.uncertain)
           items.append(el('li','',sources.cards.find(c=>c.id===id)?.label??id));
         uncertain.append(items);
+        if(summary.uncertain.length>=3)
+          button(uncertain,'Back to timeline start',()=>chronicleHeading?.focus(),
+            'back-to-timeline-start');
         review.append(uncertain);
       }
       review.append(el('p','e04-memory-note',
