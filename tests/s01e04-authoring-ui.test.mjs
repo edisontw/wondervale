@@ -156,7 +156,10 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   tap(root,'explain');
   assert.equal(root.find('finish').disabled,true);
   tap(root,'chronicle');
-  assert.equal(doc.activeElement.dataset.focusKey,'finish', 'Chronicle review transfers focus to completion');
+  assert.equal(doc.activeElement,findClass(root,'e04-chronicle').children[0],
+    'Chronicle review focuses the newly revealed timeline before completion');
+  assert.equal(doc.activeElement.tabIndex,-1,
+    'Chronicle heading is programmatically focusable without adding a Tab stop');
   assert.ok(root.allText().includes('Our draft timeline'));
   assert.ok(root.allText().includes('Not sure yet: Undated photo'));
   assert.ok(root.allText().indexOf('Earlier First map')<root.allText().indexOf('Later Later record'));
