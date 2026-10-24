@@ -70,9 +70,20 @@ for attempt in {1..40}; do
     cat "$log_file" >&2
     exit 1
   fi
-  if E04_QA_URL="http://127.0.0.1:$port/package.json" node -e \
-    "fetch(process.env.E04_QA_URL).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" \
-    >/dev/null 2>&1; then
+  # A 200 response alone could come from a stale server on the same port.
+  # Verify the exact checkout's E04 JS and CSS bytes before browser QA.
+  if E04_QA_URL="http://127.0.0.1:$port" node --input-type=module -e '
+    import {readFileSync} from "node:fs";
+    for (const file of [
+      "e04/authoring-ui.mjs",
+      "engine/s01e04-chronology.mjs",
+      "e04/authoring-ui.css"
+    ]) {
+      const response=await fetch(`${process.env.E04_QA_URL}/${file}`);
+      if (!response.ok || (await response.text())!==readFileSync(file,"utf8"))
+        process.exit(1);
+    }
+  ' >/dev/null 2>&1; then
     ready=1
     break
   fi
