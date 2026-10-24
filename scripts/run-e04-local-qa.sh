@@ -12,18 +12,6 @@ for tool in node python3; do
   fi
 done
 
-if [[ -z "${E04_CHROMIUM_EXECUTABLE:-}" ]]; then
-  if command -v chromium >/dev/null 2>&1; then
-    export E04_CHROMIUM_EXECUTABLE="$(command -v chromium)"
-  elif command -v chromium-browser >/dev/null 2>&1; then
-    export E04_CHROMIUM_EXECUTABLE="$(command -v chromium-browser)"
-  fi
-fi
-if [[ -n "${E04_CHROMIUM_EXECUTABLE:-}" && ! -x "$E04_CHROMIUM_EXECUTABLE" ]]; then
-  printf 'Chromium executable is not executable: %s\n' "$E04_CHROMIUM_EXECUTABLE" >&2
-  exit 2
-fi
-
 printf 'Running E03→E04 handoff and E04 engine/UI unit tests (Node %s)\n' "$(node --version)"
 node --test \
   tests/s01e03-e04-handoff.test.mjs \
@@ -40,6 +28,19 @@ fi
 if ! node -e "import('playwright').catch(() => process.exit(2))" >/dev/null 2>&1; then
   printf 'E04 Node tests passed, but Chromium QA NOT RUN: Playwright is missing.\n' >&2
   printf 'Install it with: npm install --ignore-scripts --package-lock=false\n' >&2
+  exit 2
+fi
+
+# Only full browser QA needs a Chromium executable.
+if [[ -z "${E04_CHROMIUM_EXECUTABLE:-}" ]]; then
+  if command -v chromium >/dev/null 2>&1; then
+    export E04_CHROMIUM_EXECUTABLE="$(command -v chromium)"
+  elif command -v chromium-browser >/dev/null 2>&1; then
+    export E04_CHROMIUM_EXECUTABLE="$(command -v chromium-browser)"
+  fi
+fi
+if [[ -n "${E04_CHROMIUM_EXECUTABLE:-}" && ! -x "$E04_CHROMIUM_EXECUTABLE" ]]; then
+  printf 'Chromium executable is not executable: %s\n' "$E04_CHROMIUM_EXECUTABLE" >&2
   exit 2
 fi
 
