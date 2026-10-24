@@ -114,6 +114,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   // Presentation only: preserve the optional nearby memory comparison through
   // source edits without adding draft events or touching checkpoint storage.
   let memoryCompareOpen=false;
+  let clueCompareOpen=false;
   let disposed=false;
   let resetPending=false;
   let resetError=false;
@@ -430,6 +431,28 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
         if(root.contains(compare))memoryCompareOpen=compare.open;
       });
       evidence.append(compare);
+    }
+    // Keep previously inspected clues within reach of the source-position
+    // choices on short screens. Never reveal uninspected clues or a correct
+    // timeline, and never add events or write a checkpoint for this recap.
+    if(state.clueViewed.length>0) {
+      const recap=el('details','e04-clue-compare');
+      recap.open=clueCompareOpen;
+      recap.append(el('summary','','Review inspected clues here'));
+      const notes=el('div','e04-clue-compare-notes');
+      notes.append(el('p','','Only clues you inspected appear here. Compare them with your own choices.'));
+      for(const clue of sources.clues) {
+        if(!state.clueViewed.includes(clue.id))continue;
+        const item=el('div','e04-clue-compare-item');
+        item.append(el('h4','',clue.label));
+        item.append(el('p','',clue.text));
+        notes.append(item);
+      }
+      recap.append(notes);
+      recap.addEventListener('toggle',()=>{
+        if(root.contains(recap))clueCompareOpen=recap.open;
+      });
+      evidence.append(recap);
     }
     for(const card of sources.cards) {
       const cardBox=el('article','e04-card');
