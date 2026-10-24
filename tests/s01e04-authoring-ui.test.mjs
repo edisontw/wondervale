@@ -1190,3 +1190,56 @@ test('cross-tab reload requires explicit discard of unsaved work and refuses inv
   assert.deepEqual(b.getState(),before,'Retry with valid saved bytes replays safely');
   a.destroy();b.destroy();
 });
+
+test('a stale capped tab cannot resurrect a cleared checkpoint and can explicitly recover',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const old02=JSON.stringify(e02),old03=JSON.stringify(e03);
+  storage.setItem('wondervale-s01e02-progress-v1',old02);
+  storage.setItem('wondervale-s01e03-progress-v1',old03);
+  let draft=dispatch04(fresh04(pack),{type:'inspect-card',id:'first-map'},pack);
+  for(let i=1;i<MAX_ACTIONS-1;i++)
+    draft=dispatch04(draft,{type:'place',id:'first-map',slot:i%2?'earlier':'later'},pack);
+  assert.equal(draft.history.length,MAX_ACTIONS-1);
+  storage.setItem(DRAFT_KEY,JSON.stringify(draft));
+  const staleRoot=doc.root(),ownerRoot=doc.root();
+  const stale=mountE04Authoring(staleRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  const owner=mountE04Authoring(ownerRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  const saved=storage.getItem(DRAFT_KEY);
+  const originalSet=storage.setItem.bind(storage);
+  storage.setItem=(key,value)=>{
+    if(key===DRAFT_KEY)throw new Error('Simulated quota at action cap');
+    originalSet(key,value);
+  };
+  tap(staleRoot,'place:first-map:earlier');
+  assert.equal(stale.getState().history.length,MAX_ACTIONS);
+  assert.equal(storage.getItem(DRAFT_KEY),saved);
+  assert.match(staleRoot.allText(),/not saved on this device/);
+  storage.setItem=originalSet;
+  tap(ownerRoot,'reset');tap(ownerRoot,'confirm-reset');
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  assert.equal(stale.reset(),false,'Stale capped tab must refuse a direct reset');
+  assert.equal(doc.activeElement.attributes.role,'alert');
+  assert.match(staleRoot.allText(),/changed in another tab/);
+  assert.equal(staleRoot.find('retry-save'),null,'Conflict must disable stale retry');
+  tap(staleRoot,'review-latest');
+  assert.equal(doc.activeElement.dataset.focusKey,'keep-conflict',
+    'The safe Keep action, not the 250-action alert, receives focus');
+  assert.deepEqual(stale.getState().history.length,MAX_ACTIONS);
+  tap(staleRoot,'keep-conflict');
+  assert.equal(doc.activeElement.dataset.focusKey,'review-latest',
+    'Cancel returns keyboard focus to the read-only recovery action');
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  tap(staleRoot,'review-latest');
+  tap(staleRoot,'confirm-conflict');
+  assert.equal(stale.getState().history.length,0);
+  assert.equal(staleRoot.find('resume'),null);
+  assert.equal(doc.activeElement.tagName,'H2',
+    'Confirmed empty checkpoint focuses the new draft heading');
+  assert.equal(staleRoot.find('memory:station').disabled,false);
+  assert.equal(storage.getItem(DRAFT_KEY),null,
+    'Read-only recovery cannot recreate another tab\'s cleared checkpoint');
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),old02);
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),old03);
+  stale.destroy();owner.destroy();
+});

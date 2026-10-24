@@ -832,6 +832,91 @@ try {
       localStorage.getItem('wondervale-s01e02-progress-v1'),
       localStorage.getItem('wondervale-s01e03-progress-v1')
     ]),[null,null],'Cross-tab preview must not touch earlier chapter saves');
+    // A real cross-tab reset while a stale 250-action tab has an unsaved
+    // change must not resurrect the cleared checkpoint. At the cap, the
+    // conflict's safe Keep choice must remain keyboard-focused on 568x320.
+    await d.evaluate(async ({pack,key})=>{
+      const {fresh,dispatch,MAX_ACTIONS}=await import('/engine/s01e04-chronology.mjs');
+      let state=dispatch(fresh(pack),{type:'inspect-card',id:'first-map'},pack);
+      for(let i=1;i<MAX_ACTIONS-1;i++)
+        state=dispatch(state,{type:'place',id:'first-map',slot:i%2?'earlier':'later'},pack);
+      localStorage.setItem(key,JSON.stringify(state));
+      localStorage.setItem('wondervale-s01e02-progress-v1','e02-isolation-sentinel');
+      localStorage.setItem('wondervale-s01e03-progress-v1','e03-isolation-sentinel');
+    },{pack,key:DRAFT_KEY});
+    const e=await tabs.newPage(),f=await tabs.newPage();
+    await e.setViewportSize({width:568,height:320});
+    for(const tab of [e,f]) {
+      await tab.route('**/__e04_browser_probe__',route=>route.fulfill({
+        status:200,contentType:'text/html',
+        body:'<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/e04/authoring-ui.css"></head><body><main id="e04-root"></main></body></html>'
+      }));
+      await tab.goto(base+'/__e04_browser_probe__');
+      await tab.evaluate(async ({pack,e02Save,e03Save})=>{
+        const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+        window.__tab=mountE04Authoring(document.getElementById('e04-root'),{
+          pack,e02Save,e03Save,storage:localStorage
+        });
+      },{pack,e02Save,e03Save});
+    }
+    const checkpoint249=await e.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    await e.evaluate(key=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(k,v){
+        if(k===key)throw new Error('Simulated 250th write failure in stale tab');
+        return original.call(this,k,v);
+      };
+    },DRAFT_KEY);
+    await e.locator('[data-focus-key="place:first-map:earlier"]').click();
+    assert.equal(await e.evaluate(()=>window.__tab.getState().history.length),250);
+    assert.equal(await e.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),checkpoint249);
+    await f.locator('[data-focus-key="reset"]').click();
+    await f.locator('[data-focus-key="confirm-reset"]').click();
+    assert.equal(await f.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),null);
+    const clearedConflict=e.locator('.e04-save-warning[role="alert"]').filter({
+      hasText:'changed in another tab'
+    });
+    await clearedConflict.waitFor();
+    assert.equal(await clearedConflict.evaluate(node=>document.activeElement===node),true);
+    assert.equal(await e.locator('[data-focus-key="memory:station"]').isDisabled(),true);
+    assert.equal(await e.locator('[data-focus-key="retry-save"]').count(),0);
+    assert.equal(await e.evaluate(()=>window.__tab.reset()),false);
+    await e.locator('[data-focus-key="review-latest"]').click();
+    assert.equal(await e.locator('[data-focus-key="keep-conflict"]').evaluate(
+      node=>document.activeElement===node),true,
+    'The safe Keep choice must be focused even at the 250-action limit');
+    assert.equal(await e.evaluate(()=>window.__tab.getState().history.length),250);
+    await e.keyboard.press('Enter');
+    assert.equal(await e.locator('[data-focus-key="review-latest"]').evaluate(
+      node=>document.activeElement===node),true,
+    'Cancel must return focus to read-only recovery');
+    assert.equal(await e.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),null);
+    await e.keyboard.press('Enter');
+    assert.equal(await e.locator('[data-focus-key="keep-conflict"]').evaluate(
+      node=>document.activeElement===node),true);
+    await e.locator('[data-focus-key="confirm-conflict"]').click();
+    assert.equal(await e.evaluate(()=>window.__tab.getState().history.length),0);
+    assert.equal(await e.locator('.e04-authoring h2').evaluate(
+      node=>document.activeElement===node),true,
+    'Confirmed empty checkpoint returns focus to the fresh draft heading');
+    assert.equal(await e.locator('[data-focus-key="resume"]').count(),0);
+    assert.equal(await e.locator('[data-focus-key="memory:station"]').isEnabled(),true);
+    assert.equal(await e.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),null,
+      'Read-only recovery must not resurrect the cleared draft');
+    assert.deepEqual(await e.evaluate(()=>[
+      localStorage.getItem('wondervale-s01e02-progress-v1'),
+      localStorage.getItem('wondervale-s01e03-progress-v1')
+    ]),['e02-isolation-sentinel','e03-isolation-sentinel']);
+    const bounds=await e.evaluate(()=>({
+      width:document.documentElement.scrollWidth,viewport:innerWidth
+    }));
+    assert.ok(bounds.width<=bounds.viewport+1,
+      '568x320 recovery controls must not overflow horizontally: '+JSON.stringify(bounds));
+    await e.keyboard.press('Tab');
+    assert.equal(await e.locator('[data-focus-key="memory:station"]').evaluate(
+      node=>document.activeElement===node),true,
+    'Tab from the cleared-draft heading reaches the first fresh action');
+    console.log('PASS E04 real cross-tab reset, 250-action recovery and landscape keyboard focus');
     console.log('PASS E04 real cross-tab conflict, read-only reload and unsaved confirmation');
   } finally {await tabs.close();}
 } finally {await browser.close();}
