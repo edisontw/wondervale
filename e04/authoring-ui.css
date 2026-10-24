@@ -66,7 +66,10 @@
   background: #fff;
 }
 .e04-timeline-step strong { color: #184f46; }
-.e04-uncertain { padding: .55rem .7rem; background: #fff9e9; border-radius: .45rem; }
+.e04-uncertain { padding: .55rem .7rem; background: #fff9e9; border-radius: .45rem; min-width: 0; overflow-wrap: anywhere; }
+.e04-uncertain p { margin: 0 0 .3rem; font-weight: 650; }
+.e04-uncertain-list { display: grid; gap: .3rem; margin: 0; padding-inline-start: 1.3rem; }
+.e04-uncertain-list li { min-width: 0; overflow-wrap: anywhere; }
 .e04-chronicle h4:focus { outline: 3px solid #b75e13; outline-offset: 3px; }
 
 .e04-choices { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: .45rem; margin-block-start: .55rem; }
