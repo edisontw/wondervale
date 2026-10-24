@@ -375,11 +375,13 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     function button(parent,label,action,key,disabled=false,pressed=null) {
       const b=el('button','e04-button',label);
       b.type='button';
-      const reviewOnly=key==='review-positions' || key.startsWith('review-card:') || key.startsWith('back-to-review:');
+      const reviewOnly=key==='review-positions' || key==='chronicle-sources' || key==='back-to-chronicle' ||
+        key.startsWith('review-card:') || key.startsWith('back-to-review:');
       const conflictAction=['review-latest','keep-conflict','confirm-conflict'].includes(key);
       b.disabled=disabled || (conflict && !reviewOnly && !conflictAction) ||
         (atLimit && !['reset','keep-reset','confirm-reset','retry-save',
-          'review-latest','keep-conflict','confirm-conflict'].includes(key));
+          'review-latest','keep-conflict','confirm-conflict',
+          'chronicle-sources','back-to-chronicle'].includes(key));
       b.dataset.focusKey=key;
       if(pressed!==null)b.setAttribute('aria-pressed',String(pressed));
       b.addEventListener('click',()=>action());
@@ -410,6 +412,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     const sourceHeading=el('h3','','Source cards');
     sourceHeading.tabIndex=-1; // Neutral focus destination, not a suggested slot.
     evidence.append(sourceHeading);
+    // A read-only return target beside the source heading avoids a long
+    // scroll back through source cards on 320px and short landscape screens.
+    if(state.chronicleSeen)button(evidence,'Back to draft timeline',
+      ()=>chronicleHeading?.focus(),'back-to-chronicle');
     evidence.append(el('p','','Inspect a source before choosing where it belongs. You can change your choice.'));
     // On short phone screens the E03 witness accounts are far above the source
     // cards. Once both have been inspected, offer a compact, optional recap
@@ -563,6 +569,9 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
         'Market coordinator and Garden resident gave two memories. Neither memory has a verified date.'));
       review.append(el('p','e04-explanation',
         'Different times could explain both memories. We do not need to call either person wrong.'));
+      // Navigation only: the child can check the original cards and return
+      // without revising a position, changing events or rewriting a save.
+      button(review,'Review source cards',()=>sourceHeading.focus(),'chronicle-sources');
       decisions.append(review);
     }
     button(decisions,'Complete draft timeline',()=>update({type:'finish'},'finish'),
