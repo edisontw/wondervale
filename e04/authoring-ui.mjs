@@ -116,13 +116,54 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   let resetError=false;
   let saveError=false;
   let saveRecovered=false;
+  let conflictReloadPending=false;
+  let conflictReadError=false;
   const read=()=>structuredClone(state);
+  const unsavedInThisTab=()=>{
+    const payload=draftPayload(state);
+    return saveError || (payload ? JSON.stringify(payload) : null)!==knownCheckpoint;
+  };
   function markConflict() {
     conflict=true;
     resetPending=false;
     saveRecovered=false;
     resumeAvailable=false;
+    conflictReloadPending=false;
+    conflictReadError=false;
     render('checkpoint-conflict');
+  }
+  // Loading another tab's checkpoint is always an explicit, read-only action.
+  // If this tab has unsaved edits, require a second deliberate confirmation.
+  function reviewLatestSaved() {
+    if(disposed || !conflict || mode!=='draft_preview')return false;
+    if(unsavedInThisTab() && !conflictReloadPending) {
+      conflictReloadPending=true;
+      conflictReadError=false;
+      render('keep-conflict');
+      return false;
+    }
+    const latest=load(storage,mode);
+    if(latest.problem) {
+      conflictReadError=true;
+      render('reload-conflict');
+      return false;
+    }
+    const reopened=openE04Authoring(e02Save,e03Save,sources,latest.raw,mode);
+    if(latest.present && JSON.stringify(reopened.session)!==JSON.stringify(latest.raw)) {
+      conflictReadError=true;
+      render('reload-conflict');
+      return false;
+    }
+    // No write, deletion, event dispatch or merge: the latest checkpoint
+    // replaces local state only after the user's explicit decision.
+    state=reopened.session;
+    knownCheckpoint=latest.bytes??null;
+    conflict=false;conflictReloadPending=false;conflictReadError=false;
+    restoreWarning=false;readFailure=false;saveError=false;saveRecovered=false;
+    resetPending=false;resetError=false;
+    resumeAvailable=latest.present && state.history.length>0;
+    render(resumeAvailable?'resume':'start-over');
+    return true;
   }
   function changedElsewhere() {
     if(!storage || mode!=='draft_preview')return false;
@@ -273,7 +314,21 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       warning.tabIndex=-1;
       warning.append(el('p','',
         'The saved Episode 04 draft may have changed in another tab or become readable again. This tab will not overwrite or clear it. ' +
-        'Any unsaved changes here are still only on this page. Reload this page to review the latest saved draft.'));
+        'Any unsaved changes here are still only on this page. You can review the latest saved draft, ' +
+        'but this does not merge changes from two tabs.'));
+      if(conflictReadError)warning.append(el('p','',
+        'The latest saved draft cannot be read or verified yet. No local work was discarded. Try again later.'));
+      if(conflictReloadPending) {
+        warning.append(el('p','',
+          'This tab has unsaved changes. Loading the latest saved draft will discard those changes from this tab only. ' +
+          'It will not change the saved checkpoint or earlier chapters.'));
+        button(warning,'Keep unsaved changes on this tab',()=>{
+          conflictReloadPending=false;conflictReadError=false;render('review-latest');
+        },'keep-conflict');
+        button(warning,'Discard unsaved changes and load latest',reviewLatestSaved,'confirm-conflict');
+      } else {
+        button(warning,'Review latest saved draft',reviewLatestSaved,'review-latest');
+      }
       conflictAlert=warning;
       box.append(warning);
     }
@@ -316,8 +371,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       const b=el('button','e04-button',label);
       b.type='button';
       const reviewOnly=key==='review-positions' || key.startsWith('review-card:') || key.startsWith('back-to-review:');
-      b.disabled=disabled || (conflict && !reviewOnly) ||
-        (atLimit && !['reset','keep-reset','confirm-reset','retry-save'].includes(key));
+      const conflictAction=['review-latest','keep-conflict','confirm-conflict'].includes(key);
+      b.disabled=disabled || (conflict && !reviewOnly && !conflictAction) ||
+        (atLimit && !['reset','keep-reset','confirm-reset','retry-save',
+          'review-latest','keep-conflict','confirm-conflict'].includes(key));
       b.dataset.focusKey=key;
       if(pressed!==null)b.setAttribute('aria-pressed',String(pressed));
       b.addEventListener('click',()=>action());
@@ -519,6 +576,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     if(focusKey==='checkpoint-conflict' && conflictAlert) {
       conflictAlert.focus();
+      return;
+    }
+    if(focusKey==='reload-conflict' && conflictAlert) {
+      focusables.get(conflictReloadPending?'confirm-conflict':'review-latest')?.focus();
       return;
     }
     // The last permitted edit disables its control. Focus the visible alert

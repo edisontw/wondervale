@@ -1113,3 +1113,80 @@ test('storage event catches cross-tab checkpoint ABA and destroy unregisters lis
   ui.destroy();
   assert.equal(listeners.size,0,'Destroy must remove the storage listener');
 });
+
+
+test('stale E04 tab explicitly loads the latest valid checkpoint without rewriting it',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const old02=storage.getItem('wondervale-s01e02-progress-v1');
+  const old03=storage.getItem('wondervale-s01e03-progress-v1');
+  const aRoot=doc.root(),bRoot=doc.root();
+  const a=mountE04Authoring(aRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  const b=mountE04Authoring(bRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(aRoot,'memory:station');
+  const saved=storage.getItem(DRAFT_KEY);
+  tap(bRoot,'memory:garden');
+  assert.match(bRoot.allText(),/changed in another tab/);
+  assert.equal(bRoot.find('review-latest').disabled,false);
+  tap(bRoot,'review-latest');
+  assert.deepEqual(b.getState(),a.getState(),'Read-only reload must replay newest checkpoint');
+  assert.equal(storage.getItem(DRAFT_KEY),saved,'Reload must not write storage');
+  assert.equal(doc.activeElement.dataset.focusKey,'resume');
+  tap(bRoot,'memory:garden');
+  assert.equal(b.getState().history.length,2,'Reloaded tab can continue safely');
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),old02);
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),old03);
+  a.destroy();b.destroy();
+});
+
+test('cross-tab reload requires explicit discard of unsaved work and refuses invalid latest bytes',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const aRoot=doc.root(),bRoot=doc.root();
+  const a=mountE04Authoring(aRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(aRoot,'memory:station');
+  const b=mountE04Authoring(bRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  const originalSet=storage.setItem.bind(storage);
+  let failOnce=true;
+  storage.setItem=(k,v)=>{
+    if(k===DRAFT_KEY && failOnce){failOnce=false;throw new Error('Simulated quota');}
+    return originalSet(k,v);
+  };
+  tap(bRoot,'memory:garden');
+  const unsaved=b.getState();
+  assert.equal(unsaved.history.length,2);
+  assert.match(bRoot.allText(),/not saved on this device/);
+  storage.setItem=originalSet;
+  tap(aRoot,'inspect:first-map');
+  const latest=storage.getItem(DRAFT_KEY);
+  tap(bRoot,'inspect:later-record'); // detects conflict before dispatch
+  assert.deepEqual(b.getState(),unsaved);
+  tap(bRoot,'review-latest');
+  assert.ok(bRoot.find('confirm-conflict'));
+  assert.match(bRoot.allText(),/discard those changes from this tab only/);
+  assert.deepEqual(b.getState(),unsaved,'First click must not discard unsaved edits');
+  assert.equal(doc.activeElement.dataset.focusKey,'keep-conflict');
+  tap(bRoot,'keep-conflict');
+  assert.deepEqual(b.getState(),unsaved,'Cancel keeps in-memory unsaved edits');
+  assert.equal(storage.getItem(DRAFT_KEY),latest);
+  tap(bRoot,'review-latest');
+  tap(bRoot,'confirm-conflict');
+  assert.deepEqual(b.getState(),a.getState());
+  assert.equal(storage.getItem(DRAFT_KEY),latest,'Confirmed reload is read-only');
+
+  // Invalid external checkpoint cannot replace the current in-memory draft.
+  const before=b.getState();
+  storage.setItem(DRAFT_KEY,'{broken');
+  tap(bRoot,'memory:garden');
+  assert.match(bRoot.allText(),/changed in another tab/);
+  tap(bRoot,'review-latest');
+  assert.match(bRoot.allText(),/cannot be read or verified yet/);
+  assert.deepEqual(b.getState(),before);
+  assert.equal(storage.getItem(DRAFT_KEY),'{broken');
+  storage.setItem(DRAFT_KEY,latest);
+  tap(bRoot,'review-latest');
+  assert.deepEqual(b.getState(),before,'Retry with valid saved bytes replays safely');
+  a.destroy();b.destroy();
+});
