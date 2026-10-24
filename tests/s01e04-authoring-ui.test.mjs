@@ -456,6 +456,108 @@ test('unreadable storage warns, while empty and valid checkpoints do not',()=>{
 });
 
 
+test('unreadable E04 checkpoint can be retried without writing or losing the previous draft',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const earlier=[storage.getItem('wondervale-s01e02-progress-v1'),
+    storage.getItem('wondervale-s01e03-progress-v1')];
+  const saved=dispatch04(fresh04(pack),{type:'inspect-memory',which:'station'},pack);
+  const checkpoint=JSON.stringify(saved);
+  storage.setItem(DRAFT_KEY,checkpoint);
+  const get=storage.getItem.bind(storage),set=storage.setItem.bind(storage);
+  let readBlocked=true,writes=0;
+  storage.getItem=k=>{
+    if(k===DRAFT_KEY && readBlocked)throw new Error('Temporary storage read denied');
+    return get(k);
+  };
+  storage.setItem=(k,v)=>{if(k===DRAFT_KEY)writes++;set(k,v);};
+  const root=doc.root();
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.deepEqual(ui.getState().history,[]);
+  assert.match(root.allText(),/previous Episode 04 draft could not be restored/);
+  assert.ok(root.find('retry-read'),'A transient read failure offers a read-only retry');
+  assert.equal(root.find('resume'),null);
+  tap(root,'retry-read');
+  assert.equal(doc.activeElement.dataset.focusKey,'retry-read',
+    'Repeated read failure keeps the retry keyboard-accessible');
+  assert.deepEqual(ui.getState().history,[]);
+  assert.equal(writes,0);
+  readBlocked=false;
+  tap(root,'retry-read');
+  assert.deepEqual(ui.getState(),saved,'Retry must restore the event-replayed checkpoint');
+  assert.equal(doc.activeElement.dataset.focusKey,'resume',
+    'Successful recovery offers the deliberate Continue draft action');
+  assert.equal(root.find('retry-read'),null);
+  assert.doesNotMatch(root.allText(),/could not be restored/);
+  assert.equal(storage.getItem(DRAFT_KEY),checkpoint);
+  assert.equal(writes,0,'Reading a draft must not rewrite it');
+  tap(root,'resume');
+  assert.equal(doc.activeElement.dataset.focusKey,'memory:garden');
+  assert.deepEqual([get('wondervale-s01e02-progress-v1'),
+    get('wondervale-s01e03-progress-v1')],earlier);
+  ui.destroy();
+});
+
+test('unreadable E04 checkpoint preflight prevents overwrites and retry-read never discards new edits',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const saved=dispatch04(fresh04(pack),{type:'inspect-memory',which:'station'},pack);
+  const checkpoint=JSON.stringify(saved);
+  storage.setItem(DRAFT_KEY,checkpoint);
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const get=storage.getItem.bind(storage),set=storage.setItem.bind(storage);
+  let readBlocked=true,writes=0;
+  storage.getItem=k=>{
+    if(k===DRAFT_KEY && readBlocked)throw new Error('Storage read denied');
+    return get(k);
+  };
+  storage.setItem=(k,v)=>{if(k===DRAFT_KEY)writes++;set(k,v);};
+  const root=doc.root(),ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(root,'memory:garden');
+  assert.deepEqual(ui.getState().memoryViewed,['garden']);
+  assert.equal(root.find('retry-read'),null,
+    'Do not offer a reload that would discard unsaved edits');
+  assert.match(root.allText(),/This draft is not saved on this device/);
+  assert.equal(writes,0,'Failed read preflight must prevent destructive writes');
+  assert.equal(storage.items.get(DRAFT_KEY),checkpoint);
+  readBlocked=false;
+  tap(root,'retry-save');
+  assert.deepEqual(JSON.parse(storage.getItem(DRAFT_KEY)),ui.getState());
+  assert.equal(writes,1);
+  assert.match(root.allText(),/Draft saved on this device/);
+  assert.deepEqual([get('wondervale-s01e02-progress-v1'),
+    get('wondervale-s01e03-progress-v1')],[JSON.stringify(e02),JSON.stringify(e03)]);
+  ui.destroy();
+});
+
+test('retrying a newly readable but corrupt E04 checkpoint never silently accepts it',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const corrupt='{broken json';
+  storage.setItem(DRAFT_KEY,corrupt);
+  const get=storage.getItem.bind(storage);
+  let blocked=true;
+  storage.getItem=k=>{
+    if(k===DRAFT_KEY && blocked)throw new Error('Read denied');
+    return get(k);
+  };
+  const root=doc.root(),ui=mountE04Authoring(root,{
+    pack,e02Save:realE02(),e03Save:realE03(),storage
+  });
+  assert.ok(root.find('retry-read'));
+  blocked=false;
+  tap(root,'retry-read');
+  assert.deepEqual(ui.getState().history,[]);
+  assert.equal(root.find('resume'),null);
+  assert.equal(root.find('retry-read'),null);
+  assert.equal(doc.activeElement.attributes.role,'alert');
+  assert.match(root.allText(),/previous Episode 04 draft could not be restored/);
+  assert.equal(get(DRAFT_KEY),corrupt);
+  ui.destroy();
+});
+
 test('source-pack revision change warns and preserves prior draft until a new valid save',()=>{
   const doc=new FakeDocument(),storage=new MemoryStorage();
   const e02=realE02(),e03=realE03();
