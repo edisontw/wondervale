@@ -82,7 +82,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   function update(action,key) {
     if(disposed || state.history.length>=MAX_ACTIONS)return;
     resetPending=false;
-    state=dispatch(state,action,sources);
+    const next=dispatch(state,action,sources);
+    // A repeated selection is not a new action: never rewrite a saved checkpoint.
+    if(next.history.length===state.history.length) { render(key); return; }
+    state=next;
     saveError=!persist(storage,mode,state);
     if (!saveError) restoreWarning=false;
     saveRecovered=false;
