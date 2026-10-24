@@ -134,7 +134,32 @@ try {
     assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),beforeRetry);
     assert.equal(await page.locator('[data-focus-key="retry-save"]').count(),0);
     await action('memory:garden');
-    for(const id of ['first-map','later-record','undated-photo'])await action('inspect:'+id);
+    // Simulate a write that returns successfully but stores wrong bytes.
+    // The last verified checkpoint must survive and Retry must save the
+    // current in-memory state without inventing another story action.
+    const verifiedBeforeMismatch=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    await page.evaluate(key=>{
+      const original=Storage.prototype.setItem;
+      window.__e04CorruptOnce=true;
+      Storage.prototype.setItem=function(k,v){
+        if(k===key && window.__e04CorruptOnce){
+          window.__e04CorruptOnce=false;
+          return original.call(this,k,'{"truncated":true}');
+        }
+        return original.call(this,k,v);
+      };
+    },DRAFT_KEY);
+    await action('inspect:first-map');
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),verifiedBeforeMismatch,
+      'Mismatched readback must preserve the last verified checkpoint');
+    assert.equal(await page.locator('[data-focus-key="retry-save"]').count(),1);
+    await layout('readback mismatch '+size.width);
+    const beforeMismatchRetry=await page.evaluate(()=>window.__e04.getState());
+    await action('retry-save');
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),beforeMismatchRetry);
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),
+      JSON.stringify(beforeMismatchRetry));
+    for(const id of ['later-record','undated-photo'])await action('inspect:'+id);
     await action('clue:revision-note');
     await action('place:first-map:earlier');
     await action('place:later-record:later');
@@ -172,6 +197,28 @@ try {
     assert.match(scopeId,/^e04-reset-prompt-[0-9]+$/);
     assert.equal(await page.locator('[data-focus-key="keep-reset"]').getAttribute('aria-describedby'),scopeId);
     assert.match(await page.locator('#'+scopeId).innerText(),/Earlier chapters stay saved/);
+    // A temporary read denial must block reset before any removeItem call.
+    await page.evaluate(key=>{
+      const originalGet=Storage.prototype.getItem;
+      const originalRemove=Storage.prototype.removeItem;
+      window.__e04ReadBlocked=true;
+      window.__e04ResetRemoveCalls=0;
+      Storage.prototype.getItem=function(k){
+        if(k===key && window.__e04ReadBlocked)throw Error('Simulated read denial');
+        return originalGet.call(this,k);
+      };
+      Storage.prototype.removeItem=function(k){
+        if(k===key)window.__e04ResetRemoveCalls++;
+        return originalRemove.call(this,k);
+      };
+    },DRAFT_KEY);
+    await page.keyboard.press('Enter');
+    assert.equal(await focusKey(),'confirm-reset');
+    assert.equal(await page.evaluate(()=>window.__e04ResetRemoveCalls),0,
+      'Read-denied reset must not remove a checkpoint');
+    await page.evaluate(()=>{window.__e04ReadBlocked=false;});
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),saved);
+    await layout('read-denied reset '+size.width);
     // Simulate a real browser storage removal failure, then retry safely.
     await page.evaluate(key=>{
       const original=Storage.prototype.removeItem;
