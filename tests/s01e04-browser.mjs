@@ -772,10 +772,66 @@ try {
     assert.equal(await b.evaluate(()=>window.__tab.reset()),false);
     assert.equal(await b.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),saved);
     assert.deepEqual(await b.evaluate(()=>window.__tab.getState().history),[]);
+    // A clean stale tab can deliberately read the newer valid checkpoint
+    // without any save, event dispatch, or full-page reload.
+    await b.locator('[data-focus-key="review-latest"]').click();
+    assert.deepEqual(await b.evaluate(()=>window.__tab.getState()),
+      await a.evaluate(()=>window.__tab.getState()));
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),saved);
+    assert.equal(await b.locator('[data-focus-key="resume"]').evaluate(
+      node=>document.activeElement===node),true);
+    await b.locator('[data-focus-key="memory:garden"]').click();
+    const updated=await b.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    assert.notEqual(updated,saved);
+
+    // Two further real tabs: one has an unsaved edit after a simulated quota
+    // failure, while the other writes a newer checkpoint. The stale tab must
+    // require a second, explicitly destructive confirmation before switching.
+    const c=await tabs.newPage(),d=await tabs.newPage();
+    for(const page of [c,d])await page.route('**/__e04_browser_probe__',route=>route.fulfill({
+      status:200,contentType:'text/html',
+      body:'<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/e04/authoring-ui.css"></head><body><main id="e04-root"></main></body></html>'
+    }));
+    for(const page of [c,d]){
+      await page.goto(base+'/__e04_browser_probe__');
+      await page.evaluate(async ({pack,e02Save,e03Save})=>{
+        const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+        window.__tab=mountE04Authoring(document.getElementById('e04-root'),{
+          pack,e02Save,e03Save,storage:localStorage
+        });
+      },{pack,e02Save,e03Save});
+    }
+    await c.evaluate(key=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(k,v){
+        if(k===key)throw new Error('Simulated quota in stale tab');
+        return original.call(this,k,v);
+      };
+    },DRAFT_KEY);
+    await c.locator('[data-focus-key="inspect:first-map"]').click();
+    const unsaved=await c.evaluate(()=>window.__tab.getState());
+    assert.equal(unsaved.history.length,3);
+    await d.locator('[data-focus-key="inspect:later-record"]').click();
+    const latest=await d.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    await c.locator('[data-focus-key="review-latest"]').waitFor();
+    await c.locator('[data-focus-key="review-latest"]').click();
+    assert.equal(await c.locator('[data-focus-key="confirm-conflict"]').count(),1);
+    assert.equal(await c.locator('[data-focus-key="keep-conflict"]').evaluate(
+      node=>document.activeElement===node),true);
+    assert.deepEqual(await c.evaluate(()=>window.__tab.getState()),unsaved);
+    await c.locator('[data-focus-key="keep-conflict"]').click();
+    assert.deepEqual(await c.evaluate(()=>window.__tab.getState()),unsaved);
+    assert.equal(await c.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),latest);
+    await c.locator('[data-focus-key="review-latest"]').click();
+    await c.locator('[data-focus-key="confirm-conflict"]').click();
+    assert.deepEqual(await c.evaluate(()=>window.__tab.getState()),
+      await d.evaluate(()=>window.__tab.getState()));
+    assert.equal(await c.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),latest,
+      'Confirmed cross-tab reload never writes');
     assert.deepEqual(await b.evaluate(()=>[
       localStorage.getItem('wondervale-s01e02-progress-v1'),
       localStorage.getItem('wondervale-s01e03-progress-v1')
     ]),[null,null],'Cross-tab preview must not touch earlier chapter saves');
-    console.log('PASS E04 real cross-tab storage conflict and reset guard');
+    console.log('PASS E04 real cross-tab conflict, read-only reload and unsaved confirmation');
   } finally {await tabs.close();}
 } finally {await browser.close();}
