@@ -272,7 +272,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       warning.setAttribute('role','alert');
       warning.tabIndex=-1;
       warning.append(el('p','',
-        'This Episode 04 draft changed in another tab. This tab will not overwrite or clear it. ' +
+        'The saved Episode 04 draft may have changed in another tab or become readable again. This tab will not overwrite or clear it. ' +
         'Any unsaved changes here are still only on this page. Reload this page to review the latest saved draft.'));
       conflictAlert=warning;
       box.append(warning);
