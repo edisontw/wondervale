@@ -157,6 +157,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       box.append(warning);
     }
     let saveStatus=null;
+    let completionStatus=null;
     if(saveError) {
       const warning=el('div','e04-save-warning');
       const message=el('p','',
@@ -279,7 +280,15 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     button(decisions,'Complete draft timeline',()=>update({type:'finish'},'finish'),
       'finish',state.phase!=='ready_to_finish');
-    if(state.phase==='completed')decisions.append(el('p','e04-status','Draft timeline complete. This does not unlock another episode.'));
+    if(state.phase==='completed') {
+      const done=el('p','e04-status e04-completion','Draft timeline complete. This does not unlock another episode.');
+      done.setAttribute('role','status');
+      // The Finish button becomes disabled after completion. Announce success
+      // at the decision itself instead of moving focus to the footer reset.
+      done.tabIndex=-1;
+      completionStatus=done;
+      decisions.append(done);
+    }
     box.append(decisions);
     const footer=el('footer','e04-footer');
     if(resetPending) {
@@ -307,6 +316,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     // Keep successful save recovery in view at any action count.
     if(focusKey==='retry-save' && saveStatus) {
       saveStatus.focus();
+      return;
+    }
+    if(focusKey==='finish' && completionStatus) {
+      completionStatus.focus();
       return;
     }
     if(focusKey==='start-over') {
