@@ -214,7 +214,7 @@ test('unsupported fully placed E04 draft offers a neutral, non-mutating review p
     'Restored unsupported timeline resumes at the neutral cue');
   assert.equal(doc.activeElement.attributes.role,'status');
   assert.match(root.allText(),/Your choices so far/);
-  assert.match(root.allText(),/First map · Later/,'Overview reports only the user's current choice');
+  assert.match(root.allText(),/First map · Later/,'Overview reports the current choice');
   assert.match(root.allText(),/Later record · Earlier/);
   assert.equal(root.find('review-card:first-map').attributes['aria-label'],
     'Review First map (your choice: Later)');
