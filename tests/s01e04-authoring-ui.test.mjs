@@ -424,7 +424,7 @@ test('reset confirmation describes scope and failed deletion without changing ot
   ui.destroy();
 });
 
-test('unreadable storage warns, while empty and valid checkpoints do not',()=>{
+test('unreadable storage warns and never overwrites a newly readable checkpoint',()=>{
   const doc=new FakeDocument(),storage=new MemoryStorage(),e02=realE02(),e03=realE03();
   const freshRoot=doc.root();
   const clean=mountE04Authoring(freshRoot,{pack,e02Save:e02,e03Save:e03,storage});
@@ -450,8 +450,10 @@ test('unreadable storage warns, while empty and valid checkpoints do not',()=>{
   failRead=false;
   assert.equal(storage.getItem(DRAFT_KEY),saved);
   tap(root,'memory:garden');
-  assert.doesNotMatch(root.allText(),/could not be restored/);
-  assert.deepEqual(unreadable.getState().memoryViewed,['garden']);
+  assert.match(root.allText(),/changed in another tab or become readable again/);
+  assert.deepEqual(unreadable.getState().history,[],
+    'A newly readable checkpoint must be reloaded, not overwritten');
+  assert.equal(storage.getItem(DRAFT_KEY),saved);
   unreadable.destroy();
 });
 
@@ -500,7 +502,7 @@ test('unreadable E04 checkpoint can be retried without writing or losing the pre
   ui.destroy();
 });
 
-test('unreadable E04 checkpoint preflight prevents overwrites and retry-read never discards new edits',()=>{
+test('unreadable E04 checkpoint prevents writes and retry-save cannot overwrite newly readable bytes',()=>{
   const doc=new FakeDocument(),storage=new MemoryStorage();
   const e02=realE02(),e03=realE03();
   const saved=dispatch04(fresh04(pack),{type:'inspect-memory',which:'station'},pack);
@@ -525,9 +527,12 @@ test('unreadable E04 checkpoint preflight prevents overwrites and retry-read nev
   assert.equal(storage.items.get(DRAFT_KEY),checkpoint);
   readBlocked=false;
   tap(root,'retry-save');
-  assert.deepEqual(JSON.parse(storage.getItem(DRAFT_KEY)),ui.getState());
-  assert.equal(writes,1);
-  assert.match(root.allText(),/Draft saved on this device/);
+  assert.deepEqual(ui.getState().memoryViewed,['garden'],
+    'Unsaved in-memory edit remains visible without discarding it');
+  assert.equal(storage.getItem(DRAFT_KEY),checkpoint,
+    'A previously unreadable checkpoint cannot be overwritten without a new mount');
+  assert.equal(writes,0);
+  assert.match(root.allText(),/changed in another tab or become readable again/);
   assert.deepEqual([get('wondervale-s01e02-progress-v1'),
     get('wondervale-s01e03-progress-v1')],[JSON.stringify(e02),JSON.stringify(e03)]);
   ui.destroy();
