@@ -227,9 +227,32 @@ try {
     assert.ok(chronicleFocus.focused && chronicleFocus.top>=-1 &&
       chronicleFocus.top<chronicleFocus.height,
       'Chronicle opens at its visible heading before the Finish control: '+JSON.stringify(chronicleFocus));
+    const beforeChronicleJump=await page.evaluate(()=>window.__e04.getState());
+    const beforeChronicleJumpBytes=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    await page.keyboard.press('Tab');
+    assert.equal(await page.locator('[data-focus-key="chronicle-sources"]').evaluate(node=>document.activeElement===node),true,
+      'Chronicle keyboard order offers source review before completion');
+    await page.keyboard.press('Enter');
+    const sourceHeadingAfterJump=page.locator('.e04-panel h3').filter({hasText:'Source cards'});
+    const sourceJumpRect=await sourceHeadingAfterJump.evaluate(node=>({
+      focused:document.activeElement===node,top:node.getBoundingClientRect().top,height:innerHeight
+    }));
+    assert.ok(sourceJumpRect.focused && sourceJumpRect.top>=-1 && sourceJumpRect.top<sourceJumpRect.height,
+      'Source jump must focus the visible neutral heading: '+JSON.stringify(sourceJumpRect));
+    await page.keyboard.press('Tab');
+    assert.equal(await page.locator('[data-focus-key="back-to-chronicle"]').evaluate(node=>document.activeElement===node),true,
+      'The next keyboard action returns to the timeline without scrolling through cards');
+    await page.keyboard.press('Enter');
+    assert.equal(await chronicleHeading.evaluate(node=>document.activeElement===node),true,
+      'Return action must focus the visible draft timeline');
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),beforeChronicleJump,
+      'Read-only navigation must not create story events');
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),beforeChronicleJumpBytes,
+      'Read-only navigation must not rewrite the checkpoint');
+    await page.keyboard.press('Tab');
     await page.keyboard.press('Tab');
     assert.equal(await page.locator('[data-focus-key="finish"]').evaluate(node=>document.activeElement===node),true,
-      'Tab from Chronicle heading reaches completion after reviewing the timeline');
+      'Completion remains keyboard-reachable after the round trip');
     assert.equal(await page.locator('.e04-timeline-step').count(),2);
     await layout('Chronicle '+size.width);
     await action('finish');
