@@ -124,6 +124,8 @@ try {
       };
     },DRAFT_KEY);
     await action('memory:station');
+    assert.equal(await page.locator('.e04-memory-compare').count(),0,
+      'Do not reveal a comparison before both memories were inspected');
     const beforeRetry=await page.evaluate(()=>window.__e04.getState());
     assert.equal(await page.locator('[data-focus-key="retry-save"]').count(),1);
     await layout('save warning '+size.width);
@@ -459,8 +461,11 @@ try {
     assert.equal(await sourceHeading.evaluate(node=>document.activeElement===node),true,
       'Review button focuses source heading, not a particular slot');
     await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(()=>document.activeElement?.matches('.e04-memory-compare summary')),true,
+      'Keyboard can revisit inspected memories before source placement');
+    await page.keyboard.press('Tab');
     assert.equal(await focusKey(),'place:first-map:earlier',
-      'Keyboard reaches first enabled source choice from review heading');
+      'Keyboard reaches first enabled source choice after optional memory comparison');
     assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),unsupported,
       'Review navigation cannot mutate the draft');
     assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),unsupportedCheckpoint,
