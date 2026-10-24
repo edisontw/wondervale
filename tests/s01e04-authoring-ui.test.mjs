@@ -434,6 +434,10 @@ test('Retry saving persists the same in-memory draft without changing story prog
   assert.deepEqual(ui.getState(),before,'Retry must not dispatch a story action');
   assert.ok(storage.getItem(DRAFT_KEY),'Retry should persist the complete draft');
   assert.equal(root.find('retry-save'),null,'Retry control disappears after success');
+  assert.equal(doc.activeElement?.attributes.role,'status',
+    'Successful retry focuses the confirmation instead of jumping to an unrelated button');
+  assert.match(doc.activeElement.textContent,/Draft saved on this device/);
+  assert.equal(doc.activeElement.tabIndex,-1);
   assert.match(root.allText(),/Draft saved on this device/);
   const resumed=mountE04Authoring(doc.root(),{pack,e02Save:e02,e03Save:e03,storage});
   assert.deepEqual(resumed.getState(),before);
