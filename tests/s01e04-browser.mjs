@@ -747,4 +747,35 @@ try {
     await context.close();
     console.log('PASS E04 browser responsive, Chronicle, storage retry: '+size.width+'x'+size.height);
   }
+  // Real cross-tab event delivery, separate from the single-page layout probes.
+  const tabs=await browser.newContext({viewport:{width:320,height:640}});
+  try {
+    const a=await tabs.newPage(),b=await tabs.newPage();
+    for(const page of [a,b])await page.route('**/__e04_browser_probe__',route=>route.fulfill({
+      status:200,contentType:'text/html',
+      body:'<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/e04/authoring-ui.css"></head><body><main id="e04-root"></main></body></html>'
+    }));
+    await a.goto(base+'/__e04_browser_probe__');
+    await b.goto(base+'/__e04_browser_probe__');
+    for(const page of [a,b])await page.evaluate(async ({pack,e02Save,e03Save})=>{
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      window.__tab=mountE04Authoring(document.getElementById('e04-root'),{
+        pack,e02Save,e03Save,storage:localStorage
+      });
+    },{pack,e02Save,e03Save});
+    await a.locator('[data-focus-key="memory:station"]').click();
+    const saved=await a.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    assert.ok(saved);
+    await b.locator('.e04-save-warning[role="alert"]').getByText('changed in another tab',{exact:false}).waitFor();
+    assert.equal(await b.locator('[data-focus-key="memory:garden"]').isDisabled(),true);
+    assert.equal(await b.locator('[data-focus-key="reset"]').isDisabled(),true);
+    assert.equal(await b.evaluate(()=>window.__tab.reset()),false);
+    assert.equal(await b.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),saved);
+    assert.deepEqual(await b.evaluate(()=>window.__tab.getState().history),[]);
+    assert.deepEqual(await b.evaluate(()=>[
+      localStorage.getItem('wondervale-s01e02-progress-v1'),
+      localStorage.getItem('wondervale-s01e03-progress-v1')
+    ]),[null,null],'Cross-tab preview must not touch earlier chapter saves');
+    console.log('PASS E04 real cross-tab storage conflict and reset guard');
+  } finally {await tabs.close();}
 } finally {await browser.close();}
