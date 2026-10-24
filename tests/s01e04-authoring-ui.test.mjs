@@ -138,6 +138,9 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   const newRoot=doc.root();
   const resumed=mountE04Authoring(newRoot,{pack,e02Save:e02,e03Save:e03,storage});
   assert.equal(resumed.getState().phase,'completed');
+  tap(newRoot,'resume');
+  assert.match(doc.activeElement.className,/e04-completion/,
+    'A completed restored draft resumes at its confirmation, not the reset footer');
   resumed.reset();
   assert.equal(resumed.getState().phase,'sources');
   assert.equal(storage.getItem(DRAFT_KEY),null);
@@ -145,6 +148,45 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
   ui.destroy();resumed.destroy();
 });
+test('Restored partial drafts offer a non-mutating jump to the next unfinished action',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  let s=dispatch04(fresh04(pack),{type:'inspect-memory',which:'station'},pack);
+  storage.setItem(DRAFT_KEY,JSON.stringify(s));
+  const first=doc.root(),ui=mountE04Authoring(first,{pack,e02Save:e02,e03Save:e03,storage});
+  const before=storage.getItem(DRAFT_KEY);
+  tap(first,'resume');
+  assert.equal(doc.activeElement.dataset.focusKey,'memory:garden');
+  assert.equal(storage.getItem(DRAFT_KEY),before,'Resume must not create a new history event');
+  tap(first,'memory:garden');
+  assert.equal(first.find('resume'),null,'Resume shortcut disappears after the next valid edit');
+  ui.destroy();
+
+  const second=doc.root(),continued=mountE04Authoring(second,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(second,'resume');
+  assert.equal(doc.activeElement.dataset.focusKey,'inspect:first-map');
+  continued.destroy();
+
+  for(const card of pack.cards)s=dispatch04(s,{type:'inspect-card',id:card.id},pack);
+  s=dispatch04(s,{type:'inspect-memory',which:'garden'},pack);
+  for(const clue of pack.clues)s=dispatch04(s,{type:'inspect-clue',id:clue.id},pack);
+  storage.setItem(DRAFT_KEY,JSON.stringify(s));
+  const third=doc.root(),placement=mountE04Authoring(third,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(third,'resume');
+  assert.equal(doc.activeElement.tagName,'H4',
+    'Resume must focus a neutral source heading, not preselect Earlier/Later');
+  assert.equal(doc.activeElement.textContent,'First map');
+  assert.equal(storage.getItem(DRAFT_KEY),JSON.stringify(s));
+  placement.destroy();
+
+  const replayRoot=doc.root();
+  const replay=mountE04Authoring(replayRoot,{
+    pack,e02Save:e02,e03Save:e03,storage,mode:'historical_replay'
+  });
+  assert.equal(replayRoot.find('resume'),null,'Historical replay never claims a restored draft');
+  replay.destroy();
+});
+
 test('invalid E04 checkpoints show a recovery warning without deleting saved bytes',()=>{
   const e02=realE02(),e03=realE03();
   for(const bad of [
@@ -163,6 +205,7 @@ test('invalid E04 checkpoints show a recovery warning without deleting saved byt
     assert.equal(ui.getState().phase,'sources');
     assert.deepEqual(ui.getState().history,[]);
     assert.match(root.allText(),/previous Episode 04 draft could not be restored/);
+    assert.equal(root.find('resume'),null,'Invalid checkpoints must not show a resume shortcut');
     assert.equal(storage.getItem(DRAFT_KEY),bad,'Opening must preserve original invalid bytes');
     tap(root,'memory:station');
     assert.doesNotMatch(root.allText(),/previous Episode 04 draft could not be restored/);

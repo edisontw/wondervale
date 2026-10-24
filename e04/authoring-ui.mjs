@@ -73,6 +73,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   // Keep the old bytes untouched until a new valid action explicitly saves.
   let restoreWarning=checkpoint.problem ||
     (checkpoint.present && JSON.stringify(opened.session)!==JSON.stringify(checkpoint.raw));
+  // Offer a deliberate resume jump only for a valid, event-replayed local draft.
+  // Fresh, corrupt and historical-replay sessions must not claim recovery.
+  let resumeAvailable=mode==='draft_preview' && checkpoint.present &&
+    !restoreWarning && state.history.length>0;
   let disposed=false;
   let resetPending=false;
   let resetError=false;
@@ -86,6 +90,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     // A repeated selection is not a new action: never rewrite a saved checkpoint.
     if(next.history.length===state.history.length) { render(key); return; }
     state=next;
+    resumeAvailable=false;
     saveError=!persist(storage,mode,state);
     if (!saveError) restoreWarning=false;
     saveRecovered=false;
@@ -120,12 +125,15 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     saveRecovered=false;
     restoreWarning=false;
     state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
+    resumeAvailable=false;
     render('start-over');
     return true;
   }
   function render(focusKey=null) {
     if(disposed)return;
     const focusables=new Map();
+    const cardHeadings=new Map();
+    let resumeTarget=null;
     const box=el('section','e04-authoring');
     box.setAttribute('aria-label','Episode 04 chronology authoring preview');
     const heading=el('h2','','What changed over time?');
@@ -140,6 +148,14 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     status.setAttribute('role','status');
     status.setAttribute('aria-live','polite');
     box.append(status);
+    if(resumeAvailable) {
+      const resume=el('div','e04-resume');
+      resume.append(el('p','',state.phase==='completed'
+        ? 'Your completed draft was restored on this device.'
+        : 'Your saved draft was restored on this device. Continue where you stopped.'));
+      button(resume,'Continue draft',()=>resumeTarget?.focus(),'resume');
+      box.append(resume);
+    }
     let limitWarning=null;
     if(atLimit) {
       const warning=el('p','e04-save-warning',
@@ -209,7 +225,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     evidence.append(el('p','','Inspect a source before choosing where it belongs. You can change your choice.'));
     for(const card of sources.cards) {
       const cardBox=el('article','e04-card');
-      cardBox.append(el('h4','',card.label));
+      const cardHeading=el('h4','',card.label);
+      cardHeading.tabIndex=-1; // Neutral landing before time choices; do not suggest an answer.
+      cardHeadings.set(card.id,cardHeading);
+      cardBox.append(cardHeading);
       cardBox.append(el('p','e04-kind',card.kind));
       const inspected=state.cardViewed.includes(card.id);
       button(cardBox,inspected?'Inspected':'Inspect source',()=>update({type:'inspect-card',id:card.id},'inspect:'+card.id),
@@ -307,6 +326,26 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     box.append(footer);
     root.replaceChildren(box);
+    if(resumeAvailable) {
+      let nextKey=null;
+      if(state.phase==='completed')resumeTarget=completionStatus;
+      else if(atLimit)resumeTarget=limitWarning;
+      else {
+        const unseenMemory=MEMORY_LABELS.find(([which])=>!state.memoryViewed.includes(which));
+        const unseenCard=sources.cards.find(c=>!state.cardViewed.includes(c.id));
+        const unseenClue=sources.clues.find(c=>!state.clueViewed.includes(c.id));
+        const unplaced=sources.cards.find(c=>!Object.hasOwn(state.slots,c.id));
+        if(unseenMemory)nextKey='memory:'+unseenMemory[0];
+        else if(unseenCard)nextKey='inspect:'+unseenCard.id;
+        else if(unseenClue)nextKey='clue:'+unseenClue.id;
+        else if(unplaced)resumeTarget=cardHeadings.get(unplaced.id);
+        else if(state.phase==='ready_to_finish')nextKey='finish';
+        else if(state.phase==='chronicle')nextKey='chronicle';
+        else if(!state.explanation && timelineSupported(state,sources))nextKey='explain';
+        else resumeTarget=cardHeadings.get(sources.cards[0].id);
+      }
+      if(nextKey)resumeTarget=focusables.get(nextKey);
+    }
     // The last permitted edit disables its control. Focus the visible alert
     // instead of silently jumping to the restart button at the page footer.
     if(atLimit && focusKey && !['reset','keep-reset','confirm-reset','retry-save'].includes(focusKey)) {

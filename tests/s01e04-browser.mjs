@@ -213,6 +213,21 @@ try {
     assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),beforeReload,
       'Reload must restore the exact event-replayed draft');
     assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),checkpoint);
+    assert.equal(await page.locator('[data-focus-key="resume"]').count(),1,
+      'A valid saved draft must offer a visible continuation shortcut');
+    await action('resume');
+    assert.equal(await focusKey(),'memory:station',
+      'Resume must return to the unfinished station memory, not the already inspected garden memory');
+    const resumedControl=await page.locator('[data-focus-key="memory:station"]').evaluate(node=>{
+      const r=node.getBoundingClientRect();
+      return {top:r.top,bottom:r.bottom,height:innerHeight,focused:document.activeElement===node};
+    });
+    assert.ok(resumedControl.focused && resumedControl.top>=-1 && resumedControl.top<resumedControl.height,
+      'Resume must scroll the next action into view on mobile/desktop: '+JSON.stringify(resumedControl));
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),beforeReload,
+      'Resume is navigation only and cannot alter the draft');
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),checkpoint,
+      'Resume must not write a new checkpoint');
 
     // Historical replay is isolated even when a valid draft exists on disk.
     const replay=await page.evaluate(async ({pack,e02Save,e03Save,key})=>{
@@ -252,6 +267,8 @@ try {
     const recovered=await page.evaluate(()=>window.__e04.getState());
     assert.equal(recovered.phase,'sources','Corrupt checkpoint must open a clean draft');
     assert.deepEqual(recovered.history,[],'Forged history must not be replayed');
+    assert.equal(await page.locator('[data-focus-key="resume"]').count(),0,
+      'A forged checkpoint must not show a continuation shortcut');
     assert.deepEqual(recovered.memoryViewed,[]);
     assert.equal(await page.getByText('The previous Episode 04 draft could not be restored',{exact:false}).count(),1,
       'Corrupt checkpoint must visibly warn the user');
