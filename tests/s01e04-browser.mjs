@@ -666,6 +666,27 @@ try {
     await layout('eight-card Chronicle unknown dates '+size.width);
     const beforeLongState=await page.evaluate(()=>window.__longChronicle.getState());
     const beforeLongBytes=await page.evaluate(()=>window.__longChronicleStore.value);
+    assert.match(await longRoot.locator('.e04-chronicle-count').innerText(),
+      /6 sources have no confirmed time/);
+    await longRoot.locator('[data-focus-key="chronicle-undated"]').click();
+    const undatedHeading=longRoot.locator('.e04-uncertain h5');
+    const undatedFocus=await undatedHeading.evaluate(node=>({
+      focused:document.activeElement===node,top:node.getBoundingClientRect().top,
+      viewport:innerHeight
+    }));
+    assert.ok(undatedFocus.focused && undatedFocus.top>=-1 &&
+      undatedFocus.top<undatedFocus.viewport,
+      'Undated section jump focuses visible heading: '+JSON.stringify(undatedFocus));
+    await page.keyboard.press('Tab');
+    assert.equal(await longRoot.locator('[data-focus-key="back-to-timeline-start"]').evaluate(
+      node=>document.activeElement===node),true,
+      'Tab from undated heading offers return to timeline start');
+    await page.keyboard.press('Enter');
+    assert.equal(await longRoot.locator('.e04-chronicle h4').evaluate(
+      node=>document.activeElement===node),true,
+      'Return focuses Chronicle heading rather than skipping to completion');
+    assert.equal(await page.evaluate(()=>window.__longChronicleStore.writes),0,
+      'Long Chronicle navigation cannot write a checkpoint');
     await longRoot.locator('[data-focus-key="chronicle-sources"]').click();
     assert.equal(await longRoot.locator('.e04-panel h3').filter({hasText:'Source cards'})
       .evaluate(node=>document.activeElement===node),true);
