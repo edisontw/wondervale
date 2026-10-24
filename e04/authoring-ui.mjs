@@ -91,10 +91,15 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     if(next.history.length===state.history.length) { render(key); return; }
     state=next;
     resumeAvailable=false;
+    const wasSaveError=saveError;
     saveError=!persist(storage,mode,state);
     if (!saveError) restoreWarning=false;
-    saveRecovered=false;
-    render(key);
+    // A later successful edit can recover an earlier failed write without Retry.
+    saveRecovered=wasSaveError && !saveError;
+    // On a short screen the warning sits above the cards. Announce the first
+    // failure where it is visible; do not interrupt every subsequent edit.
+    render(!wasSaveError && saveError ? 'save-failed' :
+      saveRecovered ? 'retry-save' : key);
   }
   function retrySave() {
     if(disposed || !saveError)return false;
@@ -180,12 +185,15 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       box.append(warning);
     }
     let saveStatus=null;
+    let saveWarning=null;
     let completionStatus=null;
     if(saveError) {
       const warning=el('div','e04-save-warning');
+      warning.setAttribute('role','alert');
+      warning.tabIndex=-1;
+      saveWarning=warning;
       const message=el('p','',
         'This draft is not saved on this device. Keep this page open and retry saving.');
-      message.setAttribute('role','alert');
       warning.append(message);
       button(warning,'Retry saving',retrySave,'retry-save');
       box.append(warning);
@@ -394,6 +402,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     // instead of silently jumping to the restart button at the page footer.
     if(atLimit && focusKey && !['reset','keep-reset','confirm-reset','retry-save'].includes(focusKey)) {
       limitWarning?.focus();
+      return;
+    }
+    if(focusKey==='save-failed' && saveWarning) {
+      saveWarning.focus(); // Visible alert before any off-screen editing controls.
       return;
     }
     // Keep successful save recovery in view at any action count.
