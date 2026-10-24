@@ -144,6 +144,9 @@ try {
     await layout('Chronicle '+size.width);
     await action('finish');
     assert.equal(await page.evaluate(()=>window.__e04.getState().phase),'completed');
+    assert.equal(await page.locator('.e04-completion').evaluate(node=>document.activeElement===node),true,
+      'Finish must focus the completed draft announcement, not jump to reset');
+    assert.equal(await page.locator('.e04-completion').getAttribute('role'),'status');
     const unchanged=await page.evaluate(()=>[
       localStorage.getItem('wondervale-s01e02-progress-v1'),
       localStorage.getItem('wondervale-s01e03-progress-v1')
