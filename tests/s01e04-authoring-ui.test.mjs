@@ -418,6 +418,39 @@ test('failed overwrite warns instead of presenting an old checkpoint as current'
   ui.destroy();resumed.destroy();
 });
 
+test('reselecting the same slot never rewrites storage or invents a save failure',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(root,'inspect:first-map');
+  tap(root,'place:first-map:earlier');
+  const saved=storage.getItem(DRAFT_KEY),before=ui.getState();
+  assert.ok(saved);
+  const originalSet=storage.setItem.bind(storage);
+  let attempts=0;
+  storage.setItem=()=>{attempts++;throw new Error('Storage denied');};
+  tap(root,'place:first-map:earlier'); // Already selected; no new action.
+  assert.deepEqual(ui.getState(),before);
+  assert.equal(attempts,0,'A no-op must not attempt another checkpoint write');
+  assert.equal(storage.getItem(DRAFT_KEY),saved);
+  assert.doesNotMatch(root.allText(),/This draft is not saved on this device/);
+  assert.equal(root.find('retry-save'),null);
+  tap(root,'place:first-map:later'); // Real edit: write failure must still warn.
+  assert.equal(attempts,1);
+  assert.match(root.allText(),/This draft is not saved on this device/);
+  const unsaved=ui.getState();
+  tap(root,'place:first-map:later'); // Repeated choice cannot mask the failure.
+  assert.equal(attempts,1);
+  assert.deepEqual(ui.getState(),unsaved);
+  assert.match(root.allText(),/This draft is not saved on this device/);
+  storage.setItem=originalSet;
+  tap(root,'retry-save');
+  assert.deepEqual(ui.getState(),unsaved);
+  assert.equal(storage.getItem(DRAFT_KEY),JSON.stringify(unsaved));
+  assert.doesNotMatch(root.allText(),/This draft is not saved on this device/);
+  ui.destroy();
+});
+
 test('Retry saving persists the same in-memory draft without changing story progress',()=>{
   const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
   const e02=realE02(),e03=realE03();
