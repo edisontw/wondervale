@@ -323,6 +323,69 @@ test('Retry saving clears a corrupt-checkpoint warning only after verified recov
   ui.destroy();resumed.destroy();
 });
 
+test('multiple timeline revisions survive a failed save, later recovery and remount without changing E02/E03',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  let state=fresh04(pack);
+  for(const which of ['station','garden'])
+    state=dispatch04(state,{type:'inspect-memory',which},pack);
+  for(const card of pack.cards)
+    state=dispatch04(state,{type:'inspect-card',id:card.id},pack);
+  for(const clue of pack.clues)
+    state=dispatch04(state,{type:'inspect-clue',id:clue.id},pack);
+  for(const [id,slot] of [
+    ['first-map','later'],['later-record','earlier'],['undated-photo','uncertain']
+  ])state=dispatch04(state,{type:'place',id,slot},pack);
+  storage.setItem(DRAFT_KEY,JSON.stringify(state));
+  const checkpoint=storage.getItem(DRAFT_KEY);
+  const originalSet=storage.setItem.bind(storage);
+  let blocked=true;
+  storage.setItem=(key,value)=>{
+    if(key===DRAFT_KEY && blocked)throw new Error('Simulated storage quota');
+    originalSet(key,value);
+  };
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(root,'place:first-map:earlier');
+  assert.equal(doc.activeElement.attributes.role,'alert',
+    'First failed save must focus a visible warning, not an off-screen source');
+  assert.match(doc.activeElement.allText(),/not saved on this device/);
+  assert.equal(storage.getItem(DRAFT_KEY),checkpoint);
+  tap(root,'retry-save');
+  assert.equal(doc.activeElement.dataset.focusKey,'retry-save',
+    'Failed retry remains keyboard-accessible');
+  tap(root,'place:first-map:later');
+  assert.equal(doc.activeElement.dataset.focusKey,'place:first-map:later',
+    'Repeated failure does not interrupt every later source edit');
+  assert.equal(storage.getItem(DRAFT_KEY),checkpoint);
+  blocked=false;
+  tap(root,'place:first-map:earlier');
+  assert.match(doc.activeElement.className,/e04-save-success/,
+    'Successful later edit must announce that the unsaved draft was recovered');
+  assert.equal(doc.activeElement.attributes.role,'status');
+  const saved=ui.getState(),savedBytes=storage.getItem(DRAFT_KEY);
+  assert.deepEqual(JSON.parse(savedBytes),saved);
+  assert.equal(saved.history.length,state.history.length+3);
+  assert.equal(root.find('retry-save'),null);
+  ui.destroy();
+  const restoredRoot=doc.root();
+  const restored=mountE04Authoring(restoredRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.deepEqual(restored.getState(),saved,'Remount must recover all three revisions');
+  tap(restoredRoot,'resume');
+  assert.match(doc.activeElement.className,/e04-review-cue/);
+  blocked=true;
+  tap(restoredRoot,'place:later-record:later');
+  assert.equal(storage.getItem(DRAFT_KEY),savedBytes,'Failed write must preserve last valid checkpoint');
+  restored.destroy();
+  const afterReload=mountE04Authoring(doc.root(),{pack,e02Save:e02,e03Save:e03,storage});
+  assert.deepEqual(afterReload.getState(),saved,
+    'Reload after failed write must restore last saved state, never claim unsaved edit');
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),JSON.stringify(e02));
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),JSON.stringify(e03));
+  afterReload.destroy();
+});
+
 test('unreadable storage warns, while empty and valid checkpoints do not',()=>{
   const doc=new FakeDocument(),storage=new MemoryStorage(),e02=realE02(),e03=realE03();
   const freshRoot=doc.root();

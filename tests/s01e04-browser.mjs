@@ -402,6 +402,8 @@ try {
       const root=document.createElement('div');
       root.id='e04-large-probe';document.body.append(root);
       window.__largeStore=store;
+      window.__largePack=largePack;
+      window.__largeMount=mountE04Authoring;
       window.__large=mountE04Authoring(root,{pack:largePack,e02Save,e03Save,storage:store});
       window.__largeInitial=state.history.length;
     },{e02Save,e03Save});
@@ -442,9 +444,77 @@ try {
       'Only the two real revisions write checkpoints');
     assert.equal(await page.evaluate(()=>window.__large.getState().history.length-window.__largeInitial),2);
     await layout('eight-card resolved '+size.width);
+    // A failed write must be visible at 568x320 and must not silently claim
+    // the latest timeline revisions were persisted. This fixture is isolated.
+    const largeCheckpoint=await page.evaluate(()=>window.__largeStore.value);
+    await page.evaluate(()=>{
+      const store=window.__largeStore,original=store.setItem.bind(store);
+      store.blocked=true;
+      store.setItem=function(k,v){
+        if(this.blocked)throw new Error('Simulated E04 storage quota');
+        original(k,v);
+      };
+    });
+    await largeAction('place:source-1:later');
+    const unsaved=largeRoot.locator('.e04-save-warning[role="alert"]');
+    assert.equal(await unsaved.count(),1);
+    const alertRect=await unsaved.evaluate(node=>({
+      top:node.getBoundingClientRect().top,height:innerHeight,
+      focused:document.activeElement===node
+    }));
+    assert.ok(alertRect.focused && alertRect.top>=-1 && alertRect.top<alertRect.height,
+      'First failed write must focus visible warning: '+JSON.stringify(alertRect));
+    assert.equal(await page.evaluate(()=>window.__largeStore.value),largeCheckpoint);
+    await largeAction('retry-save');
+    assert.equal(await largeRoot.locator('[data-focus-key="retry-save"]').evaluate(
+      node=>document.activeElement===node),true);
+    await largeAction('place:source-1:earlier');
+    assert.equal(await page.evaluate(()=>window.__largeStore.value),largeCheckpoint);
+    assert.equal(await largeRoot.locator('[data-focus-key="place:source-1:earlier"]').evaluate(
+      node=>document.activeElement===node),true,
+    'Repeated failure should leave focus at the current source choice');
+    await page.evaluate(()=>{window.__largeStore.blocked=false;});
+    await largeAction('place:source-1:later');
+    const savedNotice=largeRoot.locator('.e04-save-success[role="status"]');
+    assert.equal(await savedNotice.count(),1,
+      'Later successful edit must announce recovery even without Retry');
+    assert.equal(await savedNotice.evaluate(node=>document.activeElement===node),true);
+    const recoveredState=await page.evaluate(()=>window.__large.getState());
+    const recoveredBytes=await page.evaluate(()=>window.__largeStore.value);
+    assert.deepEqual(JSON.parse(recoveredBytes),recoveredState);
+    assert.equal(await page.evaluate(()=>window.__largeStore.writes),3,
+      'Blocked edits and failed retry cannot count as saved checkpoints');
+    await page.evaluate(({e02Save,e03Save})=>{
+      const root=document.getElementById('e04-large-probe');
+      window.__large.destroy();
+      window.__large=mountLargeAgain(root,e02Save,e03Save);
+      function mountLargeAgain(target,e02,e03){
+        // Preserve the exact same synthetic source pack and storage on remount.
+        return window.__largeMount(target,{pack:window.__largePack,
+          e02Save:e02,e03Save:e03,storage:window.__largeStore});
+      }
+    },{e02Save,e03Save});
+    assert.deepEqual(await page.evaluate(()=>window.__large.getState()),recoveredState,
+      'Remount after recovered write must replay all revisions');
+    await largeAction('resume');
+    assert.equal(await largeRoot.locator('.e04-review-cue').evaluate(
+      node=>document.activeElement===node),true);
+    await page.evaluate(()=>{window.__largeStore.blocked=true;});
+    await largeAction('place:source-2:earlier');
+    assert.equal(await page.evaluate(()=>window.__largeStore.value),recoveredBytes);
+    await page.evaluate(({e02Save,e03Save})=>{
+      const root=document.getElementById('e04-large-probe');
+      window.__large.destroy();
+      window.__large=window.__largeMount(root,{pack:window.__largePack,
+        e02Save,e03Save,storage:window.__largeStore});
+    },{e02Save,e03Save});
+    assert.deepEqual(await page.evaluate(()=>window.__large.getState()),recoveredState,
+      'After another failed write, remount must restore last persisted state');
+    await layout('eight-card save recovery '+size.width);
     await page.evaluate(()=>{
       window.__large.destroy();document.getElementById('e04-large-probe').remove();
       delete window.__large;delete window.__largeStore;delete window.__largeInitial;
+      delete window.__largePack;delete window.__largeMount;
     });
     assert.deepEqual(await page.evaluate(()=>[
       localStorage.getItem('wondervale-s01e02-progress-v1'),
