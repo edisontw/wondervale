@@ -155,6 +155,7 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   assert.equal(doc.activeElement.dataset.focusKey,'place:undated-photo:uncertain');
   tap(root,'explain');
   assert.equal(root.find('finish').disabled,true);
+  assert.equal(root.find('chronicle-sources'),null,'Source return is only available after Chronicle opens');
   tap(root,'chronicle');
   assert.equal(doc.activeElement,findClass(root,'e04-chronicle').children[0],
     'Chronicle review focuses the newly revealed timeline before completion');
@@ -162,10 +163,20 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
     'Chronicle heading is programmatically focusable without adding a Tab stop');
   assert.ok(root.allText().includes('Our draft timeline'));
   assert.ok(root.allText().includes('Not sure yet: Undated photo'));
+  const beforeNavigation=ui.getState(),beforeNavigationBytes=storage.getItem(DRAFT_KEY);
+  tap(root,'chronicle-sources');
+  assert.equal(doc.activeElement.tagName,'H3');
+  assert.equal(doc.activeElement.textContent,'Source cards');
+  tap(root,'back-to-chronicle');
+  assert.equal(doc.activeElement.textContent,'Our draft timeline');
+  assert.deepEqual(ui.getState(),beforeNavigation,'Chronicle source round trip cannot dispatch history');
+  assert.equal(storage.getItem(DRAFT_KEY),beforeNavigationBytes,'Chronicle source round trip cannot save');
   assert.ok(root.allText().indexOf('Earlier First map')<root.allText().indexOf('Later Later record'));
   assert.equal(root.find('finish').disabled,false);
   tap(root,'place:first-map:later');
   assert.equal(root.find('finish').disabled,true);
+  assert.equal(root.find('chronicle-sources'),null,'Changing a position hides stale Chronicle navigation');
+  assert.equal(root.find('back-to-chronicle'),null);
   tap(root,'place:first-map:earlier');
   tap(root,'explain');tap(root,'chronicle');tap(root,'finish');
   assert.equal(ui.getState().phase,'completed');
