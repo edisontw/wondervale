@@ -328,6 +328,24 @@ try {
     assert.equal(await reviewCue.evaluate(node=>document.activeElement===node),true,
       'Restored unsupported timeline must focus the neutral review cue');
     await layout('unsupported review cue '+size.width);
+    assert.equal(await page.locator('[data-focus-key^="review-card:"]').count(),3,
+      'Every placed source offers a neutral direct-review action');
+    await action('review-card:later-record');
+    const reviewedHeading=page.locator('.e04-card h4').filter({hasText:'Later record'});
+    assert.equal(await reviewedHeading.evaluate(node=>document.activeElement===node),true,
+      'Direct review focuses the chosen source heading, never a correct answer');
+    await action('back-to-review:later-record');
+    const overviewHeading=page.locator('.e04-position-review h4');
+    assert.equal(await overviewHeading.evaluate(node=>document.activeElement===node),true,
+      'Return shortcut focuses the overview on short screens');
+    const overviewRect=await overviewHeading.evaluate(node=>({
+      top:node.getBoundingClientRect().top,height:innerHeight
+    }));
+    assert.ok(overviewRect.top>=-1 && overviewRect.top<overviewRect.height,
+      'Review overview must scroll into view: '+JSON.stringify(overviewRect));
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),unsupported);
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),unsupportedCheckpoint);
+    await layout('review jump and return '+size.width);
     await action('review-positions');
     const sourceHeading=page.locator('.e04-panel h3').filter({hasText:'Source cards'});
     assert.equal(await sourceHeading.evaluate(node=>document.activeElement===node),true,
@@ -349,6 +367,89 @@ try {
       localStorage.getItem('wondervale-s01e03-progress-v1')
     ]),unchanged,'Review and edits cannot change E02/E03 saves');
     await layout('corrected review cue '+size.width);
+
+    // Eight synthetic cards stress navigation, long labels, and repeated edits
+    // on short landscape as well as portrait/desktop. No canonical content or
+    // production route is created, and the test store is isolated from E02/E03.
+    await page.evaluate(async ({e02Save,e03Save})=>{
+      const {fresh,dispatch,DRAFT_KEY}=await import('/engine/s01e04-chronology.mjs');
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      const largePack={
+        id:'large-navigation-fixture',revision:'test-r1',
+        cards:Array.from({length:8},(_,i)=>({
+          id:'source-'+(i+1),
+          label:i===7?'LongSyntheticSourceLabelWithoutSpaces'.repeat(3):'Synthetic source '+(i+1),
+          kind:i%2?'document':'map'
+        })),
+        clues:[{id:'synthetic-clue',label:'Synthetic revision clue',text:'Synthetic test-only clue.'}],
+        relativeOrder:{earlier:'source-1',later:'source-2',basis:'synthetic-clue'}
+      };
+      let state=fresh(largePack);
+      for(const which of ['station','garden'])
+        state=dispatch(state,{type:'inspect-memory',which},largePack);
+      for(const card of largePack.cards)
+        state=dispatch(state,{type:'inspect-card',id:card.id},largePack);
+      state=dispatch(state,{type:'inspect-clue',id:'synthetic-clue'},largePack);
+      for(const card of largePack.cards)
+        state=dispatch(state,{type:'place',id:card.id,
+          slot:card.id==='source-1'?'later':card.id==='source-2'?'earlier':'uncertain'},largePack);
+      const store={
+        value:JSON.stringify(state),writes:0,
+        getItem(k){return k===DRAFT_KEY?this.value:null;},
+        setItem(k,v){if(k===DRAFT_KEY){this.value=v;this.writes++;}},
+        removeItem(k){if(k===DRAFT_KEY)this.value=null;}
+      };
+      const root=document.createElement('div');
+      root.id='e04-large-probe';document.body.append(root);
+      window.__largeStore=store;
+      window.__large=mountE04Authoring(root,{pack:largePack,e02Save,e03Save,storage:store});
+      window.__largeInitial=state.history.length;
+    },{e02Save,e03Save});
+    const largeRoot=page.locator('#e04-large-probe');
+    const largeAction=async key=>{
+      const b=largeRoot.locator('[data-focus-key="'+key+'"]');
+      if(mobile)await b.tap();else await b.click();
+    };
+    assert.equal(await largeRoot.locator('[data-focus-key^="review-card:"]').count(),8);
+    await layout('eight-card overview '+size.width);
+    await largeAction('review-card:source-8');
+    const lastHeading=largeRoot.locator('.e04-card h4').last();
+    const lastRect=await lastHeading.evaluate(node=>({
+      top:node.getBoundingClientRect().top,height:innerHeight,
+      focused:document.activeElement===node
+    }));
+    assert.ok(lastRect.focused && lastRect.top>=-1 && lastRect.top<lastRect.height,
+      'Long-label last source must be focused and visible: '+JSON.stringify(lastRect));
+    await largeAction('back-to-review:source-8');
+    const backRect=await largeRoot.locator('.e04-position-review h4').evaluate(node=>({
+      top:node.getBoundingClientRect().top,height:innerHeight,
+      focused:document.activeElement===node
+    }));
+    assert.ok(backRect.focused && backRect.top>=-1 && backRect.top<backRect.height,
+      'Return from last source must show the overview: '+JSON.stringify(backRect));
+    assert.equal(await page.evaluate(()=>window.__largeStore.writes),0,
+      'Navigation alone must never rewrite the draft');
+    await largeAction('review-card:source-1');
+    await largeAction('place:source-1:earlier');
+    assert.equal(await largeRoot.locator('.e04-review-cue').count(),1);
+    await largeAction('back-to-review:source-1');
+    await largeAction('review-card:source-2');
+    await largeAction('place:source-2:later');
+    assert.equal(await largeRoot.locator('.e04-review-cue').count(),0,
+      'Supported order removes all review-only navigation');
+    assert.equal(await largeRoot.locator('[data-focus-key^="review-card:"]').count(),0);
+    assert.equal(await page.evaluate(()=>window.__largeStore.writes),2,
+      'Only the two real revisions write checkpoints');
+    assert.equal(await page.evaluate(()=>window.__large.getState().history.length-window.__largeInitial),2);
+    await layout('eight-card resolved '+size.width);
+    await page.evaluate(()=>{
+      window.__large.destroy();document.getElementById('e04-large-probe').remove();
+      delete window.__large;delete window.__largeStore;delete window.__largeInitial;
+    });
+    assert.deepEqual(await page.evaluate(()=>[
+      localStorage.getItem('wondervale-s01e02-progress-v1'),
+      localStorage.getItem('wondervale-s01e03-progress-v1')
+    ]),unchanged,'Eight-card review cannot modify earlier chapter saves');
 
     // Near-cap keyboard/touch regression: synthesize only the setup history,
     // then make the 250th edit through the actual browser UI.
