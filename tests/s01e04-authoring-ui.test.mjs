@@ -202,6 +202,39 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
   ui.destroy();resumed.destroy();
 });
+test('long draft Chronicle jumps to undated sources and back without saving or changing history',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const many={...pack,cards:[...pack.cards,
+    ...Array.from({length:5},(_,i)=>({id:'extra-'+i,label:'Synthetic extra '+i,kind:'map'}))]};
+  let state=fresh04(many);
+  for(const which of ['station','garden'])
+    state=dispatch04(state,{type:'inspect-memory',which},many);
+  for(const card of many.cards)
+    state=dispatch04(state,{type:'inspect-card',id:card.id},many);
+  state=dispatch04(state,{type:'inspect-clue',id:'revision-note'},many);
+  for(const card of many.cards)
+    state=dispatch04(state,{type:'place',id:card.id,
+      slot:card.id==='first-map'?'earlier':card.id==='later-record'?'later':'uncertain'},many);
+  state=dispatch04(state,{type:'explain',kind:'different_times',basis:'revision-note'},many);
+  state=dispatch04(state,{type:'chronicle'},many);
+  const saved=JSON.stringify(state);
+  storage.setItem(DRAFT_KEY,saved);
+  const ui=mountE04Authoring(root,{pack:many,e02Save:e02,e03Save:e03,storage});
+  assert.equal(ui.ready,true);
+  assert.match(root.allText(),/6 sources have no confirmed time/);
+  const unknown=findClass(root,'e04-uncertain');
+  assert.equal(unknown.children[0].tagName,'H5');
+  assert.equal(unknown.children[0].tabIndex,-1);
+  tap(root,'chronicle-undated');
+  assert.equal(doc.activeElement,unknown.children[0]);
+  tap(root,'back-to-timeline-start');
+  assert.equal(doc.activeElement,findClass(root,'e04-chronicle').children[0]);
+  assert.deepEqual(ui.getState(),state);
+  assert.equal(storage.getItem(DRAFT_KEY),saved);
+  assert.equal(root.find('chronicle-sources').disabled,false);
+  ui.destroy();
+});
 test('Restored partial drafts offer a non-mutating jump to the next unfinished action',()=>{
   const doc=new FakeDocument(),storage=new MemoryStorage();
   const e02=realE02(),e03=realE03();
