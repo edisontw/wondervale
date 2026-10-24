@@ -33,6 +33,11 @@
 - Earlier/later relative order, uncertainty, E03 memory attribution and the original source labels remain unchanged. This is presentation-only: no event dispatch, source-order inference, checkpoint mutation, canonical source approval or public E04 route.
 - DOM tests assert list semantics; actual Chromium regression uses the bounded eight-card synthetic pack, including an unbroken long label, and checks viewport overflow plus read-only Chronicle/source round trips. Check the exact PR and merged-main CI before claiming PASS.
 
+## Long Chronicle keyboard orientation (2026-10-25 engineering follow-up)
+- When three or more draft sources have no confirmed date, the read-only Chronicle preview displays their count and offers **Review sources without dates** near the timeline heading. This jumps to a visible, focusable **Not sure yet** section heading; **Back to timeline start** returns to the beginning without forcing a long manual scroll.
+- The undated group remains a semantic list. Focus movement and count text do not infer chronology, dispatch events, change source placements, or write checkpoints. One undated card keeps the simpler existing keyboard order.
+- Synthetic eight-card Node DOM and Chromium 320×640 / 568×320 / 1366×768 checks cover heading visibility, return keyboard order and checkpoint immutability. Confirm exact PR-head CI and merged-main CI separately; this is not approved E04 source/story/art or deployment.
+
 ## Remaining work
 1. Obtain approval of plausible visible chronology source cards, their evidence and EFL wording under E04 Gate 1 (PR #114).
 2. Integrate the approved source pack into the existing keyboard/touch authoring UI; replace synthetic test fixtures only after Gate 1 approval, and do not promote SVG draft placeholders to production art.
