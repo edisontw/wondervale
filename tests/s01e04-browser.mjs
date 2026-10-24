@@ -134,6 +134,29 @@ try {
     assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),beforeRetry);
     assert.equal(await page.locator('[data-focus-key="retry-save"]').count(),0);
     await action('memory:garden');
+    // A short-screen child can compare the two already inspected E03 memories
+    // next to source cards, without jumping to the top or changing a save.
+    const compare=page.locator('.e04-memory-compare');
+    assert.equal(await compare.count(),1,'Recap appears after both memories were inspected');
+    const recapBefore=await page.evaluate(()=>window.__e04.getState());
+    const recapBytes=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    await compare.locator('summary').focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await compare.evaluate(node=>node.open),true,'Keyboard can open memory comparison');
+    const recapText=await compare.innerText();
+    assert.match(recapText,/I remember a way to the station/);
+    assert.match(recapText,/I remember a way to the garden/);
+    assert.match(recapText,/not dated evidence/);
+    const recapGeometry=await compare.locator('summary').evaluate(node=>{
+      const r=node.getBoundingClientRect();
+      return {height:r.height,x:r.x,right:r.right,width:innerWidth};
+    });
+    assert.ok(recapGeometry.height>=43.5 && recapGeometry.x>=-1 &&
+      recapGeometry.right<=recapGeometry.width+1,'Recap summary remains a usable touch target');
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),recapBefore);
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),recapBytes,
+      'Opening a read-only memory comparison must not rewrite the checkpoint');
+    await layout('memory comparison '+size.width);
     // Simulate a write that returns successfully but stores wrong bytes.
     // The last verified checkpoint must survive and Retry must save the
     // current in-memory state without inventing another story action.
@@ -150,6 +173,8 @@ try {
       };
     },DRAFT_KEY);
     await action('inspect:first-map');
+    assert.equal(await compare.evaluate(node=>node.open),true,
+      'Expanded memory comparison survives source edits and warning rerenders');
     assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),verifiedBeforeMismatch,
       'Mismatched readback must preserve the last verified checkpoint');
     assert.equal(await page.locator('[data-focus-key="retry-save"]').count(),1);
