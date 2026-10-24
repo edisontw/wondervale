@@ -735,6 +735,75 @@ test('failed overwrite warns instead of presenting an old checkpoint as current'
   ui.destroy();resumed.destroy();
 });
 
+test('mismatched write readback rolls back the last checkpoint and Retry persists the current draft',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const before02=storage.getItem('wondervale-s01e02-progress-v1');
+  const before03=storage.getItem('wondervale-s01e03-progress-v1');
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(root,'memory:station');
+  const prior=storage.getItem(DRAFT_KEY);
+  const originalSet=storage.setItem.bind(storage);
+  let corruptOnce=true;
+  storage.setItem=(key,value)=>{
+    if(key===DRAFT_KEY && corruptOnce) {
+      corruptOnce=false;
+      return originalSet(key,'{"broken":true}');
+    }
+    return originalSet(key,value);
+  };
+  tap(root,'memory:garden');
+  assert.deepEqual(ui.getState().memoryViewed,['station','garden']);
+  assert.equal(storage.getItem(DRAFT_KEY),prior,
+    'A mismatched readback must not discard the last verified checkpoint');
+  assert.match(root.allText(),/This draft is not saved on this device/);
+  const oldMount=mountE04Authoring(doc.root(),{pack,e02Save:e02,e03Save:e03,storage});
+  assert.deepEqual(oldMount.getState().memoryViewed,['station'],
+    'Reload before retry must recover the last verified checkpoint only');
+  oldMount.destroy();
+  tap(root,'retry-save');
+  assert.equal(storage.getItem(DRAFT_KEY),JSON.stringify(ui.getState()));
+  assert.doesNotMatch(root.allText(),/This draft is not saved on this device/);
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),before02);
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
+  ui.destroy();
+});
+
+test('reset refuses to remove a checkpoint while storage reads are failing',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const before02=storage.getItem('wondervale-s01e02-progress-v1');
+  const before03=storage.getItem('wondervale-s01e03-progress-v1');
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(root,'memory:station');
+  const prior=storage.getItem(DRAFT_KEY);
+  const originalGet=storage.getItem.bind(storage);
+  const originalRemove=storage.removeItem.bind(storage);
+  let removes=0;
+  storage.getItem=key=>{
+    if(key===DRAFT_KEY)throw new Error('Transient read denial');
+    return originalGet(key);
+  };
+  storage.removeItem=key=>{removes++;originalRemove(key);};
+  tap(root,'reset');tap(root,'confirm-reset');
+  assert.equal(removes,0,'Unreadable storage must never trigger deletion');
+  assert.equal(storage.items.get(DRAFT_KEY),prior);
+  assert.deepEqual(ui.getState().memoryViewed,['station']);
+  assert.match(root.allText(),/Could not clear this draft/);
+  storage.getItem=originalGet;
+  tap(root,'confirm-reset');
+  assert.equal(removes,1);
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  assert.deepEqual(ui.getState().memoryViewed,[]);
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),before02);
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
+  ui.destroy();
+});
+
 test('reselecting the same slot never rewrites storage or invents a save failure',()=>{
   const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
   const e02=realE02(),e03=realE03();
