@@ -162,7 +162,10 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   assert.equal(doc.activeElement.tabIndex,-1,
     'Chronicle heading is programmatically focusable without adding a Tab stop');
   assert.ok(root.allText().includes('Our draft timeline'));
-  assert.ok(root.allText().includes('Not sure yet: Undated photo'));
+  assert.match(root.allText(),/Not sure yet:\s+Undated photo/);
+  const uncertain=findClass(root,'e04-uncertain');
+  assert.equal(uncertain.children[1].tagName,'UL','Undated cards use a semantic list');
+  assert.equal(uncertain.children[1].children[0].tagName,'LI');
   const beforeNavigation=ui.getState(),beforeNavigationBytes=storage.getItem(DRAFT_KEY);
   tap(root,'chronicle-sources');
   assert.equal(doc.activeElement.tagName,'H3');
