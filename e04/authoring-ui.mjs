@@ -38,12 +38,32 @@ function persist(storage,mode,state) {
     }
     const text=JSON.stringify(payload);
     if (text.length>MAX_SAVE_CHARS) return false;
-    // Do not overwrite a previous checkpoint when storage cannot be read.
-    // A failed preflight is not a verified save, even if writes might work.
-    storage.getItem(DRAFT_KEY);
-    storage.setItem(DRAFT_KEY,text);
-    // Some storage shims fail silently; only report saved after readback.
-    return storage.getItem(DRAFT_KEY)===text;
+    // A readable prior checkpoint lets us attempt a bounded rollback if a
+    // storage shim silently corrupts the write. Never claim success without
+    // checking the bytes read back from the primary key.
+    const previous=storage.getItem(DRAFT_KEY);
+    let observed;
+    try {
+      storage.setItem(DRAFT_KEY,text);
+      observed=storage.getItem(DRAFT_KEY);
+    } catch {
+      // A setter may throw after writing. Check the actual result when possible.
+      try { observed=storage.getItem(DRAFT_KEY); }
+      catch { return false; }
+    }
+    if(observed===text)return true;
+    if(observed!==previous) {
+      try {
+        // Best-effort rollback only while the mismatched value is unchanged.
+        // Storage has no compare-and-swap; concurrent tab writes cannot be
+        // made transactional here. Never report the attempted save as valid.
+        if(storage.getItem(DRAFT_KEY)===observed) {
+          if(previous===null)storage.removeItem(DRAFT_KEY);
+          else storage.setItem(DRAFT_KEY,previous);
+        }
+      } catch { /* Keep the unsaved warning and in-memory draft. */ }
+    }
+    return false;
   } catch { return false; } // Keep the in-memory draft playable.
 }
 
@@ -156,6 +176,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     // Otherwise reloading the page can silently resurrect a supposedly cleared draft.
     if(mode==='draft_preview' && storage) {
       try {
+        // Never delete when storage cannot first confirm what is on disk.
+        // A transient read failure must not turn a recoverable draft into
+        // an unverified reset.
+        storage.getItem(DRAFT_KEY);
         storage.removeItem(DRAFT_KEY);
         if(storage.getItem(DRAFT_KEY)!==null) throw new Error('Draft checkpoint still present');
       } catch {
