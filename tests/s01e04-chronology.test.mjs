@@ -127,3 +127,24 @@ test('250-action cap rejects further edits and preserves strict draft replay',()
   assert.equal(restoreDraft(overCap,testPack).phase,'sources',
     'An over-cap checkpoint must be rejected rather than partially replayed');
 });
+
+// The pack fingerprint is content-based, not just the declared revision.
+test('source content changes invalidate stale drafts even with unchanged revision',()=>{
+  const saved=complete();
+  for(const change of [
+    p=>{p.cards[0].label='Archive map (revised caption)';},
+    p=>{p.clues[0].text='Updated source transcription';},
+    p=>{p.relativeOrder.earlier='annotated-map';p.relativeOrder.later='archive-map';},
+    p=>{p.cards.reverse();}
+  ]) {
+    const changed=structuredClone(testPack);
+    change(changed);
+    assert.equal(changed.revision,testPack.revision,'The revision deliberately stays the same');
+    const clean=fresh(changed);
+    assert.notEqual(clean.packFingerprint,saved.packFingerprint);
+    assert.deepEqual(restoreDraft(draftPayload(saved),changed),clean,
+      'Changed source content must not inherit prior timeline decisions');
+  }
+  assert.deepEqual(restoreDraft(draftPayload(saved),testPack),saved,
+    'The unchanged source pack must still resume normally');
+});
