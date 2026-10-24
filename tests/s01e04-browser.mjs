@@ -413,7 +413,7 @@ try {
     assert.equal(await largeRoot.locator('[data-focus-key^="review-card:"]').count(),8);
     await layout('eight-card overview '+size.width);
     await largeAction('review-card:source-8');
-    const lastHeading=largeRoot.locator('.e04-card h4').last();
+    const lastHeading=largeRoot.locator('.e04-card h4').filter({hasText:'LongSyntheticSourceLabelWithoutSpaces'});
     const lastRect=await lastHeading.evaluate(node=>({
       top:node.getBoundingClientRect().top,height:innerHeight,
       focused:document.activeElement===node
