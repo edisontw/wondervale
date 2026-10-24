@@ -52,6 +52,7 @@ class FakeNode {
   }
   append(...nodes){this.children.push(...nodes);}
   replaceChildren(...nodes){this.children=[...nodes];}
+  contains(node){return this===node || this.children.some(child=>child.contains?.(node));}
   setAttribute(name,value){this.attributes[name]=String(value);}
   addEventListener(name,fn){this.handlers[name]=fn;}
   focus(){this.ownerDocument.activeElement=this;}
@@ -73,6 +74,8 @@ class MemoryStorage {
   setItem(k,v){this.items.set(k,String(v));}
   removeItem(k){this.items.delete(k);}
 }
+const findClass=(node,name)=>node.className?.split(' ').includes(name)
+  ? node : node.children.map(child=>findClass(child,name)).find(Boolean)??null;
 const tap=(root,key)=>{
   const button=root.find(key);
   assert.ok(button,'Missing keyboard/touch button: '+key);
@@ -87,6 +90,40 @@ test('E04 DOM refuses forged/empty chapter saves without leaking evidence cards'
   assert.equal(blocked.getState(),null);
   assert.equal(root.allText().includes('First map'),false);
   assert.match(root.allText(),/Finish Riverside/);
+});
+test('nearby clue recap only exposes inspected text and keeps its open state without saving',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const twoClues={...pack,clues:[
+    ...pack.clues,
+    {id:'other-note',label:'Other synthetic clue',text:'Hidden until separately inspected.'}
+  ]};
+  const before02=JSON.stringify(e02),before03=JSON.stringify(e03);
+  storage.setItem('wondervale-s01e02-progress-v1',before02);
+  storage.setItem('wondervale-s01e03-progress-v1',before03);
+  const ui=mountE04Authoring(root,{pack:twoClues,e02Save:e02,e03Save:e03,storage});
+  assert.equal(findClass(root,'e04-clue-compare'),null,
+    'Do not show a clue recap before the child inspects a clue');
+  tap(root,'clue:revision-note');
+  const recap=findClass(root,'e04-clue-compare');
+  assert.ok(recap,'Inspected clue becomes available beside source cards');
+  assert.match(recap.allText(),/The later record mentions a revised map/);
+  assert.doesNotMatch(recap.allText(),/Hidden until separately inspected/);
+  const before=storage.getItem(DRAFT_KEY),history=ui.getState().history.length;
+  recap.open=true;recap.handlers.toggle();
+  assert.equal(storage.getItem(DRAFT_KEY),before,'Opening recap cannot write storage');
+  assert.equal(ui.getState().history.length,history,'Opening recap cannot dispatch an action');
+  tap(root,'inspect:first-map');
+  assert.equal(findClass(root,'e04-clue-compare').open,true,
+    'Recap stays open after a source inspection rerenders the DOM');
+  tap(root,'place:first-map:earlier');
+  assert.equal(findClass(root,'e04-clue-compare').open,true,
+    'Recap stays open after changing a source position');
+  tap(root,'clue:other-note');
+  assert.match(findClass(root,'e04-clue-compare').allText(),/Hidden until separately inspected/);
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),before02);
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
+  ui.destroy();
 });
 test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and reset draft only',()=>{
   const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();

@@ -187,8 +187,35 @@ try {
     assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),
       JSON.stringify(beforeMismatchRetry));
     for(const id of ['later-record','undated-photo'])await action('inspect:'+id);
+    assert.equal(await page.locator('.e04-clue-compare').count(),0,
+      'Uninspected clues must not appear beside source choices');
     await action('clue:revision-note');
+    // A short-screen child can revisit only already-inspected clue text next
+    // to the source choices, without another long scroll or history event.
+    const clueRecap=page.locator('.e04-clue-compare');
+    assert.equal(await clueRecap.count(),1);
+    const beforeClueRecap=await page.evaluate(()=>window.__e04.getState());
+    const beforeClueBytes=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    await clueRecap.locator('summary').focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await clueRecap.evaluate(node=>node.open),true,
+      'Keyboard opens the nearby inspected-clue recap');
+    assert.match(await clueRecap.innerText(),/A synthetic note about a changed map/);
+    assert.match(await clueRecap.innerText(),/Only clues you inspected/);
+    const clueGeometry=await clueRecap.locator('summary').evaluate(node=>{
+      const r=node.getBoundingClientRect();
+      return {height:r.height,x:r.x,right:r.right,width:innerWidth};
+    });
+    assert.ok(clueGeometry.height>=43.5 && clueGeometry.x>=-1 &&
+      clueGeometry.right<=clueGeometry.width+1,
+      'Clue recap summary must remain a visible touch target');
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),beforeClueRecap);
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),beforeClueBytes,
+      'Opening inspected clues must not write a checkpoint');
+    await layout('clue comparison '+size.width);
     await action('place:first-map:earlier');
+    assert.equal(await clueRecap.evaluate(node=>node.open),true,
+      'Clue recap remains open after a source-position rerender');
     await action('place:later-record:later');
     await action('place:undated-photo:uncertain');
     await action('explain');await action('chronicle');
@@ -464,8 +491,11 @@ try {
     assert.equal(await page.evaluate(()=>document.activeElement?.matches('.e04-memory-compare summary')),true,
       'Keyboard can revisit inspected memories before source placement');
     await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(()=>document.activeElement?.matches('.e04-clue-compare summary')),true,
+      'Keyboard can revisit inspected clues before source placement');
+    await page.keyboard.press('Tab');
     assert.equal(await focusKey(),'place:first-map:earlier',
-      'Keyboard reaches first enabled source choice after optional memory comparison');
+      'Keyboard reaches the first enabled source choice after optional read-only recaps');
     assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),unsupported,
       'Review navigation cannot mutate the draft');
     assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),unsupportedCheckpoint,
