@@ -111,6 +111,9 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   // Fresh, corrupt and historical-replay sessions must not claim recovery.
   let resumeAvailable=mode==='draft_preview' && checkpoint.present &&
     !restoreWarning && state.history.length>0;
+  // Presentation only: preserve the optional nearby memory comparison through
+  // source edits without adding draft events or touching checkpoint storage.
+  let memoryCompareOpen=false;
   let disposed=false;
   let resetPending=false;
   let resetError=false;
@@ -406,6 +409,28 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     sourceHeading.tabIndex=-1; // Neutral focus destination, not a suggested slot.
     evidence.append(sourceHeading);
     evidence.append(el('p','','Inspect a source before choosing where it belongs. You can change your choice.'));
+    // On short phone screens the E03 witness accounts are far above the source
+    // cards. Once both have been inspected, offer a compact, optional recap
+    // here; never reveal an uninspected memory or suggest a chronology answer.
+    if(MEMORY_LABELS.every(([which])=>state.memoryViewed.includes(which))) {
+      const compare=el('details','e04-memory-compare');
+      compare.open=memoryCompareOpen;
+      const summary=el('summary','','Compare both memories here');
+      compare.append(summary);
+      const notes=el('div','e04-memory-compare-notes');
+      notes.append(el('p','','These are two people’s memories, not dated evidence.'));
+      for(const [,name,quote] of MEMORY_LABELS) {
+        const quotation=el('blockquote','e04-memory-quote');
+        quotation.append(el('p','',`“${quote}”`));
+        quotation.append(el('cite','',name+' · Market Lane'));
+        notes.append(quotation);
+      }
+      compare.append(notes);
+      compare.addEventListener('toggle',()=>{
+        if(root.contains(compare))memoryCompareOpen=compare.open;
+      });
+      evidence.append(compare);
+    }
     for(const card of sources.cards) {
       const cardBox=el('article','e04-card');
       const cardHeading=el('h4','',card.label);
