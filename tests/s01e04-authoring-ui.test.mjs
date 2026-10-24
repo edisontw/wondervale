@@ -1036,3 +1036,75 @@ test('corrupt checkpoint focuses a visible alert once and keeps earlier saves in
   assert.equal(validRoot.find('resume')?.dataset.focusKey,'resume');
   valid.destroy();
 });
+
+test('two E04 preview mounts cannot overwrite or reset another tab checkpoint',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const before02=storage.getItem('wondervale-s01e02-progress-v1');
+  const before03=storage.getItem('wondervale-s01e03-progress-v1');
+  const rootA=doc.root(),rootB=doc.root();
+  const a=mountE04Authoring(rootA,{pack,e02Save:e02,e03Save:e03,storage});
+  const b=mountE04Authoring(rootB,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(rootA,'memory:station');
+  const newest=storage.getItem(DRAFT_KEY);
+  assert.ok(newest);
+  tap(rootB,'memory:garden');
+  assert.deepEqual(b.getState().history,[],'Stale tab must not even dispatch a new event');
+  assert.equal(storage.getItem(DRAFT_KEY),newest);
+  assert.match(rootB.allText(),/changed in another tab/);
+  assert.equal(doc.activeElement.attributes.role,'alert');
+  assert.equal(rootB.find('memory:station').disabled,true);
+  assert.equal(rootB.find('reset').disabled,true);
+  assert.equal(b.reset(),false,'Direct reset API must also reject stale tab');
+  tap(rootA,'memory:garden');
+  assert.notEqual(storage.getItem(DRAFT_KEY),newest,'Active tab remains writable');
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),before02);
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
+  a.destroy();b.destroy();
+});
+
+test('stale restored E04 tab cannot resurrect a checkpoint after another tab resets',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  const first=mountE04Authoring(doc.root(),{pack,e02Save:e02,e03Save:e03,storage});
+  first.reset();first.destroy();
+  const seed=mountE04Authoring(doc.root(),{pack,e02Save:e02,e03Save:e03,storage});
+  const seedRoot=doc.root();
+  seed.destroy();
+  const aRoot=doc.root(),bRoot=doc.root();
+  const a=mountE04Authoring(aRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(aRoot,'memory:station');
+  a.destroy();
+  const ownerRoot=doc.root(),staleRoot=doc.root();
+  const owner=mountE04Authoring(ownerRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  const stale=mountE04Authoring(staleRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(ownerRoot,'reset');tap(ownerRoot,'confirm-reset');
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  tap(staleRoot,'memory:garden');
+  assert.equal(storage.getItem(DRAFT_KEY),null,'Reset must not be undone by stale tab');
+  assert.equal(stale.getState().history.length,1,'Rejected edit must not alter local history');
+  assert.match(staleRoot.allText(),/changed in another tab/);
+  owner.destroy();stale.destroy();
+});
+
+test('storage event catches cross-tab checkpoint ABA and destroy unregisters listener',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage(),listeners=new Set();
+  doc.defaultView={
+    addEventListener:(type,fn)=>{if(type==='storage')listeners.add(fn);},
+    removeEventListener:(type,fn)=>{if(type==='storage')listeners.delete(fn);}
+  };
+  const e02=realE02(),e03=realE03(),root=doc.root();
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.equal(listeners.size,1);
+  // Another tab may write and clear the same key before this tab next reads.
+  for(const fn of listeners)fn({key:DRAFT_KEY,storageArea:storage,newValue:'external'});
+  assert.match(root.allText(),/changed in another tab/);
+  assert.equal(doc.activeElement.attributes.role,'alert');
+  assert.equal(root.find('memory:station').disabled,true);
+  assert.equal(ui.reset(),false);
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  ui.destroy();
+  assert.equal(listeners.size,0,'Destroy must remove the storage listener');
+});
