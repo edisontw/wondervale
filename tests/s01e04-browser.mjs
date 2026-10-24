@@ -621,6 +621,66 @@ try {
       'Only the two real revisions write checkpoints');
     assert.equal(await page.evaluate(()=>window.__large.getState().history.length-window.__largeInitial),2);
     await layout('eight-card resolved '+size.width);
+    // Chronicle: six unknown dates are a scannable semantic list, not one
+    // run-on sentence. Use the maximum eight-card synthetic fixture; no
+    // historical source pack, story, or production route is introduced.
+    await page.evaluate(async ({e02Save,e03Save})=>{
+      const {fresh,dispatch,DRAFT_KEY}=await import('/engine/s01e04-chronology.mjs');
+      const pack=window.__largePack;
+      let s=fresh(pack);
+      for(const which of ['station','garden'])
+        s=dispatch(s,{type:'inspect-memory',which},pack);
+      for(const card of pack.cards)
+        s=dispatch(s,{type:'inspect-card',id:card.id},pack);
+      s=dispatch(s,{type:'inspect-clue',id:'synthetic-clue'},pack);
+      for(const card of pack.cards)
+        s=dispatch(s,{type:'place',id:card.id,
+          slot:card.id==='source-1'?'earlier':card.id==='source-2'?'later':'uncertain'},pack);
+      s=dispatch(s,{type:'explain',kind:'different_times',basis:'synthetic-clue'},pack);
+      s=dispatch(s,{type:'chronicle'},pack);
+      const store={
+        value:JSON.stringify(s),writes:0,
+        getItem(k){return k===DRAFT_KEY?this.value:null;},
+        setItem(k,v){if(k===DRAFT_KEY){this.value=v;this.writes++;}},
+        removeItem(k){if(k===DRAFT_KEY)this.value=null;}
+      };
+      const root=document.createElement('div');
+      root.id='e04-long-chronicle-probe';document.body.append(root);
+      window.__longChronicleStore=store;
+      window.__longChronicle=window.__largeMount(root,{pack,e02Save,e03Save,storage:store});
+    },{e02Save,e03Save});
+    const longRoot=page.locator('#e04-long-chronicle-probe');
+    const unknown=longRoot.locator('.e04-uncertain-list li');
+    assert.equal(await unknown.count(),6,'Six undated synthetic sources stay individually readable');
+    assert.match(await unknown.last().innerText(),/LongSyntheticSourceLabelWithoutSpaces/);
+    assert.equal(await longRoot.locator('.e04-uncertain-list').getAttribute('aria-label'),
+      'Sources without a confirmed time');
+    const unknownGeometry=await unknown.evaluateAll(nodes=>nodes.map(node=>{
+      const r=node.getBoundingClientRect();
+      return {text:node.textContent,x:r.left,right:r.right,
+        clipped:node.scrollWidth>node.clientWidth+1,viewport:innerWidth};
+    }));
+    for(const item of unknownGeometry)
+      assert.ok(!item.clipped && item.x>=-1 && item.right<=item.viewport+1,
+        'Undated source label must wrap inside viewport: '+JSON.stringify(item));
+    await layout('eight-card Chronicle unknown dates '+size.width);
+    const beforeLongState=await page.evaluate(()=>window.__longChronicle.getState());
+    const beforeLongBytes=await page.evaluate(()=>window.__longChronicleStore.value);
+    await longRoot.locator('[data-focus-key="chronicle-sources"]').click();
+    assert.equal(await longRoot.locator('.e04-panel h3').filter({hasText:'Source cards'})
+      .evaluate(node=>document.activeElement===node),true);
+    await longRoot.locator('[data-focus-key="back-to-chronicle"]').click();
+    assert.equal(await longRoot.locator('.e04-chronicle h4')
+      .evaluate(node=>document.activeElement===node),true);
+    assert.deepEqual(await page.evaluate(()=>window.__longChronicle.getState()),beforeLongState);
+    assert.equal(await page.evaluate(()=>window.__longChronicleStore.value),beforeLongBytes);
+    assert.equal(await page.evaluate(()=>window.__longChronicleStore.writes),0,
+      'Reading the long Chronicle and navigating cannot write a checkpoint');
+    await page.evaluate(()=>{
+      window.__longChronicle.destroy();
+      document.getElementById('e04-long-chronicle-probe').remove();
+      delete window.__longChronicle;delete window.__longChronicleStore;
+    });
     // A failed write must be visible at 568x320 and must not silently claim
     // the latest timeline revisions were persisted. This fixture is isolated.
     const largeCheckpoint=await page.evaluate(()=>window.__largeStore.value);
