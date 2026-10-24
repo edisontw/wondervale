@@ -18,30 +18,32 @@ const MAX_SAVE_CHARS=60000;
 let mountSequence=0;
 
 function load(storage,mode) {
-  if (!storage || mode!=='draft_preview') return {raw:null,present:false,problem:false};
+  if (!storage || mode!=='draft_preview') return {raw:null,present:false,problem:false,bytes:null};
   let text;
   try { text=storage.getItem(DRAFT_KEY); }
-  catch { return {raw:null,present:true,problem:true,unreadable:true}; }
-  if (text===null) return {raw:null,present:false,problem:false};
+  catch { return {raw:null,present:true,problem:true,unreadable:true,bytes:null}; }
+  if (text===null) return {raw:null,present:false,problem:false,bytes:null};
   if (typeof text!=='string' || text.length>MAX_SAVE_CHARS)
-    return {raw:null,present:true,problem:true};
-  try { return {raw:JSON.parse(text),present:true,problem:false}; }
-  catch { return {raw:null,present:true,problem:true}; }
+    return {raw:null,present:true,problem:true,bytes:typeof text==='string'?text:null};
+  try { return {raw:JSON.parse(text),present:true,problem:false,bytes:text}; }
+  catch { return {raw:null,present:true,problem:true,bytes:text}; }
 }
-function persist(storage,mode,state) {
-  if (!storage || mode!=='draft_preview') return true;
+function persist(storage,mode,state,expectedBytes) {
+  if (!storage || mode!=='draft_preview') return {ok:true,bytes:expectedBytes};
   try {
+    // Optimistic preflight: never intentionally overwrite another tab's
+    // newer checkpoint or resurrect a checkpoint cleared by another tab.
+    // localStorage has no atomic compare-and-swap; this is best effort.
+    const previous=storage.getItem(DRAFT_KEY);
+    if(previous!==expectedBytes)return {ok:false,conflict:true};
     const payload=draftPayload(state);
     if (!payload) {
       storage.removeItem(DRAFT_KEY);
-      return storage.getItem(DRAFT_KEY)===null;
+      return storage.getItem(DRAFT_KEY)===null
+        ? {ok:true,bytes:null} : {ok:false};
     }
     const text=JSON.stringify(payload);
-    if (text.length>MAX_SAVE_CHARS) return false;
-    // A readable prior checkpoint lets us attempt a bounded rollback if a
-    // storage shim silently corrupts the write. Never claim success without
-    // checking the bytes read back from the primary key.
-    const previous=storage.getItem(DRAFT_KEY);
+    if (text.length>MAX_SAVE_CHARS) return {ok:false};
     let observed;
     try {
       storage.setItem(DRAFT_KEY,text);
@@ -49,22 +51,20 @@ function persist(storage,mode,state) {
     } catch {
       // A setter may throw after writing. Check the actual result when possible.
       try { observed=storage.getItem(DRAFT_KEY); }
-      catch { return false; }
+      catch { return {ok:false}; }
     }
-    if(observed===text)return true;
+    if(observed===text)return {ok:true,bytes:text};
     if(observed!==previous) {
       try {
-        // Best-effort rollback only while the mismatched value is unchanged.
-        // Storage has no compare-and-swap; concurrent tab writes cannot be
-        // made transactional here. Never report the attempted save as valid.
+        // Bounded rollback of a mismatched write; not cross-tab atomic.
         if(storage.getItem(DRAFT_KEY)===observed) {
           if(previous===null)storage.removeItem(DRAFT_KEY);
           else storage.setItem(DRAFT_KEY,previous);
         }
       } catch { /* Keep the unsaved warning and in-memory draft. */ }
     }
-    return false;
-  } catch { return false; } // Keep the in-memory draft playable.
+    return {ok:false};
+  } catch { return {ok:false}; } // Keep the in-memory draft playable.
 }
 
 export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='draft_preview'}={}) {
@@ -96,6 +96,8 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   const resetPromptId='e04-reset-prompt-'+mountId;
   const resetErrorId='e04-reset-error-'+mountId;
   const checkpoint=load(storage,mode);
+  let knownCheckpoint=checkpoint.bytes??null;
+  let conflict=false;
   const opened=openE04Authoring(e02Save,e03Save,sources,checkpoint.raw,mode);
   let state=opened.session;
   // Restore is strict event replay: any mismatched/invalid checkpoint starts fresh.
@@ -115,8 +117,23 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   let saveError=false;
   let saveRecovered=false;
   const read=()=>structuredClone(state);
+  function markConflict() {
+    conflict=true;
+    resetPending=false;
+    saveRecovered=false;
+    resumeAvailable=false;
+    render('checkpoint-conflict');
+  }
+  function changedElsewhere() {
+    if(!storage || mode!=='draft_preview')return false;
+    try {
+      if(storage.getItem(DRAFT_KEY)===knownCheckpoint)return false;
+    } catch { return false; } // Persist/reset will show the read-denial warning.
+    markConflict();
+    return true;
+  }
   function update(action,key) {
-    if(disposed || state.history.length>=MAX_ACTIONS)return;
+    if(disposed || state.history.length>=MAX_ACTIONS || conflict || changedElsewhere())return;
     resetPending=false;
     const next=dispatch(state,action,sources);
     // A repeated selection is not a new action: never rewrite a saved checkpoint.
@@ -125,8 +142,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     readFailure=false; // Never discard new in-memory edits by reloading old storage.
     resumeAvailable=false;
     const wasSaveError=saveError;
-    saveError=!persist(storage,mode,state);
-    if (!saveError) restoreWarning=false;
+    const result=persist(storage,mode,state,knownCheckpoint);
+    if(result.conflict){saveError=true;markConflict();return;}
+    saveError=!result.ok;
+    if(result.ok){knownCheckpoint=result.bytes;restoreWarning=false;}
     // A later successful edit can recover an earlier failed write without Retry.
     saveRecovered=wasSaveError && !saveError;
     // On a short screen the warning sits above the cards. Announce the first
@@ -135,10 +154,12 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       saveRecovered ? 'retry-save' : key);
   }
   function retrySave() {
-    if(disposed || !saveError)return false;
-    saveError=!persist(storage,mode,state);
+    if(disposed || !saveError || conflict || changedElsewhere())return false;
+    const result=persist(storage,mode,state,knownCheckpoint);
+    if(result.conflict){markConflict();return false;}
+    saveError=!result.ok;
     saveRecovered=!saveError;
-    if (!saveError) restoreWarning=false;
+    if(result.ok){knownCheckpoint=result.bytes;restoreWarning=false;}
     render('retry-save');
     return !saveError;
   }
@@ -164,6 +185,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     // This is a read-only restore. No new history event or storage write.
     state=reopened.session;
+    knownCheckpoint=latest.bytes??null;
     restoreWarning=false;
     resumeAvailable=latest.present && state.history.length>0;
     resetPending=false;resetError=false;saveError=false;saveRecovered=false;
@@ -171,7 +193,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     return true;
   }
   function reset() {
-    if(disposed)return false;
+    if(disposed || conflict || changedElsewhere())return false;
     // Do not show a fresh draft if the old checkpoint still survives on disk.
     // Otherwise reloading the page can silently resurrect a supposedly cleared draft.
     if(mode==='draft_preview' && storage) {
@@ -179,9 +201,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
         // Never delete when storage cannot first confirm what is on disk.
         // A transient read failure must not turn a recoverable draft into
         // an unverified reset.
-        storage.getItem(DRAFT_KEY);
+        if(storage.getItem(DRAFT_KEY)!==knownCheckpoint){markConflict();return false;}
         storage.removeItem(DRAFT_KEY);
         if(storage.getItem(DRAFT_KEY)!==null) throw new Error('Draft checkpoint still present');
+        knownCheckpoint=null;
       } catch {
         resetPending=true;
         resetError=true;
@@ -243,8 +266,19 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       limitWarning=warning;
       box.append(warning);
     }
+    let conflictAlert=null;
+    if(conflict) {
+      const warning=el('div','e04-save-warning');
+      warning.setAttribute('role','alert');
+      warning.tabIndex=-1;
+      warning.append(el('p','',
+        'The saved Episode 04 draft may have changed in another tab or become readable again. This tab will not overwrite or clear it. ' +
+        'Any unsaved changes here are still only on this page. Reload this page to review the latest saved draft.'));
+      conflictAlert=warning;
+      box.append(warning);
+    }
     let restoreAlert=null;
-    if(restoreWarning) {
+    if(restoreWarning && !conflict) {
       const warning=el('p','e04-save-warning',
         'The previous Episode 04 draft could not be restored. This preview starts fresh. '+
         'The old saved data has not been deleted; continuing may replace it.');
@@ -260,7 +294,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     let saveStatus=null;
     let saveWarning=null;
     let completionStatus=null;
-    if(saveError) {
+    if(saveError && !conflict) {
       const warning=el('div','e04-save-warning');
       warning.setAttribute('role','alert');
       warning.tabIndex=-1;
@@ -281,7 +315,9 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     function button(parent,label,action,key,disabled=false,pressed=null) {
       const b=el('button','e04-button',label);
       b.type='button';
-      b.disabled=disabled || (atLimit && !['reset','keep-reset','confirm-reset','retry-save'].includes(key));
+      const reviewOnly=key==='review-positions' || key.startsWith('review-card:') || key.startsWith('back-to-review:');
+      b.disabled=disabled || (conflict && !reviewOnly) ||
+        (atLimit && !['reset','keep-reset','confirm-reset','retry-save'].includes(key));
       b.dataset.focusKey=key;
       if(pressed!==null)b.setAttribute('aria-pressed',String(pressed));
       b.addEventListener('click',()=>action());
@@ -481,6 +517,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       }
       if(nextKey)resumeTarget=focusables.get(nextKey);
     }
+    if(focusKey==='checkpoint-conflict' && conflictAlert) {
+      conflictAlert.focus();
+      return;
+    }
     // The last permitted edit disables its control. Focus the visible alert
     // instead of silently jumping to the restart button at the page footer.
     if(atLimit && focusKey && !['reset','keep-reset','confirm-reset','retry-save'].includes(focusKey)) {
@@ -526,9 +566,23 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       target?.focus();
     }
   }
+  // Cross-tab events catch even an A→B→A storage sequence that a later
+  // getItem equality check alone would miss. No listener in test-only fake DOMs.
+  const view=doc.defaultView;
+  const onExternalStorage=event=>{
+    if(disposed || mode!=='draft_preview' || !storage ||
+       (event.key!==DRAFT_KEY && event.key!==null) ||
+       (event.storageArea && event.storageArea!==storage))return;
+    markConflict();
+  };
+  if(storage && view?.addEventListener)view.addEventListener('storage',onExternalStorage);
   render(restoreWarning ? 'restore-warning' : null);
   return {
     ready:true,reason:null,sources:opened.sources,getState:read,reset,
-    destroy:()=>{disposed=true;root.replaceChildren();}
+    destroy:()=>{
+      disposed=true;
+      if(storage && view?.removeEventListener)view.removeEventListener('storage',onExternalStorage);
+      root.replaceChildren();
+    }
   };
 }
