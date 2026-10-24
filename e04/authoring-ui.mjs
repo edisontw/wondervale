@@ -165,7 +165,8 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     } else if(saveRecovered) {
       const message=el('p','e04-save-success','Draft saved on this device.');
       message.setAttribute('role','status');
-      if(atLimit)message.tabIndex=-1;
+      // Retry removes its button; keep keyboard/screen-reader focus on confirmation.
+      message.tabIndex=-1;
       saveStatus=message;
       box.append(message);
     }
@@ -300,8 +301,8 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       limitWarning?.focus();
       return;
     }
-    // Keep successful capped-save recovery in view for keyboard and screen-reader users.
-    if(atLimit && focusKey==='retry-save' && saveStatus) {
+    // Keep successful save recovery in view at any action count.
+    if(focusKey==='retry-save' && saveStatus) {
       saveStatus.focus();
       return;
     }
