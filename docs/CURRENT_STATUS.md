@@ -1,10 +1,12 @@
 # Wondervale — Current Status
 
-**Snapshot:** 2026-10-25 (Asia/Taipei). **Verified pre-update `main`:** `4dfa63de5c53ee5c5664565ec2885d00999df95e` (PR #136 merge). Always refetch `main`; this snapshot is not proof of an MN4 deployment.
+**Snapshot:** 2026-10-25 (Asia/Taipei). **Verified pre-update `main`:** `2aee5bcd1af4437ec4fcf18d3fe49d76d9b2ceda` (PR #141 merge). Always refetch `main`; this snapshot is not proof of an MN4 deployment.
 
 This is the short operational entrypoint, not a second source of product canon. Approved Season 1 architecture/learning weave, episode briefs/scripts, and accepted decisions remain authoritative. Keep detailed history in Git commits, PRs, and issues.
 
 ## Product and accepted boundaries
+
+- **E04 Chronicle/source return (2026-10-25, PR #141 merged):** the draft Chronicle offers **Review source cards** and a neutral **Back to draft timeline** control next to the source heading. This keeps keyboard/touch navigation usable on 320×640, 568×320 and desktop without editing history or checkpoint bytes. PR-head E04 Node/Chromium #40132616686 and E01 runtime/artifacts #40132616718 both SUCCESS; merged as `2aee5bcd1af4437ec4fcf18d3fe49d76d9b2ceda`. Recheck post-merge main CI separately. Engineering preview only; no E04 canonical sources, art, public route or MN4 release. Owner-gated PR #114 and artifact/deploy issue #110 remain open.
 
 - Ages **6–9**, EFL-first; parent-guided, child-driven; **simple English ≠ simple thinking**. Milo is player-controlled; Nia and Finn remain recurring companions.
 - Season 1 has **11 episodes in three arcs**, with approved story and learning architecture. Do not reopen the season skeleton or batch-generate unapproved art.
