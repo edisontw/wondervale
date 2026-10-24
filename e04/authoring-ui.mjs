@@ -119,8 +119,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   let conflictReloadPending=false;
   let conflictReadError=false;
   const read=()=>structuredClone(state);
-  const unsavedInThisTab=()=>saveError ||
-    JSON.stringify(draftPayload(state))!==knownCheckpoint;
+  const unsavedInThisTab=()=>{
+    const payload=draftPayload(state);
+    return saveError || (payload ? JSON.stringify(payload) : null)!==knownCheckpoint;
+  };
   function markConflict() {
     conflict=true;
     resetPending=false;
