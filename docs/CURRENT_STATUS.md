@@ -5,6 +5,8 @@
 This is the short operational entrypoint, not a second source of product canon. Approved Season 1 architecture/learning weave, episode briefs/scripts, and accepted decisions remain authoritative. Keep detailed history in Git commits, PRs, and issues.
 
 ## Product and accepted boundaries
+- **E04 long Chronicle keyboard orientation (2026-10-25, PR #143 merged):** when three or more synthetic sources lack confirmed dates, show a neutral count and a read-only jump to the **Not sure yet** heading, with **Back to timeline start**. The one-undated-source keyboard order is unchanged. E04 Node DOM and Chromium (320×640, 568×320, 1366×768) PR-head #40141002604 SUCCESS; E01 runtime and both evidence artifacts PR-head #40141002677 SUCCESS. Merged as `b906aadcfa3f691ab3d1e3e05dfc3bf577939e48`; verify post-merge main CI separately. No story events, storage changes, E01–E03 modifications, production E04 route, source/story/art approval or MN4 deployment. PR #114 and issue #110 remain open.
+
 
 - **E04 long Chronicle uncertainty list (2026-10-25, PR #142 merged):** replace the comma-separated `Not sure yet` paragraph with a semantic, wrapping list of individual undated synthetic sources, including maximum eight-card/long-label cases on 320×640 and 568×320. E04 Node/Chromium PR-head #40136728494 SUCCESS; E01 runtime and artifacts PR-head #40136728502 SUCCESS; merged as `e842d58bba84fdcb21e144d6c6619cbe5cc3fa38`. Check post-merge main CI independently. No source/story/art approval, event/save changes, E01–E03 modifications, public E04 route or MN4 deployment; PR #114 and #110 remain separate gates.
 
