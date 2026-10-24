@@ -697,6 +697,45 @@ try {
     assert.equal(await page.evaluate(()=>window.__longChronicleStore.value),beforeLongBytes);
     assert.equal(await page.evaluate(()=>window.__longChronicleStore.writes),0,
       'Reading the long Chronicle and navigating cannot write a checkpoint');
+
+    // 200% text-only enlargement tests reflow rather than device pixel ratio.
+    // Eight synthetic cards and their Chronicle remain engineering fixtures.
+    await page.evaluate(()=>{document.documentElement.style.fontSize='200%';});
+    await layout('200% text Chronicle '+size.width);
+    const enlargedItems=await unknown.evaluateAll(nodes=>nodes.map(node=>({
+      clipped:node.scrollWidth>node.clientWidth+1,
+      right:node.getBoundingClientRect().right,viewport:innerWidth
+    })));
+    assert.ok(enlargedItems.every(item=>!item.clipped&&item.right<=item.viewport+1),
+      '200% text: undated labels must wrap: '+JSON.stringify(enlargedItems));
+    if(size.width<=568){
+      const steps=await longRoot.locator('.e04-timeline-step').evaluateAll(nodes=>nodes.map(node=>({
+        left:node.getBoundingClientRect().left,top:node.getBoundingClientRect().top
+      })));
+      assert.equal(steps.length,2);
+      assert.ok(Math.abs(steps[0].left-steps[1].left)<2&&steps[1].top>steps[0].top,
+        '200% text: short-screen chronology needs one column: '+JSON.stringify(steps));
+    }
+    await longRoot.locator('[data-focus-key="chronicle-undated"]').focus();
+    await page.keyboard.press('Enter');
+    const enlargedFocus=await undatedHeading.evaluate(node=>({
+      focused:document.activeElement===node,top:node.getBoundingClientRect().top,
+      viewport:innerHeight
+    }));
+    assert.ok(enlargedFocus.focused&&enlargedFocus.top>=-1&&enlargedFocus.top<enlargedFocus.viewport,
+      '200% text: undated heading must remain focused and visible: '+JSON.stringify(enlargedFocus));
+    await page.keyboard.press('Tab');
+    assert.equal(await longRoot.locator('[data-focus-key="back-to-timeline-start"]')
+      .evaluate(node=>document.activeElement===node),true,
+      '200% text: keyboard must reach timeline return');
+    await page.keyboard.press('Enter');
+    assert.equal(await longRoot.locator('.e04-chronicle h4')
+      .evaluate(node=>document.activeElement===node),true);
+    assert.deepEqual(await page.evaluate(()=>window.__longChronicle.getState()),beforeLongState);
+    assert.equal(await page.evaluate(()=>window.__longChronicleStore.value),beforeLongBytes);
+    assert.equal(await page.evaluate(()=>window.__longChronicleStore.writes),0,
+      '200% text navigation must not write storage');
+    await page.evaluate(()=>{document.documentElement.style.fontSize='';});
     await page.evaluate(()=>{
       window.__longChronicle.destroy();
       document.getElementById('e04-long-chronicle-probe').remove();
