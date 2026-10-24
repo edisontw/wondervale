@@ -213,6 +213,21 @@ test('unsupported fully placed E04 draft offers a neutral, non-mutating review p
   assert.match(doc.activeElement.className,/e04-review-cue/,
     'Restored unsupported timeline resumes at the neutral cue');
   assert.equal(doc.activeElement.attributes.role,'status');
+  assert.match(root.allText(),/Your choices so far/);
+  assert.match(root.allText(),/First map · Later/,'Overview reports the current choice');
+  assert.match(root.allText(),/Later record · Earlier/);
+  assert.equal(root.find('review-card:first-map').attributes['aria-label'],
+    'Review First map (your choice: Later)');
+  tap(root,'review-card:later-record');
+  assert.equal(doc.activeElement.tagName,'H4');
+  assert.equal(doc.activeElement.textContent,'Later record',
+    'Per-source navigation focuses a neutral card heading, not a suggested slot');
+  tap(root,'back-to-review:later-record');
+  assert.equal(doc.activeElement.tagName,'H4');
+  assert.equal(doc.activeElement.textContent,'Your choices so far',
+    'A return shortcut avoids manual scrolling across a larger pack');
+  assert.deepEqual(ui.getState(),state,'Review/return navigation cannot change history');
+  assert.equal(storage.getItem(DRAFT_KEY),checkpoint,'Review/return navigation cannot save');
   tap(root,'review-positions');
   assert.equal(doc.activeElement.tagName,'H3');
   assert.equal(doc.activeElement.textContent,'Source cards',
@@ -221,8 +236,13 @@ test('unsupported fully placed E04 draft offers a neutral, non-mutating review p
   assert.equal(storage.getItem(DRAFT_KEY),checkpoint,'Review navigation cannot rewrite a save');
   tap(root,'place:first-map:earlier');
   assert.ok(root.find('review-positions'),'Cue remains until order is supported');
+  tap(root,'back-to-review:first-map');
+  assert.equal(doc.activeElement.textContent,'Your choices so far');
+  tap(root,'review-card:later-record');
+  assert.equal(doc.activeElement.textContent,'Later record');
   tap(root,'place:later-record:later');
   assert.equal(root.find('review-positions'),null,'Cue clears once timeline is supported');
+  assert.equal(root.find('review-card:first-map'),null,'Resolved drafts remove review-only controls');
   assert.equal(root.find('explain').disabled,false);
   assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),JSON.stringify(e02));
   assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),JSON.stringify(e03));
@@ -683,6 +703,8 @@ test('E04 CSS keeps 320px choices touchable and wraps narrow-screen content',()=
   assert.match(css,/\.e04-choices\s+\.e04-button:last-child\s*\{\s*grid-column:\s*1\s*\/\s*-1;/);
   assert.match(css,/@media\s*\(min-width:\s*400px\)\s*and\s*\(max-width:\s*560px\)/);
   assert.match(css,/\.e04-save-warning\s*\{[^}]*flex-wrap:\s*wrap;/);
+  assert.match(css,/\.e04-position-label\s*\{[^}]*min-width:\s*0;[^}]*overflow-wrap:\s*anywhere;/);
+  assert.match(css,/\.e04-position-item\s*\{[^}]*flex-wrap:\s*wrap;/);
 });
 
 // The canonical E02/E03 unlock must run before any E04 draft inspection.
