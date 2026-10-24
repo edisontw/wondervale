@@ -216,9 +216,9 @@ try {
     assert.equal(await page.locator('[data-focus-key="resume"]').count(),1,
       'A valid saved draft must offer a visible continuation shortcut');
     await action('resume');
-    assert.equal(await focusKey(),'inspect:later-record',
-      'Resume must skip completed memory and card steps without guessing a timeline answer');
-    const resumedControl=await page.locator('[data-focus-key="inspect:later-record"]').evaluate(node=>{
+    assert.equal(await focusKey(),'memory:station',
+      'Resume must return to the unfinished station memory, not the already inspected garden memory');
+    const resumedControl=await page.locator('[data-focus-key="memory:station"]').evaluate(node=>{
       const r=node.getBoundingClientRect();
       return {top:r.top,bottom:r.bottom,height:innerHeight,focused:document.activeElement===node};
     });
