@@ -20,6 +20,9 @@
 .e04-status { font-weight: 650; }
 .e04-resume { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; padding: .65rem .75rem; border: 1px solid #6e8b7e; border-radius: .6rem; background: #eef7f1; }
 .e04-resume p { flex: 1 1 13rem; margin: 0; }
+.e04-review-cue { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin-block: .65rem; padding: .7rem .8rem; border: 1px solid #987035; border-radius: .6rem; background: #fff9e9; }
+.e04-review-cue p { flex: 1 1 13rem; margin: 0; }
+.e04-review-cue:focus, .e04-panel h3:focus { outline: 3px solid #b75e13; outline-offset: 3px; }
 .e04-card h4:focus { outline: 3px solid #b75e13; outline-offset: 3px; }
 .e04-panel { margin-block: 1rem; padding: .85rem; border: 1px solid #c5d3c6; border-radius: .75rem; background: #fff; min-width: 0; overflow-wrap: anywhere; }
 .e04-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; padding-block: .5rem; }
