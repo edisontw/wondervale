@@ -19,13 +19,14 @@ let mountSequence=0;
 
 function load(storage,mode) {
   if (!storage || mode!=='draft_preview') return {raw:null,present:false,problem:false};
-  try {
-    const text=storage.getItem(DRAFT_KEY);
-    if (text===null) return {raw:null,present:false,problem:false};
-    if (typeof text!=='string' || text.length>MAX_SAVE_CHARS)
-      return {raw:null,present:true,problem:true};
-    return {raw:JSON.parse(text),present:true,problem:false};
-  } catch { return {raw:null,present:true,problem:true}; }
+  let text;
+  try { text=storage.getItem(DRAFT_KEY); }
+  catch { return {raw:null,present:true,problem:true,unreadable:true}; }
+  if (text===null) return {raw:null,present:false,problem:false};
+  if (typeof text!=='string' || text.length>MAX_SAVE_CHARS)
+    return {raw:null,present:true,problem:true};
+  try { return {raw:JSON.parse(text),present:true,problem:false}; }
+  catch { return {raw:null,present:true,problem:true}; }
 }
 function persist(storage,mode,state) {
   if (!storage || mode!=='draft_preview') return true;
@@ -37,6 +38,9 @@ function persist(storage,mode,state) {
     }
     const text=JSON.stringify(payload);
     if (text.length>MAX_SAVE_CHARS) return false;
+    // Do not overwrite a previous checkpoint when storage cannot be read.
+    // A failed preflight is not a verified save, even if writes might work.
+    storage.getItem(DRAFT_KEY);
     storage.setItem(DRAFT_KEY,text);
     // Some storage shims fail silently; only report saved after readback.
     return storage.getItem(DRAFT_KEY)===text;
@@ -78,6 +82,9 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   // Keep the old bytes untouched until a new valid action explicitly saves.
   let restoreWarning=checkpoint.problem ||
     (checkpoint.present && JSON.stringify(opened.session)!==JSON.stringify(checkpoint.raw));
+  // Only a transient read failure can be retried without changing old bytes.
+  // Malformed or incompatible saves still require a deliberate new action.
+  let readFailure=Boolean(checkpoint.unreadable);
   // Offer a deliberate resume jump only for a valid, event-replayed local draft.
   // Fresh, corrupt and historical-replay sessions must not claim recovery.
   let resumeAvailable=mode==='draft_preview' && checkpoint.present &&
@@ -95,6 +102,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     // A repeated selection is not a new action: never rewrite a saved checkpoint.
     if(next.history.length===state.history.length) { render(key); return; }
     state=next;
+    readFailure=false; // Never discard new in-memory edits by reloading old storage.
     resumeAvailable=false;
     const wasSaveError=saveError;
     saveError=!persist(storage,mode,state);
@@ -113,6 +121,34 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     if (!saveError) restoreWarning=false;
     render('retry-save');
     return !saveError;
+  }
+  function retryRead() {
+    if(disposed || !readFailure || state.history.length>0 || mode!=='draft_preview')
+      return false;
+    const latest=load(storage,mode);
+    if(latest.unreadable) {
+      render('retry-read');
+      return false;
+    }
+    readFailure=false;
+    if(latest.problem) {
+      restoreWarning=true;
+      render('restore-warning');
+      return false;
+    }
+    const reopened=openE04Authoring(e02Save,e03Save,sources,latest.raw,mode);
+    if(latest.present && JSON.stringify(reopened.session)!==JSON.stringify(latest.raw)) {
+      restoreWarning=true;
+      render('restore-warning');
+      return false;
+    }
+    // This is a read-only restore. No new history event or storage write.
+    state=reopened.session;
+    restoreWarning=false;
+    resumeAvailable=latest.present && state.history.length>0;
+    resetPending=false;resetError=false;saveError=false;saveRecovered=false;
+    render(resumeAvailable?'resume':'start-over');
+    return true;
   }
   function reset() {
     if(disposed)return false;
@@ -134,6 +170,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     saveError=false;
     saveRecovered=false;
     restoreWarning=false;
+    readFailure=false;
     state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
     resumeAvailable=false;
     render('start-over');
@@ -192,6 +229,8 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       // Focus only on initial mount, not on later rerenders or valid restores.
       warning.tabIndex=-1;
       restoreAlert=warning;
+      if(readFailure && state.history.length===0)
+        button(warning,'Try loading saved draft again',retryRead,'retry-read');
       box.append(warning);
     }
     let saveStatus=null;
