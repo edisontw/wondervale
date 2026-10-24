@@ -386,6 +386,44 @@ test('multiple timeline revisions survive a failed save, later recovery and remo
   afterReload.destroy();
 });
 
+test('reset confirmation describes scope and failed deletion without changing other saves',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  tap(root,'memory:station');
+  const saved=storage.getItem(DRAFT_KEY);
+  tap(root,'reset');
+  assert.equal(doc.activeElement.dataset.focusKey,'keep-reset');
+  const scopeId=root.find('keep-reset').attributes['aria-describedby'];
+  assert.match(scopeId,/^e04-reset-prompt-\\d+$/);
+  assert.equal(root.find('confirm-reset').attributes['aria-describedby'],scopeId);
+  assert.match(root.allText(),/Earlier chapters stay saved/);
+  tap(root,'keep-reset');
+  assert.equal(doc.activeElement.dataset.focusKey,'reset');
+  assert.equal(storage.getItem(DRAFT_KEY),saved);
+  tap(root,'reset');
+  const remove=storage.removeItem.bind(storage);
+  storage.removeItem=k=>{if(k===DRAFT_KEY)throw Error('Simulated storage failure');remove(k);};
+  tap(root,'confirm-reset');
+  assert.equal(doc.activeElement.dataset.focusKey,'confirm-reset');
+  assert.match(root.allText(),/Could not clear this draft/);
+  assert.equal(root.find('confirm-reset').attributes['aria-describedby'],
+    scopeId+' e04-reset-error-'+scopeId.split('-').at(-1));
+  assert.equal(root.find('keep-reset').attributes['aria-describedby'],
+    root.find('confirm-reset').attributes['aria-describedby']);
+  assert.equal(storage.getItem(DRAFT_KEY),saved);
+  assert.deepEqual(ui.getState().memoryViewed,['station']);
+  storage.removeItem=remove;
+  tap(root,'confirm-reset');
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  assert.deepEqual(ui.getState().history,[]);
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),JSON.stringify(e02));
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),JSON.stringify(e03));
+  ui.destroy();
+});
+
 test('unreadable storage warns, while empty and valid checkpoints do not',()=>{
   const doc=new FakeDocument(),storage=new MemoryStorage(),e02=realE02(),e03=realE03();
   const freshRoot=doc.root();
