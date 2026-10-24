@@ -12,11 +12,6 @@ for tool in node python3; do
   fi
 done
 
-if ! node -e "import('playwright').catch(() => process.exit(2))" >/dev/null 2>&1; then
-  printf 'Playwright is missing. Run: npm install --ignore-scripts --package-lock=false\n' >&2
-  exit 2
-fi
-
 if [[ -z "${E04_CHROMIUM_EXECUTABLE:-}" ]]; then
   if command -v chromium >/dev/null 2>&1; then
     export E04_CHROMIUM_EXECUTABLE="$(command -v chromium)"
@@ -34,6 +29,19 @@ node --test \
   tests/s01e03-e04-handoff.test.mjs \
   tests/s01e04-chronology.test.mjs \
   tests/s01e04-authoring-ui.test.mjs
+
+# Useful when GitHub-hosted runners are unavailable and the checkout has no
+# Playwright installation. This is explicitly NOT a browser/CI PASS.
+if [[ "${E04_QA_UNIT_ONLY:-0}" == "1" ]]; then
+  printf 'E04 Node unit tests: PASS; Chromium NOT RUN (E04_QA_UNIT_ONLY=1)\n'
+  exit 0
+fi
+
+if ! node -e "import('playwright').catch(() => process.exit(2))" >/dev/null 2>&1; then
+  printf 'E04 Node tests passed, but Chromium QA NOT RUN: Playwright is missing.\n' >&2
+  printf 'Install it with: npm install --ignore-scripts --package-lock=false\n' >&2
+  exit 2
+fi
 
 # Avoid connecting to a stale or unrelated server on the default port.
 port="${E04_QA_PORT:-4173}"
