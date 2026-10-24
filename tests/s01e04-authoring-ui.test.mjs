@@ -129,6 +129,9 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   tap(root,'place:first-map:earlier');
   tap(root,'explain');tap(root,'chronicle');tap(root,'finish');
   assert.equal(ui.getState().phase,'completed');
+  assert.match(doc.activeElement.className,/e04-completion/,
+    'Finishing must focus the success status, not the reset button');
+  assert.equal(doc.activeElement.attributes.role,'status');
   assert.ok(storage.getItem(DRAFT_KEY));
   assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),before02);
   assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
