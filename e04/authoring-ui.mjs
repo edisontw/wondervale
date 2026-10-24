@@ -134,6 +134,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     const focusables=new Map();
     const cardHeadings=new Map();
     let resumeTarget=null;
+    let reviewCue=null;
     const box=el('section','e04-authoring');
     box.setAttribute('aria-label','Episode 04 chronology authoring preview');
     const heading=el('h2','','What changed over time?');
@@ -142,6 +143,11 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     box.append(heading);
     box.append(el('p','e04-notice','Interaction preview only. This is not a completed episode, and no canonical progress is saved.'));
     const atLimit=state.history.length>=MAX_ACTIONS && state.phase!=='completed';
+    // A fully placed but unsupported timeline needs a neutral review path,
+    // never an answer hint or an implicit edit to the draft.
+    const needsOrderReview=!atLimit && state.phase!=='completed' &&
+      sources.cards.every(card=>Object.hasOwn(state.slots,card.id)) &&
+      !timelineSupported(state,sources);
     const seen=state.cardViewed.length+state.clueViewed.length+state.memoryViewed.length;
     const total=sources.cards.length+sources.clues.length+MEMORY_LABELS.length;
     const status=el('p','e04-status',`Sources inspected: ${seen} of ${total}. Stage: ${state.phase.replaceAll('_',' ')}.`);
@@ -221,7 +227,9 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     box.append(memories);
     const evidence=el('section','e04-panel');
-    evidence.append(el('h3','','Source cards'));
+    const sourceHeading=el('h3','','Source cards');
+    sourceHeading.tabIndex=-1; // Neutral focus destination, not a suggested slot.
+    evidence.append(sourceHeading);
     evidence.append(el('p','','Inspect a source before choosing where it belongs. You can change your choice.'));
     for(const card of sources.cards) {
       const cardBox=el('article','e04-card');
@@ -259,6 +267,15 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     box.append(clues);
     const decisions=el('section','e04-panel');
     decisions.append(el('h3','','What do the sources suggest?'));
+    if(needsOrderReview) {
+      const cue=el('div','e04-review-cue');
+      cue.setAttribute('role','status');
+      cue.tabIndex=-1;
+      cue.append(el('p','','All source cards have a position, but the draft timeline still needs review. Compare the clues and your choices; no answer has been selected for you.'));
+      button(cue,'Review source positions',()=>sourceHeading.focus(),'review-positions');
+      decisions.append(cue);
+      reviewCue=cue;
+    }
     const ready=timelineSupported(state,sources) &&
       MEMORY_LABELS.every(([which])=>state.memoryViewed.includes(which)) &&
       state.clueViewed.includes(sources.relativeOrder.basis);
@@ -339,6 +356,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
         else if(unseenCard)nextKey='inspect:'+unseenCard.id;
         else if(unseenClue)nextKey='clue:'+unseenClue.id;
         else if(unplaced)resumeTarget=cardHeadings.get(unplaced.id);
+        else if(needsOrderReview)resumeTarget=reviewCue;
         else if(state.phase==='ready_to_finish')nextKey='finish';
         else if(state.phase==='chronicle')nextKey='chronicle';
         else if(!state.explanation && timelineSupported(state,sources))nextKey='explain';

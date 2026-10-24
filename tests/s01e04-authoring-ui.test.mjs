@@ -187,6 +187,54 @@ test('Restored partial drafts offer a non-mutating jump to the next unfinished a
   replay.destroy();
 });
 
+test('unsupported fully placed E04 draft offers a neutral, non-mutating review path',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  let state=fresh04(pack);
+  for(const which of ['station','garden'])
+    state=dispatch04(state,{type:'inspect-memory',which},pack);
+  for(const card of pack.cards)
+    state=dispatch04(state,{type:'inspect-card',id:card.id},pack);
+  for(const clue of pack.clues)
+    state=dispatch04(state,{type:'inspect-clue',id:clue.id},pack);
+  for(const [id,slot] of [
+    ['first-map','later'],['later-record','earlier'],['undated-photo','uncertain']
+  ])state=dispatch04(state,{type:'place',id,slot},pack);
+  assert.equal(state.phase,'timeline');
+  const checkpoint=JSON.stringify(state);
+  storage.setItem(DRAFT_KEY,checkpoint);
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.ok(root.find('review-positions'),'All placed but unsupported must show a review action');
+  assert.match(root.allText(),/draft timeline still needs review/);
+  assert.equal(root.find('explain').disabled,true);
+  tap(root,'resume');
+  assert.match(doc.activeElement.className,/e04-review-cue/,
+    'Restored unsupported timeline resumes at the neutral cue');
+  assert.equal(doc.activeElement.attributes.role,'status');
+  tap(root,'review-positions');
+  assert.equal(doc.activeElement.tagName,'H3');
+  assert.equal(doc.activeElement.textContent,'Source cards',
+    'Review focuses the source section, never a specific answer choice');
+  assert.deepEqual(ui.getState(),state,'Review navigation cannot edit history');
+  assert.equal(storage.getItem(DRAFT_KEY),checkpoint,'Review navigation cannot rewrite a save');
+  tap(root,'place:first-map:earlier');
+  assert.ok(root.find('review-positions'),'Cue remains until order is supported');
+  tap(root,'place:later-record:later');
+  assert.equal(root.find('review-positions'),null,'Cue clears once timeline is supported');
+  assert.equal(root.find('explain').disabled,false);
+  assert.equal(storage.getItem('wondervale-s01e02-progress-v1'),JSON.stringify(e02));
+  assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),JSON.stringify(e03));
+  const resumedRoot=doc.root();
+  const resumed=mountE04Authoring(resumedRoot,{pack,e02Save:e02,e03Save:e03,storage});
+  assert.equal(resumedRoot.find('review-positions'),null);
+  tap(resumedRoot,'resume');
+  assert.equal(doc.activeElement.dataset.focusKey,'explain',
+    'Supported restored timeline resumes at explanation, not the review cue');
+  ui.destroy();resumed.destroy();
+});
+
 test('invalid E04 checkpoints show a recovery warning without deleting saved bytes',()=>{
   const e02=realE02(),e03=realE03();
   for(const bad of [

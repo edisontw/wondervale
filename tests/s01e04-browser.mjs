@@ -294,6 +294,62 @@ try {
     ]),unchanged,'Reload, replay and corruption recovery must preserve E02/E03');
     await layout('reload and replay '+size.width);
 
+    // A restored, fully placed but unsupported chronology must show a neutral
+    // cue on phone and desktop, without exposing which slot is correct.
+    await page.evaluate(async ({pack,key})=>{
+      const {fresh,dispatch}=await import('/engine/s01e04-chronology.mjs');
+      let state=fresh(pack);
+      for(const which of ['station','garden'])
+        state=dispatch(state,{type:'inspect-memory',which},pack);
+      for(const card of pack.cards)
+        state=dispatch(state,{type:'inspect-card',id:card.id},pack);
+      for(const clue of pack.clues)
+        state=dispatch(state,{type:'inspect-clue',id:clue.id},pack);
+      for(const [id,slot] of [
+        ['first-map','later'],['later-record','earlier'],['undated-photo','uncertain']
+      ])state=dispatch(state,{type:'place',id,slot},pack);
+      localStorage.setItem(key,JSON.stringify(state));
+    },{pack,key:DRAFT_KEY});
+    await page.reload();
+    await page.evaluate(async ({pack,e02Save,e03Save})=>{
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      window.__e04=mountE04Authoring(document.getElementById('e04-root'),{
+        pack,e02Save,e03Save,storage:localStorage
+      });
+    },{pack,e02Save,e03Save});
+    const unsupported=await page.evaluate(()=>window.__e04.getState());
+    const unsupportedCheckpoint=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    const reviewCue=page.locator('.e04-review-cue');
+    assert.equal(await reviewCue.count(),1,'Unsupported timeline shows review cue');
+    const cueText=await reviewCue.innerText();
+    assert.doesNotMatch(cueText,/First map|Later record|Earlier|Later/,
+      'Review cue must not reveal the expected card positions');
+    await action('resume');
+    assert.equal(await reviewCue.evaluate(node=>document.activeElement===node),true,
+      'Restored unsupported timeline must focus the neutral review cue');
+    await layout('unsupported review cue '+size.width);
+    await action('review-positions');
+    const sourceHeading=page.locator('.e04-panel h3').filter({hasText:'Source cards'});
+    assert.equal(await sourceHeading.evaluate(node=>document.activeElement===node),true,
+      'Review button focuses source heading, not a particular slot');
+    await page.keyboard.press('Tab');
+    assert.equal(await focusKey(),'place:first-map:earlier',
+      'Keyboard reaches first enabled source choice from review heading');
+    assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),unsupported,
+      'Review navigation cannot mutate the draft');
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),unsupportedCheckpoint,
+      'Review navigation cannot rewrite the checkpoint');
+    await action('place:first-map:earlier');
+    assert.equal(await reviewCue.count(),1,'Cue persists until all order constraints are met');
+    await action('place:later-record:later');
+    assert.equal(await reviewCue.count(),0,'Cue clears once relative order is supported');
+    assert.equal(await page.locator('[data-focus-key="explain"]').isEnabled(),true);
+    assert.deepEqual(await page.evaluate(()=>[
+      localStorage.getItem('wondervale-s01e02-progress-v1'),
+      localStorage.getItem('wondervale-s01e03-progress-v1')
+    ]),unchanged,'Review and edits cannot change E02/E03 saves');
+    await layout('corrected review cue '+size.width);
+
     // Near-cap keyboard/touch regression: synthesize only the setup history,
     // then make the 250th edit through the actual browser UI.
     const nearCap=await page.evaluate(async ({pack,key})=>{
