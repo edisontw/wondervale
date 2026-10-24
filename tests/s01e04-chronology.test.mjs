@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  VERSION,DRAFT_KEY,validateSourcePack,fresh,dispatch,timelineSupported,
+  VERSION,DRAFT_KEY,MAX_ACTIONS,validateSourcePack,fresh,dispatch,timelineSupported,
   draftPayload,restoreDraft,chronicleProjection
 } from '../engine/s01e04-chronology.mjs';
 
@@ -107,4 +107,23 @@ test('Chronicle preserves unverified witness attributions and emits no canonical
   assert.deepEqual(c.sourceAttribution.map(x=>x.verified),[false,false]);
   assert.deepEqual(c.canonicalEvents,[]);
   assert.equal(c.complete,true);
+});
+
+
+// Regression for the engineering-preview action cap; source cards remain synthetic.
+test('250-action cap rejects further edits and preserves strict draft replay',()=>{
+  let s=fresh(testPack);
+  s=act(s,{type:'inspect-card',id:'archive-map'});
+  for(let i=1;i<MAX_ACTIONS;i++)
+    s=act(s,{type:'place',id:'archive-map',slot:i%2 ? 'earlier' : 'later'});
+  assert.equal(s.history.length,MAX_ACTIONS);
+  const atCap=structuredClone(s);
+  s=act(s,{type:'place',id:'archive-map',slot:'uncertain'});
+  assert.deepEqual(s,atCap,'A 251st change must not mutate the capped draft');
+  assert.deepEqual(restoreDraft(draftPayload(s),testPack),atCap,
+    'The last valid draft must survive reload at the cap');
+  const overCap=structuredClone(atCap);
+  overCap.history.push({type:'place',id:'archive-map',slot:'uncertain'});
+  assert.equal(restoreDraft(overCap,testPack).phase,'sources',
+    'An over-cap checkpoint must be rejected rather than partially replayed');
 });
