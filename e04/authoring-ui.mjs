@@ -3,7 +3,7 @@
 import {openE04Authoring} from '../engine/s01e04-authoring-entry.mjs';
 import {e04Handoff} from '../engine/s01e04-handoff.mjs';
 import {
-  DRAFT_KEY,dispatch,draftPayload,timelineSupported,chronicleProjection,validateSourcePack
+  DRAFT_KEY,MAX_ACTIONS,dispatch,draftPayload,timelineSupported,chronicleProjection,validateSourcePack
 } from '../engine/s01e04-chronology.mjs';
 
 const SLOTS=[['earlier','Earlier'],['later','Later'],['uncertain','Not sure yet']];
@@ -16,11 +16,14 @@ const MEMORY_LABELS=[
 const MAX_SAVE_CHARS=60000;
 
 function load(storage,mode) {
-  if (!storage || mode!=='draft_preview') return null;
+  if (!storage || mode!=='draft_preview') return {raw:null,present:false,problem:false};
   try {
     const text=storage.getItem(DRAFT_KEY);
-    return text && text.length<=MAX_SAVE_CHARS ? JSON.parse(text) : null;
-  } catch { return null; }
+    if (text===null) return {raw:null,present:false,problem:false};
+    if (typeof text!=='string' || text.length>MAX_SAVE_CHARS)
+      return {raw:null,present:true,problem:true};
+    return {raw:JSON.parse(text),present:true,problem:false};
+  } catch { return {raw:null,present:true,problem:true}; }
 }
 function persist(storage,mode,state) {
   if (!storage || mode!=='draft_preview') return true;
@@ -63,8 +66,13 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   }
   // No built-in source pack: owner-reviewed evidence must be supplied by a future integrator.
   const sources=validateSourcePack(pack);
-  const opened=openE04Authoring(e02Save,e03Save,sources,load(storage,mode),mode);
+  const checkpoint=load(storage,mode);
+  const opened=openE04Authoring(e02Save,e03Save,sources,checkpoint.raw,mode);
   let state=opened.session;
+  // Restore is strict event replay: any mismatched/invalid checkpoint starts fresh.
+  // Keep the old bytes untouched until a new valid action explicitly saves.
+  let restoreWarning=checkpoint.problem ||
+    (checkpoint.present && JSON.stringify(opened.session)!==JSON.stringify(checkpoint.raw));
   let disposed=false;
   let resetPending=false;
   let resetError=false;
@@ -72,10 +80,14 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   let saveRecovered=false;
   const read=()=>structuredClone(state);
   function update(action,key) {
-    if(disposed)return;
+    if(disposed || state.history.length>=MAX_ACTIONS)return;
     resetPending=false;
-    state=dispatch(state,action,sources);
+    const next=dispatch(state,action,sources);
+    // A repeated selection is not a new action: never rewrite a saved checkpoint.
+    if(next.history.length===state.history.length) { render(key); return; }
+    state=next;
     saveError=!persist(storage,mode,state);
+    if (!saveError) restoreWarning=false;
     saveRecovered=false;
     render(key);
   }
@@ -83,6 +95,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     if(disposed || !saveError)return false;
     saveError=!persist(storage,mode,state);
     saveRecovered=!saveError;
+    if (!saveError) restoreWarning=false;
     render('retry-save');
     return !saveError;
   }
@@ -105,6 +118,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     resetError=false;
     saveError=false;
     saveRecovered=false;
+    restoreWarning=false;
     state=openE04Authoring(e02Save,e03Save,sources,null,mode).session;
     render('start-over');
     return true;
@@ -119,12 +133,30 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     if(focusKey==='start-over')heading.tabIndex=-1;
     box.append(heading);
     box.append(el('p','e04-notice','Interaction preview only. This is not a completed episode, and no canonical progress is saved.'));
+    const atLimit=state.history.length>=MAX_ACTIONS && state.phase!=='completed';
     const seen=state.cardViewed.length+state.clueViewed.length+state.memoryViewed.length;
     const total=sources.cards.length+sources.clues.length+MEMORY_LABELS.length;
     const status=el('p','e04-status',`Sources inspected: ${seen} of ${total}. Stage: ${state.phase.replaceAll('_',' ')}.`);
     status.setAttribute('role','status');
     status.setAttribute('aria-live','polite');
     box.append(status);
+    let limitWarning=null;
+    if(atLimit) {
+      const warning=el('p','e04-save-warning',
+        'This preview has reached its 250-change safety limit. Your draft stays available on this page, but no more changes can be made. Start this draft again to create a new draft.');
+      warning.setAttribute('role','alert');
+      warning.tabIndex=-1;
+      limitWarning=warning;
+      box.append(warning);
+    }
+    if(restoreWarning) {
+      const warning=el('p','e04-save-warning',
+        'The previous Episode 04 draft could not be restored. This preview starts fresh. '+
+        'The old saved data has not been deleted; continuing may replace it.');
+      warning.setAttribute('role','alert');
+      box.append(warning);
+    }
+    let saveStatus=null;
     if(saveError) {
       const warning=el('div','e04-save-warning');
       const message=el('p','',
@@ -136,12 +168,15 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     } else if(saveRecovered) {
       const message=el('p','e04-save-success','Draft saved on this device.');
       message.setAttribute('role','status');
+      // Retry removes its button; keep keyboard/screen-reader focus on confirmation.
+      message.tabIndex=-1;
+      saveStatus=message;
       box.append(message);
     }
     function button(parent,label,action,key,disabled=false,pressed=null) {
       const b=el('button','e04-button',label);
       b.type='button';
-      b.disabled=disabled;
+      b.disabled=disabled || (atLimit && !['reset','keep-reset','confirm-reset','retry-save'].includes(key));
       b.dataset.focusKey=key;
       if(pressed!==null)b.setAttribute('aria-pressed',String(pressed));
       b.addEventListener('click',()=>action());
@@ -263,6 +298,17 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     box.append(footer);
     root.replaceChildren(box);
+    // The last permitted edit disables its control. Focus the visible alert
+    // instead of silently jumping to the restart button at the page footer.
+    if(atLimit && focusKey && !['reset','keep-reset','confirm-reset','retry-save'].includes(focusKey)) {
+      limitWarning?.focus();
+      return;
+    }
+    // Keep successful save recovery in view at any action count.
+    if(focusKey==='retry-save' && saveStatus) {
+      saveStatus.focus();
+      return;
+    }
     if(focusKey==='start-over') {
       heading.focus(); // Also scrolls the new draft heading into view on short screens.
       return;

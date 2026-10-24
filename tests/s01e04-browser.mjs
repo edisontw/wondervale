@@ -49,7 +49,13 @@ function completedE03(){
   return payload03(s);
 }
 const e02Save=completedE02(),e03Save=completedE03();
-const browser=await chromium.launch({headless:true});
+// Use a system Chromium when running local QA without Playwright's downloaded browser.
+const browser=await chromium.launch({
+  headless:true,
+  ...(process.env.E04_CHROMIUM_EXECUTABLE
+    ? {executablePath:process.env.E04_CHROMIUM_EXECUTABLE}
+    : {})
+});
 const cases=[{width:320,height:640},{width:568,height:320},{width:1366,height:768}];
 try {
   for(const size of cases){
@@ -244,9 +250,13 @@ try {
     assert.equal(recovered.phase,'sources','Corrupt checkpoint must open a clean draft');
     assert.deepEqual(recovered.history,[],'Forged history must not be replayed');
     assert.deepEqual(recovered.memoryViewed,[]);
+    assert.equal(await page.getByText('The previous Episode 04 draft could not be restored',{exact:false}).count(),1,
+      'Corrupt checkpoint must visibly warn the user');
     assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),corrupt,
       'Loading must not silently delete or rewrite storage');
     await action('memory:station');
+    assert.equal(await page.getByText('The previous Episode 04 draft could not be restored',{exact:false}).count(),0,
+      'Warning clears after a valid replacement checkpoint');
     const repaired=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
     assert.ok(repaired && repaired!==corrupt,'A valid action replaces corrupt storage');
     await page.reload();
@@ -263,6 +273,79 @@ try {
       localStorage.getItem('wondervale-s01e03-progress-v1')
     ]),unchanged,'Reload, replay and corruption recovery must preserve E02/E03');
     await layout('reload and replay '+size.width);
+
+    // Near-cap keyboard/touch regression: synthesize only the setup history,
+    // then make the 250th edit through the actual browser UI.
+    const nearCap=await page.evaluate(async ({pack,key})=>{
+      const {fresh,dispatch,MAX_ACTIONS}=await import('/engine/s01e04-chronology.mjs');
+      let state=dispatch(fresh(pack),{type:'inspect-card',id:'first-map'},pack);
+      for(let i=1;i<MAX_ACTIONS-1;i++)
+        state=dispatch(state,{type:'place',id:'first-map',slot:i%2?'earlier':'later'},pack);
+      localStorage.setItem(key,JSON.stringify(state));
+      return {count:state.history.length,slot:state.slots['first-map']};
+    },{pack,key:DRAFT_KEY});
+    assert.equal(nearCap.count,249);
+    assert.equal(nearCap.slot,'later');
+    await page.reload();
+    await page.evaluate(async ({pack,e02Save,e03Save})=>{
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      window.__e04=mountE04Authoring(document.getElementById('e04-root'),{
+        pack,e02Save,e03Save,storage:localStorage
+      });
+    },{pack,e02Save,e03Save});
+    // Page reload resets the earlier Storage.prototype test hook; reinstall it
+    // before the capped write so this is a real browser failure, not a no-op flag.
+    await page.evaluate(key=>{
+      const original=Storage.prototype.setItem;
+      Storage.prototype.setItem=function(k,v){
+        if(k===key && window.__e04Blocked)throw new Error('Simulated quota at cap');
+        return original.call(this,k,v);
+      };
+      window.__e04Blocked=true;
+    },DRAFT_KEY);
+    const checkpoint249=await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    await page.locator('[data-focus-key="place:first-map:earlier"]').focus();
+    await page.keyboard.press('Enter');
+    assert.equal(await page.evaluate(()=>window.__e04.getState().history.length),250);
+    assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),checkpoint249,
+      'A blocked 250th write leaves the 249-action checkpoint intact');
+    assert.equal(await page.locator('[data-focus-key="retry-save"]').count(),1);
+    const capAlert=page.locator('.e04-save-warning[role="alert"]').first();
+    assert.match(await capAlert.innerText(),/250-change safety limit/);
+    assert.equal(await capAlert.evaluate(node=>document.activeElement===node),true,
+      'The final edit must focus the limit alert, not an off-screen restart control');
+    const capPosition=await capAlert.evaluate(node=>({
+      top:node.getBoundingClientRect().top,bottom:node.getBoundingClientRect().bottom,height:innerHeight
+    }));
+    assert.ok(capPosition.top>=-1&&capPosition.top<capPosition.height,
+      'Limit alert must be visible on short screens: '+JSON.stringify(capPosition));
+    await layout('250-action cap '+size.width);
+    assert.equal(await page.locator('[data-focus-key="place:first-map:earlier"]').isDisabled(),true);
+    await page.keyboard.press('Tab');
+    assert.equal(await focusKey(),'retry-save','Failed capped save keeps Retry saving reachable');
+    await page.keyboard.press('Enter');
+    assert.equal(await focusKey(),'retry-save','A failed retry retains keyboard focus');
+    await page.evaluate(()=>{window.__e04Blocked=false;});
+    await page.keyboard.press('Enter');
+    assert.equal(await page.evaluate(()=>window.__e04.getState().history.length),250);
+    const savedStatus=page.locator('.e04-save-success[role="status"]');
+    assert.equal(await savedStatus.count(),1);
+    assert.equal(await savedStatus.evaluate(node=>document.activeElement===node),true,
+      'Successful retry must focus the save confirmation, not the restart footer');
+    assert.notEqual(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),checkpoint249);
+    await layout('250-action retry recovered '+size.width);
+    await page.keyboard.press('Tab');
+    assert.equal(await focusKey(),'reset','Tab from saved status reaches the enabled restart action');
+    await page.keyboard.press('Enter');
+    assert.equal(await focusKey(),'keep-reset');
+    await page.keyboard.press('Enter');
+    assert.equal(await focusKey(),'reset');
+    assert.equal(await page.evaluate(()=>window.__e04.getState().history.length),250,
+      'Cancelling restart must retain the capped draft');
+    assert.deepEqual(await page.evaluate(()=>[
+      localStorage.getItem('wondervale-s01e02-progress-v1'),
+      localStorage.getItem('wondervale-s01e03-progress-v1')
+    ]),unchanged,'Near-cap editing must not touch earlier chapter saves');
     assert.deepEqual(errors,[],'No browser exceptions');
     await context.close();
     console.log('PASS E04 browser responsive, Chronicle, storage retry: '+size.width+'x'+size.height);

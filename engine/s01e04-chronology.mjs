@@ -4,7 +4,7 @@ export const DRAFT_KEY = 'wondervale-s01e04-authoring-preview-v1';
 const VALID_ID = /^[a-z][a-z0-9_-]{1,39}$/;
 const SLOTS = new Set(['earlier','later','uncertain']);
 const KINDS = new Set(['map','photo','document']);
-const MAX_ACTIONS = 250;
+export const MAX_ACTIONS = 250;
 const clone = x => structuredClone(x);
 const owns = (o,k) => Object.prototype.hasOwnProperty.call(o,k);
 
