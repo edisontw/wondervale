@@ -397,7 +397,7 @@ test('reset confirmation describes scope and failed deletion without changing ot
   tap(root,'reset');
   assert.equal(doc.activeElement.dataset.focusKey,'keep-reset');
   const scopeId=root.find('keep-reset').attributes['aria-describedby'];
-  assert.match(scopeId,/^e04-reset-prompt-\\d+$/);
+  assert.match(scopeId,/^e04-reset-prompt-[0-9]+$/);
   assert.equal(root.find('confirm-reset').attributes['aria-describedby'],scopeId);
   assert.match(root.allText(),/Earlier chapters stay saved/);
   tap(root,'keep-reset');
