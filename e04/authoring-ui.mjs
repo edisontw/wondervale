@@ -14,6 +14,8 @@ const MEMORY_LABELS=[
   ['garden','Garden resident','I remember a way to the garden.','S01E03-RESIDENT-001']
 ];
 const MAX_SAVE_CHARS=60000;
+// Per-mount IDs avoid ambiguous screen-reader descriptions in replay/test roots.
+let mountSequence=0;
 
 function load(storage,mode) {
   if (!storage || mode!=='draft_preview') return {raw:null,present:false,problem:false};
@@ -66,6 +68,9 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   }
   // No built-in source pack: owner-reviewed evidence must be supplied by a future integrator.
   const sources=validateSourcePack(pack);
+  const mountId=++mountSequence;
+  const resetPromptId='e04-reset-prompt-'+mountId;
+  const resetErrorId='e04-reset-error-'+mountId;
   const checkpoint=load(storage,mode);
   const opened=openE04Authoring(e02Save,e03Save,sources,checkpoint.raw,mode);
   let state=opened.session;
@@ -362,16 +367,26 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     box.append(decisions);
     const footer=el('footer','e04-footer');
     if(resetPending) {
-      footer.append(el('p','e04-reset-warning',
-        'Start again? Only this Episode 04 draft will be cleared. Earlier chapters stay saved.'));
+      const prompt=el('p','e04-reset-warning',
+        'Start again? Only this Episode 04 draft will be cleared. Earlier chapters stay saved.');
+      prompt.setAttribute('id',resetPromptId);
+      footer.append(prompt);
       if(resetError) {
         const warning=el('p','e04-reset-error',
           'Could not clear this draft on this device. Your work is still here. Try again.');
+        warning.setAttribute('id',resetErrorId);
         warning.setAttribute('role','alert');
         footer.append(warning);
       }
-      button(footer,'Keep this draft',()=>{resetPending=false;resetError=false;render('reset');},'keep-reset');
-      button(footer,'Clear Episode 04 draft',reset,'confirm-reset');
+      // The safe option receives focus on opening. Both choices must expose
+      // the scope of deletion, including after a failed storage removal.
+      const description=resetPromptId+(resetError?' '+resetErrorId:'');
+      const keep=button(footer,'Keep this draft',()=>{
+        resetPending=false;resetError=false;render('reset');
+      },'keep-reset');
+      const clear=button(footer,'Clear Episode 04 draft',reset,'confirm-reset');
+      keep.setAttribute('aria-describedby',description);
+      clear.setAttribute('aria-describedby',description);
     } else {
       button(footer,'Start this draft again',()=>{resetPending=true;resetError=false;render('keep-reset');},'reset');
     }
