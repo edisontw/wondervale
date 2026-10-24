@@ -491,8 +491,11 @@ try {
     assert.equal(await page.evaluate(()=>document.activeElement?.matches('.e04-memory-compare summary')),true,
       'Keyboard can revisit inspected memories before source placement');
     await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(()=>document.activeElement?.matches('.e04-clue-compare summary')),true,
+      'Keyboard can revisit inspected clues before source placement');
+    await page.keyboard.press('Tab');
     assert.equal(await focusKey(),'place:first-map:earlier',
-      'Keyboard reaches first enabled source choice after optional memory comparison');
+      'Keyboard reaches the first enabled source choice after optional read-only recaps');
     assert.deepEqual(await page.evaluate(()=>window.__e04.getState()),unsupported,
       'Review navigation cannot mutate the draft');
     assert.equal(await page.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),unsupportedCheckpoint,
