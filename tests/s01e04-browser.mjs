@@ -219,6 +219,17 @@ try {
     await action('place:later-record:later');
     await action('place:undated-photo:uncertain');
     await action('explain');await action('chronicle');
+    const chronicleHeading=page.locator('.e04-chronicle h4');
+    const chronicleFocus=await chronicleHeading.evaluate(node=>{
+      const r=node.getBoundingClientRect();
+      return {focused:document.activeElement===node,top:r.top,bottom:r.bottom,height:innerHeight};
+    });
+    assert.ok(chronicleFocus.focused && chronicleFocus.top>=-1 &&
+      chronicleFocus.top<chronicleFocus.height,
+      'Chronicle opens at its visible heading before the Finish control: '+JSON.stringify(chronicleFocus));
+    await page.keyboard.press('Tab');
+    assert.equal(await page.locator('[data-focus-key="finish"]').evaluate(node=>document.activeElement===node),true,
+      'Tab from Chronicle heading reaches completion after reviewing the timeline');
     assert.equal(await page.locator('.e04-timeline-step').count(),2);
     await layout('Chronicle '+size.width);
     await action('finish');
