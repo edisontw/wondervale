@@ -584,7 +584,9 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     // The last permitted edit disables its control. Focus the visible alert
     // instead of silently jumping to the restart button at the page footer.
-    if(atLimit && focusKey && !['reset','keep-reset','confirm-reset','retry-save'].includes(focusKey)) {
+    // When a capped draft becomes stale, the conflict confirmation must remain
+    // keyboard reachable. Its safe Keep choice takes priority over the cap alert.
+    if(atLimit && !conflict && focusKey && !['reset','keep-reset','confirm-reset','retry-save'].includes(focusKey)) {
       limitWarning?.focus();
       return;
     }
