@@ -23,6 +23,23 @@ A read-only deterministic JavaScript audit sampled each proposed straight segmen
 
 **Interpretation:** N's proposed rear cargo crossing has two distinct painted-cargo intersections, and its arcade exit/turn is also obscured by multiple foreground structures. S spends multiple long segments in the upper parapet/ivy mask; the *actual terrace walking floor and its entrance/exit* are not demonstrated by these masks. L's zero mask intersections is **not** proof of a legal cart swept envelope; #109 remains independent. Existing E03 engine correctly refuses S/N through-route selection rather than creating invisible edges.
 
+## Decoded main scene inspection (2026-10-26 04:11 Asia/Taipei)
+
+The actual **decoded** 1672×941 WebP on `main`, `public/art/s01e03-market-lane-m0.webp` (Git blob `f0c544413fb9caeaa55755b3c272c10d5bcd7589`), was visually inspected against the candidate foot points in `M1_ROUTE_REVIEW.json`. The M1 review image has the same blob; this is **one painting**, not two independent route observations. This closes the earlier *uninspected source raster* evidence gap, **not** the walkable-floor gate.
+
+| Candidate point(s), source pixels | Decoded-paint observation | Decision for current candidate |
+| --- | --- | --- |
+| S: (805,215) → (930,215) → (1060,230) → (1160,260) → (1260,275) | The proposed foot line follows the **front terrace parapet/ivy/railing and stone-pier zone**. A continuous upper-terrace foot-width paving strip at these feet is not visibly established; the actual walking terrace is behind the foreground wall. | **Reject these S foot points as a legal through-route** until a distinct floor-aligned path and both stair/top-market transitions can be shown. Do not merely draw an edge behind the wall. |
+| N: (530,609) → (600,595) → (735,597) → (845,599) | The candidate line runs along/through the **painted unloading cart, crates and cargo**. The rear sidewalk at those feet is hidden, and two source-mask crossings were already measured. | **Reject this N centerline as proven walkable**; a continuous, body-width passage behind the load is not demonstrated. |
+| N: (965,525) → (1020,490) → (1150,480) | The turn is in the **arch masonry/pier, ivy and planter/side-path transition**. The painted arch opening and the side market paving are visible separately, but a legal continuous passage connecting the candidate points is not established. | **Keep N arcade exit blocked** pending visible, correctly depth-ordered feet and entry/exit continuity. |
+| L: outer-lane points | A visually distinct open cobbled outer lane is present, consistent with the existing limited L gameplay. | **No new approval** for cart yaw/wheels/swept turns; see #109. |
+
+These are qualitative **source-image observations**, not pixel-classified floor segmentation, a measured character-body clearance, real rendered-actor occlusion, or phone QA. A painted wall covering a route does not by itself prove there is no path behind it; it means the proposed path is **not evidenced**. The existing `route-depth.mjs` polygons remain occlusion review masks, **not** walkable/no-go physics polygons.
+
+**Smallest actionable design request:** mark, on this same accepted source painting, (1) a continuous S foot-width upper-terrace pavement line plus stair landing and market-side exit, and (2) a continuous N cargo-rear/arch pavement line with both pier-side transitions, identifying where the character is behind foreground paint versus blocked by a solid. If no such lines can be traced without putting feet on parapet/cargo/masonry, approve a **localized scene correction** before adding route edges. Preserve the accepted scene/story and existing L route. Do not infer a new S/N connection from interpolation.
+
+**Verification scope this round:** GitHub source raster and review JSON inspected; no image bytes, runtime graph, tests or deployment changed. Node/Chromium, physical device and MN4 **NOT RUN** for this documentation-only evidence.
+
 ## Acceptance / next bounded evidence
 
 1. **N:** inspect actual source-image pavement at the two cargo overlaps and both sides of the arcade pier, especially whether a continuous foot-width strip exists behind the unloading and where the arcade reconnects to the bookstall approach. If the painted floor is absent or blocked, require a minimal owner-approved scene/art correction; do **not** bridge by graph line, opacity, clipping or teleport.
