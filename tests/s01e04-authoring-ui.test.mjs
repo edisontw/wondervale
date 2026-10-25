@@ -1330,3 +1330,62 @@ test('a stale capped tab cannot resurrect a cleared checkpoint and can explicitl
   assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),old03);
   stale.destroy();owner.destroy();
 });
+
+
+test('E03/E02 reset blocks E04 re-entry without deleting its draft; restored prerequisites resume safely',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const e02Key='wondervale-s01e02-progress-v1';
+  const e03Key='wondervale-s01e03-progress-v1';
+  const e02=realE02(),e03=realE03();
+  const e02Bytes=JSON.stringify(e02),e03Bytes=JSON.stringify(e03);
+  storage.setItem(e02Key,e02Bytes);
+  storage.setItem(e03Key,e03Bytes);
+  const draft=dispatch04(fresh04(pack),{type:'inspect-memory',which:'station'},pack);
+  const draftBytes=JSON.stringify(draft);
+  storage.setItem(DRAFT_KEY,draftBytes);
+  const open=(a,b)=>mountE04Authoring(doc.root(),{
+    pack,e02Save:a,e03Save:b,storage
+  });
+
+  const original=open(e02,e03);
+  assert.equal(original.ready,true);
+  assert.deepEqual(original.getState(),draft);
+  original.destroy();
+
+  // Resetting an upstream chapter must never be bypassed by a valid E04 draft.
+  storage.removeItem(e03Key);
+  const noMarket=open(e02,null);
+  assert.equal(noMarket.ready,false);
+  assert.equal(noMarket.getState(),null);
+  assert.equal(storage.getItem(DRAFT_KEY),draftBytes,
+    'An upstream reset must not silently erase an independent E04 draft');
+  noMarket.destroy();
+
+  storage.removeItem(e02Key);
+  const noRiverside=open(null,null);
+  assert.equal(noRiverside.ready,false);
+  assert.equal(noRiverside.getState(),null);
+  assert.equal(storage.getItem(DRAFT_KEY),draftBytes);
+  noRiverside.destroy();
+
+  // Restoring only E02 is insufficient; both canonical prerequisites are required.
+  storage.setItem(e02Key,e02Bytes);
+  const stillLocked=open(e02,null);
+  assert.equal(stillLocked.ready,false);
+  stillLocked.destroy();
+
+  storage.setItem(e03Key,e03Bytes);
+  const resumed=open(JSON.parse(storage.getItem(e02Key)),
+    JSON.parse(storage.getItem(e03Key)));
+  assert.equal(resumed.ready,true);
+  assert.deepEqual(resumed.getState(),draft,
+    'A valid E04 draft may resume only after both genuine checkpoints return');
+  assert.equal(storage.getItem(DRAFT_KEY),draftBytes,
+    'Re-entry must be read-only until the child deliberately edits the draft');
+
+  assert.equal(resumed.reset(),true,'Resetting E04 must affect only its own draft');
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  assert.equal(storage.getItem(e02Key),e02Bytes);
+  assert.equal(storage.getItem(e03Key),e03Bytes);
+  resumed.destroy();
+});
