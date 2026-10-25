@@ -35,6 +35,10 @@ def validator(archive_var: str) -> tuple[str, set[str]]:
 def make_archive(path: Path, episode: str, allowed: set[str], *,
                  mutation: str | None = None) -> None:
     files = {name: ("synthetic:" + name).encode() for name in sorted(allowed)}
+    if "e02/index.html" in files:
+        files["e02/index.html"] = b"<h1>The Bridge That Stops</h1>"
+    if "e03/index.html" in files:
+        files["e03/index.html"] = b"<h1>Three Deliveries, One Wrong Turn</h1>"
     manifest = {
         "episode": episode,
         "files": [
@@ -134,6 +138,125 @@ class ReleaseArchiveGuards(unittest.TestCase):
 
     def test_rejects_symlink_member(self):
         self.check("symlink_member", False)
+
+
+
+class ReleaseRollbackGuards(unittest.TestCase):
+    """Run the real deploy script inside a disposable root with mocked HTTPS.
+
+    No /srv paths, network, SSH, or real host changes are permitted.
+    """
+
+    SHA = "a" * 40
+
+    def fixture(self, root: Path, *, e03_mutation: str | None = None):
+        for directory in ("incoming", "releases", "bin"):
+            (root / directory).mkdir()
+        baseline = root / "releases/accepted-e01"
+        baseline.mkdir()
+        base_files = {
+            "index.html": b"<h1>Frozen E01</h1>",
+            "engine/episode.mjs": b"// frozen E01 engine",
+        }
+        base_files.update({
+            f"public/frozen-{i:02d}.txt": f"e01-{i}".encode()
+            for i in range(10)
+        })
+        for name, data in base_files.items():
+            target = baseline / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+        (baseline / "RELEASE_INTEGRITY.json").write_text(json.dumps({
+            "build": "synthetic-frozen-e01",
+            "files": [
+                {"path": name, "bytes": len(data),
+                 "sha256": hashlib.sha256(data).hexdigest()}
+                for name, data in base_files.items()
+            ],
+        }))
+        previous = root / "releases/previous-composite"
+        previous.mkdir()
+        (previous / "sentinel.txt").write_text("must survive rollback")
+        (root / "current").symlink_to(previous, target_is_directory=True)
+        (root / "e01-baseline").symlink_to(baseline, target_is_directory=True)
+        for key, episode, var in EPISODES:
+            _, allowed = validator(var)
+            make_archive(root / f"incoming/{key}-{self.SHA}.tar.gz",
+                         episode, allowed,
+                         mutation=e03_mutation if key == "e03" else None)
+        fake_curl = root / "bin/curl"
+        fake_curl.write_text(
+            "#!/usr/bin/env python3\n"
+            "import os, pathlib, sys, urllib.parse\n"
+            "args = sys.argv[1:]\n"
+            "url = next(x for x in args if x.startswith('https://'))\n"
+            "path = urllib.parse.urlparse(url).path\n"
+            "if path == os.environ.get('FAKE_FAIL_PATH'): sys.exit(22)\n"
+            "relative = path.lstrip('/')\n"
+            "if path.endswith('/'): relative += 'index.html'\n"
+            "src = (pathlib.Path(os.environ['FAKE_ROOT']) / 'current').resolve() / relative\n"
+            "if not src.is_file(): sys.exit(22)\n"
+            "pathlib.Path(args[args.index('-o') + 1]).write_bytes(src.read_bytes())\n"
+        )
+        fake_curl.chmod(0o755)
+        marker = "root=/srv/wondervale\n"
+        self.assertEqual(SCRIPT.count(marker), 1, "Unexpected remote root declaration")
+        test_script = root / "isolated-deploy.sh"
+        test_script.write_text(SCRIPT.replace(marker, f"root={root}\n"))
+        env = dict(__import__("os").environ)
+        env["PATH"] = str(root / "bin") + __import__("os").pathsep + env["PATH"]
+        env["FAKE_ROOT"] = str(root)
+        return test_script, env, previous, baseline, base_files
+
+    def execute(self, root: Path, *, fail_path: str | None = None,
+                e03_mutation: str | None = None):
+        script, env, previous, baseline, base_files = self.fixture(
+            root, e03_mutation=e03_mutation)
+        if fail_path is not None:
+            env["FAKE_FAIL_PATH"] = fail_path
+        result = subprocess.run(
+            ["bash", str(script), self.SHA, self.SHA],
+            capture_output=True, text=True, timeout=25, check=False, env=env,
+        )
+        return result, previous, baseline, base_files
+
+    def test_late_e03_https_failure_restores_previous_symlink(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            result, previous, baseline, base_files = self.execute(
+                root, fail_path="/e03/")
+            self.assertNotEqual(result.returncode, 0, result.stdout)
+            self.assertIn("Rolled back current", result.stderr)
+            self.assertEqual((root / "current").resolve(), previous)
+            self.assertEqual((previous / "sentinel.txt").read_text(),
+                             "must survive rollback")
+            for name, data in base_files.items():
+                self.assertEqual((baseline / name).read_bytes(), data)
+
+    def test_success_promotes_composite_with_frozen_e01_bytes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            result, previous, baseline, base_files = self.execute(root)
+            self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+            promoted = root / "releases" / (self.SHA + "-e02")
+            self.assertEqual((root / "current").resolve(), promoted)
+            self.assertTrue((promoted / "e03/main.mjs").is_file())
+            self.assertTrue((previous / "sentinel.txt").is_file())
+            for name, data in base_files.items():
+                self.assertEqual((promoted / name).read_bytes(), data)
+                self.assertEqual((baseline / name).read_bytes(), data)
+            self.assertFalse((root / f"incoming/e02-{self.SHA}.tar.gz").exists())
+            self.assertFalse((root / f"incoming/e03-{self.SHA}.tar.gz").exists())
+
+    def test_invalid_e03_archive_cannot_switch_current(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            result, previous, _, _ = self.execute(
+                root, e03_mutation="tampered_bytes")
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual((root / "current").resolve(), previous)
+            self.assertFalse((root / "releases" / (self.SHA + "-e02")).exists())
+
 
 
 if __name__ == "__main__":
