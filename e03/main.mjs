@@ -3,14 +3,24 @@ import {actorHeight,spriteBox} from './perspective.mjs';
 const root=document.querySelector('#app');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const read=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
+const readRaw=k=>{try{return localStorage.getItem(k);}catch{return null;}};
 let content;
 try{const r=await fetch('../public/s01e03.json');if(!r.ok)throw Error();content=await r.json();if(content.version!==VERSION||content.build!==BUILD||content.count!==79)throw Error();}
 catch{root.innerHTML='<main class="sheet"><h1>Market Lane could not open</h1><p>Please reload to try again.</p><button onclick="location.reload()">Reload</button></main>';throw Error('E03 content unavailable');}
 const canonicalReady=e02Ready(read(E02_KEY));
+// Keep the exact validated E02 prerequisite bytes, not just a stale mount-time boolean.
+const upstreamCheckpoint=canonicalReady?readRaw(E02_KEY):null;
+let upstreamInvalidated=canonicalReady&&upstreamCheckpoint===null;
 let unlocked=canonicalReady;
 let state=unlocked?restore(read(KEY)):fresh();
 let ui={parent:false,modal:null,inspected:null,moving:false,artError:false,storageError:false,review:false,resetError:false,focus:null};
 let visual=[...places[state.position]],lastFocus=null,raf=0;
+function upstreamValid(){
+ if(!canonicalReady)return true;
+ if(upstreamInvalidated)return false;
+ if(readRaw(E02_KEY)!==upstreamCheckpoint){upstreamInvalidated=true;return false;}
+ return true;
+}
 const button=(label,a,primary=false,extra='')=>`<button data-a="${esc(a)}" ${primary?'class="primary"':''} ${extra}>${esc(label)}</button>`;
 const names={MILO:'Milo',NIA:'Nia',FINN:'Finn',COORDINATOR:'Market coordinator',RESIDENT:'Garden resident',NARRATOR:'Narrator',UI:'Story'};
 const full={MILO:'60 0 490 990',NIA:'545 0 450 1024',FINN:'1025 0 485 1024'},heads={MILO:'95 12 425 474',NIA:'555 18 435 474',FINN:'1045 18 445 474'};
@@ -21,8 +31,8 @@ function npcPortrait(who){
  return '';
 }
 const art=(who,portrait=false)=>{const crop=(portrait?heads:full)[who];return crop?`<svg aria-hidden="true" viewBox="${crop}" preserveAspectRatio="xMidYMid ${portrait?'slice':'meet'}"><image href="../public/art/trio-sprites.webp" width="1536" height="1024"/></svg>`:portrait?npcPortrait(who):'<span aria-hidden="true">❧</span>';};
-function save(){const p=payload(state);if(!p)return;try{localStorage.setItem(KEY,JSON.stringify(p));ui.storageError=false;}catch{ui.storageError=true;}}
-function act(a){if(ui.moving&&a.type!=='step')return;state=dispatch(state,a);save();render();}
+function save(){if(state.mode==='canonical'&&!upstreamValid())return;const p=payload(state);if(!p)return;try{localStorage.setItem(KEY,JSON.stringify(p));ui.storageError=false;}catch{ui.storageError=true;}}
+function act(a){if(state.mode==='canonical'&&!upstreamValid()){render();return;}if(ui.moving&&a.type!=='step')return;state=dispatch(state,a);save();render();}
 function line(){return content.lines[state.queue[0]];}
 function listen(){if(!line()||!globalThis.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(line().text);u.lang='en-US';u.rate=.87;speechSynthesis.speak(u);}catch{}}
 function actorFeet(i){
@@ -94,6 +104,10 @@ function preserveWorldVisuals(oldWorld){
  }
 }
 function render(){
+ if(state.mode==='canonical'&&!upstreamValid()){
+  root.innerHTML='<main class="sheet" role="alert"><h1>Riverside progress changed</h1><p>Market Lane is paused because its Riverside prerequisite changed. Your Market Lane save was not erased.</p><a href="../e02/">Return to Riverside</a><p>Reload Market Lane after checking Riverside to resume.</p></main>';
+  return;
+ }
  const focused=root.querySelector(':focus')?.dataset.a;
  if(!unlocked){root.innerHTML='<main class="sheet"><h1>Market Lane comes after Riverside</h1><p>Finish Riverside and record its Market Lane marker first.</p><a href="../e02/">Return to Riverside</a><p class="small">You can also look at this chapter without changing progress.</p><button data-a="preview">Preview without saving</button></main>';return;}
  const special=sheet();
@@ -108,14 +122,15 @@ function openModal(kind){lastFocus=document.activeElement?.dataset.a;ui.modal=ki
 function closeModal(){ui.modal=null;render();}
 // Animate and commit one legal graph edge at a time. Refresh restores the last
 // completed node and the remaining itinerary, never the destination prematurely.
-async function walk(){if(ui.moving||!state.travel.length||ui.artError)return;ui.moving=true;ui.focus=false;render();
- while(state.travel.length){const to=state.travel[0],from=[...visual],dest=places[to];const duration=matchMedia('(prefers-reduced-motion: reduce)').matches?1:Math.max(180,Math.hypot(dest[0]-from[0],dest[1]-from[1])*3);
+async function walk(){if(state.mode==='canonical'&&!upstreamValid()){render();return;}if(ui.moving||!state.travel.length||ui.artError)return;ui.moving=true;ui.focus=false;render();
+ while(state.travel.length){if(state.mode==='canonical'&&!upstreamValid())break;const to=state.travel[0],from=[...visual],dest=places[to];const duration=matchMedia('(prefers-reduced-motion: reduce)').matches?1:Math.max(180,Math.hypot(dest[0]-from[0],dest[1]-from[1])*3);
   await new Promise(resolve=>{const start=performance.now();function tick(now){const t=Math.min(1,(now-start)/duration);visual=from.map((n,i)=>n+(dest[i]-n)*t);for(const [i,who] of ['MILO','NIA','FINN'].entries()){const el=root.querySelector('[data-actor="'+who+'"]'),p=actorFeet(i);if(el){const d=actorDimensions(i,p);el.style.setProperty('--x',p[0]/16.72+'%');el.style.setProperty('--y',p[1]/9.41+'%');el.style.setProperty('--w',d.width/16.72+'%');el.style.setProperty('--h',d.height/9.41+'%');el.dataset.footY=p[1];el.dataset.sourceHeight=d.height;}}if(t<1)raf=requestAnimationFrame(tick);else resolve();}raf=requestAnimationFrame(tick);});
-  state=dispatch(state,{type:'step',to});save();
+  if(state.mode==='canonical'&&!upstreamValid())break;state=dispatch(state,{type:'step',to});save();
  }
  ui.moving=false;ui.focus=null;visual=[...places[state.position]];render();
 }
 root.addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(!b||b.disabled)return;const a=b.dataset.a;
+ if(state.mode==='canonical'&&!upstreamValid()){render();return;}
  if(a==='preview'){unlocked=true;state=fresh('development_preview');visual=[...places.H];render();return;}
  if(a==='listen'){listen();return;}
  if(a==='parent'){ui.parent=!ui.parent;render();return;}
@@ -154,6 +169,12 @@ document.addEventListener('keydown',e=>{
  if(ui.modal){const dialog=root.querySelector('.modal');if(e.key==='Escape'){e.preventDefault();closeModal();return;}if(e.key==='Tab'){const buttons=[...dialog.querySelectorAll('button:not(:disabled),a')];const i=buttons.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();buttons.at(-1)?.focus();}else if(!e.shiftKey&&(i<0||i===buttons.length-1)){e.preventDefault();buttons[0]?.focus();}}}
 });
 root.addEventListener('error',e=>{if(e.target.matches?.('.backdrop')&&!ui.artError){ui.artError=true;render();}},true);
+// Cross-tab reset/restore (including ABA) latches until a fresh mount revalidates E02.
+window.addEventListener('storage',e=>{
+ if(!canonicalReady||(e.key!==E02_KEY&&e.key!==null))return;
+ upstreamInvalidated=true;
+ if(state.mode==='canonical')render();
+});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){save();globalThis.speechSynthesis?.cancel();}});
 new ResizeObserver(fit).observe(root);
 render();
