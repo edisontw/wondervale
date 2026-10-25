@@ -119,8 +119,15 @@ try{
   for(const [w,h] of [[320,740],[568,320],[1366,900]]){
    const {ctx,p}=await open(w,h);
    const priorBytes=await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02});
+   // A normal reload fires the old page's visibilitychange autosave, which can
+   // overwrite a newly injected checkpoint. Restore from a test-only session
+   // fixture BEFORE the new page module starts; never weaken production saves.
+   await ctx.addInitScript(({KEY})=>{
+    const checkpoint=sessionStorage.getItem('__e03_cart_waypoint_fixture');
+    if(checkpoint)localStorage.setItem(KEY,checkpoint);
+   },{KEY});
    for(const [node,checkpoint] of Object.entries(checkpoints)){
-    await p.evaluate(({KEY,checkpoint})=>localStorage.setItem(KEY,JSON.stringify(checkpoint)),{KEY,checkpoint});
+    await p.evaluate(checkpoint=>sessionStorage.setItem('__e03_cart_waypoint_fixture',JSON.stringify(checkpoint)),checkpoint);
     await p.reload();
     await p.locator('.backdrop').evaluate(img=>img.decode());
     assert.equal(await p.locator('.child').getAttribute('data-phase'),'tea');
