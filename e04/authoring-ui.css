@@ -94,6 +94,11 @@
 /* Keep chronology readable on short landscape screens and with enlarged text. */
 @media (max-width: 640px) {
   .e04-timeline { grid-template-columns: 1fr; }
+  /* Keep destructive confirmations and save-retry controls readable at 200% text. */
+  .e04-save-warning .e04-button, .e04-footer .e04-button {
+    flex: 1 1 12rem;
+    margin: 0;
+  }
 }
 @media (max-width: 560px) {
   /* Two short choices side by side, uncertainty below: fewer rows at 320px. */
