@@ -701,7 +701,7 @@ try {
     // 200% text-only enlargement tests reflow rather than device pixel ratio.
     // Eight synthetic cards and their Chronicle remain engineering fixtures.
     await page.evaluate(()=>{document.documentElement.style.fontSize='200%';});
-    await layout('200% text Chronicle '+size.width);
+    await layout('200% text Chronicle and source choices '+size.width);
     const enlargedItems=await unknown.evaluateAll(nodes=>nodes.map(node=>({
       clipped:node.scrollWidth>node.clientWidth+1,
       right:node.getBoundingClientRect().right,viewport:innerWidth
@@ -735,7 +735,28 @@ try {
     assert.equal(await page.evaluate(()=>window.__longChronicleStore.value),beforeLongBytes);
     assert.equal(await page.evaluate(()=>window.__longChronicleStore.writes),0,
       '200% text navigation must not write storage');
-    await page.evaluate(()=>{document.documentElement.style.fontSize='';});
+    // At enlarged text, restart is a potentially destructive action: the
+    // confirmation must reflow, keep the safe option focused, and never write.
+    await longRoot.locator('[data-focus-key="reset"]').click();
+    const zoomKeep=longRoot.locator('[data-focus-key="keep-reset"]');
+    assert.equal(await zoomKeep.evaluate(node=>document.activeElement===node),true,
+      '200% text: safe reset cancellation receives focus');
+    await layout('200% text reset confirmation '+size.width);
+    const zoomResetButtons=await longRoot.locator('.e04-footer button').evaluateAll(nodes=>
+      nodes.map(node=>{const r=node.getBoundingClientRect();return {
+        x:r.x,right:r.right,top:r.top,bottom:r.bottom,viewport:innerWidth
+      };}));
+    assert.equal(zoomResetButtons.length,2);
+    assert.ok(zoomResetButtons.every(b=>b.x>=-1&&b.right<=b.viewport+1),
+      '200% text: reset controls must fit the viewport: '+JSON.stringify(zoomResetButtons));
+    assert.ok(zoomResetButtons[1].top>=zoomResetButtons[0].bottom-1 ||
+      zoomResetButtons[1].x>=zoomResetButtons[0].right-1,
+      '200% text: reset choices must not overlap: '+JSON.stringify(zoomResetButtons));
+    await zoomKeep.click();
+    assert.deepEqual(await page.evaluate(()=>window.__longChronicle.getState()),beforeLongState);
+    assert.equal(await page.evaluate(()=>window.__longChronicleStore.value),beforeLongBytes);
+    assert.equal(await page.evaluate(()=>window.__longChronicleStore.writes),0,
+      '200% text: cancel reset cannot clear or rewrite the draft');
     await page.evaluate(()=>{
       window.__longChronicle.destroy();
       document.getElementById('e04-long-chronicle-probe').remove();
@@ -762,6 +783,14 @@ try {
     assert.ok(alertRect.focused && alertRect.top>=-1 && alertRect.top<alertRect.height,
       'First failed write must focus visible warning: '+JSON.stringify(alertRect));
     assert.equal(await page.evaluate(()=>window.__largeStore.value),largeCheckpoint);
+    await layout('200% text unsaved warning '+size.width);
+    const zoomRetry=await largeRoot.locator('[data-focus-key="retry-save"]').evaluate(node=>{
+      const r=node.getBoundingClientRect();
+      return {x:r.x,right:r.right,viewport:innerWidth,height:r.height};
+    });
+    assert.ok(zoomRetry.x>=-1&&zoomRetry.right<=zoomRetry.viewport+1&&zoomRetry.height>=43.5,
+      '200% text: retry saving must remain visible and usable: '+JSON.stringify(zoomRetry));
+    await page.evaluate(()=>{document.documentElement.style.fontSize='';});
     await largeAction('retry-save');
     assert.equal(await largeRoot.locator('[data-focus-key="retry-save"]').evaluate(
       node=>document.activeElement===node),true);
