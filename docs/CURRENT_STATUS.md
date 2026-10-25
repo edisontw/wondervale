@@ -1,5 +1,7 @@
 # Wondervale — Current Status
 
+**#110 release-transfer update (2026-10-25 12:15 Taipei):** PR-only MN4 workflow [#39738777161 attempt 2](https://github.com/edisontw/wondervale/actions/runs/39738777161) finished verify/package SUCCESS; mandatory artifact `wondervale-mn4-e02-e03-package` (ID `12585431752`) uploaded and was actually downloaded. ZIP SHA-256 `b6ca58d66ea9860a3d02c424b8ca8c6a1fb45ce09785db9906932c2fdb2609b7` matches GitHub's digest; nested E02 9/9 and E03 10/10 runtime files passed strict allowlist, manifest byte-length and SHA-256 checks. **This is a PR-head package, not a current-main release**: deploy job SKIPPED, MN4 SSH/HTTPS/rollback NOT RUN. #110 stays OPEN pending authorized current-main transfer/deploy evidence; #107 remains unmerged and E04 unreleased. [Issue evidence](https://github.com/edisontw/wondervale/issues/110#issuecomment-6393320828).
+
 **2026-10-25–27 recovery sprint:** The Owner has time-boxed a 48-run hourly blocker-first sprint. Execution and stop/retry policy: [48-hour recovery plan](48H_RECOVERY_PLAN_2026-10-25.md). Prioritize #110 release-transfer proof, #108 S/N topology and #109 actual tea-cart sweep before new E04 preview-only polish; PR #114 remains Owner-gated. This note documents the plan, **not** any new Gate 3, E04 production or MN4 deployment PASS.
 
 **Snapshot:** 2026-10-25 (Asia/Taipei). **Verified pre-update `main`:** `4b024e84e4a69732463f55bf600911a1f7e1478d` (PR #145 merge). Always refetch `main`; this snapshot is not proof of an MN4 deployment.
