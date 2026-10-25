@@ -25,7 +25,7 @@ jobs:
           python3 scripts/compile_e03.py
           git diff --exit-code -- public/s01e03.json
       - name: Test E03 routes, progression, prerequisites, restore and replay
-        run: node --test tests/s01e03.test.mjs
+        run: node --test tests/s01e03.test.mjs tests/s01e03-cart-turn.test.mjs
       - name: Audit swept cart display envelope against painted unloading
         run: node scripts/audit_e03_cart_sweep.mjs
       - name: Package isolated E03 preview
