@@ -1062,6 +1062,35 @@ try {
     assert.equal(await c.locator('[data-focus-key="keep-conflict"]').evaluate(
       node=>document.activeElement===node),true);
     assert.deepEqual(await c.evaluate(()=>window.__tab.getState()),unsaved);
+    // Real cross-tab conflict confirmation at 200% text size: both choices
+    // must reflow on portrait and short landscape without hiding the safe
+    // default, changing the draft or overwriting the newer checkpoint.
+    await c.evaluate(()=>{document.documentElement.style.fontSize='200%';});
+    for(const viewport of [{width:320,height:640},{width:568,height:320}]) {
+      await c.setViewportSize(viewport);
+      const geometry=await c.evaluate(()=>{
+        const controls=['keep-conflict','confirm-conflict'].map(key=>{
+          const node=document.querySelector('[data-focus-key="'+key+'"]');
+          const r=node.getBoundingClientRect();
+          return {key,x:r.left,right:r.right,height:r.height,
+            wraps:node.scrollWidth<=node.clientWidth+1};
+        });
+        return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+          focused:document.activeElement?.dataset.focusKey,controls};
+      });
+      assert.ok(geometry.scrollWidth<=geometry.width+1,
+        '200% cross-tab confirmation must not scroll sideways: '+JSON.stringify(geometry));
+      assert.equal(geometry.focused,'keep-conflict',
+        'Safe Keep remains focused after enlarged-text reflow');
+      for(const control of geometry.controls)
+        assert.ok(control.x>=-1&&control.right<=geometry.width+1&&
+          control.height>=43.5&&control.wraps,
+          '200% conflict choice must be visible and readable: '+JSON.stringify(geometry));
+      assert.deepEqual(await c.evaluate(()=>window.__tab.getState()),unsaved);
+      assert.equal(await c.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),latest);
+    }
+    await c.setViewportSize({width:320,height:640});
+    await c.evaluate(()=>{document.documentElement.style.fontSize='';});
     await c.locator('[data-focus-key="keep-conflict"]').click();
     assert.deepEqual(await c.evaluate(()=>window.__tab.getState()),unsaved);
     assert.equal(await c.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),latest);
@@ -1129,6 +1158,23 @@ try {
       node=>document.activeElement===node),true,
     'The safe Keep choice must be focused even at the 250-action limit');
     assert.equal(await e.evaluate(()=>window.__tab.getState().history.length),250);
+    await e.evaluate(()=>{document.documentElement.style.fontSize='200%';});
+    const cappedGeometry=await e.evaluate(()=>{
+      const buttons=['keep-conflict','confirm-conflict'].map(key=>{
+        const n=document.querySelector('[data-focus-key="'+key+'"]');
+        const r=n.getBoundingClientRect();
+        return {key,x:r.left,right:r.right,height:r.height,
+          wraps:n.scrollWidth<=n.clientWidth+1};
+      });
+      return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+        focused:document.activeElement?.dataset.focusKey,buttons};
+    });
+    assert.ok(cappedGeometry.scrollWidth<=cappedGeometry.width+1 &&
+      cappedGeometry.buttons.every(b=>b.x>=-1&&b.right<=cappedGeometry.width+1&&
+        b.height>=43.5&&b.wraps),
+      '200% capped cross-tab confirmation must reflow: '+JSON.stringify(cappedGeometry));
+    assert.equal(cappedGeometry.focused,'keep-conflict');
+    assert.equal(await e.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),null);
     await e.keyboard.press('Enter');
     assert.equal(await e.locator('[data-focus-key="review-latest"]').evaluate(
       node=>document.activeElement===node),true,
