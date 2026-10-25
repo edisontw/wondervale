@@ -1,5 +1,7 @@
 # Wondervale — Current Status
 
+**2026-10-25–27 recovery sprint:** The Owner has time-boxed a 48-run hourly blocker-first sprint. Execution and stop/retry policy: [48-hour recovery plan](48H_RECOVERY_PLAN_2026-10-25.md). Prioritize #110 release-transfer proof, #108 S/N topology and #109 actual tea-cart sweep before new E04 preview-only polish; PR #114 remains Owner-gated. This note documents the plan, **not** any new Gate 3, E04 production or MN4 deployment PASS.
+
 **Snapshot:** 2026-10-25 (Asia/Taipei). **Verified pre-update `main`:** `4b024e84e4a69732463f55bf600911a1f7e1478d` (PR #145 merge). Always refetch `main`; this snapshot is not proof of an MN4 deployment.
 
 This is the short operational entrypoint, not a second source of product canon. Approved Season 1 architecture/learning weave, episode briefs/scripts, and accepted decisions remain authoritative. Keep detailed history in Git commits, PRs, and issues.
