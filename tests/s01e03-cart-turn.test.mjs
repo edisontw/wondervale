@@ -109,9 +109,9 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
  const reverse=scan(forward.toReversed(),style,0);
  // Direction-aware L corner probes with both hypothetical pivot handednesses.
  const cornerProbes={
-  forward:Object.fromEntries([-30,30].map(deg=>[String(deg),
+  forward:Object.fromEntries([-30,0,30].map(deg=>[String(deg),
    scanCornerTransitions(forward,style,deg)])),
-  reverse:Object.fromEntries([-30,30].map(deg=>[String(deg),
+  reverse:Object.fromEntries([-30,0,30].map(deg=>[String(deg),
    scanCornerTransitions(forward.toReversed(),style,deg)]))
  };
  // Cross-check the earlier hand-estimated cargo silhouette against the
