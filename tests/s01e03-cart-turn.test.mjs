@@ -60,6 +60,36 @@ function scan(path,style,degrees){
   return{edge:from+'-'+to,samples:count+1,overlapSamples:hits,firstOverlapFoot:first};
  });
 }
+// Probe continuous hypothetical screen-plane pivots at each real L corner.
+// Runtime cart does not rotate: this is not physical wheel/road clearance.
+function scanCornerTransitions(path,style,peakDegrees){
+ const corners=[];
+ for(let i=1;i<path.length-1;i++){
+  const before=places[path[i-1]],pivot=places[path[i]],after=places[path[i+1]];
+  const incoming=Math.hypot(pivot[0]-before[0],pivot[1]-before[1]);
+  const outgoing=Math.hypot(after[0]-pivot[0],after[1]-pivot[1]);
+  assert.ok(incoming>0&&outgoing>0,'Route contains a zero-length turn');
+  const reach=Math.min(45,incoming/2,outgoing/2);
+  const steps=Math.max(1,Math.ceil(reach/sampleStep));
+  let hits=0,first=null;
+  for(let j=-steps;j<=steps;j++){
+   const fraction=Math.abs(j)/steps;
+   const neighbor=j<0?before:after,segmentLength=j<0?incoming:outgoing;
+   const foot=[pivot[0]+(neighbor[0]-pivot[0])*reach*fraction/segmentLength,
+               pivot[1]+(neighbor[1]-pivot[1])*reach*fraction/segmentLength];
+   const degrees=peakDegrees*(1-fraction);
+   if(overlap(cartPoly(foot,style,degrees),cargo)){
+    hits++;
+    if(first===null)first={foot:foot.map(v=>Number(v.toFixed(1))),
+     degrees:Number(degrees.toFixed(1))};
+   }
+  }
+  corners.push({from:path[i-1],corner:path[i],to:path[i+1],
+   peakDegrees,samples:steps*2+1,overlapSamples:hits,firstOverlap:first});
+ }
+ return corners;
+}
+
 test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN',async()=>{
  const css=await readFile('e03/style.css','utf8');
  const rules=[...css.matchAll(/\.load-cart\s*\{([^}]+)\}/g)];
@@ -76,6 +106,17 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
   'Cart reverse path must use the same legal L edges');
  const probes=Object.fromEntries(angles.map(deg=>[String(deg),scan(forward,style,deg)]));
  const reverse=scan(forward.toReversed(),style,0);
+ // Direction-aware L corner probes with both hypothetical pivot handednesses.
+ const cornerProbes={
+  forward:Object.fromEntries([-30,30].map(deg=>[String(deg),
+   scanCornerTransitions(forward,style,deg)])),
+  reverse:Object.fromEntries([-30,30].map(deg=>[String(deg),
+   scanCornerTransitions(forward.toReversed(),style,deg)]))
+ };
+ assert.ok(Object.values(cornerProbes).every(byAngle=>Object.values(byAngle)
+  .every(corners=>corners.length===forward.length-2&&
+   corners.every(c=>c.samples>=3&&c.overlapSamples<=c.samples))),
+  'Every forward/reverse L corner must have finite pivot samples');
  assert.ok(probes['0'].every(e=>e.overlapSamples===0),
   'Preserve existing screen-aligned cargo clearance');
  assert.ok(reverse.every(e=>e.overlapSamples===0),
@@ -89,11 +130,11 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
    wheelAxle:axle,stepPx:sampleStep,
    rotation:'hypothetical image-plane rotation around wheel midpoint; runtime cart does not yaw'},
   forward,screenAlignedForward:probes['0'],screenAlignedReverse:reverse,
-  rotatedProbes:probes,findings,
+  rotatedProbes:probes,cornerProbes,findings,
   limitations:[
    'Only approximate painted unloading cargo polygon; not a verified solid obstacle map.',
    'Runtime cart stays screen-left of Milo even during reverse travel.',
-   'Image-plane rotation is sensitivity testing, not physical top-down yaw or swept wheel tracks.',
+   'Image-plane rotation and corner pivots are sensitivity tests, not physical top-down yaw or swept wheel tracks.',
    'Pavement, rails, plants, perspective and real phone rendering remain unverified.',
    'A rotated overlap is potential conflict, not a proven physical collision.'
   ]
