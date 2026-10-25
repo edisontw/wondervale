@@ -1422,3 +1422,35 @@ test('an already-open E04 draft pauses after E03/E02 reset without deleting or w
     resumed.destroy();
   }
 });
+
+
+test('E04 mount pauses when genuine upstream checkpoints are missing or byte-mismatched',()=>{
+  const e02=realE02(),e03=realE03();
+  const e02Key='wondervale-s01e02-progress-v1';
+  const e03Key='wondervale-s01e03-progress-v1';
+  const e02Bytes=JSON.stringify(e02),e03Bytes=JSON.stringify(e03);
+  const draft=dispatch04(fresh04(pack),{type:'inspect-memory',which:'station'},pack);
+  const draftBytes=JSON.stringify(draft);
+  for(const scenario of ['missing-e02','missing-e03','reformatted-e02','reformatted-e03']) {
+    const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+    storage.setItem(e02Key,scenario==='reformatted-e02'?JSON.stringify(e02,null,2):e02Bytes);
+    storage.setItem(e03Key,scenario==='reformatted-e03'?JSON.stringify(e03,null,2):e03Bytes);
+    if(scenario==='missing-e02')storage.removeItem(e02Key);
+    if(scenario==='missing-e03')storage.removeItem(e03Key);
+    storage.setItem(DRAFT_KEY,draftBytes);
+    const before02=storage.getItem(e02Key),before03=storage.getItem(e03Key);
+    // Caller supplies previously valid saves, but storage no longer matches.
+    const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+    assert.equal(ui.ready,true,scenario+' remains an engineering preview, not a production unlock');
+    const warning=findClass(root,'e04-upstream-warning');
+    assert.equal(warning?.attributes.role,'alert',scenario+' must visibly pause');
+    assert.equal(doc.activeElement,warning,scenario+' must focus the warning');
+    assert.equal(root.find('memory:garden').disabled,true,scenario+' must disable edits');
+    assert.equal(ui.reset(),false,scenario+' must not erase an E04 draft');
+    assert.deepEqual(ui.getState(),draft,scenario+' must preserve restored draft state');
+    assert.equal(storage.getItem(DRAFT_KEY),draftBytes,scenario+' must preserve draft bytes');
+    assert.equal(storage.getItem(e02Key),before02,scenario+' must not alter E02');
+    assert.equal(storage.getItem(e03Key),before03,scenario+' must not alter E03');
+    ui.destroy();
+  }
+});

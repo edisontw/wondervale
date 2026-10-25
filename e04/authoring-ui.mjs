@@ -101,15 +101,29 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   // in-memory stores without upstream checkpoints keep their existing contract.
   // A live tab must not continue after either tracked prerequisite changes.
   let upstreamBaseline=null;
+  let upstreamUnverified=false;
   if(storage && mode==='draft_preview') {
     try {
       const bytes=UPSTREAM_KEYS.map(key=>storage.getItem(key));
       if(bytes.every(value=>value!==null) &&
          bytes[0]===JSON.stringify(e02Save) &&
          bytes[1]===JSON.stringify(e03Save) &&
-         e04Handoff(JSON.parse(bytes[0]),JSON.parse(bytes[1])).ready)
+         e04Handoff(JSON.parse(bytes[0]),JSON.parse(bytes[1])).ready) {
         upstreamBaseline=bytes;
-    } catch { /* Storage may be unavailable; do not mutate upstream saves. */ }
+      } else {
+        // If even one stored prerequisite is a genuine completed chapter,
+        // missing/mismatched partner bytes must not silently disable the live
+        // guard. Both absent or noncanonical sentinel keys remain test-only.
+        upstreamUnverified=bytes.some((value,i)=>{
+          if(value===null)return false;
+          try {
+            const saved=JSON.parse(value);
+            return i===0 ? e04Handoff(saved,e03Save).ready :
+              e04Handoff(e02Save,saved).ready;
+          } catch {return false;}
+        });
+      }
+    } catch { upstreamUnverified=true; } // Storage read denial must fail closed.
   }
   let knownCheckpoint=checkpoint.bytes??null;
   let conflict=false;
@@ -131,7 +145,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   let memoryCompareOpen=false;
   let clueCompareOpen=false;
   let disposed=false;
-  let upstreamRevoked=false;
+  let upstreamRevoked=upstreamUnverified;
   let resetPending=false;
   let resetError=false;
   let saveError=false;
@@ -345,7 +359,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     let upstreamAlert=null;
     if(upstreamRevoked) {
       const warning=el('p','e04-upstream-warning',
-        'Earlier chapter progress changed in another tab. Episode 04 is paused. ' +
+        'Earlier chapter progress changed or could not be verified. Episode 04 is paused. ' +
         'Your draft has not been deleted or overwritten. Finish Riverside and Market Lane ' +
         'again if needed, then reopen this preview to verify both chapters.');
       warning.setAttribute('role','alert');
@@ -786,7 +800,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     markConflict();
   };
   if(storage && view?.addEventListener)view.addEventListener('storage',onExternalStorage);
-  render(restoreWarning ? 'restore-warning' : null);
+  render(upstreamRevoked ? 'upstream-revoked' : restoreWarning ? 'restore-warning' : null);
   return {
     ready:true,reason:null,sources:opened.sources,getState:read,reset,
     destroy:()=>{
