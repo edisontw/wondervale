@@ -70,6 +70,8 @@ function signedRouteTurn(before,pivot,after){
  return Math.atan2(ix*oy-iy*ox,ix*ox+iy*oy)*180/Math.PI;
 }
 function scanCornerTransitions(path,style,peakDegrees,obstacle=cargo){
+ // Accept either one review polygon or a union of polygons from a named foreground mask.
+ const obstacles=Array.isArray(obstacle[0]?.[0])?obstacle:[obstacle];
  const corners=[];
  for(let i=1;i<path.length-1;i++){
   const before=places[path[i-1]],pivot=places[path[i]],after=places[path[i+1]];
@@ -87,7 +89,7 @@ function scanCornerTransitions(path,style,peakDegrees,obstacle=cargo){
    const foot=[pivot[0]+(neighbor[0]-pivot[0])*reach*fraction/segmentLength,
                pivot[1]+(neighbor[1]-pivot[1])*reach*fraction/segmentLength];
    const degrees=cornerPeak*(1-fraction);
-   if(overlap(cartPoly(foot,style,degrees),obstacle)){
+   if(obstacles.some(poly=>overlap(cartPoly(foot,style,degrees),poly))){
     hits++;
     if(first===null)first={foot:foot.map(v=>Number(v.toFixed(1))),
      degrees:Number(degrees.toFixed(1))};
@@ -146,6 +148,17 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
   forward:scanCornerTransitions(forward,style,'route-heading',reviewCargo.polygons[0]),
   reverse:scanCornerTransitions(forward.toReversed(),style,'route-heading',reviewCargo.polygons[0])
  };
+ // Review all registered foreground shapes at every actual L corner, not just
+ // unloading cargo. These are visual occlusion polygons, NOT solid obstacles.
+ const foregroundHeadingProbes=Object.fromEntries(['forward','reverse'].map(direction=>[
+  direction,occluders.map(mask=>({id:mask.id,corners:scanCornerTransitions(
+   direction==='forward'?forward:forward.toReversed(),style,'route-heading',mask.polygons)}))
+ ]));
+ const foregroundHeadingFindings=Object.entries(foregroundHeadingProbes).flatMap(([direction,masks])=>
+  masks.flatMap(mask=>mask.corners.filter(c=>c.overlapSamples>0).map(c=>({
+   direction,mask:mask.id,corner:c.corner,routeTurnDegrees:c.routeTurnDegrees,
+   overlapSamples:c.overlapSamples,firstOverlap:c.firstOverlap
+  }))));
  const reviewMaskComparison=['forward','reverse'].flatMap(direction=>
   [-30,0,30].flatMap(deg=>cornerProbes[direction][String(deg)]
    ? cornerProbes[direction][String(deg)].map((original,i)=>({
@@ -158,6 +171,10 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
   corners.every(c=>Number.isFinite(c.routeTurnDegrees)&&Number.isFinite(c.peakDegrees)&&
    c.samples>=3&&c.overlapSamples<=c.samples)),
   'Measured graph turn angles and sensitivity samples must be finite in both directions');
+ assert.ok(Object.values(foregroundHeadingProbes).every(masks=>masks.length===occluders.length&&
+  masks.every(m=>m.corners.length===forward.length-2&&
+   m.corners.every(c=>c.samples>=3&&c.overlapSamples<=c.samples))),
+  'Every registered foreground mask must be screened at every forward/reverse L corner');
  assert.ok(reviewMaskComparison.every(r=>Number.isInteger(r.reviewMaskSamples)),
   'Review-mask comparison must cover both directions and every corner');
  assert.ok(Object.values(reviewMaskCornerProbes).every(byAngle=>byAngle['0'].every(c=>c.overlapSamples===0)),
@@ -180,7 +197,8 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
    rotation:'hypothetical image-plane rotation around wheel midpoint; runtime cart does not yaw'},
   forward,screenAlignedForward:probes['0'],screenAlignedReverse:reverse,
   rotatedProbes:probes,cornerProbes,reviewMaskCornerProbes,reviewMaskComparison,
-  routeHeadingProbes,reviewHeadingProbes,findings,
+  routeHeadingProbes,reviewHeadingProbes,foregroundHeadingProbes,
+  foregroundHeadingFindings,findings,
   limitations:[
    'Both the hand-estimated cargo silhouette and route-depth unloading foreground mask are review-only; neither is a verified solid obstacle or floor map.',
    'Differences between these masks show sensitivity to geometry assumptions; do not claim a safe front/east turn from either.',
@@ -188,6 +206,8 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
    'Route-heading signed deflection is derived from the L graph; it is NOT actual wheel steering, cart yaw, or a turn-radius measurement.',
    'The fixed +/-30 degree probe can miss larger graph deflections; routeHeadingProbes explicitly reports those corners.',
    'Image-plane rotation and corner pivots are sensitivity tests, not physical top-down yaw or swept wheel tracks.',
+   'Foreground masks are visual occlusion registrations, not a certified collision map; mask hits and misses cannot prove physical safety.',
+   'The ramp0 graph corner exceeds the fixed 30-degree probe, but registered mask non-overlap cannot establish road width or wheel-turn radius.',
    'Pavement, rails, plants, perspective and real phone rendering remain unverified.',
    'A rotated overlap is potential conflict, not a proven physical collision.'
   ]
@@ -197,5 +217,6 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
  const reviewHits=reviewMaskComparison.filter(x=>x.reviewMaskSamples>0);
  console.log('E03 cart rotation DIAGNOSTIC: '+findings.length+
   ' estimated-cargo angle/edge conflicts; '+reviewHits.length+
-  ' review-mask corner conflicts; real wheel/road/device clearance OPEN.');
+  ' review-mask corner conflicts; '+foregroundHeadingFindings.length+
+  ' registered foreground-mask corner conflicts; real wheel/road/device clearance OPEN.');
 });
