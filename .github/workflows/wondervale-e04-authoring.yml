@@ -1,0 +1,56 @@
+name: Wondervale E04 authoring and handoff QA
+
+on:
+  pull_request:
+    paths:
+      - 'engine/s01e04-*.mjs'
+      - 'e04/**'
+      - 'tests/s01e04-*.mjs'
+      - 'tests/s01e03-e04-handoff.test.mjs'
+      - '.github/workflows/wondervale-e04-authoring.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'engine/s01e04-*.mjs'
+      - 'e04/**'
+      - 'tests/s01e04-*.mjs'
+      - 'tests/s01e03-e04-handoff.test.mjs'
+      - '.github/workflows/wondervale-e04-authoring.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e04-authoring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate E03 to E04 canonical entry and isolated E04 chronology
+        run: |
+          node --test tests/s01e03-e04-handoff.test.mjs tests/s01e04-chronology.test.mjs tests/s01e04-authoring-ui.test.mjs
+
+  e04-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install Chromium test dependency
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Check real browser layout and draft behavior
+        run: |
+          python3 -m http.server 4173 --directory . > /tmp/e04-browser-server.log 2>&1 &
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/package.json > /dev/null; then break; fi
+            sleep 1
+          done
+          node tests/s01e04-browser.mjs

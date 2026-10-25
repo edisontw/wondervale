@@ -43,14 +43,11 @@ jobs:
           TEST_ART_BASE_URL=http://127.0.0.1:4174 node tests/s01e03-depth.mjs
       - uses: actions/upload-artifact@v4
         if: always()
-        continue-on-error: true # Evidence upload quota must not override actual browser-test results.
         with:
           name: e03-engineering-evidence
           path: test-results/e03-*
-          retention-days: 3
       - uses: actions/upload-artifact@v4
         if: success()
-        continue-on-error: true # Preview archive is optional; not used to deploy.
         with:
           name: wondervale-e03-preview
           path: dist/wondervale-e03-preview/

@@ -81,7 +81,7 @@ jobs:
         run: |
           python3 scripts/compile_e03.py
           git diff --exit-code -- public/s01e03.json
-          node --test tests/s01e03.test.mjs
+          node --test tests/s01e03.test.mjs tests/s01e03-e04-handoff.test.mjs
           node scripts/audit_e03_cart_sweep.mjs
           python3 scripts/package_e03.py
       - name: Install pinned Playwright dependency
@@ -97,9 +97,8 @@ jobs:
         run: |
           tar -czf "dist/wondervale-e02-${GITHUB_SHA}.tar.gz" -C dist/wondervale-e02-preview .
           tar -czf "dist/wondervale-e03-${GITHUB_SHA}.tar.gz" -C dist/wondervale-e03-preview .
-      # Only main deploys need this archive. On main, upload errors MUST remain fatal.
       - uses: actions/upload-artifact@v4
-        if: success() && github.ref == 'refs/heads/main'
+        if: success()
         with:
           name: wondervale-mn4-e02-e03-package
           path: dist/wondervale-e0*-*.tar.gz
@@ -107,12 +106,11 @@ jobs:
           retention-days: 14
       - uses: actions/upload-artifact@v4
         if: always()
-        continue-on-error: true # Screenshots are optional; tests and deploy package are mandatory.
         with:
           name: wondervale-mn4-e02-e03-browser-evidence
           path: test-results/e0*-*
           if-no-files-found: ignore
-          retention-days: 3
+          retention-days: 14
 
   deploy-mn4:
     needs: verify-and-package

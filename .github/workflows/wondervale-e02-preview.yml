@@ -52,14 +52,11 @@ jobs:
           node tests/s01e02-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
-        continue-on-error: true # Evidence upload quota must not override actual browser-test results.
         with:
           name: e02-vertical-slice-evidence
           path: test-results/e02-*
-          retention-days: 3
       - uses: actions/upload-artifact@v4
         if: success()
-        continue-on-error: true # Preview archive is optional; not used to deploy.
         with:
           name: wondervale-e02-preview
           path: dist/wondervale-e02-preview/
