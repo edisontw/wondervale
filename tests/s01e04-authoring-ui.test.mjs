@@ -1330,3 +1330,95 @@ test('a stale capped tab cannot resurrect a cleared checkpoint and can explicitl
   assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),old03);
   stale.destroy();owner.destroy();
 });
+
+
+test('E03/E02 reset blocks E04 re-entry without deleting its draft; restored prerequisites resume safely',()=>{
+  const doc=new FakeDocument(),storage=new MemoryStorage();
+  const e02Key='wondervale-s01e02-progress-v1';
+  const e03Key='wondervale-s01e03-progress-v1';
+  const e02=realE02(),e03=realE03();
+  const e02Bytes=JSON.stringify(e02),e03Bytes=JSON.stringify(e03);
+  storage.setItem(e02Key,e02Bytes);
+  storage.setItem(e03Key,e03Bytes);
+  const draft=dispatch04(fresh04(pack),{type:'inspect-memory',which:'station'},pack);
+  const draftBytes=JSON.stringify(draft);
+  storage.setItem(DRAFT_KEY,draftBytes);
+  const open=(a,b)=>mountE04Authoring(doc.root(),{
+    pack,e02Save:a,e03Save:b,storage
+  });
+
+  const original=open(e02,e03);
+  assert.equal(original.ready,true);
+  assert.deepEqual(original.getState(),draft);
+  original.destroy();
+
+  // Resetting an upstream chapter must never be bypassed by a valid E04 draft.
+  storage.removeItem(e03Key);
+  const noMarket=open(e02,null);
+  assert.equal(noMarket.ready,false);
+  assert.equal(noMarket.getState(),null);
+  assert.equal(storage.getItem(DRAFT_KEY),draftBytes,
+    'An upstream reset must not silently erase an independent E04 draft');
+  noMarket.destroy();
+
+  storage.removeItem(e02Key);
+  const noRiverside=open(null,null);
+  assert.equal(noRiverside.ready,false);
+  assert.equal(noRiverside.getState(),null);
+  assert.equal(storage.getItem(DRAFT_KEY),draftBytes);
+  noRiverside.destroy();
+
+  // Restoring only E02 is insufficient; both canonical prerequisites are required.
+  storage.setItem(e02Key,e02Bytes);
+  const stillLocked=open(e02,null);
+  assert.equal(stillLocked.ready,false);
+  stillLocked.destroy();
+
+  storage.setItem(e03Key,e03Bytes);
+  const resumed=open(JSON.parse(storage.getItem(e02Key)),
+    JSON.parse(storage.getItem(e03Key)));
+  assert.equal(resumed.ready,true);
+  assert.deepEqual(resumed.getState(),draft,
+    'A valid E04 draft may resume only after both genuine checkpoints return');
+  assert.equal(storage.getItem(DRAFT_KEY),draftBytes,
+    'Re-entry must be read-only until the child deliberately edits the draft');
+
+  assert.equal(resumed.reset(),true,'Resetting E04 must affect only its own draft');
+  assert.equal(storage.getItem(DRAFT_KEY),null);
+  assert.equal(storage.getItem(e02Key),e02Bytes);
+  assert.equal(storage.getItem(e03Key),e03Bytes);
+  resumed.destroy();
+});
+
+test('an already-open E04 draft pauses after E03/E02 reset without deleting or writing its checkpoint',()=>{
+  for(const removedKey of ['wondervale-s01e03-progress-v1','wondervale-s01e02-progress-v1']) {
+    const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+    const e02=realE02(),e03=realE03();
+    const e02Bytes=JSON.stringify(e02),e03Bytes=JSON.stringify(e03);
+    storage.setItem('wondervale-s01e02-progress-v1',e02Bytes);
+    storage.setItem('wondervale-s01e03-progress-v1',e03Bytes);
+    const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+    assert.equal(ui.ready,true);
+    tap(root,'memory:station');
+    const saved=storage.getItem(DRAFT_KEY),state=ui.getState();
+    storage.removeItem(removedKey);
+    tap(root,'memory:garden'); // No fake DOM storage event: preflight must catch it.
+    assert.match(root.allText(),/Earlier chapter progress changed/);
+    assert.equal(findClass(root,'e04-upstream-warning').attributes.role,'alert');
+    assert.equal(root.find('memory:garden').disabled,true);
+    assert.deepEqual(ui.getState(),state,'A stale action must not change E04 history');
+    assert.equal(storage.getItem(DRAFT_KEY),saved,'A stale action must not write E04');
+    assert.equal(ui.reset(),false,'A stale reset must not erase E04');
+    assert.equal(storage.getItem(DRAFT_KEY),saved);
+    storage.setItem(removedKey,removedKey.includes('e02')?e02Bytes:e03Bytes);
+    assert.equal(root.find('memory:garden').disabled,true,
+      'Restoring bytes cannot silently unlock the already-open tab');
+    ui.destroy();
+    const freshRoot=doc.root();
+    const resumed=mountE04Authoring(freshRoot,{pack,e02Save:e02,e03Save:e03,storage});
+    assert.equal(resumed.ready,true,'A fresh verified mount can resume');
+    assert.deepEqual(resumed.getState(),state);
+    assert.equal(storage.getItem(DRAFT_KEY),saved,'Re-entry must be read-only');
+    resumed.destroy();
+  }
+});

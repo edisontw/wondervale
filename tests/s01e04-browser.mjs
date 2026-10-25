@@ -1208,4 +1208,69 @@ try {
     console.log('PASS E04 real cross-tab reset, 250-action recovery and landscape keyboard focus');
     console.log('PASS E04 real cross-tab conflict, read-only reload and unsaved confirmation');
   } finally {await tabs.close();}
+
+  // Real same-origin two-tab regression: a live E04 preview must not keep
+  // editing or clear its draft after a different tab resets E02 or E03.
+  // These are synthetic E04 cards, never a production episode.
+  const guardContext=await browser.newContext({
+    viewport:{width:568,height:320},isMobile:true,hasTouch:true
+  });
+  try {
+    const writer=await guardContext.newPage(),stale=await guardContext.newPage();
+    for(const tab of [writer,stale]) {
+      await tab.route('**/__e04_browser_probe__',route=>route.fulfill({
+        status:200,contentType:'text/html',
+        body:'<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/e04/authoring-ui.css"></head><body><main id="e04-root"></main></body></html>'
+      }));
+      await tab.goto(base+'/__e04_browser_probe__');
+    }
+    await writer.evaluate(({e02Save,e03Save})=>{
+      localStorage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02Save));
+      localStorage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03Save));
+    },{e02Save,e03Save});
+    const mount=async()=>stale.evaluate(async ({pack,e02Save,e03Save})=>{
+      const {mountE04Authoring}=await import('/e04/authoring-ui.mjs');
+      window.__guard=mountE04Authoring(document.getElementById('e04-root'),{
+        pack,e02Save,e03Save,storage:localStorage
+      });
+      return window.__guard.ready;
+    },{pack,e02Save,e03Save});
+    assert.equal(await mount(),true);
+    await stale.locator('[data-focus-key="memory:station"]').tap();
+    const saved=await stale.evaluate(key=>localStorage.getItem(key),DRAFT_KEY);
+    const history=await stale.evaluate(()=>window.__guard.getState().history.length);
+    assert.ok(saved && history===1);
+    await writer.evaluate(()=>localStorage.removeItem('wondervale-s01e03-progress-v1'));
+    const warning=stale.locator('.e04-upstream-warning[role="alert"]');
+    await warning.waitFor();
+    assert.equal(await warning.evaluate(node=>document.activeElement===node),true,
+      'Cross-tab E03 reset must focus a visible pause warning');
+    assert.equal(await stale.locator('[data-focus-key="memory:garden"]').isDisabled(),true);
+    assert.equal(await stale.evaluate(()=>window.__guard.reset()),false,
+      'An open stale E04 tab must not reset the saved draft');
+    assert.equal(await stale.evaluate(()=>window.__guard.getState().history.length),history);
+    assert.equal(await stale.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),saved);
+    const rect=await warning.evaluate(node=>({
+      top:node.getBoundingClientRect().top,
+      scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth
+    }));
+    assert.ok(rect.top>=-1 && rect.top<320 && rect.scrollWidth<=rect.viewport+1,
+      'Pause warning must remain visible in 568x320: '+JSON.stringify(rect));
+    await writer.evaluate(e03=>localStorage.setItem(
+      'wondervale-s01e03-progress-v1',JSON.stringify(e03)),e03Save);
+    assert.equal(await stale.locator('[data-focus-key="memory:garden"]').isDisabled(),true,
+      'A restore must not silently unlock a stale mounted E04 tab');
+    await stale.reload();
+    assert.equal(await mount(),true,'A fresh mount with verified chapters may resume');
+    assert.equal(await stale.evaluate(()=>window.__guard.getState().history.length),history);
+    await writer.evaluate(()=>localStorage.removeItem('wondervale-s01e02-progress-v1'));
+    await stale.locator('.e04-upstream-warning[role="alert"]').waitFor();
+    assert.equal(await stale.locator('[data-focus-key="memory:garden"]').isDisabled(),true);
+    assert.equal(await stale.evaluate(()=>window.__guard.reset()),false);
+    assert.equal(await stale.evaluate(key=>localStorage.getItem(key),DRAFT_KEY),saved,
+      'E02 reset must also leave E04 checkpoint intact');
+    assert.equal(await stale.evaluate(()=>localStorage.getItem(
+      'wondervale-s01e03-progress-v1')),JSON.stringify(e03Save));
+    console.log('PASS E04 live two-tab E02/E03 reset pause and checkpoint isolation');
+  } finally {await guardContext.close();}
 } finally {await browser.close();}
