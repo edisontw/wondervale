@@ -14,6 +14,7 @@ const MEMORY_LABELS=[
   ['garden','Garden resident','I remember a way to the garden.','S01E03-RESIDENT-001']
 ];
 const MAX_SAVE_CHARS=60000;
+const UPSTREAM_KEYS=['wondervale-s01e02-progress-v1','wondervale-s01e03-progress-v1'];
 // Per-mount IDs avoid ambiguous screen-reader descriptions in replay/test roots.
 let mountSequence=0;
 
@@ -96,6 +97,20 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   const resetPromptId='e04-reset-prompt-'+mountId;
   const resetErrorId='e04-reset-error-'+mountId;
   const checkpoint=load(storage,mode);
+  // Track real, verified E02/E03 local checkpoints when present. Test-only
+  // in-memory stores without upstream checkpoints keep their existing contract.
+  // A live tab must not continue after either tracked prerequisite changes.
+  let upstreamBaseline=null;
+  if(storage && mode==='draft_preview') {
+    try {
+      const bytes=UPSTREAM_KEYS.map(key=>storage.getItem(key));
+      if(bytes.every(value=>value!==null) &&
+         bytes[0]===JSON.stringify(e02Save) &&
+         bytes[1]===JSON.stringify(e03Save) &&
+         e04Handoff(JSON.parse(bytes[0]),JSON.parse(bytes[1])).ready)
+        upstreamBaseline=bytes;
+    } catch { /* Storage may be unavailable; do not mutate upstream saves. */ }
+  }
   let knownCheckpoint=checkpoint.bytes??null;
   let conflict=false;
   const opened=openE04Authoring(e02Save,e03Save,sources,checkpoint.raw,mode);
@@ -116,6 +131,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   let memoryCompareOpen=false;
   let clueCompareOpen=false;
   let disposed=false;
+  let upstreamRevoked=false;
   let resetPending=false;
   let resetError=false;
   let saveError=false;
@@ -127,6 +143,19 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     const payload=draftPayload(state);
     return saveError || (payload ? JSON.stringify(payload) : null)!==knownCheckpoint;
   };
+  function checkUpstream() {
+    if(upstreamRevoked)return true; // Latch even after another tab restores the bytes.
+    if(!upstreamBaseline || disposed)return false;
+    try {
+      if(UPSTREAM_KEYS.every((key,i)=>storage.getItem(key)===upstreamBaseline[i]))
+        return false;
+    } catch { /* Read failure must not permit a stale write. */ }
+    upstreamRevoked=true;
+    conflict=false;
+    resetPending=false;
+    render('upstream-revoked');
+    return true;
+  }
   function markConflict() {
     conflict=true;
     resetPending=false;
@@ -139,7 +168,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   // Loading another tab's checkpoint is always an explicit, read-only action.
   // If this tab has unsaved edits, require a second deliberate confirmation.
   function reviewLatestSaved() {
-    if(disposed || !conflict || mode!=='draft_preview')return false;
+    if(disposed || checkUpstream() || !conflict || mode!=='draft_preview')return false;
     if(unsavedInThisTab() && !conflictReloadPending) {
       conflictReloadPending=true;
       conflictReadError=false;
@@ -178,7 +207,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     return true;
   }
   function update(action,key) {
-    if(disposed || state.history.length>=MAX_ACTIONS || conflict || changedElsewhere())return;
+    if(disposed || checkUpstream() || state.history.length>=MAX_ACTIONS || conflict || changedElsewhere())return;
     resetPending=false;
     const next=dispatch(state,action,sources);
     // A repeated selection is not a new action: never rewrite a saved checkpoint.
@@ -199,7 +228,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       saveRecovered ? 'retry-save' : key);
   }
   function retrySave() {
-    if(disposed || !saveError || conflict || changedElsewhere())return false;
+    if(disposed || checkUpstream() || !saveError || conflict || changedElsewhere())return false;
     const result=persist(storage,mode,state,knownCheckpoint);
     if(result.conflict){markConflict();return false;}
     saveError=!result.ok;
@@ -209,7 +238,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     return !saveError;
   }
   function retryRead() {
-    if(disposed || !readFailure || state.history.length>0 || mode!=='draft_preview')
+    if(disposed || checkUpstream() || !readFailure || state.history.length>0 || mode!=='draft_preview')
       return false;
     const latest=load(storage,mode);
     if(latest.unreadable) {
@@ -238,7 +267,7 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     return true;
   }
   function reset() {
-    if(disposed || conflict || changedElsewhere())return false;
+    if(disposed || checkUpstream() || conflict || changedElsewhere())return false;
     // Do not show a fresh draft if the old checkpoint still survives on disk.
     // Otherwise reloading the page can silently resurrect a supposedly cleared draft.
     if(mode==='draft_preview' && storage) {
@@ -313,8 +342,19 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
       limitWarning=warning;
       box.append(warning);
     }
+    let upstreamAlert=null;
+    if(upstreamRevoked) {
+      const warning=el('p','e04-upstream-warning',
+        'Earlier chapter progress changed in another tab. Episode 04 is paused. ' +
+        'Your draft has not been deleted or overwritten. Finish Riverside and Market Lane ' +
+        'again if needed, then reopen this preview to verify both chapters.');
+      warning.setAttribute('role','alert');
+      warning.tabIndex=-1;
+      upstreamAlert=warning;
+      box.append(warning);
+    }
     let conflictAlert=null;
-    if(conflict) {
+    if(conflict && !upstreamRevoked) {
       const warning=el('div','e04-save-warning');
       warning.setAttribute('role','alert');
       warning.tabIndex=-1;
@@ -380,14 +420,14 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
         key==='chronicle-undated' || key==='back-to-timeline-start' ||
         key.startsWith('review-card:') || key.startsWith('back-to-review:');
       const conflictAction=['review-latest','keep-conflict','confirm-conflict'].includes(key);
-      b.disabled=disabled || (conflict && !reviewOnly && !conflictAction) ||
+      b.disabled=disabled || upstreamRevoked || (conflict && !reviewOnly && !conflictAction) ||
         (atLimit && !['reset','keep-reset','confirm-reset','retry-save',
           'review-latest','keep-conflict','confirm-conflict',
           'chronicle-sources','back-to-chronicle',
           'chronicle-undated','back-to-timeline-start'].includes(key));
       b.dataset.focusKey=key;
       if(pressed!==null)b.setAttribute('aria-pressed',String(pressed));
-      b.addEventListener('click',()=>action());
+      b.addEventListener('click',()=>{if(!checkUpstream())action();});
       parent.append(b);
       focusables.set(key,b);
       return b;
@@ -643,6 +683,10 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     }
     box.append(footer);
     root.replaceChildren(box);
+    if(focusKey==='upstream-revoked' && upstreamAlert) {
+      upstreamAlert.focus();
+      return;
+    }
     if(resumeAvailable) {
       let nextKey=null;
       if(state.phase==='completed')resumeTarget=completionStatus;
@@ -730,8 +774,15 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   const view=doc.defaultView;
   const onExternalStorage=event=>{
     if(disposed || mode!=='draft_preview' || !storage ||
-       (event.key!==DRAFT_KEY && event.key!==null) ||
        (event.storageArea && event.storageArea!==storage))return;
+    if(upstreamBaseline && (event.key===null || UPSTREAM_KEYS.includes(event.key))) {
+      upstreamRevoked=true; // Includes A→B→A changes: never auto-unlock a stale tab.
+      conflict=false;
+      resetPending=false;
+      render('upstream-revoked');
+      return;
+    }
+    if(upstreamRevoked || (event.key!==DRAFT_KEY && event.key!==null))return;
     markConflict();
   };
   if(storage && view?.addEventListener)view.addEventListener('storage',onExternalStorage);
