@@ -19,6 +19,8 @@ jobs:
           python-version: '3.12'
       - name: Verify original production and runtime image integrity
         run: python3 scripts/verify_production_assets.py
+      - name: Exercise MN4 remote archive guards (synthetic, no deployment)
+        run: python3 -m unittest discover -s tests -p 'test_mn4_release_archive.py' -v
       - name: Compile exact locked episode text
         run: npm run build
       - name: Verify core behavior and saves
