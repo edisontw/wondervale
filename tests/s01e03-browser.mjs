@@ -90,6 +90,29 @@ try{
  {const {ctx,p}=await open(1366,900,true,false);await click(p,'begin');await drain(p);const before=await p.locator('[data-load-visual="books"]').boundingBox();await click(p,'walk');await p.waitForTimeout(250);const during=await p.locator('[data-load-visual="books"]').boundingBox();assert.ok(before&&during&&Math.abs(during.x-before.x)>1,'book visual moves with Milo');await p.waitForTimeout(350);await p.reload();await p.locator('[data-a="resume"]').waitFor();await click(p,'resume');await p.locator('[data-a="deliver"]').waitFor();assert.equal(await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).position,KEY),'B');await ctx.close();report.push({label:'mid-route reload and carried visual continue legal remaining edges',pass:true});}
  // Storage refusal remains playable and reset failure is reported truthfully.
  {const {ctx,p}=await open();await p.evaluate(()=>{Storage.prototype.setItem=()=>{throw Error('denied');};});await click(p,'begin');await p.getByRole('alert').getByText('Saving is unavailable.',{exact:false}).waitFor();await drain(p);await ctx.close();report.push({label:'storage refusal',pass:true});}
+ // Same-tab prerequisite removal must fail closed before the next E03 action/save.
+ {const {ctx,p}=await open(568,320);await click(p,'begin');
+  const saved=await p.evaluate(k=>localStorage.getItem(k),KEY);
+  await p.evaluate(k=>localStorage.removeItem(k),E02);
+  await click(p,'next');await p.getByRole('heading',{name:'Riverside progress changed'}).waitFor();
+  assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),saved,'same-tab reset must not overwrite E03');
+  assert.equal(await p.locator('[data-a="next"]').count(),0,'canonical controls paused');
+  await ctx.close();report.push({label:'same-tab E02 reset locks E03 before action and preserves checkpoint',pass:true});}
+ // A different tab can reset/restore E02 during an actual moving E03 edge.
+ // Latch the change even if original E02 bytes are restored (ABA).
+ {const {ctx,p}=await open(1366,900,true,false);await click(p,'begin');await drain(p);
+  const sibling=await ctx.newPage();await sibling.goto(base+'/e03/');
+  await click(p,'walk');await p.waitForTimeout(70);
+  const saved=await p.evaluate(k=>localStorage.getItem(k),KEY);
+  await sibling.evaluate(k=>localStorage.removeItem(k),E02);
+  await p.getByRole('heading',{name:'Riverside progress changed'}).waitFor();
+  await sibling.evaluate(({E02,prior})=>localStorage.setItem(E02,JSON.stringify(prior)),{E02,prior});
+  await p.waitForTimeout(400);
+  assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),saved,'moving tab must not commit after E02 reset/restore');
+  assert.equal(await p.getByRole('heading',{name:'Riverside progress changed'}).count(),1,'ABA restore must not unlock stale tab');
+  await p.reload();await p.locator('[data-a="resume"]').waitFor();
+  assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),saved,'fresh mount can resume preserved E03 checkpoint');
+  await ctx.close();report.push({label:'two-tab E02 reset/restore interrupts moving E03 and latches until reload',pass:true});}
  assert.deepEqual(errors,[]);
  console.log(`PASS E03 browser: ${report.length} result records`);
 }finally{await writeFile('test-results/e03-browser-report.json',JSON.stringify({report,errors},null,2));await browser.close();}
