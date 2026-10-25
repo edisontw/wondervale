@@ -1,0 +1,105 @@
+// E03 diagnostic: cart wheel/handle screen-space rotation sensitivity.
+// This is NOT real cart yaw, swept-wheel clearance, walkable-floor proof or Gate 3 approval.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {places,route} from '../engine/s01e03.mjs';
+import {actorHeight,spriteBox} from '../e03/perspective.mjs';
+
+const cargo=[[430,628],[580,579],[730,580],[785,620],[860,640],
+ [880,689],[785,727],[600,728],[490,709],[430,688]];
+const view={width:132,height:72};
+const ink={left:9,right:106,top:18,bottom:66}; // handle + cart body + both wheels
+const axle={x:69,y:58}; // midpoint between SVG wheel centers 47 and 91
+const sampleStep=3,angles=[-30,-15,0,15,30];
+function percent(rule,name){
+ const m=rule.match(new RegExp('(?:^|;)\\s*'+name+'\\s*:\\s*(-?\\d+(?:\\.\\d+)?)%\\s*(?:;|$)'));
+ assert.ok(m,'Cart '+name+' must remain an explicit percent');
+ return Number(m[1])/100;
+}
+function inside([x,y],poly){
+ let hit=false;
+ for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+  const [ax,ay]=poly[i],[bx,by]=poly[j];
+  if((ay>y)!==(by>y)&&x<(bx-ax)*(y-ay)/(by-ay)+ax)hit=!hit;
+ }
+ return hit;
+}
+function cross(a,b,c){return(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);}
+function overlap(a,b){
+ if(a.some(p=>inside(p,b))||b.some(p=>inside(p,a)))return true;
+ for(let i=0;i<a.length;i++)for(let j=0;j<b.length;j++){
+  const p=a[i],q=a[(i+1)%a.length],r=b[j],s=b[(j+1)%b.length];
+  if(cross(p,q,r)*cross(p,q,s)<0&&cross(r,s,p)*cross(r,s,q)<0)return true;
+ }
+ return false;
+}
+function cartPoly([x,y],style,degrees=0){
+ const h=actorHeight([x,y]),w=h*spriteBox.width/spriteBox.height;
+ const left=x-w/2+style.left*w,top=y-h+style.top*h;
+ const sw=style.width*w,sh=style.height*h;
+ const px=ix=>left+ix/view.width*sw,py=iy=>top+iy/view.height*sh;
+ const cx=px(axle.x),cy=py(axle.y),a=degrees*Math.PI/180;
+ const co=Math.cos(a),si=Math.sin(a);
+ return [[ink.left,ink.top],[ink.right,ink.top],[ink.right,ink.bottom],[ink.left,ink.bottom]]
+  .map(([ix,iy])=>{const dx=px(ix)-cx,dy=py(iy)-cy;
+   return[cx+dx*co-dy*si,cy+dx*si+dy*co];});
+}
+function scan(path,style,degrees){
+ return path.slice(1).map((to,k)=>{
+  const from=path[k],a=places[from],b=places[to];
+  const count=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/sampleStep);
+  let hits=0,first=null;
+  for(let j=0;j<=count;j++){
+   const t=j/count,foot=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+   if(overlap(cartPoly(foot,style,degrees),cargo)){
+    hits++;
+    if(first===null)first=foot.map(v=>Number(v.toFixed(1)));
+   }
+  }
+  return{edge:from+'-'+to,samples:count+1,overlapSamples:hits,firstOverlapFoot:first};
+ });
+}
+test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN',async()=>{
+ const css=await readFile('e03/style.css','utf8');
+ const rules=[...css.matchAll(/\.load-cart\s*\{([^}]+)\}/g)];
+ assert.ok(rules.length,'Cart CSS missing');
+ const style=Object.fromEntries(['left','top','width','height']
+  .map(k=>[k,percent(rules.at(-1)[1],k)]));
+ const ui=await readFile('e03/main.mjs','utf8');
+ assert.ok(ui.includes('viewBox="0 0 132 72"'),'Update model when SVG viewBox changes');
+ for(const x of [47,91])assert.ok(ui.includes('circle cx="'+x+'" cy="58" r="8"'),
+  'Update model when SVG wheel coordinates change');
+ const forward=route('H','T','tea_cart');
+ assert.ok(forward.length>=6,'Expected L-only tea-cart route');
+ assert.deepEqual(route('T','H','tea_cart'),forward.toReversed(),
+  'Cart reverse path must use the same legal L edges');
+ const probes=Object.fromEntries(angles.map(deg=>[String(deg),scan(forward,style,deg)]));
+ const reverse=scan(forward.toReversed(),style,0);
+ assert.ok(probes['0'].every(e=>e.overlapSamples===0),
+  'Preserve existing screen-aligned cargo clearance');
+ assert.ok(reverse.every(e=>e.overlapSamples===0),
+  'Preserve existing reverse screen-aligned cargo clearance');
+ const findings=angles.filter(a=>a!==0).flatMap(deg=>probes[String(deg)]
+  .filter(s=>s.overlapSamples>0).map(s=>({degrees:deg,...s})));
+ const report={
+  baseline:'Current E03 CSS, SVG and L route in 1672x941 source pixels',
+  approval:'DIAGNOSTIC ONLY; not actual cart yaw, physical clearance or Gate 3 PASS',
+  model:{sourceSize:[1672,941],style,svgViewBox:view,inkBounds:ink,
+   wheelAxle:axle,stepPx:sampleStep,
+   rotation:'hypothetical image-plane rotation around wheel midpoint; runtime cart does not yaw'},
+  forward,screenAlignedForward:probes['0'],screenAlignedReverse:reverse,
+  rotatedProbes:probes,findings,
+  limitations:[
+   'Only approximate painted unloading cargo polygon; not a verified solid obstacle map.',
+   'Runtime cart stays screen-left of Milo even during reverse travel.',
+   'Image-plane rotation is sensitivity testing, not physical top-down yaw or swept wheel tracks.',
+   'Pavement, rails, plants, perspective and real phone rendering remain unverified.',
+   'A rotated overlap is potential conflict, not a proven physical collision.'
+  ]
+ };
+ await mkdir('test-results',{recursive:true});
+ await writeFile('test-results/e03-cart-turn-sensitivity.json',JSON.stringify(report,null,2)+'\n');
+ console.log('E03 cart rotation DIAGNOSTIC: '+findings.length+
+  ' angle/edge potential conflicts; real wheel/road/device clearance OPEN.');
+});
