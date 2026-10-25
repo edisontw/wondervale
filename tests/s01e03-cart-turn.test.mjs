@@ -53,7 +53,7 @@ function scan(path,style,degrees){
   let hits=0,first=null;
   for(let j=0;j<=count;j++){
    const t=j/count,foot=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
-   if(overlap(cartPoly(foot,style,degrees),obstacle)){
+   if(overlap(cartPoly(foot,style,degrees),cargo)){
     hits++;
     if(first===null)first=foot.map(v=>Number(v.toFixed(1)));
    }
@@ -79,7 +79,7 @@ function scanCornerTransitions(path,style,peakDegrees,obstacle=cargo){
    const foot=[pivot[0]+(neighbor[0]-pivot[0])*reach*fraction/segmentLength,
                pivot[1]+(neighbor[1]-pivot[1])*reach*fraction/segmentLength];
    const degrees=peakDegrees*(1-fraction);
-   if(overlap(cartPoly(foot,style,degrees),cargo)){
+   if(overlap(cartPoly(foot,style,degrees),obstacle)){
     hits++;
     if(first===null)first={foot:foot.map(v=>Number(v.toFixed(1))),
      degrees:Number(degrees.toFixed(1))};
