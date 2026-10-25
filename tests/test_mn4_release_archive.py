@@ -186,23 +186,23 @@ class ReleaseRollbackGuards(unittest.TestCase):
                          mutation=e03_mutation if key == "e03" else None)
         fake_curl = root / "bin/curl"
         fake_curl.write_text(
-            "#!/usr/bin/env python3\\n"
-            "import os, pathlib, sys, urllib.parse\\n"
-            "args = sys.argv[1:]\\n"
-            "url = next(x for x in args if x.startswith('https://'))\\n"
-            "path = urllib.parse.urlparse(url).path\\n"
-            "if path == os.environ.get('FAKE_FAIL_PATH'): sys.exit(22)\\n"
-            "relative = path.lstrip('/')\\n"
-            "if path.endswith('/'): relative += 'index.html'\\n"
-            "src = (pathlib.Path(os.environ['FAKE_ROOT']) / 'current').resolve() / relative\\n"
-            "if not src.is_file(): sys.exit(22)\\n"
-            "pathlib.Path(args[args.index('-o') + 1]).write_bytes(src.read_bytes())\\n"
+            "#!/usr/bin/env python3\n"
+            "import os, pathlib, sys, urllib.parse\n"
+            "args = sys.argv[1:]\n"
+            "url = next(x for x in args if x.startswith('https://'))\n"
+            "path = urllib.parse.urlparse(url).path\n"
+            "if path == os.environ.get('FAKE_FAIL_PATH'): sys.exit(22)\n"
+            "relative = path.lstrip('/')\n"
+            "if path.endswith('/'): relative += 'index.html'\n"
+            "src = (pathlib.Path(os.environ['FAKE_ROOT']) / 'current').resolve() / relative\n"
+            "if not src.is_file(): sys.exit(22)\n"
+            "pathlib.Path(args[args.index('-o') + 1]).write_bytes(src.read_bytes())\n"
         )
         fake_curl.chmod(0o755)
-        marker = "root=/srv/wondervale\\n"
+        marker = "root=/srv/wondervale\n"
         self.assertEqual(SCRIPT.count(marker), 1, "Unexpected remote root declaration")
         test_script = root / "isolated-deploy.sh"
-        test_script.write_text(SCRIPT.replace(marker, f"root={root}\\n"))
+        test_script.write_text(SCRIPT.replace(marker, f"root={root}\n"))
         env = dict(__import__("os").environ)
         env["PATH"] = str(root / "bin") + __import__("os").pathsep + env["PATH"]
         env["FAKE_ROOT"] = str(root)
