@@ -63,6 +63,12 @@ function scan(path,style,degrees){
 }
 // Probe continuous hypothetical screen-plane pivots at each real L corner.
 // Runtime cart does not rotate: this is not physical wheel/road clearance.
+// Signed centerline deflection is measurable, but is NOT cart wheel yaw.
+function signedRouteTurn(before,pivot,after){
+ const ix=pivot[0]-before[0],iy=pivot[1]-before[1];
+ const ox=after[0]-pivot[0],oy=after[1]-pivot[1];
+ return Math.atan2(ix*oy-iy*ox,ix*ox+iy*oy)*180/Math.PI;
+}
 function scanCornerTransitions(path,style,peakDegrees,obstacle=cargo){
  const corners=[];
  for(let i=1;i<path.length-1;i++){
@@ -70,6 +76,8 @@ function scanCornerTransitions(path,style,peakDegrees,obstacle=cargo){
   const incoming=Math.hypot(pivot[0]-before[0],pivot[1]-before[1]);
   const outgoing=Math.hypot(after[0]-pivot[0],after[1]-pivot[1]);
   assert.ok(incoming>0&&outgoing>0,'Route contains a zero-length turn');
+  const routeTurnDegrees=signedRouteTurn(before,pivot,after);
+  const cornerPeak=peakDegrees==='route-heading'?routeTurnDegrees:peakDegrees;
   const reach=Math.min(45,incoming/2,outgoing/2);
   const steps=Math.max(1,Math.ceil(reach/sampleStep));
   let hits=0,first=null;
@@ -78,7 +86,7 @@ function scanCornerTransitions(path,style,peakDegrees,obstacle=cargo){
    const neighbor=j<0?before:after,segmentLength=j<0?incoming:outgoing;
    const foot=[pivot[0]+(neighbor[0]-pivot[0])*reach*fraction/segmentLength,
                pivot[1]+(neighbor[1]-pivot[1])*reach*fraction/segmentLength];
-   const degrees=peakDegrees*(1-fraction);
+   const degrees=cornerPeak*(1-fraction);
    if(overlap(cartPoly(foot,style,degrees),obstacle)){
     hits++;
     if(first===null)first={foot:foot.map(v=>Number(v.toFixed(1))),
@@ -86,7 +94,9 @@ function scanCornerTransitions(path,style,peakDegrees,obstacle=cargo){
    }
   }
   corners.push({from:path[i-1],corner:path[i],to:path[i+1],
-   peakDegrees,samples:steps*2+1,overlapSamples:hits,firstOverlap:first});
+   peakDegrees:cornerPeak,routeTurnDegrees:Number(routeTurnDegrees.toFixed(2)),
+   exceedsFixed30Probe:Math.abs(routeTurnDegrees)>30,
+   samples:steps*2+1,overlapSamples:hits,firstOverlap:first});
  }
  return corners;
 }
@@ -125,6 +135,17 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
   reverse:Object.fromEntries([-30,0,30].map(deg=>[String(deg),
    scanCornerTransitions(forward.toReversed(),style,deg,reviewCargo.polygons[0])]))
  };
+ // A direction-aware image-plane probe uses each real graph corner's signed
+ // centerline deflection, rather than treating arbitrary +/-30 degrees as
+ // the measured turn. It still does not simulate true cart orientation.
+ const routeHeadingProbes={
+  forward:scanCornerTransitions(forward,style,'route-heading'),
+  reverse:scanCornerTransitions(forward.toReversed(),style,'route-heading')
+ };
+ const reviewHeadingProbes={
+  forward:scanCornerTransitions(forward,style,'route-heading',reviewCargo.polygons[0]),
+  reverse:scanCornerTransitions(forward.toReversed(),style,'route-heading',reviewCargo.polygons[0])
+ };
  const reviewMaskComparison=['forward','reverse'].flatMap(direction=>
   [-30,0,30].flatMap(deg=>cornerProbes[direction][String(deg)]
    ? cornerProbes[direction][String(deg)].map((original,i)=>({
@@ -133,6 +154,10 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
       reviewMaskSamples:reviewMaskCornerProbes[direction][String(deg)][i].overlapSamples,
       firstReviewMaskOverlap:reviewMaskCornerProbes[direction][String(deg)][i].firstOverlap
      })) : []));
+ assert.ok(Object.values(routeHeadingProbes).every(corners=>corners.length===forward.length-2&&
+  corners.every(c=>Number.isFinite(c.routeTurnDegrees)&&Number.isFinite(c.peakDegrees)&&
+   c.samples>=3&&c.overlapSamples<=c.samples)),
+  'Measured graph turn angles and sensitivity samples must be finite in both directions');
  assert.ok(reviewMaskComparison.every(r=>Number.isInteger(r.reviewMaskSamples)),
   'Review-mask comparison must cover both directions and every corner');
  assert.ok(Object.values(reviewMaskCornerProbes).every(byAngle=>byAngle['0'].every(c=>c.overlapSamples===0)),
@@ -154,11 +179,14 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
    wheelAxle:axle,stepPx:sampleStep,
    rotation:'hypothetical image-plane rotation around wheel midpoint; runtime cart does not yaw'},
   forward,screenAlignedForward:probes['0'],screenAlignedReverse:reverse,
-  rotatedProbes:probes,cornerProbes,reviewMaskCornerProbes,reviewMaskComparison,findings,
+  rotatedProbes:probes,cornerProbes,reviewMaskCornerProbes,reviewMaskComparison,
+  routeHeadingProbes,reviewHeadingProbes,findings,
   limitations:[
    'Both the hand-estimated cargo silhouette and route-depth unloading foreground mask are review-only; neither is a verified solid obstacle or floor map.',
    'Differences between these masks show sensitivity to geometry assumptions; do not claim a safe front/east turn from either.',
    'Runtime cart stays screen-left of Milo even during reverse travel.',
+   'Route-heading signed deflection is derived from the L graph; it is NOT actual wheel steering, cart yaw, or a turn-radius measurement.',
+   'The fixed +/-30 degree probe can miss larger graph deflections; routeHeadingProbes explicitly reports those corners.',
    'Image-plane rotation and corner pivots are sensitivity tests, not physical top-down yaw or swept wheel tracks.',
    'Pavement, rails, plants, perspective and real phone rendering remain unverified.',
    'A rotated overlap is potential conflict, not a proven physical collision.'
