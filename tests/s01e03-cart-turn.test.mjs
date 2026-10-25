@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {places,route} from '../engine/s01e03.mjs';
 import {actorHeight,spriteBox} from '../e03/perspective.mjs';
+import {occluders} from '../e03/route-depth.mjs';
 
 const cargo=[[430,628],[580,579],[730,580],[785,620],[860,640],
  [880,689],[785,727],[600,728],[490,709],[430,688]];
@@ -52,7 +53,7 @@ function scan(path,style,degrees){
   let hits=0,first=null;
   for(let j=0;j<=count;j++){
    const t=j/count,foot=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
-   if(overlap(cartPoly(foot,style,degrees),cargo)){
+   if(overlap(cartPoly(foot,style,degrees),obstacle)){
     hits++;
     if(first===null)first=foot.map(v=>Number(v.toFixed(1)));
    }
@@ -62,7 +63,7 @@ function scan(path,style,degrees){
 }
 // Probe continuous hypothetical screen-plane pivots at each real L corner.
 // Runtime cart does not rotate: this is not physical wheel/road clearance.
-function scanCornerTransitions(path,style,peakDegrees){
+function scanCornerTransitions(path,style,peakDegrees,obstacle=cargo){
  const corners=[];
  for(let i=1;i<path.length-1;i++){
   const before=places[path[i-1]],pivot=places[path[i]],after=places[path[i+1]];
@@ -113,6 +114,29 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
   reverse:Object.fromEntries([-30,30].map(deg=>[String(deg),
    scanCornerTransitions(forward.toReversed(),style,deg)]))
  };
+ // Cross-check the earlier hand-estimated cargo silhouette against the
+ // existing source-coordinate *review-only* foreground mask. A difference
+ // is evidence of model uncertainty, not proof of passable pavement.
+ const reviewCargo=occluders.find(o=>o.id==='unloading-cargo');
+ assert.ok(reviewCargo?.polygons.length,'Unloading foreground review mask missing');
+ const reviewMaskCornerProbes={
+  forward:Object.fromEntries([-30,0,30].map(deg=>[String(deg),
+   scanCornerTransitions(forward,style,deg,reviewCargo.polygons[0])])),
+  reverse:Object.fromEntries([-30,0,30].map(deg=>[String(deg),
+   scanCornerTransitions(forward.toReversed(),style,deg,reviewCargo.polygons[0])]))
+ };
+ const reviewMaskComparison=['forward','reverse'].flatMap(direction=>
+  [-30,0,30].flatMap(deg=>cornerProbes[direction][String(deg)]
+   ? cornerProbes[direction][String(deg)].map((original,i)=>({
+      direction,corner:original.corner,degrees:deg,
+      estimatedCargoSamples:original.overlapSamples,
+      reviewMaskSamples:reviewMaskCornerProbes[direction][String(deg)][i].overlapSamples,
+      firstReviewMaskOverlap:reviewMaskCornerProbes[direction][String(deg)][i].firstOverlap
+     })) : []));
+ assert.ok(reviewMaskComparison.every(r=>Number.isInteger(r.reviewMaskSamples)),
+  'Review-mask comparison must cover both directions and every corner');
+ assert.ok(Object.values(reviewMaskCornerProbes).every(byAngle=>byAngle['0'].every(c=>c.overlapSamples===0)),
+  'Unrotated cart must retain zero review-mask overlap');
  assert.ok(Object.values(cornerProbes).every(byAngle=>Object.values(byAngle)
   .every(corners=>corners.length===forward.length-2&&
    corners.every(c=>c.samples>=3&&c.overlapSamples<=c.samples))),
@@ -130,9 +154,10 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
    wheelAxle:axle,stepPx:sampleStep,
    rotation:'hypothetical image-plane rotation around wheel midpoint; runtime cart does not yaw'},
   forward,screenAlignedForward:probes['0'],screenAlignedReverse:reverse,
-  rotatedProbes:probes,cornerProbes,findings,
+  rotatedProbes:probes,cornerProbes,reviewMaskCornerProbes,reviewMaskComparison,findings,
   limitations:[
-   'Only approximate painted unloading cargo polygon; not a verified solid obstacle map.',
+   'Both the hand-estimated cargo silhouette and route-depth unloading foreground mask are review-only; neither is a verified solid obstacle or floor map.',
+   'Differences between these masks show sensitivity to geometry assumptions; do not claim a safe front/east turn from either.',
    'Runtime cart stays screen-left of Milo even during reverse travel.',
    'Image-plane rotation and corner pivots are sensitivity tests, not physical top-down yaw or swept wheel tracks.',
    'Pavement, rails, plants, perspective and real phone rendering remain unverified.',
@@ -141,6 +166,8 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
  };
  await mkdir('test-results',{recursive:true});
  await writeFile('test-results/e03-cart-turn-sensitivity.json',JSON.stringify(report,null,2)+'\n');
+ const reviewHits=reviewMaskComparison.filter(x=>x.reviewMaskSamples>0);
  console.log('E03 cart rotation DIAGNOSTIC: '+findings.length+
-  ' angle/edge potential conflicts; real wheel/road/device clearance OPEN.');
+  ' estimated-cargo angle/edge conflicts; '+reviewHits.length+
+  ' review-mask corner conflicts; real wheel/road/device clearance OPEN.');
 });
