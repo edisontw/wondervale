@@ -1389,3 +1389,36 @@ test('E03/E02 reset blocks E04 re-entry without deleting its draft; restored pre
   assert.equal(storage.getItem(e03Key),e03Bytes);
   resumed.destroy();
 });
+
+test('an already-open E04 draft pauses after E03/E02 reset without deleting or writing its checkpoint',()=>{
+  for(const removedKey of ['wondervale-s01e03-progress-v1','wondervale-s01e02-progress-v1']) {
+    const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+    const e02=realE02(),e03=realE03();
+    const e02Bytes=JSON.stringify(e02),e03Bytes=JSON.stringify(e03);
+    storage.setItem('wondervale-s01e02-progress-v1',e02Bytes);
+    storage.setItem('wondervale-s01e03-progress-v1',e03Bytes);
+    const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage});
+    assert.equal(ui.ready,true);
+    tap(root,'memory:station');
+    const saved=storage.getItem(DRAFT_KEY),state=ui.getState();
+    storage.removeItem(removedKey);
+    tap(root,'memory:garden'); // No fake DOM storage event: preflight must catch it.
+    assert.match(root.allText(),/Earlier chapter progress changed/);
+    assert.equal(findClass(root,'e04-upstream-warning').attributes.role,'alert');
+    assert.equal(root.find('memory:garden').disabled,true);
+    assert.deepEqual(ui.getState(),state,'A stale action must not change E04 history');
+    assert.equal(storage.getItem(DRAFT_KEY),saved,'A stale action must not write E04');
+    assert.equal(ui.reset(),false,'A stale reset must not erase E04');
+    assert.equal(storage.getItem(DRAFT_KEY),saved);
+    storage.setItem(removedKey,removedKey.includes('e02')?e02Bytes:e03Bytes);
+    assert.equal(root.find('memory:garden').disabled,true,
+      'Restoring bytes cannot silently unlock the already-open tab');
+    ui.destroy();
+    const freshRoot=doc.root();
+    const resumed=mountE04Authoring(freshRoot,{pack,e02Save:e02,e03Save:e03,storage});
+    assert.equal(resumed.ready,true,'A fresh verified mount can resume');
+    assert.deepEqual(resumed.getState(),state);
+    assert.equal(storage.getItem(DRAFT_KEY),saved,'Re-entry must be read-only');
+    resumed.destroy();
+  }
+});
