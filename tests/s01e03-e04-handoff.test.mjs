@@ -117,3 +117,65 @@ test('E04 authoring preview requires verified earlier chapters and has an isolat
   assert.equal(JSON.stringify(e02),before02,'E04 operations must never modify E02');
   assert.equal(JSON.stringify(e03),before03,'E04 operations must never modify E03');
 });
+
+test('E03 witness-order variants keep E04 draft Chronicle attributed, reset-isolated and noncanonical',()=>{
+  // SYNTHETIC E04 cards are QA fixtures, never approved historical evidence.
+  const pack={
+    id:'cross-episode-test-only',revision:'test-r1',
+    cards:[
+      {id:'old-map',label:'Old map',kind:'map'},
+      {id:'new-map',label:'New map',kind:'map'},
+      {id:'undated-photo',label:'Undated photo',kind:'photo'}
+    ],
+    clues:[{id:'revision-note',label:'Revision note',
+      text:'This test-only record refers to a later map update.'}],
+    relativeOrder:{earlier:'old-map',later:'new-map',basis:'revision-note'}
+  };
+  const e02=payload02(realE02()),before02=JSON.stringify(e02);
+  for(const order of [['station','garden'],['garden','station']]) {
+    const e03=payload03(realE03(order)),before03=JSON.stringify(e03);
+    const gate=openE04Authoring(e02,e03,pack);
+    assert.equal(gate.ready,true);
+    assert.equal(gate.sources.station,EVENTS03.station);
+    assert.equal(gate.sources.garden,EVENTS03.garden);
+    assert.ok(e03.ledger.includes(gate.sources.station));
+    assert.ok(e03.ledger.includes(gate.sources.garden));
+    let draft=gate.session;
+    for(const which of order)
+      draft=draftAction(draft,{type:'inspect-memory',which},pack);
+    for(const card of pack.cards)
+      draft=draftAction(draft,{type:'inspect-card',id:card.id},pack);
+    draft=draftAction(draft,{type:'inspect-clue',id:'revision-note'},pack);
+    for(const [id,slot] of [
+      ['old-map','earlier'],['new-map','later'],['undated-photo','uncertain']
+    ])draft=draftAction(draft,{type:'place',id,slot},pack);
+    draft=draftAction(draft,{type:'explain',
+      kind:'different_times',basis:'revision-note'},pack);
+    draft=draftAction(draft,{type:'chronicle'},pack);
+    draft=draftAction(draft,{type:'finish'},pack);
+    assert.equal(draft.phase,'completed');
+    const projection=chronicleProjection(draft,pack);
+    assert.deepEqual(projection.sourceAttribution,[
+      {source:'Market coordinator',memory:'station',verified:false},
+      {source:'Garden resident',memory:'garden',verified:false}
+    ]);
+    assert.deepEqual(projection.uncertain,['undated-photo']);
+    assert.deepEqual(projection.relativeOrder,{earlier:'old-map',later:'new-map'});
+    assert.deepEqual(projection.canonicalEvents,[],
+      'Synthetic chronology cannot create canonical episode events');
+    const saved=draftPayload(draft);
+    assert.deepEqual(openE04Authoring(e02,e03,pack,saved).session,draft,
+      'Returning draft replays exactly, regardless of witness order');
+    assert.equal(openE04Authoring(e02,null,pack,saved).ready,false,
+      'Resetting E03 must revoke entry even with a complete E04 draft');
+    assert.equal(openE04Authoring(null,e03,pack,saved).ready,false,
+      'Resetting E02 must revoke entry even with a complete E04 draft');
+    const reset=resetE04Authoring(e02,e03,pack);
+    assert.equal(reset.session.history.length,0);
+    assert.equal(reset.session.phase,'sources');
+    assert.equal(JSON.stringify(e03),before03,
+      'E04 draft, restore and reset must not rewrite E03 witness ledger');
+    assert.equal(JSON.stringify(e02),before02,
+      'E04 draft, restore and reset must not rewrite E02');
+  }
+});
