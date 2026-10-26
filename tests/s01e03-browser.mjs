@@ -118,6 +118,28 @@ try{
   if(w<900){await click(p,'parent');assert.equal(await p.locator('.parent').isVisible(),true);await click(p,'parent');}
   await ctx.close();
  }
+ // Tea and flowers need independent scene/CTA evidence outside the 568px full-story run.
+ // Keep the accepted route/story unchanged; exercise the real packaged Chromium UI.
+ for(const [w,h] of [[320,740],[1366,900]]){
+  const {ctx,p}=await open(w,h);
+  await click(p,'begin');await drain(p);
+  await arrive(p);await click(p,'deliver');await drain(p);await destinationGone(p);await hub(p);
+  await deliveryGuidance(p,'Tea cart','Tea stall','Push to tea stall');
+  await markerWithinScene(p,`${w}x${h} tea`);await geometry(p,`${w}x${h} tea controls`);
+  await p.screenshot({path:`test-results/e03-${w}x${h}-tea-guide.png`});
+  await arrive(p);await markerClearOfMilo(p,`${w}x${h} tea arrival`);
+  await click(p,'deliver');await drain(p);await destinationGone(p);
+  await click(p,'compare-open');await click(p,'inspect-S');
+  await p.locator('.inspection img').evaluate(img=>img.decode());
+  await click(p,'observe');await click(p,'reason-steps');await drain(p);await hub(p);
+  await deliveryGuidance(p,'Flowers','Garden','Walk to garden');
+  await markerWithinScene(p,`${w}x${h} flowers`);await geometry(p,`${w}x${h} flower controls`);
+  await p.screenshot({path:`test-results/e03-${w}x${h}-flower-guide.png`});
+  await arrive(p);await markerClearOfMilo(p,`${w}x${h} flower arrival`);
+  await click(p,'deliver');await drain(p);await destinationGone(p);
+  await ctx.close();
+  report.push({label:`${w}x${h} tea/flowers cross-viewport markers and post-delivery cleanup`,pass:true});
+ }
  // Real motion interruption is restored at the last completed graph node.
  {const {ctx,p}=await open(1366,900,true,false);await click(p,'begin');await drain(p);const before=await p.locator('[data-load-visual="books"]').boundingBox();await click(p,'walk');await p.waitForTimeout(250);const during=await p.locator('[data-load-visual="books"]').boundingBox();assert.ok(before&&during&&Math.abs(during.x-before.x)>1,'book visual moves with Milo');await p.waitForTimeout(350);await p.reload();await p.locator('[data-a="resume"]').waitFor();await click(p,'resume');await p.locator('[data-a="deliver"]').waitFor();assert.equal(await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).position,KEY),'B');await ctx.close();report.push({label:'mid-route reload and carried visual continue legal remaining edges',pass:true});}
  // Storage refusal remains playable and reset failure is reported truthfully.
