@@ -25,6 +25,13 @@ async function deliveryGuidance(p,item,destination,cta){
  const fit=await p.locator('.delivery-guide').evaluate(el=>{const a=el.getBoundingClientRect(),w=el.closest('.world').getBoundingClientRect();return {visible:a.width>0&&a.height>0,left:a.left,right:a.right,worldLeft:w.left,worldRight:w.right};});
  assert.ok(fit.visible&&fit.left>=fit.worldLeft-1&&fit.right<=fit.worldRight+1,'delivery guide remains in scene');
 }
+async function markerWithinScene(p,label){
+ const fit=await p.locator('.delivery-marker').evaluate(el=>{
+  const a=el.getBoundingClientRect(),w=el.closest('.world').getBoundingClientRect();
+  return {width:a.width,height:a.height,left:a.left,right:a.right,top:a.top,bottom:a.bottom,worldLeft:w.left,worldRight:w.right,worldTop:w.top,worldBottom:w.bottom};
+ });
+ assert.ok(fit.width>0&&fit.height>0&&fit.left>=fit.worldLeft-1&&fit.right<=fit.worldRight+1&&fit.top>=fit.worldTop-1&&fit.bottom<=fit.worldBottom+1,label+' destination marker stays inside the scene');
+}
 async function markerClearOfMilo(p,label){
  const positions=await p.evaluate(()=>{
   const marker=document.querySelector('.delivery-marker')?.getBoundingClientRect();
@@ -107,7 +114,7 @@ try{
  await click(p,'exit-replay');await click(p,'reset-open');await click(p,'reset-confirm');await p.reload();assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),null);assert.deepEqual(await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02}),originals);
  await ctx.close();report.push({label:'full touch story, reload, repeat, replay and isolated reset',pass:true});
  for(const [w,h]of [[320,740],[360,780],[390,844],[430,932],[667,375],[1366,900],[1024,600]]){
-  const {ctx,p}=await open(w,h);await click(p,'begin');await perspectiveFoot(p,`${w}x${h} opening`);await geometry(p,`${w}x${h} dialogue`);await drain(p);await deliveryGuidance(p,'Books','Bookstall','Go to bookstall');await geometry(p,`${w}x${h} controls`);await p.screenshot({path:`test-results/e03-${w}x${h}.png`});
+  const {ctx,p}=await open(w,h);await click(p,'begin');await perspectiveFoot(p,`${w}x${h} opening`);await geometry(p,`${w}x${h} dialogue`);await drain(p);await deliveryGuidance(p,'Books','Bookstall','Go to bookstall');await markerWithinScene(p,`${w}x${h} books`);await geometry(p,`${w}x${h} controls`);await p.screenshot({path:`test-results/e03-${w}x${h}.png`});
   if(w<900){await click(p,'parent');assert.equal(await p.locator('.parent').isVisible(),true);await click(p,'parent');}
   await ctx.close();
  }
