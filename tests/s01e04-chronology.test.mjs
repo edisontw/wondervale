@@ -1,4 +1,7 @@
 import test from 'node:test';
+import {openE04Authoring,resetE04Authoring} from '../engine/s01e04-authoring-entry.mjs';
+import {fresh as fresh02, dispatch as dispatch02, payload as payload02} from '../engine/s01e02.mjs';
+import {fresh as fresh03, dispatch as dispatch03, payload as payload03, EVENTS as EVENTS03} from '../engine/s01e03.mjs';
 import assert from 'node:assert/strict';
 import {
   VERSION,DRAFT_KEY,MAX_ACTIONS,validateSourcePack,fresh,dispatch,timelineSupported,
@@ -147,4 +150,103 @@ test('source content changes invalidate stale drafts even with unchanged revisio
   }
   assert.deepEqual(restoreDraft(draftPayload(saved),testPack),saved,
     'The unchanged source pack must still resume normally');
+});
+
+// E03→E04 canonical handoff integration, isolated to E04's non-deploy test scope.
+const drain02 = s => {while(s.queue.length) s=dispatch02(s,{type:'next'}); return s;};
+const drain03 = s => {while(s.queue.length) s=dispatch03(s,{type:'next'}); return s;};
+const move03 = s => {while(s.travel.length) s=dispatch03(s,{type:'step',to:s.travel[0]}); return s;};
+
+function realE02() {
+  let s=fresh02();
+  const a=x=>{s=drain02(dispatch02(s,x));};
+  a({type:'begin'});
+  a({type:'go',to:'oldStones'}); a({type:'inspect',what:'stones'}); a({type:'close-detail'});
+  a({type:'go',to:'lookoutView'}); a({type:'inspect',what:'gap'}); a({type:'close-detail'});
+  a({type:'notebook'}); a({type:'fact',choice:'gap'}); a({type:'revision',choice:'A'});
+  a({type:'market'}); a({type:'chronicle'}); a({type:'finish'});
+  assert.equal(s.phase,'completed','fixture must be a genuine completed E02');
+  return s;
+}
+function realE03(order=['station','garden'], finish=true) {
+  let s=drain03(dispatch03(fresh03(),{type:'begin',ready:true}));
+  const deliver=state=>drain03(dispatch03(move03(dispatch03(state,{type:'take-route',route:'L'})),{type:'deliver'}));
+  s=deliver(s);
+  s=drain03(move03(dispatch03(s,{type:'return'})));
+  s=deliver(s);
+  s=dispatch03(s,{type:'inspect',what:'S'});
+  s=drain03(dispatch03(s,{type:'compare',reason:'steps'}));
+  s=drain03(move03(dispatch03(s,{type:'return'})));
+  s=deliver(s);
+  s=drain03(move03(dispatch03(s,{type:'return'})));
+  for(const kind of ['WALK','CART'])s=drain03(dispatch03(s,{type:'sign',kind,to:'L'}));
+  s=move03(dispatch03(s,{type:'go-glyph'}));
+  s=drain03(dispatch03(s,{type:'glyph'}));
+  for(const which of order)s=drain03(dispatch03(s,{type:'memory',which}));
+  s=drain03(dispatch03(s,{type:'chronicle'}));
+  if(finish)s=dispatch03(s,{type:'finish'});
+  return s;
+}
+
+
+test('E03 witness-order variants keep E04 draft Chronicle attributed, reset-isolated and noncanonical',()=>{
+  // SYNTHETIC E04 cards are QA fixtures, never approved historical evidence.
+  const pack={
+    id:'cross-episode-test-only',revision:'test-r1',
+    cards:[
+      {id:'old-map',label:'Old map',kind:'map'},
+      {id:'new-map',label:'New map',kind:'map'},
+      {id:'undated-photo',label:'Undated photo',kind:'photo'}
+    ],
+    clues:[{id:'revision-note',label:'Revision note',
+      text:'This test-only record refers to a later map update.'}],
+    relativeOrder:{earlier:'old-map',later:'new-map',basis:'revision-note'}
+  };
+  const e02=payload02(realE02()),before02=JSON.stringify(e02);
+  for(const order of [['station','garden'],['garden','station']]) {
+    const e03=payload03(realE03(order)),before03=JSON.stringify(e03);
+    const gate=openE04Authoring(e02,e03,pack);
+    assert.equal(gate.ready,true);
+    assert.equal(gate.sources.station,EVENTS03.station);
+    assert.equal(gate.sources.garden,EVENTS03.garden);
+    assert.ok(e03.ledger.includes(gate.sources.station));
+    assert.ok(e03.ledger.includes(gate.sources.garden));
+    let draft=gate.session;
+    for(const which of order)
+      draft=dispatch(draft,{type:'inspect-memory',which},pack);
+    for(const card of pack.cards)
+      draft=dispatch(draft,{type:'inspect-card',id:card.id},pack);
+    draft=dispatch(draft,{type:'inspect-clue',id:'revision-note'},pack);
+    for(const [id,slot] of [
+      ['old-map','earlier'],['new-map','later'],['undated-photo','uncertain']
+    ])draft=dispatch(draft,{type:'place',id,slot},pack);
+    draft=dispatch(draft,{type:'explain',
+      kind:'different_times',basis:'revision-note'},pack);
+    draft=dispatch(draft,{type:'chronicle'},pack);
+    draft=dispatch(draft,{type:'finish'},pack);
+    assert.equal(draft.phase,'completed');
+    const projection=chronicleProjection(draft,pack);
+    assert.deepEqual(projection.sourceAttribution,[
+      {source:'Market coordinator',memory:'station',verified:false},
+      {source:'Garden resident',memory:'garden',verified:false}
+    ]);
+    assert.deepEqual(projection.uncertain,['undated-photo']);
+    assert.deepEqual(projection.relativeOrder,{earlier:'old-map',later:'new-map'});
+    assert.deepEqual(projection.canonicalEvents,[],
+      'Synthetic chronology cannot create canonical episode events');
+    const saved=draftPayload(draft);
+    assert.deepEqual(openE04Authoring(e02,e03,pack,saved).session,draft,
+      'Returning draft replays exactly, regardless of witness order');
+    assert.equal(openE04Authoring(e02,null,pack,saved).ready,false,
+      'Resetting E03 must revoke entry even with a complete E04 draft');
+    assert.equal(openE04Authoring(null,e03,pack,saved).ready,false,
+      'Resetting E02 must revoke entry even with a complete E04 draft');
+    const reset=resetE04Authoring(e02,e03,pack);
+    assert.equal(reset.session.history.length,0);
+    assert.equal(reset.session.phase,'sources');
+    assert.equal(JSON.stringify(e03),before03,
+      'E04 draft, restore and reset must not rewrite E03 witness ledger');
+    assert.equal(JSON.stringify(e02),before02,
+      'E04 draft, restore and reset must not rewrite E02');
+  }
 });
