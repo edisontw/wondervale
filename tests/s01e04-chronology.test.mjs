@@ -250,3 +250,48 @@ test('E03 witness-order variants keep E04 draft Chronicle attributed, reset-isol
       'E04 draft, restore and reset must not rewrite E02');
   }
 });
+
+
+test('E04 handoff rejects unfinished or forged Market saves and preserves an interrupted draft',()=>{
+  // Real E02/E03 canonical replay, but only synthetic E04 source cards.
+  const e02=payload02(realE02());
+  const complete03=payload03(realE03());
+  const unfinished03=payload03(realE03(['garden','station'],false));
+  assert.equal(unfinished03.phase,'chronicle');
+  assert.equal(unfinished03.chronicleSeen,true);
+  for(const id of [EVENTS03.station,EVENTS03.garden,EVENTS03.glyph])
+    assert.ok(unfinished03.ledger.includes(id),'The memories and marker exist before finish');
+  assert.ok(!unfinished03.ledger.includes(EVENTS03.finish),
+    'The canonical episode-completed event must not exist before finish');
+
+  const interrupted=dispatch(fresh(testPack),{type:'inspect-memory',which:'station'},testPack);
+  const saved=draftPayload(interrupted),savedBytes=JSON.stringify(saved);
+  const forgedFinish=structuredClone(unfinished03);
+  forgedFinish.phase='completed';
+  forgedFinish.achieved.push(EVENTS03.finish);
+  forgedFinish.ledger.push(EVENTS03.finish);
+  const alteredLedger=structuredClone(complete03);
+  alteredLedger.ledger=alteredLedger.ledger.filter(id=>id!==EVENTS03.garden);
+  const replayOnly=structuredClone(complete03);
+  replayOnly.mode='historical_replay';
+  const invalidHistory=structuredClone(complete03);
+  invalidHistory.history.push({type:'invented-finish'});
+
+  for(const [label,checkpoint] of [
+    ['not finished',unfinished03],['forged finish',forgedFinish],
+    ['missing witness ledger',alteredLedger],['replay-only',replayOnly],
+    ['invalid history',invalidHistory]
+  ]) {
+    const denied=openE04Authoring(e02,checkpoint,testPack,saved);
+    assert.equal(denied.ready,false,label+' must not unlock E04');
+    assert.equal(denied.session,null,label+' must not consume or mutate the draft');
+    assert.equal(JSON.stringify(saved),savedBytes,label+' must preserve saved E04 bytes');
+  }
+  const restored=openE04Authoring(e02,complete03,testPack,saved);
+  assert.equal(restored.ready,true,'A genuine completed replay may resume');
+  assert.deepEqual(restored.session,interrupted,'The interrupted draft resumes unchanged');
+  assert.equal(JSON.stringify(e02),JSON.stringify(payload02(realE02())),
+    'E04 gate must not modify Riverside');
+  assert.deepEqual(complete03,payload03(realE03()),
+    'E04 gate must not modify Market Lane');
+});
