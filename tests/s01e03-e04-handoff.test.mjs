@@ -1,5 +1,5 @@
 import {openE04Authoring,resetE04Authoring} from '../engine/s01e04-authoring-entry.mjs';
-import {dispatch as draftAction,draftPayload} from '../engine/s01e04-chronology.mjs';
+import {dispatch as draftAction,draftPayload,chronicleProjection} from '../engine/s01e04-chronology.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fresh as fresh02, dispatch as dispatch02, payload as payload02, EVENTS as EVENTS02} from '../engine/s01e02.mjs';
