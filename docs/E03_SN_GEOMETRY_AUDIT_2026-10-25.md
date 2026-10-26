@@ -47,3 +47,30 @@ These are qualitative **source-image observations**, not pixel-classified floor 
 3. Only after source-image floor/occlusion evidence, register **distinct walkable polygons + legal edges** and test book traversal in both directions, cargo restrictions, interruption, replay and 320/568/desktop Chromium screenshots. Preserve E01/E02/C01, existing E03 Owner PASS content, and E04 engineering-only status.
 
 **Evidence not obtained in this audit:** decoded source-image pavement inspection, actual Chromium scene screenshots, real-phone/Owner geometry acceptance, and MN4 deployment. No S/N gameplay changes or source-media changes are authorized by this document.
+
+## 2026-10-27 — bounded S/N repair handoff (source geometry, **not** floor approval)
+
+At `main` `c43c8ce525ce918412f21a09a55a635130421ec4`, cross-checked the immutable 1672×941 `M1_ROUTE_REVIEW.json` candidate feet against the **current runtime's** `e03/perspective.mjs` projection (`actorHeight`, `spriteBox.width/height = 490/990`). The numbers below are the **full on-screen sprite bounding-box width**, not shoe width, required pavement width, physical centimeters, or a collision clearance. They quantify why a centerline-only art repair is insufficient; the actual shoe/body/no-go silhouette and legal floor remain unregistered.
+
+| Review station | Source foot (x,y) | Projected sprite height × width (image px) | Smallest missing evidence |
+| --- | --- | --- | --- |
+| S stair/terrace approach | (475,445) | 123.8 × 61.3 | Stair tread/landing with correctly grounded shoes |
+| S parapet entrance | (805,215) | 88.8 × 43.9 | Foot-aligned floor **behind** foreground railing |
+| S sign-pier crossing | (1060,230) | 91.0 × 45.1 | Walkable terrace around solid pier, with separate occlusion |
+| S market-side exit | (1432,305) | 102.5 × 50.7 | Continuous re-entry from upper level to destination |
+| N cargo-rear entrance | (530,609) | 148.8 × 73.7 | Continuous cobbled strip distinct from crate silhouettes |
+| N cargo-rear middle | (735,597) | 147.0 × 72.8 | Body/foot envelope and load clearance behind cargo |
+| N arcade pier | (1020,490) | 130.7 × 64.7 | Solid pier boundary versus foreground cover, grounded turn |
+| N arcade-side exit | (1180,560) | 141.4 × 70.0 | Visible or justified level-floor transition to market side |
+
+**Minimal repair units; review windows, not approved redraw coordinates:**
+
+1. **S upper terrace, approximately x=735–1300/y=190–350:** identify the *actual* shoe-grounded terrace floor **behind** parapet/ivy, the stair landing and market-side exit. The current candidate (805,215)→(1260,275) follows parapet/stone-pier paint and is **rejected as a legal centerline**. A review mask may hide the torso, but it cannot create missing floor. Keep original stair and shop topology.
+2. **N cargo-rear, approximately x=500–900/y=550–740:** show a continuous level cobblestone band from the left approach to the arcade, with a full actor/load clearance review and cargo designated **solid** or **foreground-only** per region. Existing 4→5 and 6→7 cargo-mask intersections remain unresolved. Preserve recognizable unloading obstruction and do not turn this into a cart lane.
+3. **N arcade entrance/exit, approximately x=930–1220/y=350–570:** mark the pier/jamb as physical no-go versus intended front-layer occlusion; trace legal feet through the covered passage to both sides. Existing (965,525)→(1020,490)→(1150,480) is **not** accepted merely because a sprite can be drawn behind the pier.
+
+**Owner/art input needed before implementation:** on the **approved raster** (or a separately approved *localized* correction), supply a continuous foot-centerline **and its left/right walkable boundaries** for S and N, grounded entrances/exits, solid/no-go polygons distinct from painterly occlusion polygons, and an explicit yes/no for body/load clearance at the listed pinch points. If any segment lacks defensible floor, leave it unavailable rather than joining graph nodes or masking/teleporting actors. The projected widths above are **diagnostic references only**, not invented acceptance thresholds.
+
+**Engineering acceptance after that input:** add only proven S/N graph edges; validate books and flowers both directions, cart prohibition, obstacle and exit rejection, interruption/reload/replay and E02 continuity; run Node plus actual Chromium at 320×740, 568×320 and 1366×900, with E01/E02 regression. Record actual Owner-device review separately. Until then keep `restricted.S/N` inspection-only and `clearance:null`; do not change approved M0/M1 image bytes, C01, story, E01/E02, or release/E04.
+
+**This pass:** numeric projection calculated directly from the checked-in formula and route JSON; **Node test suite, Chromium, physical device and MN4 deployment NOT RUN**. No art, gameplay, save, package, or CI workflow was changed. This is an actionable `blocked-design` handoff, **not** Gate 3 PASS.
