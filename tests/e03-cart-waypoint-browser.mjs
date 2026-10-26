@@ -89,14 +89,11 @@ try {
   // #109: sample the *actual runtime RAF motion*, not only static injected waypoints.
   // A moving cart remains screen-aligned: these screenshots/traces are visual
   // evidence only, NOT real wheel steering, pavement, collision or Gate 3 PASS.
-  let reverse=drainEngine(dispatchE03(s,{type:'deliver'}));
-  assert.equal(reverse.phase,'return-tea');
-  reverse=dispatchE03(reverse,{type:'return'});
-  assert.equal(reverse.position,'T');
-  assert.equal(reverse.travel[0],'ramp0');
+  // The canonical tea delivery clears the cart at T before the return
+  // phase. Reverse cart travel exists as a graph/diagnostic probe, not a
+  // playable loaded-cart return. Do not fabricate a saved reverse cart state.
   const motionCases=[
-   {direction:'forward',checkpoint:checkpoints.front,end:'T',turns:['east','ramp0']},
-   {direction:'reverse',checkpoint:payloadE03(reverse),end:'H',turns:['ramp0','east']}
+   {direction:'forward',checkpoint:checkpoints.front,end:'T',turns:['east','ramp0']}
   ];
   for(const [w,h] of [[320,740],[568,320],[1366,900]]){
    const {ctx,p}=await open(w,h,true);
