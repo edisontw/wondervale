@@ -13,8 +13,8 @@ for(const a of [{type:'begin'},{type:'go',to:'oldStones'},{type:'inspect',what:'
 assert.equal(prior.phase,'completed');
 await mkdir('test-results',{recursive:true});
 const browser=await chromium.launch({headless:true}),report=[],errors=[];
-async function open(width=1366,height=900){
- const ctx=await browser.newContext({viewport:{width,height},hasTouch:width<900,isMobile:width<900,reducedMotion:'reduce'});
+async function open(width=1366,height=900,motion=false){
+ const ctx=await browser.newContext({viewport:{width,height},hasTouch:width<900,isMobile:width<900,reducedMotion:motion?'no-preference':'reduce'});
  const p=await ctx.newPage();p.on('pageerror',e=>errors.push(e.message));await p.goto(base+'/e03/');
  await p.evaluate(({prior,E02,E01})=>{localStorage.setItem(E02,JSON.stringify(prior));localStorage.setItem(E01,'{"sentinel":"E01 unchanged"}');},{prior,E02,E01});await p.reload();
  return {ctx,p};
@@ -85,10 +85,83 @@ try {
     'Cart screenshot checkpoints must not modify E01/E02 saves');
    await ctx.close();
   }
+
+  // #109: sample the *actual runtime RAF motion*, not only static injected waypoints.
+  // A moving cart remains screen-aligned: these screenshots/traces are visual
+  // evidence only, NOT real wheel steering, pavement, collision or Gate 3 PASS.
+  // The canonical tea delivery clears the cart at T before the return
+  // phase. Reverse cart travel exists as a graph/diagnostic probe, not a
+  // playable loaded-cart return. Do not fabricate a saved reverse cart state.
+  const motionCases=[
+   {direction:'forward',checkpoint:checkpoints.front,end:'T',turns:['east','ramp0']}
+  ];
+  for(const [w,h] of [[320,740],[568,320],[1366,900]]){
+   const {ctx,p}=await open(w,h,true);
+   await ctx.addInitScript(({KEY})=>{
+    const checkpoint=sessionStorage.getItem('__e03_cart_motion_fixture');
+    if(checkpoint)localStorage.setItem(KEY,checkpoint);
+   },{KEY});
+   const before=await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02});
+   for(const sample of motionCases){
+    await p.evaluate(checkpoint=>sessionStorage.setItem('__e03_cart_motion_fixture',JSON.stringify(checkpoint)),sample.checkpoint);
+    await p.reload();
+    await p.locator('.backdrop').evaluate(img=>img.decode());
+    assert.equal(await p.locator('[data-load-visual="cart"]').count(),1);
+    assert.equal(await p.locator('[data-a="resume"]').count(),1);
+    await p.evaluate(()=>{
+     window.__e03CartTrace=[];
+     window.__e03CartSampling=true;
+     const capture=()=>{
+      if(!window.__e03CartSampling)return;
+      const actor=document.querySelector('[data-actor="MILO"]');
+      const cart=document.querySelector('[data-load-visual="cart"]');
+      const world=document.querySelector('.world');
+      if(actor&&cart&&world){
+       const r=cart.getBoundingClientRect(),wr=world.getBoundingClientRect();
+       const x=parseFloat(actor.style.getPropertyValue('--x'))*16.72;
+       const y=parseFloat(actor.dataset.footY);
+       window.__e03CartTrace.push({x,y,cartLeft:r.left,cartRight:r.right,
+        cartWidth:r.width,cartHeight:r.height,worldLeft:wr.left,worldRight:wr.right});
+      }
+      requestAnimationFrame(capture);
+     };
+     requestAnimationFrame(capture);
+     document.querySelector('[data-a="resume"]').click();
+    });
+    for(const turn of sample.turns){
+     const [tx,ty]=placesE03[turn];
+     await p.waitForFunction(([x,y])=>window.__e03CartTrace?.some(v=>
+      Math.abs(v.x-x)<16&&Math.abs(v.y-y)<16),[tx,ty],{timeout:15000});
+     await p.screenshot({path:'test-results/e03-cart-live-'+w+'x'+h+'-'+sample.direction+'-'+turn+'.png',fullPage:true});
+    }
+    await p.waitForFunction(({KEY,end})=>{
+     const saved=JSON.parse(localStorage.getItem(KEY)||'null');
+     return saved?.position===end&&saved?.travel?.length===0;
+    },{KEY,end:sample.end},{timeout:18000});
+    const trace=await p.evaluate(()=>{window.__e03CartSampling=false;return window.__e03CartTrace;});
+    assert.ok(trace.length>=12,'Expected multiple real animation frames at '+w+'x'+h+' '+sample.direction);
+    assert.ok(trace.every(v=>Number.isFinite(v.x)&&Number.isFinite(v.y)&&v.cartWidth>0&&v.cartHeight>0),
+     'Actual cart/actor motion must remain finite');
+    assert.ok(trace.every(v=>v.cartLeft>=v.worldLeft-2&&v.cartRight<=v.worldRight+2),
+     'Actual moving cart must not clip outside the scene at '+w+'x'+h+' '+sample.direction);
+    for(const turn of sample.turns){
+     const [tx,ty]=placesE03[turn];
+     assert.ok(trace.some(v=>Math.abs(v.x-tx)<16&&Math.abs(v.y-ty)<16),
+      'Missing live cart turn '+turn+' '+sample.direction);
+    }
+    report.push({label:'cart-live-'+w+'x'+h+'-'+sample.direction,
+     frames:trace.length,turns:sample.turns,
+     xRange:[Math.min(...trace.map(v=>v.x)),Math.max(...trace.map(v=>v.x))],
+     physicalClearance:'OPEN: actual screen-space RAF; no yaw, wheel tracks, or certified pavement'});
+   }
+   assert.deepEqual(await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02}),before,
+    'Live cart motion must not alter E01/E02 saves');
+   await ctx.close();
+  }
  }
 
  assert.deepEqual(errors,[]);
- console.log('PASS E03 cart static waypoint browser diagnostic: '+report.length+' records; physical clearance OPEN');
+ console.log('PASS E03 cart static + live motion browser diagnostic: '+report.length+' records; physical clearance OPEN');
 } finally {
  await writeFile('test-results/e03-cart-waypoint-report.json',JSON.stringify({report,errors},null,2));
  await browser.close();
