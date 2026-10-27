@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {posix} from 'node:path';
 import {fresh,dispatch,restore,payload,route,places,edges,EVENTS,has,e02Ready} from '../engine/s01e03.mjs';
 import {fresh as fresh02,dispatch as dispatch02} from '../engine/s01e02.mjs';
 const drain=s=>{while(s.queue.length)s=dispatch(s,{type:'next'});return s;};
@@ -70,4 +71,32 @@ test('glyph, memories, signs and finish cannot be awarded early; wrong arrows re
 });
 test('all queued line IDs exist in exact 79-line compilation and no exclusive stop dialogue on L-first',()=>{
  const c=JSON.parse(readFileSync(new URL('../public/s01e03.json',import.meta.url)));assert.equal(c.count,79);let s=dispatch(fresh(),{type:'begin',ready:true});for(const key of s.queue)assert.ok(c.lines[key]);const completed=whole();assert.ok(completed.history.every(a=>a.type!=='take-route'||a.route==='L'));
+});
+
+
+test('isolated E03 release allowlist contains its complete static relative JS module graph',()=>{
+ // A missing import once let a preview CI pass while the released page would 404.
+ // Check the actual Python packaging FILES rather than hardcoding expected imports.
+ const source=readFileSync(new URL('../scripts/package_e03.py',import.meta.url),'utf8');
+ const match=source.match(/^FILES\s*=\s*\[([\s\S]*?)^\]/m);
+ assert.ok(match,'E03 packager must declare its explicit allowlist');
+ const allowed=new Set([...match[1].matchAll(/'([^']+)'/g)].map(x=>x[1]));
+ const checked=new Set();
+ const inspect=file=>{
+  assert.ok(allowed.has(file),'E03 missing shipped JS module: '+file);
+  if(checked.has(file))return;
+  checked.add(file);
+  const code=readFileSync(new URL('../'+file,import.meta.url),'utf8');
+  const direct=[...code.matchAll(/^\s*(?:import|export)\s+(?:[^'"\n]*?\bfrom\s*)?['"](\.[^'"]+)['"]/gm)];
+  const dynamic=[...code.matchAll(/\bimport\s*\(\s*['"](\.[^'"]+)['"]\s*\)/g)];
+  for(const dep of [...direct,...dynamic]){
+   const target=posix.normalize(posix.join(posix.dirname(file),dep[1]));
+   assert.ok(!target.startsWith('..')&&!target.startsWith('/'),'E03 import must stay inside release: '+target);
+   inspect(target);
+  }
+ };
+ inspect('e03/main.mjs');
+ assert.ok(checked.has('e03/perspective.mjs'));
+ assert.ok(checked.has('engine/s01e03.mjs'));
+ assert.ok(checked.has('engine/s01e02.mjs'),'E02 prerequisite must be included');
 });
