@@ -78,7 +78,7 @@ test('isolated E03 release allowlist contains its complete static relative JS mo
  // A missing import once let a preview CI pass while the released page would 404.
  // Check the actual Python packaging FILES rather than hardcoding expected imports.
  const source=readFileSync(new URL('../scripts/package_e03.py',import.meta.url),'utf8');
- const match=source.match(/^FILES\s*=\s*\[([\s\S]*?)^\]/m);
+ const match=source.match(/^FILES\s*=\s*\[([\s\S]*?)\]/m);
  assert.ok(match,'E03 packager must declare its explicit allowlist');
  const allowed=new Set([...match[1].matchAll(/'([^']+)'/g)].map(x=>x[1]));
  const checked=new Set();
