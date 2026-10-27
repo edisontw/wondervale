@@ -2,7 +2,8 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fresh,dispatch,restore,payload,route,places,edges,EVENTS,has,e02Ready} from '../engine/s01e03.mjs';
-import {fresh as fresh02,dispatch as dispatch02} from '../engine/s01e02.mjs';
+import {e04Handoff} from '../engine/s01e04-handoff.mjs';
+import {fresh as fresh02,dispatch as dispatch02,payload as payload02} from '../engine/s01e02.mjs';
 const drain=s=>{while(s.queue.length)s=dispatch(s,{type:'next'});return s;};
 export function realE02(){let s=fresh02();const a=x=>{s=drain02(dispatch02(s,x));};const drain02=s=>{while(s.queue.length)s=dispatch02(s,{type:'next'});return s;};a({type:'begin'});a({type:'go',to:'oldStones'});a({type:'inspect',what:'stones'});a({type:'close-detail'});a({type:'go',to:'lookoutView'});a({type:'inspect',what:'gap'});a({type:'close-detail'});a({type:'notebook'});a({type:'fact',choice:'gap'});a({type:'revision',choice:'A'});a({type:'market'});a({type:'chronicle'});a({type:'finish'});return s;}
 export function move(s){while(s.travel.length)s=dispatch(s,{type:'step',to:s.travel[0]});return s;}
@@ -70,4 +71,35 @@ test('glyph, memories, signs and finish cannot be awarded early; wrong arrows re
 });
 test('all queued line IDs exist in exact 79-line compilation and no exclusive stop dialogue on L-first',()=>{
  const c=JSON.parse(readFileSync(new URL('../public/s01e03.json',import.meta.url)));assert.equal(c.count,79);let s=dispatch(fresh(),{type:'begin',ready:true});for(const key of s.queue)assert.ok(c.lines[key]);const completed=whole();assert.ok(completed.history.every(a=>a.type!=='take-route'||a.route==='L'));
+});
+
+test('trying unavailable S/N paths stays on verified L edges and returns to the start without advancing deliveries',()=>{
+ const start=drain(dispatch(fresh(),{type:'begin',ready:true}));
+ for(const which of ['S','N']){
+  const lookout=which==='S'?'bend':'fork';
+  const expected=[...route('H',lookout,start.load).slice(1),...route(lookout,'H',start.load).slice(1)];
+  let s=dispatch(start,{type:'try-route',route:which});
+  const visited=[];
+  while(s.travel.length){const to=s.travel[0],from=s.position;
+   assert.ok(edges.some(e=>(e.a===from&&e.b===to)||(e.b===from&&e.a===to)),'only an existing graph edge');
+   visited.push(to);s=dispatch(s,{type:'step',to});
+  }
+  assert.deepEqual(visited,expected);
+  assert.equal(s.position,'H');assert.equal(s.phase,'books');assert.equal(s.load,'books');
+  assert.deepEqual(s.ledger,[]);assert.equal(s.travelEnd,null);
+  assert.match(s.feedback,/Back at the start/);
+  assert.deepEqual(restore(payload(s)),s,'save replay retains the round trip');
+  assert.ok(!visited.includes('arch'),'do not enter unverified arcade');
+  assert.equal(deliver(s).phase,'return-books','normal play can continue');
+ }
+ const legacy=dispatch(start,{type:'take-route',route:'S'});
+ assert.equal(legacy.travel.length,0,'legacy route-action saves remain non-moving');
+ assert.deepEqual(restore(payload(legacy)),legacy,'backward save replay remains valid');
+});
+
+test('E04 handoff accepts only completed, saved canonical E03 state',()=>{
+ const e02=payload02(realE02()),completed=whole();
+ assert.equal(e04Handoff(e02,payload(completed)).ready,true);
+ assert.equal(e04Handoff(e02,payload(whole('development_preview'))).ready,false);
+ assert.equal(e04Handoff(e02,payload(drain(dispatch(fresh(),{type:'begin',ready:true})))).ready,false);
 });
