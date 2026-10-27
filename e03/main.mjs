@@ -55,7 +55,7 @@ function world(){const camera=ui.focus??(state.position==='F');const scale=camer
 function caption(){if(!state.queue.length)return '';const l=line();return `<section class="caption" aria-label="Story dialogue"><div class="portrait">${art(l.speaker,true)}</div><div><div class="speaker">${names[l.speaker]}</div><p data-line="${l.id}" aria-live="polite">${esc(l.text)}</p></div><div class="caption-actions">${button('Continue','next',true)}${button('Listen','listen',false,'aria-label="Listen to this line"')}</div></section>`;}
 function toolbar(){if(state.queue.length)return '';let b='';
  if(state.travel.length)b=button(ui.moving?'Walking…':'Continue walking','resume',true,ui.moving?'disabled':'');
- else if(['books','tea','flowers'].includes(state.phase))b=state.position===({books:'B',tea:'T',flowers:'F'})[state.phase]?button('Make delivery','deliver',true):button('Walk outer lane','walk',true)+button('Look at paths','paths')+button('Not sure yet','unsure');
+ else if(['books','tea','flowers'].includes(state.phase))b=state.position===({books:'B',tea:'T',flowers:'F'})[state.phase]?button('Make delivery','deliver',true):button('Walk outer lane','walk',true)+button('Try another route','paths')+button('Not sure yet','unsure');
  else if(state.phase.startsWith('return-'))b=button('Return for next load','return',true);
  else if(state.phase==='comparison')b=button('Compare paths','compare-open',true)+button('Not sure yet','unsure');
  else if(state.phase==='signs')b=button('Make route signs','signs-open',true);
