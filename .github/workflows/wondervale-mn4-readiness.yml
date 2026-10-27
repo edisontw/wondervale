@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
+      - uses: actions/checkout@v4
       - name: Observe public HTTPS and main-only opt-in status
         shell: bash
         env:
@@ -53,3 +54,21 @@ jobs:
               echo "::warning::Public $path returned HTTP $code (diagnostic only; no deploy was attempted)"
             fi
           done
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '| Served file | Compared against this checked-out commit |' >> "$GITHUB_STEP_SUMMARY"
+          echo '| --- | --- |' >> "$GITHUB_STEP_SUMMARY"
+          for path in e03/main.mjs engine/s01e03.mjs public/s01e03.json; do
+            tmp="$(mktemp)"
+            result='UNREACHABLE'
+            if curl --fail --silent --show-error --location --max-time 15 --output "$tmp" "https://wondervale.pepepow.net/$path" 2>/dev/null; then
+              if cmp -s -- "$path" "$tmp"; then
+                result='EXACT MATCH'
+              else
+                result='DIFFERS'
+              fi
+            fi
+            rm -f -- "$tmp"
+            echo "Public $path: $result vs checked-out $GITHUB_SHA"
+            echo "| \`$path\` | $result |" >> "$GITHUB_STEP_SUMMARY"
+          done
+          echo 'Matching three public source files is NOT a release SHA, historical rollback, or full-site acceptance proof.'
