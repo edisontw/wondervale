@@ -1,9 +1,18 @@
-import {KEY,E02_KEY,VERSION,BUILD,places,restricted,e02Ready,fresh,restore,payload,dispatch,has} from '../engine/s01e03.mjs';
+import {KEY,E02_KEY,VERSION,BUILD,EVENTS,places,restricted,e02Ready,fresh,restore,payload,dispatch,has} from '../engine/s01e03.mjs';
 import {actorHeight,spriteBox} from './perspective.mjs';
-import {e04Handoff} from '../engine/s01e04-handoff.mjs';
 const root=document.querySelector('#app');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const read=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
+ // Matches E04's read-only canonical handoff guard without packaging E04 prototype.
+ // Release allowlist deliberately includes ONLY E03 + its E02 prerequisite.
+ const chapter04Unlocked=()=>{
+  if(!e02Ready(read(E02_KEY)))return false;
+  const saved=restore(read(KEY));
+  return saved.mode==='canonical'&&saved.phase==='completed'&&saved.chronicleSeen&&
+   !saved.queue.length&&!saved.travel.length&&saved.after===null&&saved.travelEnd===null&&
+   Object.values(EVENTS).every(id=>saved.achieved.includes(id)&&saved.ledger.includes(id))&&
+   new Set(saved.ledger).size===saved.ledger.length;
+ };
 let content;
 try{const r=await fetch('../public/s01e03.json');if(!r.ok)throw Error();content=await r.json();if(content.version!==VERSION||content.build!==BUILD||content.count!==79)throw Error();}
 catch{root.innerHTML='<main class="sheet"><h1>Market Lane could not open</h1><p>Please reload to try again.</p><button onclick="location.reload()">Reload</button></main>';throw Error('E03 content unavailable');}
@@ -67,7 +76,7 @@ function chronicle(){return `<h2>Wondervale Chronicle</h2><p><strong>Today:</str
 function sheet(){
  if(state.phase==='preview')return `<section class="sheet"><span class="badge">Chapter 03 · Market Lane</span><h1>Three Deliveries, One Wrong Turn</h1><img class="preview-art" src="../public/art/s01e03-market-lane-m0.webp" alt="Market Lane"><p>Help Milo carry three different loads. Look at the paths, compare what fits, and help people find the way.</p><p class="small">The outer lane is open in this preview. Steps and arcade can be inspected; their connecting paths are not open in this preview.</p>${button('Begin Market Lane adventure','begin',true)}</section>`;
  if(state.phase==='chronicle')return `<section class="sheet">${chronicle()}${!state.queue.length?state.chronicleSeen?button('Finish this chapter','finish',true):button('Read the Chronicle','chronicle',true):''}</section>`;
- if(state.phase==='completed'){const next=state.mode==='canonical'?e04Handoff(read(E02_KEY),read(KEY)):null;return `<section class="sheet"><span class="badge">Chapter complete</span><h1>Different loads, different ways</h1><p>Market Lane remembers the new signs. Two memories are waiting to be explored.</p><div class="next-chapter" role="status"><strong>Chapter 04 · ${next?.ready?'Unlocked':'Not unlocked in this preview'}</strong><p>${next?.ready?'Your saved adventure is ready for the next story. Chapter 04 is still in production and cannot be played yet.':'Only a completed, saved adventure unlocks the next chapter.'}</p></div>${ui.review?chronicle():''}<div class="actions">${button(ui.review?'Close Chronicle':'Review Chronicle','review')}${button('Replay this chapter','replay')}${state.mode==='canonical'?button('Start E03 again','reset-open'):button('Return to saved chapter','exit-replay')}</div></section>`;}
+ if(state.phase==='completed'){const next=state.mode==='canonical'&&chapter04Unlocked();return `<section class="sheet"><span class="badge">Chapter complete</span><h1>Different loads, different ways</h1><p>Market Lane remembers the new signs. Two memories are waiting to be explored.</p><div class="next-chapter" role="status"><strong>Chapter 04 · ${next?'Unlocked':'Not unlocked in this preview'}</strong><p>${next?'Your saved adventure is ready for the next story. Chapter 04 is still in production and cannot be played yet.':'Only a completed, saved adventure unlocks the next chapter.'}</p></div>${ui.review?chronicle():''}<div class="actions">${button(ui.review?'Close Chronicle':'Review Chronicle','review')}${button('Replay this chapter','replay')}${state.mode==='canonical'?button('Start E03 again','reset-open'):button('Return to saved chapter','exit-replay')}</div></section>`;}
  return '';
 }
 function parent(){return `<aside class="parent" aria-label="Parent View"><h2>Parent View</h2><p>This chapter is about routes that fit different loads. Let the child look at the load and the paths, then choose.</p>${state.observed.some(x=>['S','N'].includes(x))&&['tea','comparison','return-tea','flowers','return-flowers','signs','glyph','memories','chronicle','completed'].includes(state.phase)?'<h3>After looking together</h3><p>Which route works for this delivery, and what makes it different from the others?</p><p>Who else might need the wider way?</p>':'<p class="small">A conversation cue appears after the child has seen the steps or narrow entrance with the cup delivery.</p>'}<p>All prompts are optional. The child makes the choice.</p><p class="small">${BUILD} · Captions and optional device Listen. Recorded audio deferred.</p></aside>`;}
