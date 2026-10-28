@@ -13,7 +13,7 @@ FILES = ['e03/index.html','e03/main.mjs','e03/style.css','e03/perspective.mjs','
          'public/s01e03.json','public/art/s01e03-market-lane-m0.webp',
          'public/art/trio-sprites.webp','public/art/glyph.svg']
 assert len(FILES) == len(set(FILES))
-integrity = {'episode':'s01e03','build':'20261019-e03-cart-clearance1',
+integrity = {'episode':'s01e03','build':'20261019-e03-active-guide1',
              'status':'ENGINEERING_PREVIEW_DEPLOYABLE_HIDDEN_ROUTES_OPEN', 'files':[]}
 # Do not recursively remove directories. Reject stale/unexpected release files.
 if OUT.exists():
