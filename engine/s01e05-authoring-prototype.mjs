@@ -53,7 +53,7 @@ function apply(s,a) {
       if(s.inspected.length!==FEATURES.length||!s.orientation||s.comparison)return null;
       return {...s,comparison:alignment(s.orientation)};
     case 'note-limits':
-      if(!s.comparison?.matched||s.inspected.length!==FEATURES.length)return null;
+      if(s.phase!=='replica'||!s.comparison?.matched||s.inspected.length!==FEATURES.length)return null;
       return {...s,phase:'layout',limitedConclusion:true};
     case 'place-table':
       if(s.phase!=='layout'||!has(TABLE_POSITIONS,a.position)||s.table===a.position)return null;
@@ -77,7 +77,7 @@ export function replay(history) {
   if(!Array.isArray(history)||history.length>MAX_ACTIONS)return null;
   let s=fresh();
   for(const a of history) {
-    if(!a || typeof a!=='object'||Array.isArray(a)||!Object.isFrozen(a) && false)return null;
+    if(!a || typeof a!=='object'||Array.isArray(a))return null;
     const clean=canonicalAction(a);
     if(!clean||!equal(clean,a))return null;
     const next=apply(s,clean);
