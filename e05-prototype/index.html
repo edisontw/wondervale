@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E05 authoring-only replica and Map Room test</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#17282b;background:#f3f1e9}
+*{box-sizing:border-box}body{margin:0}main{max-width:1050px;margin:auto;padding:1rem}
+header{background:#233f40;color:white;padding:1rem;border-radius:.7rem}header p{margin:.4rem 0}
+.notice{background:#fff1d5;color:#49350e;padding:.7rem;border-left:4px solid #9a6611;margin:1rem 0}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+section{background:white;border:1px solid #c9d1ca;border-radius:.7rem;padding:1rem;min-width:0}
+h1{font-size:1.5rem;margin:.2rem 0}h2{font-size:1.15rem;margin:.2rem 0 .6rem}
+p{line-height:1.4}button{min-height:44px;border:1px solid #355457;border-radius:.5rem;background:#fff;color:#173438;padding:.5rem .8rem;font:inherit;margin:.2rem;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px solid #d08522;outline-offset:2px}
+button[aria-pressed="true"]{background:#d5e7e1;border-width:2px}
+.controls{display:flex;flex-wrap:wrap;gap:.25rem}.diagram{position:relative;width:100%;max-width:420px;aspect-ratio:5/4;background:#e8eee9;border:2px solid #84978c;margin:.6rem auto;border-radius:.4rem}
+.marker{position:absolute;transform:translate(-50%,-50%);border-radius:50%;width:20px;height:20px;border:3px solid #263b43;background:white}
+.marker.copy{border-style:dashed;border-color:#a34d2a;background:#f9dcc7;width:24px;height:24px;opacity:.9}
+.marker b{position:absolute;left:23px;top:-9px;font-size:.72rem;white-space:nowrap}
+.legend{font-size:.85rem;color:#405453}
+.corridor{position:absolute;left:60%;top:0;width:40%;height:100%;background:repeating-linear-gradient(45deg,#b5d6cf,#b5d6cf 12px,#d8e8e4 12px,#d8e8e4 24px);border-left:2px dashed #306b62;display:grid;place-items:center}
+.table{position:absolute;top:25%;width:40%;height:50%;background:#bd8e61;border:3px solid #664529;display:grid;place-items:center}
+.table.near-wall{left:0}.table.across-walkway{left:60%}
+.status{background:#e8f0ee;border-radius:.4rem;padding:.8rem;min-height:3rem}
+small{color:#46595a}footer{padding:1rem 0}
+@media(max-width:720px){.layout{grid-template-columns:1fr}main{padding:.5rem}section{padding:.75rem}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>Old Station — E05 interaction laboratory</h1>
+<p>Replica alignment and Map Room footprint · noncanonical engineering preview</p></header>
+<div class="notice" role="note"><strong>Development geometry only.</strong> Not approved station evidence, real floor art, historical facts, E04 completion, production E05 progress or E06 unlock. No saves or audio. The original board is never altered.</div>
+<div class="layout">
+<section aria-labelledby="replica-heading">
+<h2 id="replica-heading">1. Look at two marks on the board</h2>
+<p>These dots are synthetic positions. Inspect both marks, then try the removable copy in either orientation.</p>
+<div id="replica-diagram" class="diagram" role="img" aria-label="Board marks and removable copy marks; text comparison below"></div>
+<div class="controls" id="replica-controls">
+<button data-type="inspect-feature" data-id="peg-pair">Look at peg pair</button>
+<button data-type="inspect-feature" data-id="worn-edge">Look at worn edge</button>
+<button data-type="place-replica" data-orientation="side-a">Try copy side A</button>
+<button data-type="place-replica" data-orientation="side-b">Try copy side B</button>
+<button data-type="compare-fit">Check both marks</button>
+<button data-type="note-limits">The copy fits; what do we know?</button>
+</div>
+<p class="legend">Solid circle = board mark; dashed circle = removable copy mark. The fit supports only a limited physical observation.</p>
+<p id="fit-status" class="status" aria-live="polite"></p>
+</section>
+<section aria-labelledby="layout-heading">
+<h2 id="layout-heading">2. Try a small Map Room</h2>
+<p>Place a table in the synthetic floor plan. Keep the public walkway clear.</p>
+<div id="room-diagram" class="diagram" role="img" aria-label="Synthetic foyer floor plan, public walkway and trial table placement"></div>
+<div class="controls" id="room-controls">
+<button data-type="place-table" data-position="across-walkway">Table across walkway</button>
+<button data-type="place-table" data-position="near-wall">Table near wall</button>
+<button data-type="confirm-room">Preview Map Room</button>
+</div>
+<p id="room-status" class="status" aria-live="polite"></p>
+</section>
+</div>
+<footer>
+<p id="summary" class="status" role="status" aria-live="polite"></p>
+<button id="reset">Restart this preview</button>
+<small>All choices remain in memory only. Refreshing the page starts a new preview. The E05 Gate 1 decisions and final art remain open.</small>
+</footer>
+</main>
+<script type="module" src="./main.mjs"></script>
+</body>
+</html>

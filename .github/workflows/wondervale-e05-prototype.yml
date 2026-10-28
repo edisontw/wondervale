@@ -1,0 +1,35 @@
+name: Wondervale E05 isolated authoring prototype
+on:
+  pull_request:
+    paths:
+      - 'engine/s01e05-authoring-prototype.mjs'
+      - 'tests/s01e05-authoring-prototype.test.mjs'
+      - 'e05-prototype/**'
+      - '.github/workflows/wondervale-e05-prototype.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'engine/s01e05-authoring-prototype.mjs'
+      - 'tests/s01e05-authoring-prototype.test.mjs'
+      - 'e05-prototype/**'
+      - '.github/workflows/wondervale-e05-prototype.yml'
+permissions:
+  contents: read
+jobs:
+  e05-authoring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check isolated E05 module and preview syntax
+        run: |
+          node --check engine/s01e05-authoring-prototype.mjs
+          node --check e05-prototype/main.mjs
+      - name: Test reversible fit, corridor geometry and preview isolation
+        run: node --test tests/s01e05-authoring-prototype.test.mjs
+      - name: Confirm E05 preview is not in production static packaging
+        run: |
+          if grep -R -n 's01e05-authoring-prototype\|e05-prototype' scripts/package_static.py scripts/compile_episode.py; then
+            echo 'E05 authoring prototype unexpectedly referenced by production packaging' >&2
+            exit 1
+          fi
