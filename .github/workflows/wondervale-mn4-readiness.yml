@@ -1,0 +1,74 @@
+name: Wondervale MN4 release gate read-only preflight
+
+on:
+  pull_request:
+    paths: ['.github/workflows/wondervale-mn4-readiness.yml']
+  push:
+    branches: [main]
+    paths: ['.github/workflows/wondervale-mn4-readiness.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Independent diagnostic. Not part of the E02/E03 release/deploy trigger list.
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - name: Observe public HTTPS and main-only opt-in status
+        shell: bash
+        env:
+          MN4_OPT_IN: ${{ vars.MN4_DEPLOY_ENABLED }}
+          GIT_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          echo 'READ-ONLY: no artifact download, SSH, secrets, deployment, or rollback is attempted.'
+          if [[ "$GIT_REF" != 'refs/heads/main' ]]; then
+            opt='NOT CHECKED (pull request or other non-main ref)'
+          elif [[ "${MN4_OPT_IN:-}" == 'true' ]]; then
+            opt='ENABLED (repository opt-in only; credentials/deploy unverified)'
+          else
+            opt='DISABLED or unset (no deployment will run)'
+          fi
+          echo "MN4 deployment opt-in: $opt"
+          {
+            echo '## MN4 read-only release gate'
+            echo ''
+            echo "- Checked commit: \`$GITHUB_SHA\`"
+            echo "- Repository opt-in: $opt"
+            echo '- SSH authentication, Secrets values, remote release SHA, and rollback: **NOT CHECKED**'
+            echo '- A public HTTP 200 is **not** a GitHub release/HTTPS byte-integrity PASS.'
+            echo ''
+            echo '| Public endpoint | HTTPS GET status |'
+            echo '| --- | --- |'
+          } >> "$GITHUB_STEP_SUMMARY"
+          for path in / /e02/ /e03/; do
+            url="https://wondervale.pepepow.net$path"
+            code="$(curl --silent --show-error --location --max-time 15 --output /dev/null --write-out '%{http_code}' "$url" 2>/dev/null)" || code='000'
+            echo "Public $path: HTTP $code"
+            echo "| \`$path\` | \`$code\` |" >> "$GITHUB_STEP_SUMMARY"
+            if [[ "$code" != '200' ]]; then
+              echo "::warning::Public $path returned HTTP $code (diagnostic only; no deploy was attempted)"
+            fi
+          done
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '| Served file | Compared against this checked-out commit |' >> "$GITHUB_STEP_SUMMARY"
+          echo '| --- | --- |' >> "$GITHUB_STEP_SUMMARY"
+          for path in e03/main.mjs engine/s01e03.mjs public/s01e03.json; do
+            tmp="$(mktemp)"
+            result='UNREACHABLE'
+            if curl --fail --silent --show-error --location --max-time 15 --output "$tmp" "https://wondervale.pepepow.net/$path" 2>/dev/null; then
+              if cmp -s -- "$path" "$tmp"; then
+                result='EXACT MATCH'
+              else
+                result='DIFFERS'
+              fi
+            fi
+            rm -f -- "$tmp"
+            echo "Public $path: $result vs checked-out $GITHUB_SHA"
+            echo "| \`$path\` | $result |" >> "$GITHUB_STEP_SUMMARY"
+          done
+          echo 'Matching three public source files is NOT a release SHA, historical rollback, or full-site acceptance proof.'

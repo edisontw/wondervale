@@ -3,24 +3,33 @@ import {actorHeight,spriteBox} from './perspective.mjs';
 const root=document.querySelector('#app');
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const read=k=>{try{return JSON.parse(localStorage.getItem(k));}catch{return null;}};
- // Matches E04's read-only canonical handoff guard without packaging E04 prototype.
- // Release allowlist deliberately includes ONLY E03 + its E02 prerequisite.
- const chapter04Unlocked=()=>{
-  if(!e02Ready(read(E02_KEY)))return false;
-  const saved=restore(read(KEY));
-  return saved.mode==='canonical'&&saved.phase==='completed'&&saved.chronicleSeen&&
-   !saved.queue.length&&!saved.travel.length&&saved.after===null&&saved.travelEnd===null&&
-   Object.values(EVENTS).every(id=>saved.achieved.includes(id)&&saved.ledger.includes(id))&&
-   new Set(saved.ledger).size===saved.ledger.length;
- };
+const readRaw=k=>{try{return localStorage.getItem(k);}catch{return null;}};
+// Mirrors the read-only E04 handoff without importing E04-only source into E03.
+const chapter04Unlocked=()=>{
+ if(!e02Ready(read(E02_KEY)))return false;
+ const saved=restore(read(KEY));
+ return saved.mode==='canonical'&&saved.phase==='completed'&&saved.chronicleSeen&&
+  !saved.queue.length&&!saved.travel.length&&saved.after===null&&saved.travelEnd===null&&
+  Object.values(EVENTS).every(id=>saved.achieved.includes(id)&&saved.ledger.includes(id))&&
+  new Set(saved.ledger).size===saved.ledger.length;
+};
 let content;
 try{const r=await fetch('../public/s01e03.json');if(!r.ok)throw Error();content=await r.json();if(content.version!==VERSION||content.build!==BUILD||content.count!==79)throw Error();}
 catch{root.innerHTML='<main class="sheet"><h1>Market Lane could not open</h1><p>Please reload to try again.</p><button onclick="location.reload()">Reload</button></main>';throw Error('E03 content unavailable');}
 const canonicalReady=e02Ready(read(E02_KEY));
+// Keep the exact validated E02 prerequisite bytes, not just a stale mount-time boolean.
+const upstreamCheckpoint=canonicalReady?readRaw(E02_KEY):null;
+let upstreamInvalidated=canonicalReady&&upstreamCheckpoint===null;
 let unlocked=canonicalReady;
 let state=unlocked?restore(read(KEY)):fresh();
 let ui={parent:false,modal:null,inspected:null,moving:false,artError:false,storageError:false,review:false,resetError:false,focus:null};
 let visual=[...places[state.position]],lastFocus=null,raf=0;
+function upstreamValid(){
+ if(!canonicalReady)return true;
+ if(upstreamInvalidated)return false;
+ if(readRaw(E02_KEY)!==upstreamCheckpoint){upstreamInvalidated=true;return false;}
+ return true;
+}
 const button=(label,a,primary=false,extra='')=>`<button data-a="${esc(a)}" ${primary?'class="primary"':''} ${extra}>${esc(label)}</button>`;
 const names={MILO:'Milo',NIA:'Nia',FINN:'Finn',COORDINATOR:'Market coordinator',RESIDENT:'Garden resident',NARRATOR:'Narrator',UI:'Story'};
 const full={MILO:'60 0 490 990',NIA:'545 0 450 1024',FINN:'1025 0 485 1024'},heads={MILO:'95 12 425 474',NIA:'555 18 435 474',FINN:'1045 18 445 474'};
@@ -31,8 +40,8 @@ function npcPortrait(who){
  return '';
 }
 const art=(who,portrait=false)=>{const crop=(portrait?heads:full)[who];return crop?`<svg aria-hidden="true" viewBox="${crop}" preserveAspectRatio="xMidYMid ${portrait?'slice':'meet'}"><image href="../public/art/trio-sprites.webp" width="1536" height="1024"/></svg>`:portrait?npcPortrait(who):'<span aria-hidden="true">❧</span>';};
-function save(){const p=payload(state);if(!p)return;try{localStorage.setItem(KEY,JSON.stringify(p));ui.storageError=false;}catch{ui.storageError=true;}}
-function act(a){if(ui.moving&&a.type!=='step')return;state=dispatch(state,a);save();render();}
+function save(){if(state.mode==='canonical'&&!upstreamValid())return;const p=payload(state);if(!p)return;try{localStorage.setItem(KEY,JSON.stringify(p));ui.storageError=false;}catch{ui.storageError=true;}}
+function act(a){if(state.mode==='canonical'&&!upstreamValid()){render();return;}if(ui.moving&&a.type!=='step')return;state=dispatch(state,a);save();render();}
 function line(){return content.lines[state.queue[0]];}
 function listen(){if(!line()||!globalThis.speechSynthesis)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(line().text);u.lang='en-US';u.rate=.87;speechSynthesis.speak(u);}catch{}}
 function actorFeet(i){
@@ -59,12 +68,28 @@ function actor(who,i){const p=actorFeet(i),load=i===0?state.load:'none';return `
 // Fit the complete painting above the caption dock. Focus is a camera transform
 // of the same plate AND all world overlays, never new art or a teleported actor.
 function fit(){const space=root.querySelector('.world-space'),world=root.querySelector('.world');if(!space||!world)return;const w=Math.min(space.clientWidth,space.clientHeight*1672/941);world.style.width=w+'px';world.style.height=w*941/1672+'px';}
-function world(){const camera=ui.focus??(state.position==='F');const scale=camera?1.6:1;const tx=camera?-60:0,ty=camera?-60:0;
- return `<div class="world-space"><div class="world" aria-label="Market Lane scene"><div class="plane" style="transform:translate(${tx}%,${ty}%) scale(${scale})"><img class="backdrop" src="../public/art/s01e03-market-lane-m0.webp" alt="Painted market with stairs above an arcade, unloading crates, and a wide outside path to books, tea and flowers">${actor('MILO',0)+actor('NIA',1)+actor('FINN',2)}${has(state,'signs')?'<div class="new-signs" aria-label="New signs: WALK to bookstall and CART to tea via the outer lane"><span>WALK · BOOKS →</span><span>CART · TEA →</span></div>':''}<img class="mark" src="../public/art/glyph.svg" alt="Faint old mark on existing stone"></div><div class="scene-note">${ui.moving?'':has(state,'signs')?'Market Lane · Clearer signs':state.load==='tea_cart'?'Cups stay on the cart':state.load==='flowers'?'Keep the flower tray steady':'Market Lane'}</div>${state.phase==='flowers'||state.position==='F'?button(camera?'Whole market':'Flower focus','focus',false,'class="camera"'):''}</div></div>`;}
+// UI guidance derives only from the active carried load; it never writes gameplay state.
+const deliveryGuides={
+ books:{load:'books',item:'Books',place:'Bookstall',cta:'Go to bookstall',foot:places.B},
+ tea:{load:'tea_cart',item:'Tea cart',place:'Tea stall',cta:'Push to tea stall',foot:places.T},
+ flowers:{load:'flowers',item:'Flowers',place:'Garden',cta:'Walk to garden',foot:places.F}
+};
+function activeDelivery(){const phase=state.phase==='arrival'?'books':state.phase;const d=deliveryGuides[phase];return d&&d.load===state.load?d:null;}
+function destinationMarker(d){
+ const [x,y]=d.foot;
+ // Keep the destination label near the stall, not directly over Milo on arrival.
+ const markerX=x+(d===deliveryGuides.flowers?140:-140);
+ return `<div class="delivery-marker" data-destination="${state.phase}" aria-label="Destination: ${d.place}" style="--marker-x:${markerX/16.72}%;--marker-y:${(y-72)/9.41}%"><span aria-hidden="true" class="marker-pin">◆</span><span>${d.place}</span></div>`;
+}
+function deliveryGuide(d){
+ return `<div class="delivery-guide" data-active-delivery="${state.phase}" aria-label="Carrying ${d.item}. Destination: ${d.place}."><span class="guide-load">Carrying: <strong>${d.item}</strong></span><span class="guide-destination">To: <strong>${d.place}</strong></span></div>`;
+}
+function world(){const camera=ui.focus??(state.position==='F');const scale=camera?1.6:1;const tx=camera?-60:0,ty=camera?-60:0;const delivery=activeDelivery();
+ return `<div class="world-space"><div class="world" aria-label="Market Lane scene"><div class="plane" style="transform:translate(${tx}%,${ty}%) scale(${scale})"><img class="backdrop" src="../public/art/s01e03-market-lane-m0.webp" alt="Painted market with stairs above an arcade, unloading crates, and a wide outside path to books, tea and flowers">${actor('MILO',0)+actor('NIA',1)+actor('FINN',2)}${delivery?destinationMarker(delivery):''}${has(state,'signs')?'<div class="new-signs" aria-label="New signs: WALK to bookstall and CART to tea via the outer lane"><span>WALK · BOOKS →</span><span>CART · TEA →</span></div>':''}<img class="mark" src="../public/art/glyph.svg" alt="Faint old mark on existing stone"></div>${delivery?deliveryGuide(delivery):`<div class="scene-note">${ui.moving?'':has(state,'signs')?'Market Lane · Clearer signs':'Market Lane'}</div>`}${state.phase==='flowers'||state.position==='F'?button(camera?'Whole market':'Flower focus','focus',false,'class="camera"'):''}</div></div>`;}
 function caption(){if(!state.queue.length)return '';const l=line();return `<section class="caption" aria-label="Story dialogue"><div class="portrait">${art(l.speaker,true)}</div><div><div class="speaker">${names[l.speaker]}</div><p data-line="${l.id}" aria-live="polite">${esc(l.text)}</p></div><div class="caption-actions">${button('Continue','next',true)}${button('Listen','listen',false,'aria-label="Listen to this line"')}</div></section>`;}
 function toolbar(){if(state.queue.length)return '';let b='';
  if(state.travel.length)b=button(ui.moving?'Walking…':'Continue walking','resume',true,ui.moving?'disabled':'');
- else if(['books','tea','flowers'].includes(state.phase))b=state.position===({books:'B',tea:'T',flowers:'F'})[state.phase]?button('Make delivery','deliver',true):button('Walk outer lane','walk',true)+button('Try another route','paths')+button('Not sure yet','unsure');
+ else if(['books','tea','flowers'].includes(state.phase))b=state.position===({books:'B',tea:'T',flowers:'F'})[state.phase]?button('Make delivery','deliver',true):button(activeDelivery()?.cta||'Walk outer lane','walk',true)+button('Try another route','paths')+button('Not sure yet','unsure');
  else if(state.phase.startsWith('return-'))b=button('Return for next load','return',true);
  else if(state.phase==='comparison')b=button('Compare paths','compare-open',true)+button('Not sure yet','unsure');
  else if(state.phase==='signs')b=button('Make route signs','signs-open',true);
@@ -83,7 +108,7 @@ function parent(){return `<aside class="parent" aria-label="Parent View"><h2>Par
 function crop(which){const [x,y,w,h]=restricted[which].crop;return `<div class="inspection" style="aspect-ratio:${w}/${h}"><img src="../public/art/s01e03-market-lane-m0.webp" alt="${which==='S'?'Real stone steps in Market Lane':'Real narrow arch entrance beside the unloading crates'}" style="width:${1672/w*100}%;left:${-x/w*100}%;top:${-y/h*100}%"></div>`;}
 function modal(){if(!ui.modal)return '';let body='';
  if(ui.modal==='paths'||ui.modal==='comparison'){
-  const comparing=ui.modal==='comparison';body=`<h2>${comparing?'What changed for the cart?':'Look at the load and paths'}</h2><div class="path-options"><div>${crop('S')}<h3>Steps</h3><p>A short way for people on foot.</p>${button('Look closely at steps','inspect-S')}</div><div>${crop('N')}<h3>Narrow arcade</h3><p>A narrow entrance with a tight turn.</p>${button('Look closely at arcade','inspect-N')}</div></div>${comparing?'':`<div class="actions">${button('Walk outer lane','walk',true)}${button('Try steps','try-S')}${button('Try narrow arcade','try-N')}</div>`}<p class="small">The outer lane is the continuous paved way around the boxes. In this preview, look at the steps and arcade, then use the open outer lane.</p>${comparing?`<div class="actions">${button('The cart cannot climb steps','reason-steps',true,state.observed.includes('S')?'':'disabled')}${button('The cart needs more room','reason-width',true,state.observed.includes('N')?'':'disabled')}${button('Back to market','close')}</div>`:`<div class="actions">${button('Look at this load','load')}${button('Back to market','close',true)}</div>`}`;
+  const comparing=ui.modal==='comparison';body=`<h2>${comparing?'What changed for the cart?':'Look at the load and paths'}</h2><div class="path-options"><div>${crop('S')}<h3>Steps</h3><p>A short way for people on foot.</p>${button('Look closely at steps','inspect-S')}</div><div>${crop('N')}<h3>Narrow arcade</h3><p>A narrow entrance with a tight turn.</p>${button('Look closely at arcade','inspect-N')}</div></div>${comparing?'':`<div class="actions">${button(activeDelivery()?.cta||'Walk outer lane','walk',true)}${button('Try steps','try-S')}${button('Try narrow arcade','try-N')}</div>`}<p class="small">The outer lane is the continuous paved way around the boxes. In this preview, look at the steps and arcade, then use the open outer lane.</p>${comparing?`<div class="actions">${button('The cart cannot climb steps','reason-steps',true,state.observed.includes('S')?'':'disabled')}${button('The cart needs more room','reason-width',true,state.observed.includes('N')?'':'disabled')}${button('Back to market','close')}</div>`:`<div class="actions">${button('Look at this load','load')}${button('Back to market','close',true)}</div>`}`;
  }else if(ui.modal==='inspection')body=`<h2>${restricted[ui.inspected].label}</h2>${crop(ui.inspected)}<p>${ui.inspected==='S'?'Look at the steps. Can this load use them?':'Look at the entrance beside the crates. Is it wide enough for a loaded cart?'}</p><div class="actions">${button('I can see it','observe',true)}${button('Back','inspection-back')}</div>`;
  else if(ui.modal==='signs')body=`<h2>Help people find their way</h2><p>Choose where each present-day sign points.</p><h3>WALK · Bookstall ${state.signs.includes('WALK')?'✓':''}</h3><div class="actions">${button('Outer lane to books','walk-sign',true)}${button('Through unloading boxes','bad-walk')}</div><h3>CART · Tea ${state.signs.includes('CART')?'✓':''}</h3><div class="actions">${button('Outer lane to tea','cart-sign',true)}${button('Up the steps','bad-cart')}</div>${button('Back to market','close')}`;
  else if(ui.modal==='menu')body=`<h2>Adventure options</h2><p>Progress stays on this device. No child account or recording.</p><div class="actions">${state.mode==='canonical'?button('Start E03 again','reset-open'):button('Return to saved chapter','exit-replay')}${button('Back to market','close',true)}</div><p class="small">E03 engineering preview · ${BUILD}. Owner, physical-device and hidden-route checks remain open.</p>`;
@@ -104,6 +129,10 @@ function preserveWorldVisuals(oldWorld){
  }
 }
 function render(){
+ if(state.mode==='canonical'&&!upstreamValid()){
+  root.innerHTML='<main class="sheet" role="alert"><h1>Riverside progress changed</h1><p>Market Lane is paused because its Riverside prerequisite changed. Your Market Lane save was not erased.</p><a href="../e02/">Return to Riverside</a><p>Reload Market Lane after checking Riverside to resume.</p></main>';
+  return;
+ }
  const focused=root.querySelector(':focus')?.dataset.a;
  if(!unlocked){root.innerHTML='<main class="sheet"><h1>Market Lane comes after Riverside</h1><p>Finish Riverside and record its Market Lane marker first.</p><a href="../e02/">Return to Riverside</a><p class="small">You can also look at this chapter without changing progress.</p><button data-a="preview">Preview without saving</button></main>';return;}
  const special=sheet();
@@ -118,14 +147,15 @@ function openModal(kind){lastFocus=document.activeElement?.dataset.a;ui.modal=ki
 function closeModal(){ui.modal=null;render();}
 // Animate and commit one legal graph edge at a time. Refresh restores the last
 // completed node and the remaining itinerary, never the destination prematurely.
-async function walk(){if(ui.moving||!state.travel.length||ui.artError)return;ui.moving=true;ui.focus=false;render();
- while(state.travel.length){const to=state.travel[0],from=[...visual],dest=places[to];const duration=matchMedia('(prefers-reduced-motion: reduce)').matches?1:Math.max(180,Math.hypot(dest[0]-from[0],dest[1]-from[1])*3);
+async function walk(){if(state.mode==='canonical'&&!upstreamValid()){render();return;}if(ui.moving||!state.travel.length||ui.artError)return;ui.moving=true;ui.focus=false;render();
+ while(state.travel.length){if(state.mode==='canonical'&&!upstreamValid())break;const to=state.travel[0],from=[...visual],dest=places[to];const duration=matchMedia('(prefers-reduced-motion: reduce)').matches?1:Math.max(180,Math.hypot(dest[0]-from[0],dest[1]-from[1])*3);
   await new Promise(resolve=>{const start=performance.now();function tick(now){const t=Math.min(1,(now-start)/duration);visual=from.map((n,i)=>n+(dest[i]-n)*t);for(const [i,who] of ['MILO','NIA','FINN'].entries()){const el=root.querySelector('[data-actor="'+who+'"]'),p=actorFeet(i);if(el){const d=actorDimensions(i,p);el.style.setProperty('--x',p[0]/16.72+'%');el.style.setProperty('--y',p[1]/9.41+'%');el.style.setProperty('--w',d.width/16.72+'%');el.style.setProperty('--h',d.height/9.41+'%');el.dataset.footY=p[1];el.dataset.sourceHeight=d.height;}}if(t<1)raf=requestAnimationFrame(tick);else resolve();}raf=requestAnimationFrame(tick);});
-  state=dispatch(state,{type:'step',to});save();
+  if(state.mode==='canonical'&&!upstreamValid())break;state=dispatch(state,{type:'step',to});save();
  }
  ui.moving=false;ui.focus=null;visual=[...places[state.position]];render();
 }
 root.addEventListener('click',e=>{const b=e.target.closest('button[data-a]');if(!b||b.disabled)return;const a=b.dataset.a;
+ if(state.mode==='canonical'&&!upstreamValid()){render();return;}
  if(a==='preview'){unlocked=true;state=fresh('development_preview');visual=[...places.H];render();return;}
  if(a==='listen'){listen();return;}
  if(a==='parent'){ui.parent=!ui.parent;render();return;}
@@ -165,6 +195,12 @@ document.addEventListener('keydown',e=>{
  if(ui.modal){const dialog=root.querySelector('.modal');if(e.key==='Escape'){e.preventDefault();closeModal();return;}if(e.key==='Tab'){const buttons=[...dialog.querySelectorAll('button:not(:disabled),a')];const i=buttons.indexOf(document.activeElement);if(e.shiftKey&&i<=0){e.preventDefault();buttons.at(-1)?.focus();}else if(!e.shiftKey&&(i<0||i===buttons.length-1)){e.preventDefault();buttons[0]?.focus();}}}
 });
 root.addEventListener('error',e=>{if(e.target.matches?.('.backdrop')&&!ui.artError){ui.artError=true;render();}},true);
+// Cross-tab reset/restore (including ABA) latches until a fresh mount revalidates E02.
+window.addEventListener('storage',e=>{
+ if(!canonicalReady||(e.key!==E02_KEY&&e.key!==null))return;
+ upstreamInvalidated=true;
+ if(state.mode==='canonical')render();
+});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){save();globalThis.speechSynthesis?.cancel();}});
 new ResizeObserver(fit).observe(root);
 render();

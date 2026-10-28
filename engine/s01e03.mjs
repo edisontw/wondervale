@@ -2,7 +2,7 @@
 // S/N remain inspection targets until their occluded connections are validated.
 import {restore as restoreE02,projected as projectE02} from './s01e02.mjs';
 export const KEY='wondervale-s01e03-progress-v1',E02_KEY='wondervale-s01e02-progress-v1';
-export const VERSION='s01e03-slice-v1',BUILD='20261019-e03-cart-clearance1';
+export const VERSION='s01e03-slice-v1',BUILD='20261019-e03-active-guide1';
 export const EVENTS={books:'s01e03_delivery_book_delivered',revision:'s01e03_cart_route_revised',tea:'s01e03_delivery_tea_delivered',flowers:'s01e03_delivery_flowers_delivered',signs:'s01e03_market_wayfinding_improved',glyph:'s01e03_old_market_marker_recorded',station:'s01e03_station_memory_recorded',garden:'s01e03_garden_memory_recorded',finish:'episode_completed:s01e03'};
 export const e02Ready=save=>{const s=restoreE02(save),p=projectE02(s);return s.phase==='completed'&&s.chronicleSeen&&p.completed&&p.market;};
 // Source-image pixels, feet on visible paving. No river/bridge foreground edge.
@@ -45,8 +45,7 @@ function plan(s,to,end){const p=route(s.position,to,s.load);if(p.length){s.trave
 function arrival(s){const end=s.travelEnd;s.travelEnd=null;
  if(end==='hub'){s.load='none';if(s.phase==='return-books'){s.load='tea_cart';s.phase='tea';say(s,speech.tea);}else if(s.phase==='return-tea'){s.load='flowers';s.phase='flowers';say(s,speech.flowers);}else if(s.phase==='return-flowers'){s.phase='signs';say(s,speech.signs);}}
  if(end==='glyph')s.feedback='Look closely at the old stone. The new signs are separate.';
- // An attempted shortcut approaches only verified outer-lane paving, then returns.
- // Never walk into unvalidated S/N geometry or grant a delivery from this detour.
+ // A detour approaches only verified L paving and automatically retraces to H.
  if(end==='wrong-outbound'){s.feedback='The shortcut is not confirmed safe. Let us go back.';plan(s,'H','wrong-return');}
  if(end==='wrong-return')s.feedback='Back at the start. Choose the open outer lane to make the delivery.';
 }
@@ -64,7 +63,6 @@ export function dispatch(before,a){
    }break;
    case 'unsure':if(['books','tea','comparison','flowers'].includes(s.phase)){s.hint=Math.min(2,s.hint+1);s.feedback='Look at the load, the steps and the width. You can look again.';say(s,speech.unsure);}break;
    case 'try-route':if(['books','tea','flowers'].includes(s.phase)&&s.position==='H'&&['S','N'].includes(a.route)){
-    // The turnarounds are on known L edges; neither staging point is an S/N connection.
     s.feedback=a.route==='S'?'Let us look toward the steps from the open lane.':'Let us look toward the narrow arcade from the open lane.';
     plan(s,a.route==='S'?'bend':'fork','wrong-outbound');
    }break;
