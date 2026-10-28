@@ -110,7 +110,7 @@ test('valid snapshots replay exactly; tampered flags and actions fail closed',()
   assert.deepEqual(replay(done.history),done);
   assert.deepEqual(restore(structuredClone(done)),done);
   for(const mutate of [
-    s=>{s.roomPreview=true;s.phase='done';},
+    s=>{s.roomPreview=false;s.phase='layout';},
     s=>{s.canonicalEvents.push('episode_completed:s01e05');},
     s=>{s.unlocks.push('s01e06');},
     s=>{s.history.push({type:'grant-canon'});},
