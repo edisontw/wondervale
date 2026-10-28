@@ -34,12 +34,44 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Test actual E03 packaged desktop and touch scene
         run: |
-          python3 -m http.server 4173 --directory dist/wondervale-e03-preview > /tmp/e03-server.log 2>&1 &
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist/wondervale-e03-preview > /tmp/e03-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 40); do
+            if curl --silent --show-error --fail http://127.0.0.1:4173/e03/ >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then break; fi
+            sleep 0.25
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "::error::E03 preview HTTP server was not ready before Chromium"
+            cat /tmp/e03-server.log
+            exit 1
+          fi
           node tests/s01e03-browser.mjs
           node tests/e03-cart-waypoint-browser.mjs
       - name: Review isolated M1 candidate; preserve unresolved clearance evidence
         run: |
-          python3 -m http.server 4174 --directory . > /tmp/e03-art-review-server.log 2>&1 &
+          python3 -m http.server 4174 --bind 127.0.0.1 --directory . > /tmp/e03-art-review-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 40); do
+            if curl --silent --show-error --fail http://127.0.0.1:4174/e03/route-review.html >/dev/null 2>&1; then
+              ready=1
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then break; fi
+            sleep 0.25
+          done
+          if [ "$ready" -ne 1 ]; then
+            echo "::error::E03 art-review HTTP server was not ready before Chromium"
+            cat /tmp/e03-art-review-server.log
+            exit 1
+          fi
           TEST_ART_BASE_URL=http://127.0.0.1:4174 node tests/s01e03-art-review.mjs
           TEST_ART_BASE_URL=http://127.0.0.1:4174 node tests/s01e03-depth.mjs
       - uses: actions/upload-artifact@v4
