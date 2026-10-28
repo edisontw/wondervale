@@ -1,0 +1,36 @@
+name: Wondervale E06 isolated two-garden engine
+on:
+  pull_request:
+    paths:
+      - 'engine/s01e06-authoring-prototype.mjs'
+      - 'tests/s01e06-authoring-prototype.test.mjs'
+      - 'e06-prototype/**'
+      - '.github/workflows/wondervale-e06-prototype.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'engine/s01e06-authoring-prototype.mjs'
+      - 'tests/s01e06-authoring-prototype.test.mjs'
+      - 'e06-prototype/**'
+      - '.github/workflows/wondervale-e06-prototype.yml'
+permissions:
+  contents: read
+jobs:
+  e06-authoring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate isolated E06 module and tests
+        run: |
+          node --check engine/s01e06-authoring-prototype.mjs
+          node --check tests/s01e06-authoring-prototype.test.mjs
+          node --check e06-prototype/main.mjs
+      - name: Test two-garden authoring state and preview isolation
+        run: node --test tests/s01e06-authoring-prototype.test.mjs
+      - name: Keep E06 sandbox out of production packaging
+        run: |
+          if grep -R -n -E 's01e06-authoring-prototype|e06-prototype' scripts/package_static.py scripts/compile_episode.py; then
+            echo 'E06 authoring engine unexpectedly referenced by production packaging' >&2
+            exit 1
+          fi

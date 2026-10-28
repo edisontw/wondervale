@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale E06 — Two Gardens (authoring lab)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#19332c;background:#f2f3e9}
+*{box-sizing:border-box}body{margin:0}main{max-width:1050px;margin:auto;padding:clamp(.4rem,2vw,1rem)}
+header{background:#274a3b;color:white;padding:.8rem 1rem;border-radius:.8rem}h1{font-size:1.4rem;margin:.2rem 0}h2{font-size:1.1rem;margin:.2rem 0 .5rem}
+.notice{background:#fff2d4;border-left:5px solid #986515;padding:.6rem .8rem;margin:.7rem 0}
+.scene{position:relative;overflow:hidden;aspect-ratio:16/9;min-height:220px;border:3px solid #4c6757;border-radius:.8rem;margin:.7rem 0;isolation:isolate}
+.scene.current{background:linear-gradient(145deg,#c8e0c5 0 40%,#8cbb89 40% 65%,#6e9c72 65%)}
+.scene.lower{background:linear-gradient(170deg,#d7d4ae 0 35%,#b7cda8 35% 65%,#8bb7aa 65%)}
+.beds{position:absolute;left:10%;top:7%;width:50%;height:23%;border-radius:45%;background:repeating-linear-gradient(70deg,#548557 0 12px,#93c67e 12px 24px);border:4px solid #557451}
+.path{position:absolute;left:0;right:0;bottom:6%;height:18%;background:repeating-linear-gradient(100deg,#c5b48e 0 25px,#d8c69d 25px 50px);border-block:3px solid #917f5b}
+.runoff{position:absolute;left:8%;top:3%;width:20%;height:88%;background:linear-gradient(95deg,transparent,#63a6b9 35%,#8ac7d5 55%,transparent);transform:skewX(14deg);border-radius:40%;opacity:.85}
+.lower .path{bottom:15%;height:15%;transform:rotate(-5deg)}
+.pocket{position:absolute;left:72%;top:12%;width:21%;height:27%;border:3px dashed #426c3d;border-radius:40%;background:#c3df9d;display:grid;place-items:center;text-align:center;font-size:.85rem}
+.pocket.planted{background:repeating-radial-gradient(circle,#579a53 0 7px,#9fd382 8px 17px)}
+.world-label{position:absolute;left:.4rem;top:.4rem;background:#fffdf1dd;padding:.3rem .5rem;border-radius:.3rem;font-weight:700;font-size:.8rem}
+.anchor{position:absolute;transform:translate(-50%,-50%);z-index:2;max-width:27%;min-width:64px;min-height:42px;border:2px solid #345d53;border-radius:.6rem;background:#fffef0ed;padding:.25rem .4rem;font-size:clamp(.7rem,1.7vw,.88rem);cursor:pointer}
+.anchor.active{background:#ffe6a0;border-color:#9d6215}.anchor:focus-visible,button:focus-visible{outline:3px solid #c36d00;outline-offset:3px}
+.milo{position:absolute;z-index:3;transform:translate(-50%,-100%);border:3px solid #233f50;background:#e9a56b;color:#172e38;border-radius:50% 50% 40% 40%;width:42px;height:50px;display:grid;place-items:center;font-weight:800;pointer-events:none;transition:left .25s ease,top .25s ease}
+@media(prefers-reduced-motion:reduce){.milo{transition:none}}
+.panel{background:white;border:1px solid #c8d1c6;border-radius:.7rem;padding:.8rem;margin:.7rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:.35rem}
+button{font:inherit;min-height:44px;padding:.45rem .65rem;border:1px solid #4a695d;border-radius:.45rem;background:#fff;color:#203b30;cursor:pointer}
+button:disabled{opacity:.42;cursor:not-allowed}button[aria-pressed=true]{background:#d7e9dd;border-width:2px}
+.status{background:#e7eee7;padding:.6rem;border-radius:.4rem;line-height:1.5}
+.meter{display:flex;gap:.6rem;align-items:center;margin:.3rem 0}.meter span{min-width:90px}
+.track{flex:1;height:16px;background:#e1e7e7;border-radius:8px;overflow:hidden}.fill{height:100%;background:#438ea8}
+small{color:#475e55}.two{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+@media(max-width:680px){.two{grid-template-columns:1fr}.anchor{max-width:31%}.scene{min-height:185px}.milo{width:34px;height:43px}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>E06 — The Garden That Moved</h1><div>Two-garden interaction laboratory · in-memory, noncanonical developer preview</div></header>
+<div class="notice" role="note"><strong>TEST GEOMETRY ONLY.</strong> These are two different synthetic garden spaces, not approved site art, measured drainage, historical proof or planting permission. E04/E05 approvals, canonical Chronicle, save, E07 unlock and MN4 deployment are not present.</div>
+<div id="scene" class="scene current" aria-label="Current Garden: tap places to walk Milo"></div>
+<div class="panel">
+<h2 id="scene-title">Current Garden</h2>
+<p id="guide">Walk Milo to a visible place, then inspect it.</p>
+<div id="observe-controls" class="controls"></div>
+<p id="observations" class="status" aria-live="polite"></p>
+</div>
+<div class="two">
+<section class="panel">
+<h2>Rain tray — MODEL only</h2>
+<p>Try dry and rain. Move the channel. The bars show simulated water, not real weather.</p>
+<div id="model-controls" class="controls"></div>
+<div id="model-result" class="status" aria-live="polite"></div>
+<div id="meters"></div>
+</section>
+<section class="panel">
+<h2>Small planting trial — Lower Garden</h2>
+<p>Walk to the water trace and public path. Then walk to a site and try a temporary marker.</p>
+<div id="plant-controls" class="controls"></div>
+<p id="plant-result" class="status" aria-live="polite"></p>
+</section>
+</div>
+<section class="panel">
+<h2>Chronicle preview — not a real save</h2>
+<p id="chronicle" class="status" aria-live="polite"></p>
+<p id="parent-cue" hidden><strong>Optional parent question:</strong> What might happen if we moved the whole garden back?</p>
+<button id="restart">Restart this preview</button>
+<p><small>Tap the place buttons in the scene or use keyboard Tab + Enter. No timer, score, audio requirement, production import or storage. Refresh also restarts.</small></p>
+</section>
+</main>
+<script type="module" src="./main.mjs"></script>
+</body>
+</html>
