@@ -2,6 +2,7 @@
 import {CURRENT_ANCHORS,LOWER_ANCHORS,CURRENT_OBSERVATIONS,LOWER_OBSERVATIONS,
   SITES,fresh,dispatch,previewProjection,siteEffect} from '../engine/s01e06-authoring-prototype.mjs';
 let state=fresh();
+let previousScene=null,previousLocation=null;
 const $=id=>document.getElementById(id);
 const names={'present-bed':'Healthy beds','slope':'Higher slope','shared-path':'Garden path',
   'model-tray':'Rain model tray','runoff-trace':'Water trace','public-path':'Shared path',
@@ -48,9 +49,21 @@ function drawWorld(){
   }
   const actor=document.createElement('div');actor.className='milo';
   actor.textContent='Milo';
-  actor.style.left=positions[key][state.location][0]+'%';
-  actor.style.top=(positions[key][state.location][1]-4)+'%';
-  host.append(actor);
+  const destination=positions[key][state.location];
+  if(previousScene===key&&previousLocation!==state.location){
+    const from=positions[key][previousLocation];
+    actor.style.left=from[0]+'%';actor.style.top=(from[1]-4)+'%';
+    host.append(actor);
+    requestAnimationFrame(()=>{
+      actor.style.left=destination[0]+'%';
+      actor.style.top=(destination[1]-4)+'%';
+    });
+  }else{
+    actor.style.left=destination[0]+'%';
+    actor.style.top=(destination[1]-4)+'%';
+    host.append(actor);
+  }
+  previousScene=key;previousLocation=state.location;
   if(lower&&state.markerSite){
     const site=SITES[state.markerSite];
     const mark=document.createElement('div');
