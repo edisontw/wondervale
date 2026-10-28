@@ -30,7 +30,7 @@ jobs:
         run: node --test tests/s01e06-authoring-prototype.test.mjs
       - name: Keep E06 sandbox out of production packaging
         run: |
-          if grep -R -n 's01e06-authoring-prototype\\|e06-prototype' scripts/package_static.py scripts/compile_episode.py; then
+          if grep -R -n -E 's01e06-authoring-prototype|e06-prototype' scripts/package_static.py scripts/compile_episode.py; then
             echo 'E06 authoring engine unexpectedly referenced by production packaging' >&2
             exit 1
           fi
