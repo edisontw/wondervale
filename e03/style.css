@@ -18,3 +18,8 @@
 .delivery-marker[data-destination="flowers"]{transform:translate(0,-50%)}
 @media(max-width:750px){.delivery-guide{left:3px;top:3px;max-width:calc(100% - 47px);padding:3px 5px;gap:2px 6px;font-size:10px}.guide-destination{padding-left:6px}.delivery-marker{font-size:9px;padding:2px 4px;gap:2px}.marker-pin{font-size:9px}}
 @media(max-width:400px){.delivery-guide{max-width:calc(100% - 9px)}.delivery-marker{font-size:9px}}
+
+/* E04 handoff notice: saved progress is unlocked, not a shipped episode. */
+.next-chapter{margin:14px 0 16px;padding:12px 0;border-top:1px solid #bfbba8;border-bottom:1px solid #bfbba8}
+.next-chapter strong{font:700 16px system-ui}
+.next-chapter p{margin:6px 0 0;font:14px/1.5 system-ui;color:#52665c}

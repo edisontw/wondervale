@@ -45,6 +45,9 @@ function plan(s,to,end){const p=route(s.position,to,s.load);if(p.length){s.trave
 function arrival(s){const end=s.travelEnd;s.travelEnd=null;
  if(end==='hub'){s.load='none';if(s.phase==='return-books'){s.load='tea_cart';s.phase='tea';say(s,speech.tea);}else if(s.phase==='return-tea'){s.load='flowers';s.phase='flowers';say(s,speech.flowers);}else if(s.phase==='return-flowers'){s.phase='signs';say(s,speech.signs);}}
  if(end==='glyph')s.feedback='Look closely at the old stone. The new signs are separate.';
+ // A detour approaches only verified L paving and automatically retraces to H.
+ if(end==='wrong-outbound'){s.feedback='The shortcut is not confirmed safe. Let us go back.';plan(s,'H','wrong-return');}
+ if(end==='wrong-return')s.feedback='Back at the start. Choose the open outer lane to make the delivery.';
 }
 export function dispatch(before,a){
  const s=structuredClone(before);if(!a||typeof a.type!=='string'||s.history.length>=4000)return s;
@@ -59,6 +62,10 @@ export function dispatch(before,a){
     s.feedback=a.what==='S'?'The steps are for people on foot. The loaded cart cannot climb them.':a.what==='N'?'The arcade has a narrow entrance and a tight turn. The loaded cart needs more room.':s.load==='books'?'A small bundle of books, carried by hand.':s.load==='tea_cart'?'Cups stay on the cart. It needs a wide, level path.':'The flower tray needs a steady, level path.';
    }break;
    case 'unsure':if(['books','tea','comparison','flowers'].includes(s.phase)){s.hint=Math.min(2,s.hint+1);s.feedback='Look at the load, the steps and the width. You can look again.';say(s,speech.unsure);}break;
+   case 'try-route':if(['books','tea','flowers'].includes(s.phase)&&s.position==='H'&&['S','N'].includes(a.route)){
+    s.feedback=a.route==='S'?'Let us look toward the steps from the open lane.':'Let us look toward the narrow arcade from the open lane.';
+    plan(s,a.route==='S'?'bend':'fork','wrong-outbound');
+   }break;
    case 'take-route':if(['books','tea','flowers'].includes(s.phase)){
     if(a.route==='L'){s.feedback='';plan(s,destinations[s.phase],'delivery');}
     else if(['S','N'].includes(a.route))s.feedback='This connection is not yet walkable in this preview. Inspect the real entrance, or take the open outer lane.';
@@ -93,7 +100,7 @@ export function dispatch(before,a){
 export function payload(s){return s.mode==='canonical'&&s.phase!=='preview'?structuredClone(s):null;}
 export function restore(raw){
  if(!raw||raw.schema!==1||raw.version!==VERSION||raw.mode!=='canonical'||!Array.isArray(raw.history)||raw.history.length>4000)return fresh();
- try{let s=fresh();for(const a of raw.history){if(!a||!['begin','next','step','inspect','unsure','take-route','deliver','compare','return','sign','go-glyph','glyph','memory','chronicle','finish'].includes(a.type))return fresh();s=dispatch(s,a);}
+ try{let s=fresh();for(const a of raw.history){if(!a||!['begin','next','step','inspect','unsure','take-route','try-route','deliver','compare','return','sign','go-glyph','glyph','memory','chronicle','finish'].includes(a.type))return fresh();s=dispatch(s,a);}
   // Reconstruct every story flag and position; reject mixed/corrupt snapshots.
   return JSON.stringify(s)===JSON.stringify(raw)?s:fresh();
  }catch{return fresh();}

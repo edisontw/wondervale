@@ -108,8 +108,20 @@ try{
  await drain(p);await deliveryGuidance(p,'Books','Bookstall','Go to bookstall');await geometry(p,'568-books');await p.screenshot({path:'test-results/e03-568-market.png'});
  // Modal focus, Escape and Listen stay operable without prerecorded audio.
  await click(p,'paths');await p.keyboard.press('Tab');assert.equal(await p.locator('.modal button:focus').count(),1);await p.keyboard.press('Escape');assert.equal(await p.locator('[role="dialog"]').count(),0);
- await finish(p);const canonical=await p.evaluate(k=>localStorage.getItem(k),KEY);assert.equal(JSON.parse(canonical).ledger.length,9);
- await p.reload();await click(p,'review');await p.getByText('Not yet checked.',{exact:false}).waitFor();await click(p,'replay');await click(p,'begin');await drain(p);await finish(p);assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),canonical);
+ // Both wrong turns walk out and back only on verified L edges, with no delivery.
+ for(const choice of ['try-S','try-N']){
+  await click(p,'paths');await click(p,choice);
+  await p.getByText('Back at the start.',{exact:false}).waitFor();
+  const saved=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)),KEY);
+  assert.equal(saved.position,'H');assert.equal(saved.phase,'books');assert.equal(saved.ledger.length,0);
+  assert.ok(saved.history.some(x=>x.type==='try-route'&&x.route===choice.at(-1)));
+  await deliveryGuidance(p,'Books','Bookstall','Go to bookstall');
+  await geometry(p,choice+' returned safely');
+ }
+ await finish(p);await p.getByText('Chapter 04 · Unlocked',{exact:false}).waitFor();
+ await p.getByText('cannot be played yet.',{exact:false}).waitFor();
+ const canonical=await p.evaluate(k=>localStorage.getItem(k),KEY);assert.equal(JSON.parse(canonical).ledger.length,9);
+ await p.reload();await click(p,'review');await p.getByText('Not yet checked.',{exact:false}).waitFor();await click(p,'replay');await click(p,'begin');await drain(p);await finish(p);await p.getByText('Not unlocked in this preview',{exact:false}).waitFor();assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),canonical);
  const unchanged=await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02});assert.deepEqual(unchanged,originals);
  await click(p,'exit-replay');await click(p,'reset-open');await click(p,'reset-confirm');await p.reload();assert.equal(await p.evaluate(k=>localStorage.getItem(k),KEY),null);assert.deepEqual(await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02}),originals);
  await ctx.close();report.push({label:'full touch story, reload, repeat, replay and isolated reset',pass:true});
