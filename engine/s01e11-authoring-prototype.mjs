@@ -78,9 +78,9 @@ function apply(s,a){
    if(!has(TOKENS,a.tokenId)||!Array.isArray(a.cells)||!a.cells.length||
       !a.cells.every(validCell)||new Set(a.cells).size!==a.cells.length)return null;
    if(a.tokenId==='access'){
-    if(a.cells.length!==2||!eq(sorted(a.cells),['1,1','1,2'])||occupied(s,'access').some(x=>a.cells.includes(x)))return null;
+    if(a.cells.length!==2||!eq(sorted(a.cells),['1,1','1,2']))return null;
    }else if(a.cells.length!==1||[START,EXIT].includes(a.cells[0])||
-      occupied(s,a.tokenId).includes(a.cells[0])||s.layout.access.includes(a.cells[0]))return null;
+      occupied(s,a.tokenId).includes(a.cells[0]))return null;
    const cells=sorted(a.cells);if(eq(s.layout[a.tokenId],cells))return null;
    const n=invalidate(s);return {...n,layout:{...s.layout,[a.tokenId]:cells},revision:s.revision+1,
     feedback:'Moved a reversible paper piece. Retest both simulated users.'};
