@@ -1,0 +1,103 @@
+import assert from 'node:assert/strict';
+import {chromium} from 'playwright';
+import {mkdir,writeFile} from 'node:fs/promises';
+const base=process.env.TEST_BASE_URL||'http://127.0.0.1:4173';
+await mkdir('test-results',{recursive:true});
+const browser=await chromium.launch({headless:true});
+const report=[],errors=[];
+try{
+ for(const v of [{width:1366,height:900,label:'desktop'},{width:568,height:320,label:'landscape'},{width:390,height:844,label:'portrait'}]){
+  const context=await browser.newContext({viewport:{width:v.width,height:v.height},reducedMotion:'reduce'});
+  const page=await context.newPage();
+  page.on('pageerror',e=>errors.push(v.label+': '+e.message));
+  page.on('console',m=>{if(m.type()==='error')errors.push(v.label+': '+m.text());});
+  const button=(scene,type,key='',second='',third='')=>page.locator('button[data-action="'+[scene,type,key,second,third].join(':')+'"]');
+  const hit=async(scene,type,key='',second='',third='')=>button(scene,type,key,second,third).click();
+  try{
+   assert.equal((await page.goto(base+'/authoring-labs/hill-courtyard.html'))?.status(),200);
+   await page.evaluate(()=>localStorage.setItem('courtyard-sentinel','unchanged'));
+   assert.match(await page.locator('.notice').innerText(),/NOT THE PRODUCTION GAME/);
+   assert.equal(await button('nav','to-courtyard').isDisabled(),true);
+   assert.equal(await button('hill','mark','steps_base:signpost').isDisabled(),false);
+   await hit('hill','mark','steps_base:signpost');
+   assert.match(await page.locator('#feedback').innerText(),/Walk this model edge/);
+   await hit('hill','inspect','entry_note');
+   await hit('hill','walk','signpost');
+   await hit('hill','inspect','boundary_sign');
+   await hit('hill','walk','fence_view');
+   await hit('hill','inspect','disturbed_ground');
+   await hit('hill','walk','upper_closed');
+   assert.match(await page.locator('#feedback').innerText(),/This way is closed/);
+   await hit('hill','consider','water_may_change_ground');
+   await hit('hill','walk','signpost');
+   await hit('hill','walk','lower_bend');
+   await hit('hill','inspect','runoff_marks');
+   await hit('hill','walk','overlook');
+   await hit('hill','inspect','distant_symbol');
+   await hit('hill','mark','steps_base:signpost');
+   await hit('hill','mark','lower_bend:overlook');
+   await hit('hill','check-route');
+   assert.match(await page.locator('#progress').innerText(),/signpost:lower_bend/);
+   await hit('hill','mark','signpost:lower_bend');
+   await hit('hill','check-route');
+   await hit('hill','compare-symbol');
+   await hit('hill','review');
+   await hit('hill','finish-preview');
+   assert.equal(await button('nav','to-courtyard').isDisabled(),false);
+   await hit('nav','to-courtyard');
+   assert.match(await page.locator('#hill-object').innerText(),/UPPER HILL CLOSED/);
+   assert.match(await page.locator('#courtyard-object').innerText(),/Name UNKNOWN/);
+   assert.equal(await button('courtyard','check-source').isDisabled(),true);
+   await hit('courtyard','compare-symbol');
+   await hit('courtyard','walk','stone_edge');
+   await hit('courtyard','inspect','surface');
+   await hit('courtyard','suggest','surface','meeting');
+   await hit('courtyard','revise','surface','meeting','resting');
+   await hit('courtyard','walk','quiet_corner');
+   await hit('courtyard','hear','quiet');
+   await hit('courtyard','place','quiet','left');
+   await hit('courtyard','walk','meeting_edge');
+   await hit('courtyard','hear','activity');
+   await hit('courtyard','place','activity','left');
+   await hit('courtyard','place','activity','right');
+   await hit('courtyard','walk','notice_wall');
+   await hit('courtyard','inspect','holes');
+   await hit('courtyard','suggest','holes','display');
+   await hit('courtyard','check-source');
+   assert.match(await page.locator('#feedback').innerText(),/UNKNOWN: name source not approved/);
+   await hit('courtyard','review-tradeoff');
+   await hit('courtyard','review');
+   assert.match(await page.locator('#progress').innerText(),/Paper review complete/);
+   assert.match(await page.locator('#progress').innerText(),/E11 NOT UNLOCKED/);
+   await hit('nav','to-hill');
+   assert.match(await page.locator('#hill-object').innerText(),/Safe lower PAPER overlook sketched/);
+   await hit('nav','to-courtyard');
+   assert.match(await page.locator('#courtyard-object').innerText(),/2 undated SEEN traces; 2 simulated NEEDS/);
+   assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['courtyard-sentinel']);
+   const width=await page.evaluate(()=>({view:innerWidth,scroll:document.documentElement.scrollWidth}));
+   assert.ok(width.scroll<=width.view+1,v.label+' horizontal overflow');
+   if(v.label==='desktop')await page.screenshot({path:'test-results/hill-courtyard-desktop.png'});
+   await page.locator('#restart').click();
+   assert.equal(await button('nav','to-courtyard').isDisabled(),true);
+   assert.match(await page.locator('#courtyard-object').innerText(),/0 undated SEEN traces/);
+   report.push({viewport:v.label,journey:'PASS',closedHill:'PASS',routeGapRetry:'PASS',sourceUnknown:'PASS',revisit:'PASS',reset:'PASS',storage:'PASS'});
+  }finally{await context.close();}
+ }
+ const context=await browser.newContext({viewport:{width:568,height:320}});
+ try{
+  const page=await context.newPage();await page.goto(base+'/authoring-labs/hill-courtyard.html');
+  await page.locator('button[data-action="hill:inspect:entry_note::"]').focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('button[data-action="hill:inspect:entry_note::"]').isDisabled(),true);
+  await page.locator('button[data-action="hill:walk:signpost::"]').focus();
+  await page.keyboard.press('Space');
+  assert.match(await page.locator('#task-cue').innerText(),/Milo at signpost/);
+  report.push({viewport:'keyboard',inspect:'PASS',walk:'PASS'});
+ }finally{await context.close();}
+ assert.deepEqual(errors,[]);
+ await writeFile('test-results/hill-courtyard-report.json',JSON.stringify({passed:true,report},null,2));
+ console.log('E09→E10 Chromium PASS: three viewports, keyboard, safe stop, route revision, two needs, source unknown, revisit/reset, zero storage');
+}catch(e){
+ await writeFile('test-results/hill-courtyard-report.json',JSON.stringify({passed:false,report,errors,error:String(e.stack||e)},null,2));
+ throw e;
+}finally{await browser.close();}
