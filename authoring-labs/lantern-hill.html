@@ -15,10 +15,10 @@ h1{font-size:1.4rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.3rem 0}
 .object.lit{background:#fff1c1}
 .actions,nav{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
 button,a{font:inherit;min-height:44px;min-width:44px;border:2px solid #54756a;border-radius:.45rem;padding:.5rem .65rem;background:#f9fcf7;color:#234439;cursor:pointer}
-button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:3px solid #b57d1b;outline-offset:2px}
+button{max-width:100%;overflow-wrap:anywhere;white-space:normal}button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:3px solid #b57d1b;outline-offset:2px}
 #feedback,#progress,#task-cue{line-height:1.5;min-height:2rem}
 small{line-height:1.5}
-@media(max-width:620px){.world{grid-template-columns:1fr}.place{min-height:80px}.actions button{flex:1 1 42%}}
+@media(max-width:620px){.world{grid-template-columns:1fr}.place{min-height:80px}.actions button{flex:1 1 100%;min-width:0;max-width:100%;overflow-wrap:anywhere}}
 </style></head><body><main>
 <header><h1>Lower Lantern Steps → Safe Hill Survey</h1>
 <div>Child-controlled PAPER model · FROM HERE / THERE · SEEN / MAYBE / UNKNOWN</div></header>
