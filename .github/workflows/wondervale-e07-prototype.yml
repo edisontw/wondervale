@@ -4,12 +4,16 @@ on:
     paths:
       - 'engine/s01e07-authoring-prototype.mjs'
       - 'tests/s01e07-authoring-prototype.test.mjs'
+      - 'tests/s01e07-browser.mjs'
+      - 'e07-prototype/**'
       - '.github/workflows/wondervale-e07-prototype.yml'
   push:
     branches: [main]
     paths:
       - 'engine/s01e07-authoring-prototype.mjs'
       - 'tests/s01e07-authoring-prototype.test.mjs'
+      - 'tests/s01e07-browser.mjs'
+      - 'e07-prototype/**'
       - '.github/workflows/wondervale-e07-prototype.yml'
 permissions:
   contents: read
@@ -26,6 +30,8 @@ jobs:
         run: |
           node --check engine/s01e07-authoring-prototype.mjs
           node --check tests/s01e07-authoring-prototype.test.mjs
+          node --check tests/s01e07-browser.mjs
+          node --check e07-prototype/main.mjs
       - name: Verify deterministic connector, evidence and preview isolation
         run: node --test tests/s01e07-authoring-prototype.test.mjs
       - name: Keep E07 model out of production packaging
@@ -34,3 +40,44 @@ jobs:
             echo 'E07 authoring module unexpectedly referenced by production packaging' >&2
             exit 1
           fi
+
+  e07-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Test four viewports, actual model interactions and keyboard
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . > /tmp/e07-browser-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/e07-prototype/ > /dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/e07-browser-server.log >&2
+            echo 'E07 authoring test server did not become ready' >&2
+            exit 1
+          fi
+          node tests/s01e07-browser.mjs
+      - name: Upload E07 browser screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e07-browser-evidence
+          path: test-results/e07-*
+          if-no-files-found: ignore
+          retention-days: 7
