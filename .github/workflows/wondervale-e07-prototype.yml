@@ -1,0 +1,36 @@
+name: Wondervale E07 isolated connector model
+on:
+  pull_request:
+    paths:
+      - 'engine/s01e07-authoring-prototype.mjs'
+      - 'tests/s01e07-authoring-prototype.test.mjs'
+      - '.github/workflows/wondervale-e07-prototype.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'engine/s01e07-authoring-prototype.mjs'
+      - 'tests/s01e07-authoring-prototype.test.mjs'
+      - '.github/workflows/wondervale-e07-prototype.yml'
+permissions:
+  contents: read
+jobs:
+  e07-authoring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check E07 isolated source and tests
+        run: |
+          node --check engine/s01e07-authoring-prototype.mjs
+          node --check tests/s01e07-authoring-prototype.test.mjs
+      - name: Verify deterministic connector, evidence and preview isolation
+        run: node --test tests/s01e07-authoring-prototype.test.mjs
+      - name: Keep E07 model out of production packaging
+        run: |
+          if grep -R -n -E 's01e07-authoring-prototype|e07-prototype' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
+            echo 'E07 authoring module unexpectedly referenced by production packaging' >&2
+            exit 1
+          fi
