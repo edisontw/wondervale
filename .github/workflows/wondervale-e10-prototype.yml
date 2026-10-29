@@ -1,0 +1,36 @@
+name: Wondervale E10 isolated courtyard evidence and needs model
+on:
+  pull_request:
+    paths:
+      - 'engine/s01e10-authoring-prototype.mjs'
+      - 'tests/s01e10-authoring-prototype.test.mjs'
+      - '.github/workflows/wondervale-e10-prototype.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'engine/s01e10-authoring-prototype.mjs'
+      - 'tests/s01e10-authoring-prototype.test.mjs'
+      - '.github/workflows/wondervale-e10-prototype.yml'
+permissions:
+  contents: read
+jobs:
+  e10-authoring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax check E10 engine and tests
+        run: |
+          node --check engine/s01e10-authoring-prototype.mjs
+          node --check tests/s01e10-authoring-prototype.test.mjs
+      - name: Test source isolation, needs and strict replay
+        run: node --test tests/s01e10-authoring-prototype.test.mjs
+      - name: Reject accidental production packaging
+        run: |
+          if grep -R -n -E 's01e10-authoring-prototype|e10-prototype' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
+            echo 'E10 authoring model unexpectedly referenced by production packaging' >&2
+            exit 1
+          fi
