@@ -4,6 +4,7 @@ on:
     paths:
       - 'authoring-labs/**'
       - 'tests/season1-authoring-labs-browser.mjs'
+      - 'tests/season1-handoff-contract.test.mjs'
       - '.github/workflows/wondervale-authoring-labs.yml'
   push:
     branches: [main]
@@ -25,10 +26,14 @@ jobs:
       - name: Check test syntax and production exclusion
         run: |
           node --check tests/season1-authoring-labs-browser.mjs
+          node --check tests/season1-handoff-contract.test.mjs
+          node --check authoring-labs/handoff-contract.mjs
           if grep -R -n -E 'authoring-labs|season1-authoring-labs-browser' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
             echo 'Noncanonical hub must not enter production packaging' >&2
             exit 1
           fi
+      - name: Verify noncanonical continuity and engine boundaries (Node)
+        run: node --test tests/season1-handoff-contract.test.mjs
       - name: Install pinned Playwright and Chromium
         run: |
           npm install --ignore-scripts --package-lock=false
@@ -57,6 +62,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: authoring-labs-browser-evidence
-          path: test-results/authoring-labs-*
+          path: |
+            test-results/authoring-labs-*
+            test-results/season1-handoff-audit.json
           if-no-files-found: ignore
           retention-days: 7
