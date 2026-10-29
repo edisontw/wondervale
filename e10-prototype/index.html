@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale E10 — The Place with No Name (authoring lab)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#273d38;background:#f2f1e8}
+*{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:auto;padding:clamp(.4rem,2vw,1rem)}
+header{background:#334b4b;color:#fff;border-radius:.7rem;padding:.75rem 1rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.2rem 0 .5rem}
+.notice{background:#fff0c7;border-left:5px solid #98651e;padding:.65rem;margin:.55rem 0;line-height:1.5}
+.panel{background:#fff;border:1px solid #c1ccc5;border-radius:.65rem;padding:.65rem;margin:.55rem 0;min-width:0}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem}
+button{font:inherit;min-width:44px;min-height:44px;padding:.4rem .6rem;border:2px solid #5a766b;border-radius:.45rem;background:#fafbf5;color:#1e3b33;cursor:pointer}
+button:disabled{opacity:.53;cursor:not-allowed}
+button:focus-visible{outline:3px solid #b7771e;outline-offset:2px}
+button[aria-pressed=true]{background:#dcebdc;border-color:#34664c}
+.scene{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:16/7;min-height:245px;border:3px solid #637b6b;border-radius:.7rem;background:linear-gradient(155deg,#cbd8ce 0%,#d4d3b7 44%,#e0cbaa 45%,#c6b397 100%)}
+.scene:before{content:"";position:absolute;inset:45% 0 0;background:repeating-linear-gradient(90deg,#c3b499 0 22px,#d2c5a9 22px 44px);opacity:.55}
+.edge{position:absolute;z-index:1;height:6px;background:#a7a293;transform-origin:left center;border-radius:4px;pointer-events:none}
+.edge.closed{background:repeating-linear-gradient(90deg,#8e3d3d 0 10px,transparent 10px 17px)}
+.anchor{position:absolute;z-index:3;transform:translate(-50%,-50%);font-size:clamp(.65rem,1.5vw,.85rem);padding:.2rem .35rem;max-width:27%;background:#fff8e9}
+.anchor.active{background:#ffe1a6;border-color:#8e651c}
+.milo{position:absolute;z-index:4;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;border:3px solid #3d6277;background:#eeb782;color:#163c50;display:grid;place-items:center;font-size:.78rem;font-weight:800;pointer-events:none;transition:left .18s,top .18s}
+.world-label,.closed-label{position:absolute;z-index:2;top:.3rem;border-radius:.3rem;padding:.2rem .4rem;font-size:.68rem;font-weight:750}
+.world-label{left:.35rem;background:#fff7dc}.closed-label{right:.3rem;background:#58343b;color:#fff;max-width:45%}
+.status{background:#edf2ed;border-radius:.4rem;padding:.5rem;margin:.4rem 0;line-height:1.45;overflow-wrap:anywhere}
+.board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem}
+.board-slot{border:2px dashed #8b9f92;border-radius:.4rem;padding:.45rem;min-height:58px;overflow-wrap:anywhere}
+.board-slot strong{display:block}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.45rem}
+.card{border:1px solid #c0cbc4;border-radius:.4rem;padding:.45rem;min-width:0;overflow-wrap:anywhere}
+.card h3{font-size:.9rem;margin:.1rem 0 .3rem}
+.card ul{margin:.1rem 0;padding-left:1.1rem;line-height:1.4}
+.finish-controls{position:relative;z-index:10;display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+small{color:#4c6058}
+@media(max-width:700px){.columns,.cards{grid-template-columns:1fr}.scene{min-height:245px}.milo{width:40px;height:40px}.board{grid-template-columns:1fr 1fr 1fr}.board-slot{font-size:.78rem;padding:.25rem}}
+@media(prefers-reduced-motion:reduce){.milo{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>E10 — The Place with No Name</h1><div>Explore two traces and listen to two needs · isolated authoring lab</div></header>
+<div class="notice" role="note"><strong>FICTIONAL MODEL — NOT VERIFIED HISTORY OR ACCESS.</strong> The courtyard, paths, traces, voices and name source are synthetic test data. The hill stays closed. No production Chronicle, save, E11 unlock, historical date or approved art. Any displayed place name is a clearly marked <strong>SYNTHETIC TEST TOKEN</strong>.</div>
+<div id="scene" class="scene" role="group" aria-label="Fictional courtyard model with five connected anchors and closed hill" data-phase="explore"></div>
+<section class="panel">
+<h2>1. Milo walks and looks</h2>
+<p>Nia: "What do we see? What do we think?" Walk Milo one connected model edge at a time.</p>
+<div id="walk-controls" class="controls" aria-label="Accessible walking controls"></div>
+<div id="inspect-controls" class="controls"></div>
+<div id="boundary-controls" class="controls"></div>
+<p id="feedback" class="status" aria-live="polite"></p>
+<p id="walk-status" class="status"></p>
+<p id="parent-cue-evidence" hidden><strong>Optional parent cue:</strong> Can two different uses fit one clue? What is still unknown?</p>
+</section>
+<div class="columns">
+<section class="panel">
+<h2>2. Try a MAYBE, then revise</h2>
+<p>Finn: "My first guess might change." These are possible uses, not historical facts.</p>
+<div id="hypothesis-controls" class="controls"></div>
+<p id="hypothesis-status" class="status"></p>
+</section>
+<section class="panel">
+<h2>3. Compare the mark and check a source</h2>
+<p>A matching mark alone cannot prove a name. Real sources are still pending.</p>
+<div id="source-controls" class="controls"></div>
+<p id="name-status" class="status" aria-live="polite"></p>
+</section>
+</div>
+<section class="panel">
+<h2>4. Hear both present-day needs</h2>
+<p>Move Milo to each listening point. Place the two temporary paper cards; nothing is built.</p>
+<div id="need-controls" class="controls"></div>
+<div id="board" class="board" aria-label="Temporary paper needs board"></div>
+<p id="parent-cue-needs" hidden><strong>Optional parent cue:</strong> What might each person need? Could both needs matter?</p>
+</section>
+<section class="panel">
+<h2>5. Compare, review and keep questions open</h2>
+<div id="finish-controls" class="finish-controls" aria-label="Review and preview finish"></div>
+<div class="controls"><button id="restart" type="button">Restart this preview</button></div>
+<div id="cards" class="cards">
+<div class="card"><h3>I SEE</h3><ul id="seen"></ul></div>
+<div class="card"><h3>MAYBE</h3><ul id="maybe"></ul></div>
+<div class="card"><h3>PEOPLE NEED</h3><ul id="needs"></ul></div>
+<div class="card"><h3>WE DON'T KNOW</h3><ul id="unknown"></ul></div>
+</div>
+<p id="chronicle" class="status" aria-live="polite"></p>
+<p id="hook" class="status" hidden></p>
+<p><small>Touch or Tab + Enter/Space. No timer, penalties, recorded voice, storage, telemetry or canonical unlock. Reload resets the model.</small></p>
+</section>
+</main>
+<script type="module" src="./main.mjs"></script>
+</body>
+</html>
