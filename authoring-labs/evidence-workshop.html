@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale — evidence workshop (authoring only)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;background:#f4f1e9;color:#203c37}
+*{box-sizing:border-box}body{margin:0}main{max-width:1000px;margin:auto;padding:clamp(.6rem,2vw,1.2rem)}
+header{background:#294b46;color:white;padding:1rem;border-radius:.7rem}
+h1{font-size:1.45rem;margin:.1rem 0}h2{font-size:1.1rem}
+.notice{background:#fff0cb;border-left:5px solid #956315;padding:.8rem;margin:.8rem 0;line-height:1.5}
+button,a{font:inherit;min-height:44px;padding:.6rem .75rem;border:2px solid #53756b;border-radius:.45rem;background:#f8fbf6;color:#21453b;cursor:pointer}
+a{display:inline-flex;align-items:center;text-decoration:none}
+button:focus-visible,a:focus-visible{outline:3px solid #b47719;outline-offset:2px}
+button[aria-pressed=true]{background:#d5ebd9;border-color:#276145;font-weight:700}
+button:disabled{opacity:.6;cursor:not-allowed}
+.scene-list,.types{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
+.panel{background:white;border:1px solid #bdc9c0;border-radius:.65rem;padding:.8rem;margin:.7rem 0}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.card{text-align:left;min-height:112px;line-height:1.5;overflow-wrap:anywhere}
+.card small{display:block;margin-top:.35rem;font-size:.8rem}
+.types button{flex:1 1 150px}
+#feedback{min-height:3rem;line-height:1.5}
+#review{line-height:1.5}
+footer{font-size:.85rem;line-height:1.5;margin:1rem 0}
+@media(max-width:650px){.cards{grid-template-columns:1fr}.card{min-height:70px}.scene-list button{flex:1 1 44%}}
+</style></head><body><main>
+<header><h1>Evidence Workshop</h1><div>Season 1 authoring exercise · I can check / I think / I still need proof</div></header>
+<p class="notice" role="note"><strong>NOT THE PRODUCTION GAME.</strong> These are fictional or synthetic lab observations and unanswered source questions, not things you have actually witnessed. No history is approved here. E04 has no genuine memory cards yet. Nothing here saves a Chronicle event, unlocks an episode, changes the world or proves safe access. Later-arc previews are optional spoilers.</p>
+<a href="./">Back to isolated lab index</a>
+<section class="panel" aria-label="Choose an authoring scene">
+<h2>Choose a model scene</h2><div id="scenes" class="scene-list"></div>
+</section>
+<section class="panel" aria-label="Sort three evidence cards">
+<h2 id="scene-title"></h2>
+<p>Choose a card, then put it in one of three groups. You can try again or change your choice.</p>
+<div id="cards" class="cards"></div>
+<h2>What kind of claim is it?</h2>
+<div id="types" class="types">
+<button type="button" data-type="MODEL">MODEL · a model can show this</button>
+<button type="button" data-type="MAYBE">MAYBE · a possible explanation</button>
+<button type="button" data-type="UNKNOWN">UNKNOWN · needs real proof</button>
+</div>
+<p id="feedback" role="status" aria-live="polite"></p>
+<p id="review" role="status" aria-live="polite"></p>
+<button id="reset" type="button">Try this scene again</button>
+</section>
+<footer>Parent cue: “What did the model show? What would we need to check in the real world?” The three categories describe the status of a claim, not a score or a historical truth. Each scene starts fresh. No storage, canonical source import or automatic next-scene progression.</footer>
+<script type="module">
+import {WORKSHOPS,TYPES,fresh,getWorkshop,selectCard,placeCard,review} from './evidence-workshop.mjs';
+const $=id=>document.getElementById(id);
+let state=fresh();
+function render(){
+ const scene=getWorkshop(state.sceneId),summary=review(state);
+ $('scene-title').textContent=scene.title+' — three different kinds of claim';
+ $('scenes').replaceChildren();
+ for(const s of WORKSHOPS){
+  const b=document.createElement('button');b.type='button';b.textContent=s.title;
+  b.dataset.scene=s.id;b.setAttribute('aria-pressed',String(s.id===state.sceneId));
+  b.addEventListener('click',()=>{state=fresh(s.id);render();});
+  $('scenes').append(b);
+ }
+ $('cards').replaceChildren();
+ for(const c of scene.cards){
+  const b=document.createElement('button');b.type='button';b.className='card';
+  b.dataset.card=c.id;b.setAttribute('aria-pressed',String(state.selected===c.id));
+  const span=document.createElement('span');span.textContent=c.text;
+  const small=document.createElement('small');
+  small.textContent=state.placements[c.id]?'Placed: '+state.placements[c.id]:'Not placed yet';
+  b.append(span,small);
+  b.addEventListener('click',()=>{state=selectCard(state,c.id);render();document.querySelector('[data-type="MODEL"]').focus();});
+  $('cards').append(b);
+ }
+ for(const b of document.querySelectorAll('[data-type]'))b.disabled=!state.selected;
+ $('feedback').textContent=state.feedback;
+ $('review').textContent=summary.placed+' of '+summary.total+' claims grouped. '+summary.message;
+}
+for(const b of document.querySelectorAll('[data-type]')){
+ b.addEventListener('click',()=>{state=placeCard(state,b.dataset.type);render();});
+}
+$('reset').addEventListener('click',()=>{state=fresh(state.sceneId);render();});
+render();
+</script></main></body></html>
