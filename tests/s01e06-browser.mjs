@@ -87,6 +87,9 @@ async function complete(page,label,screenshots){
   const before=await page.locator('.milo').evaluate(el=>el.style.left);
   await press(page,'Look: Healthy beds');
   await walk(page,'Higher slope');
+  // The scene replaces the actor and schedules its destination in requestAnimationFrame.
+  // Wait for the rendered destination, not the initial transition frame.
+  await page.waitForFunction(()=>document.querySelector('.milo')?.style.left==='69%');
   const after=await page.locator('.milo').evaluate(el=>el.style.left);
   assert.notEqual(before,after,'Milo visibly changes position in Current Garden');
   await press(page,'Look: Higher slope');
