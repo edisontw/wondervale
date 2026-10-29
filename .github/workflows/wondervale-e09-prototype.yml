@@ -26,10 +26,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Syntax check E09 synthetic engine and tests
+      - name: Syntax check E09 model, browser and tests
         run: |
           node --check engine/s01e09-authoring-prototype.mjs
           node --check tests/s01e09-authoring-prototype.test.mjs
+          node --check tests/s01e09-browser.mjs
+          node --check e09-prototype/main.mjs
       - name: Test safe graph, observed evidence and fail-closed replay
         run: node --test tests/s01e09-authoring-prototype.test.mjs
       - name: Keep E09 synthetic model out of production packaging
@@ -38,3 +40,43 @@ jobs:
             echo 'E09 authoring model unexpectedly referenced by production packaging' >&2
             exit 1
           fi
+  e09-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Four viewport journeys and keyboard
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . > /tmp/e09-browser-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/e09-prototype/ > /dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/e09-browser-server.log >&2
+            echo 'E09 authoring test server did not become ready' >&2
+            exit 1
+          fi
+          node tests/s01e09-browser.mjs
+      - name: Upload E09 browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e09-browser-evidence
+          path: test-results/e09-*
+          if-no-files-found: ignore
+          retention-days: 7
