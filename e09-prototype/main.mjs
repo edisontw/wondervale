@@ -58,6 +58,13 @@ function world(){
   actor.style.top=Math.min(91,coords[state.position][1]+16)+'%';
   host.dataset.phase=state.provisionalFinished?'complete':'survey';
 }
+function movement(){
+  const host=$('walk-controls');host.replaceChildren();
+  for(const id of NODES){
+    button(host,'Go to '+names[id],{type:'walk',to:id},
+      state.provisionalFinished||!adjacent(state.position,id));
+  }
+}
 function inspect(){
   const host=$('inspect-controls');host.replaceChildren();
   for(const [id,clue] of Object.entries(CLUES)){
@@ -131,7 +138,7 @@ function notebook(){
   $('hook').textContent=state.provisionalFinished?
     'Model complete. E10 remains NOT UNLOCKED. What is the place beyond the mark? The old hill way stays closed.':'';
 }
-function render(){world();inspect();sketch();thoughts();notebook();}
+function render(){world();movement();inspect();sketch();thoughts();notebook();}
 $('restart').addEventListener('click',()=>act({type:'reset'}));
 window.addEventListener('resize',world);
 render();

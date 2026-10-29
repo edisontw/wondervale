@@ -11,7 +11,7 @@ async function press(page,name){
   assert.equal(await btn(page,name).isEnabled(),true,name+' enabled');
   await btn(page,name).click();
 }
-async function walk(page,name){await press(page,'Walk Milo to '+name);}
+async function walk(page,name){await press(page,'Go to '+name);}
 async function geometry(page,label){
   const data=await page.evaluate(()=>{
     const scene=document.querySelector('#scene').getBoundingClientRect();
