@@ -1,0 +1,36 @@
+name: Wondervale E11 isolated shared-space and safe-loop model
+on:
+  pull_request:
+    paths:
+      - 'engine/s01e11-authoring-prototype.mjs'
+      - 'tests/s01e11-authoring-prototype.test.mjs'
+      - '.github/workflows/wondervale-e11-prototype.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'engine/s01e11-authoring-prototype.mjs'
+      - 'tests/s01e11-authoring-prototype.test.mjs'
+      - '.github/workflows/wondervale-e11-prototype.yml'
+permissions:
+  contents: read
+jobs:
+  e11-authoring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax check E11 isolated reducer and tests
+        run: |
+          node --check engine/s01e11-authoring-prototype.mjs
+          node --check tests/s01e11-authoring-prototype.test.mjs
+      - name: Run layout, dual-user, loop and replay checks
+        run: node --test tests/s01e11-authoring-prototype.test.mjs
+      - name: Reject accidental production packaging
+        run: |
+          if grep -R -n -E 's01e11-authoring-prototype|e11-prototype' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
+            echo 'E11 authoring model unexpectedly referenced by production packaging' >&2
+            exit 1
+          fi
