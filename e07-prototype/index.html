@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale E07 — Finn's Shortcut (authoring lab)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;background:#f4f2e9;color:#233b36}
+*{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:auto;padding:clamp(.4rem,2vw,1rem)}
+header{background:#2e534b;color:#fff;border-radius:.75rem;padding:.75rem 1rem}
+h1{font-size:1.35rem;margin:.15rem 0}h2{font-size:1.08rem;margin:.2rem 0 .5rem}
+.notice{background:#fff1c9;border-left:5px solid #a76b19;padding:.65rem;margin:.6rem 0;line-height:1.45}
+.panel{background:#fff;border:1px solid #c7d4cd;border-radius:.7rem;padding:.7rem;margin:.6rem 0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+.controls{display:flex;gap:.4rem;flex-wrap:wrap}
+button{font:inherit;color:#18382e;background:#f9fcf8;border:2px solid #507063;border-radius:.5rem;min-height:44px;min-width:44px;padding:.45rem .65rem;cursor:pointer}
+button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px solid #ba680b;outline-offset:3px}
+button[aria-pressed=true]{background:#e4f1df;border-color:#356e49}
+.status{background:#eaf0eb;border-radius:.4rem;padding:.55rem;line-height:1.45;margin:.4rem 0}
+.scene{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:16/7;min-height:190px;background:linear-gradient(170deg,#dce8d2 0 48%,#c9b899 48% 65%,#b3d3c0 65%);border:3px solid #55736b;border-radius:.7rem}
+.scene:before{content:"";position:absolute;left:0;right:0;top:53%;height:17%;background:repeating-linear-gradient(90deg,#c7b89c 0 30px,#d8c9ab 30px 60px);transform:rotate(-2deg)}
+.anchor{position:absolute;z-index:2;transform:translate(-50%,-50%);max-width:26%;font-size:clamp(.72rem,1.7vw,.9rem);background:#fffcf0e8}
+.anchor.active{background:#ffe6a5;border-color:#986d21}
+.milo{position:absolute;z-index:3;transform:translate(-50%,-50%);width:50px;height:50px;border-radius:50%;border:3px solid #37596c;background:#efb37a;color:#18354b;display:grid;place-items:center;font-weight:800;pointer-events:none;transition:left .2s ease,top .2s ease}
+@media(prefers-reduced-motion:reduce){.milo{transition:none}}
+.world-label{position:absolute;top:.35rem;left:.35rem;background:#fff9e9d9;padding:.2rem .45rem;border-radius:.3rem;font-size:.75rem;font-weight:700}
+.board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:2px;width:min(100%,460px);margin:.5rem auto;background:#526b62;border:3px solid #526b62;border-radius:.4rem;overflow:hidden}
+.cell{aspect-ratio:1;display:grid;place-items:center;background:#f2eee0;font-weight:700;font-size:clamp(.55rem,1.8vw,.86rem);position:relative}
+.cell.route{background:#c9dcaa}.cell.resident{box-shadow:inset 0 0 0 3px #866ab4}.cell.water{border-bottom:5px dashed #337db1}
+.cell.overlap{background:#f6bba2}.cell.trace{outline:2px solid #2b6258;outline-offset:-5px}
+.legend{font-size:.83rem;line-height:1.4}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.trace-result{border:1px solid #b8cbbf;border-radius:.4rem;padding:.5rem;margin:.35rem 0}
+.pass{font-weight:700;color:#24613b}.fail{font-weight:700;color:#934322}.pending{font-weight:700;color:#6b6557}
+small{color:#465c52}
+@media(max-width:700px){.two,.pair{grid-template-columns:1fr}.milo{width:42px;height:42px}.anchor{max-width:30%}.scene{min-height:185px}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>E07 — Finn's Perfect Shortcut</h1><div>Child-controlled connector trial · isolated authoring laboratory</div></header>
+<div class="notice" role="note"><strong>MODEL — NOT THE REAL SITE.</strong> Every grid cell, passage, water channel and snap point is synthetic. This is not approved terrain, painterly art, construction permission, historical evidence, an E07 save or an E08 unlock.</div>
+<div id="scene" class="scene" role="group" aria-label="Connector passage: walk Milo between adjacent places"></div>
+<section class="panel">
+<h2>1. Walk and look</h2>
+<p>Walk Milo along the passage. Look at the shared path and water channel before using Finn's model.</p>
+<div id="inspect-controls" class="controls"></div>
+<p id="observations" class="status" aria-live="polite"></p>
+</section>
+<div class="two">
+<section class="panel">
+<h2>2. Try the connector model</h2>
+<p>First, test Finn's short route. Then see if another person and water can pass.</p>
+<div id="trial-controls" class="controls"></div>
+<div id="trial-results" class="status" aria-live="polite"></div>
+<p id="parent-cue" hidden><strong>Optional parent cue:</strong> It works for us. Who else uses this place?</p>
+</section>
+<section class="panel">
+<h2>3. Move one model piece</h2>
+<p>Choose a visible snap footprint. Try again. A longer way may work for more people.</p>
+<div id="snap-controls" class="controls"></div>
+<div id="revision-controls" class="controls" style="margin-top:.4rem"></div>
+<p id="revision-results" class="status" aria-live="polite"></p>
+</section>
+</div>
+<div class="two">
+<section class="panel">
+<h2>Connector board — synthetic 8 × 7 cells</h2>
+<div id="board" class="board" role="img" aria-label="Model grid with connector, resident path and water channel"></div>
+<p class="legend">Green = connector; purple outline = resident path; blue dash = water; orange = overlap. Each trace is checked separately. These marks are not real paving.</p>
+</section>
+<section class="panel">
+<h2>4. Compare FIRST / NOW</h2>
+<div id="comparison" class="status" aria-live="polite"></div>
+<div id="compare-controls" class="controls"></div>
+<p id="hook" class="status" hidden></p>
+</section>
+</div>
+<section class="panel">
+<h2>Chronicle — authoring preview only</h2>
+<p id="chronicle" class="status" aria-live="polite"></p>
+<button id="restart">Restart this preview</button>
+<p><small>Use scene buttons or Tab + Enter/Space. No timer, score, drag-only action, network telemetry, storage, real construction, production imports or canonical unlocks. Reload starts over.</small></p>
+</section>
+</main>
+<script type="module" src="./main.mjs"></script>
+</body>
+</html>
