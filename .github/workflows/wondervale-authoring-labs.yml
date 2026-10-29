@@ -13,6 +13,8 @@ on:
       - 'tests/season1-garden-connector-browser.mjs'
       - 'tests/season1-connector-lantern.test.mjs'
       - 'tests/season1-connector-lantern-browser.mjs'
+      - 'tests/season1-lantern-hill.test.mjs'
+      - 'tests/season1-lantern-hill-browser.mjs'
       - '.github/workflows/wondervale-authoring-labs.yml'
   push:
     branches: [main]
@@ -27,6 +29,8 @@ on:
       - 'tests/season1-garden-connector-browser.mjs'
       - 'tests/season1-connector-lantern.test.mjs'
       - 'tests/season1-connector-lantern-browser.mjs'
+      - 'tests/season1-lantern-hill.test.mjs'
+      - 'tests/season1-lantern-hill-browser.mjs'
       - '.github/workflows/wondervale-authoring-labs.yml'
 permissions:
   contents: read
@@ -49,7 +53,10 @@ jobs:
           node --check tests/season1-evidence-workshop-browser.mjs
           node --check authoring-labs/garden-connector.mjs
           node --check authoring-labs/connector-lantern.mjs
-          node --check tests/season1-connector-lantern.test.mjs
+          node --check authoring-labs/lantern-hill.mjs
+          node --check tests/season1-lantern-hill.test.mjs
+          node --check tests/season1-lantern-hill-browser.mjs
+          node --check tests/season1-connector-lantern.test.mjs tests/season1-lantern-hill.test.mjs
           node --check tests/season1-connector-lantern-browser.mjs
           node --check tests/season1-garden-connector.test.mjs
           node --check tests/season1-garden-connector-browser.mjs
@@ -89,6 +96,7 @@ jobs:
           node tests/season1-world-change-browser.mjs
           node tests/season1-garden-connector-browser.mjs
           node tests/season1-connector-lantern-browser.mjs
+          node tests/season1-lantern-hill-browser.mjs
       - name: Upload smoke evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -100,6 +108,7 @@ jobs:
             test-results/world-change-*
             test-results/garden-connector-*
             test-results/connector-lantern-*
+            test-results/lantern-hill-*
             test-results/season1-handoff-audit.json
           if-no-files-found: ignore
           retention-days: 7
