@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale E08 — Two Views, One Question (authoring lab)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;background:#f3f1e9;color:#253a36}
+*{box-sizing:border-box}body{margin:0}main{max-width:1080px;margin:auto;padding:clamp(.45rem,2vw,1rem)}
+header{background:#314e51;color:#fff;border-radius:.75rem;padding:.8rem 1rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.08rem;margin:.2rem 0 .5rem}
+.notice{background:#fff0c7;border-left:5px solid #9c6a20;padding:.7rem;margin:.6rem 0;line-height:1.45}
+.panel{background:#fff;border:1px solid #c6d2cc;border-radius:.7rem;padding:.7rem;margin:.6rem 0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:.65rem}
+.controls{display:flex;gap:.4rem;flex-wrap:wrap}
+button{font:inherit;color:#1b3832;background:#f9fcf8;border:2px solid #56776b;border-radius:.5rem;min-height:44px;min-width:44px;padding:.45rem .65rem;cursor:pointer}
+button:disabled{opacity:.52;cursor:not-allowed}button:focus-visible{outline:3px solid #b36c11;outline-offset:3px}
+button[aria-pressed=true]{background:#e5f2de;border-color:#346d4c}
+.status{background:#eaf0ec;border-radius:.4rem;padding:.55rem;line-height:1.5;margin:.45rem 0}
+.scene{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:16/7;min-height:195px;background:linear-gradient(180deg,#2c4352 0 43%,#667d78 43% 47%,#b9b49c 47% 72%,#8a9984 72%);border:3px solid #57726d;border-radius:.7rem}
+.scene:before{content:"";position:absolute;left:0;right:0;top:49%;height:18%;background:repeating-linear-gradient(90deg,#c5bca2 0 38px,#d7ccb1 38px 76px);transform:rotate(-2deg)}
+.anchor{position:absolute;z-index:3;transform:translate(-50%,-50%);max-width:27%;font-size:clamp(.7rem,1.5vw,.9rem);background:#fff9e9}
+.anchor.active{background:#ffe6a5;border-color:#91681f}
+.milo{position:absolute;z-index:4;transform:translate(-50%,-50%);width:48px;height:48px;border-radius:50%;border:3px solid #35586b;background:#f1b77b;color:#173d50;display:grid;place-items:center;font-size:.8rem;font-weight:800;pointer-events:none;transition:left .2s ease,top .2s ease}
+.world-label{position:absolute;top:.35rem;left:.35rem;background:#fff9e9ed;padding:.2rem .4rem;border-radius:.3rem;font-size:.73rem;font-weight:700}
+.upper{position:absolute;top:.4rem;right:.4rem;max-width:42%;padding:.25rem .4rem;background:#462f32;color:white;font-size:.72rem;border:2px solid #e5b8b5;border-radius:.3rem}
+.lamp{position:absolute;top:32%;width:18px;height:28px;border:2px solid #313d37;background:#535d55;border-radius:45% 45% 15% 15%;z-index:2}
+.lamp:after{content:"";position:absolute;left:6px;top:26px;width:3px;height:36px;background:#3e4b45}
+.lamp.on{background:#f9d77a;box-shadow:0 0 15px 7px #f8d57a70}
+.lamp.a{left:30%}.lamp.b{left:68%}
+.projections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+.view-card{border:1px solid #b8c7c0;border-radius:.5rem;padding:.5rem;min-width:0}
+.view-card h3{font-size:.93rem;margin:.1rem 0}
+.strip{position:relative;height:95px;background:linear-gradient(90deg,#e9eee8,#faf7e9);border:1px solid #b2c7b7;border-radius:.4rem;overflow:hidden}
+.mark{position:absolute;width:28px;height:24px;border:2px solid #37596c;background:#f6d9a4;border-radius:.25rem;display:grid;place-items:center;font-size:.72rem;font-weight:700;transform:translateX(-50%)}
+small{color:#475d55}
+@media(max-width:700px){.two,.projections{grid-template-columns:1fr}.scene{min-height:195px}.milo{width:42px;height:42px}}
+@media(prefers-reduced-motion:reduce){.milo{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>E08 — When the Steps Light Up</h1><div>Two views, one question · child-controlled authoring laboratory</div></header>
+<div class="notice" role="note"><strong>MODEL — NOT THE REAL STEPS.</strong> The lower lanterns, marker coordinates and safe viewing anchors are synthetic. No real electrical repair, approved route, historical date, production Chronicle or E09 unlock.</div>
+<div id="scene" class="scene" role="group" aria-label="Synthetic lower Lantern Steps: Milo walks between adjacent safe viewpoints"></div>
+<section class="panel">
+<h2>1. Walk and inspect</h2>
+<p>Milo can only walk between neighboring lower viewpoints. The upper hill is closed.</p>
+<div id="inspect-controls" class="controls"></div>
+<p id="inspections" class="status" aria-live="polite"></p>
+</section>
+<div class="two">
+<section class="panel">
+<h2>2. Try the lower lights</h2>
+<p>Finn: "Let's try two small lights." This is a model switch, not real wiring.</p>
+<div id="light-controls" class="controls"></div>
+<p id="light-status" class="status" aria-live="polite"></p>
+</section>
+<section class="panel">
+<h2>3. Look from here, then there</h2>
+<p>Nia: "Does it look the same from another place?"</p>
+<div id="view-controls" class="controls"></div>
+<p id="view-status" class="status" aria-live="polite"></p>
+<p id="parent-cue" hidden><strong>Optional parent cue:</strong> What could Milo do to check this from somewhere else?</p>
+</section>
+</div>
+<section class="panel">
+<h2>4. Compare the same three fixed marks</h2>
+<div id="projections" class="projections" aria-live="polite"></div>
+<p id="comparison" class="status" aria-live="polite"></p>
+<div id="compare-controls" class="controls"></div>
+</section>
+<section class="panel">
+<h2>Chronicle — model observation only</h2>
+<p id="chronicle" class="status" aria-live="polite"></p>
+<p id="hook" class="status" hidden></p>
+<button id="restart">Restart this preview</button>
+<p><small>Tab + Enter/Space or touch. No timer, scores, mandatory sound, storage, network telemetry, invented source date or canonical unlock. Reload begins again.</small></p>
+</section>
+</main>
+<script type="module" src="./main.mjs"></script>
+</body>
+</html>
