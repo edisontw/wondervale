@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale — Lantern Steps to Closed Hill (paper trial)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;background:#eff3ed;color:#213c34}
+*{box-sizing:border-box}body{margin:0}main{max-width:1080px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#294b42;color:white;border-radius:.65rem;padding:.85rem}
+h1{font-size:1.4rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.3rem 0}
+.notice{background:#fff0cb;border-left:5px solid #94661a;padding:.75rem;margin:.7rem 0;line-height:1.5}
+.panel{background:white;border:1px solid #b9cbbd;border-radius:.65rem;padding:.7rem;margin:.65rem 0}
+.world{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+.place{min-width:0;background:#f4f7ef;border:2px solid #a6b7a9;border-radius:.55rem;padding:.75rem;min-height:105px}
+.place.active{border-color:#327b55;background:#e9f4e8}
+.object{margin-top:.5rem;padding:.6rem;border-radius:.4rem;background:#e6e9dc;min-height:3.4rem;line-height:1.5}
+.object.lit{background:#fff1c1}
+.actions,nav{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
+button,a{font:inherit;min-height:44px;min-width:44px;border:2px solid #54756a;border-radius:.45rem;padding:.5rem .65rem;background:#f9fcf7;color:#234439;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:3px solid #b57d1b;outline-offset:2px}
+#feedback,#progress,#task-cue{line-height:1.5;min-height:2rem}
+small{line-height:1.5}
+@media(max-width:620px){.world{grid-template-columns:1fr}.place{min-height:80px}.actions button{flex:1 1 42%}}
+</style></head><body><main>
+<header><h1>Lower Lantern Steps → Safe Hill Survey</h1>
+<div>Child-controlled PAPER model · FROM HERE / THERE · SEEN / MAYBE / UNKNOWN</div></header>
+<p class="notice"><strong>NOT THE PRODUCTION GAME.</strong> All viewpoints, lamps, terrain, routes and clues are synthetic. Real lighting, hill access, erosion causes, historical dates and the distant place are NOT verified. The upper North Hill remains CLOSED. No E04 bypass, Chronicle, unlock, real E09 access or MN4 deployment.</p>
+<a href="./">Back to isolated labs</a>
+<section class="panel"><h2>World that remembers (during this paper trial only)</h2>
+<div class="world">
+<div class="place active" id="steps-place"><strong>E08 · Lower Lantern Steps</strong>
+<div class="object" id="steps-object">Both LOWER lamps OFF; two viewpoints not yet compared.</div></div>
+<div class="place" id="hill-place"><strong>E09 · Safe North Hill viewpoint</strong>
+<div class="object" id="hill-object">Old upper hill CLOSED. A lower survey is only a model.</div></div>
+</div><nav id="navigation"></nav></section>
+<section class="panel"><h2 id="task-title">E08 · Inspect the lower Steps</h2>
+<p id="task-cue"></p><div id="actions" class="actions"></div>
+<p id="feedback" role="status" aria-live="polite"></p>
+<p id="progress" role="status" aria-live="polite"></p>
+<p id="parent-cue" hidden>Parent (optional): “What did Milo see? What might be true? What is still unknown?”</p>
+<button id="restart" type="button">Restart paper story</button></section>
+<footer><small>First observe, then try a second viewpoint. The model may have a route gap; revise it without punishment. Do not infer a date from the service plate or a safe upper path from a distant symbol. E10 remains NOT UNLOCKED.</small></footer>
+<script type="module">
+import {fresh,dispatch,project} from './lantern-hill.mjs';
+import {VIEWPOINTS,FEATURES,FIXTURES} from '../engine/s01e08-authoring-prototype.mjs';
+import {NODES,CLUES,HYPOTHESES,SAFE_EDGES,CLOSED_NODE,CLOSED_EDGE} from '../engine/s01e09-authoring-prototype.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const cmd=(scene,type,extra={})=>({scene,type,...extra});
+const ident=a=>[a.scene,a.type,a.anchor??a.feature??a.lampId??a.to??a.clueId??a.hypothesisId??a.edgeId??''].join(':');
+function add(host,label,a){
+ const trial=dispatch(state,a),b=document.createElement('button');
+ b.type='button';b.textContent=label;b.dataset.action=ident(a);
+ b.disabled=trial.history.length===state.history.length;
+ b.addEventListener('click',()=>{state=dispatch(state,a);render();});
+ host.append(b);
+}
+function render(){
+ const p=project(state),l=state.steps,h=state.hill;
+ $('steps-place').classList.toggle('active',p.stage==='steps');
+ $('hill-place').classList.toggle('active',p.stage==='hill');
+ $('steps-object').classList.toggle('lit',l.lights['lower-a']||l.lights['lower-b']);
+ $('steps-object').textContent='LOWER A '+(l.lights['lower-a']?'ON':'OFF')+
+  ' · LOWER B '+(l.lights['lower-b']?'ON':'OFF')+
+  '. '+(l.previewComplete?'Two paper viewpoints compared; undated plate QUESTION carried forward.':
+    l.observations.length+' viewpoint(s) observed. Historical date UNKNOWN.');
+ $('hill-object').textContent='UPPER HILL CLOSED. '+(h.provisionalFinished?
+   'Safe PAPER overlook sketched; E10 NOT UNLOCKED.':
+   'Milo at '+h.position+'. Surveyed '+h.surveyedEdges.length+
+   ' safe model edges; closed attempts '+h.blockedAttempts+'.');
+ const nav=$('navigation');nav.replaceChildren();
+ add(nav,'Return to E08 lower Steps',cmd('nav','to-steps'));
+ add(nav,'Visit E09 safe survey model',cmd('nav','to-hill'));
+ const host=$('actions');host.replaceChildren();
+ if(p.stage==='steps'){
+   $('task-title').textContent='E08 · FROM HERE / FROM THERE';
+   $('task-cue').textContent='Milo at '+l.miloPosition+
+     '. Inspect the lower brackets and closed boundary. Test only LOWER model lamps, then compare two safe views.';
+   for(const anchor of Object.keys(VIEWPOINTS))add(host,'Walk: '+anchor,cmd('steps','walk',{anchor}));
+   for(const feature of Object.keys(FEATURES))add(host,'Look: '+feature,cmd('steps','inspect',{feature}));
+   for(const lampId of FIXTURES)add(host,'Toggle LOWER lamp: '+lampId,cmd('steps','toggle-lamp',{lampId}));
+   for(const type of ['observe-view','compare-views','confirm-preview'])
+     add(host,type.replaceAll('-',' '),cmd('steps',type));
+   $('feedback').textContent=p.steps.message+' Upper hill is CLOSED.';
+   $('progress').textContent='Views: '+l.observations.map(o=>o.viewpoint+' '+o.spreadDegrees.toFixed(1)+'°').join(' → ')+
+     '. '+(l.compared?'Same marks, different apparent spacing.':'Look from two different safe places.')+
+     ' Service plate: '+(p.servicePlate||'not inspected')+'. Historical date UNKNOWN.';
+   $('parent-cue').hidden=l.observations.length===0||l.previewComplete;
+ }else{
+   $('task-title').textContent='E09 · Survey from safe model points';
+   $('task-cue').textContent='Milo at '+h.position+
+     '. Try the closed way safely, inspect clues, walk a lower alternative, mark surveyed edges, find a gap and revise.';
+   for(const to of [...NODES,CLOSED_NODE])add(host,'Walk: '+to,cmd('hill','walk',{to}));
+   for(const clueId of Object.keys(CLUES))add(host,'Look: '+clueId,cmd('hill','inspect',{clueId}));
+   for(const hypothesisId of Object.keys(HYPOTHESES))
+     add(host,'Maybe: '+hypothesisId,cmd('hill','consider',{hypothesisId}));
+   for(const edgeId of [...SAFE_EDGES.map(e=>e.id),CLOSED_EDGE])
+     add(host,'Mark: '+edgeId,cmd('hill','mark',{edgeId}));
+   for(const edgeId of SAFE_EDGES.map(e=>e.id))
+     add(host,'Remove: '+edgeId,cmd('hill','unmark',{edgeId}));
+   for(const type of ['check-route','compare-symbol','review','finish-preview'])
+     add(host,type.replaceAll('-',' '),cmd('hill',type));
+   $('feedback').textContent=p.hill.feedback;
+   $('progress').textContent='SEEN '+h.observations.length+' · MAYBE '+h.hypotheses.length+
+     ' · UNKNOWN: cause, date, access and distant place. Route: '+
+     (h.routeResult?(h.routeResult.complete?'continuous lower PAPER route':'gap at '+h.routeResult.nextGap):
+       'not checked')+'. Safe overlook '+(h.provisionalFinished?'model complete':'pending')+
+     '. E10 NOT UNLOCKED. Canonical events 0; unlocks 0.';
+   $('parent-cue').hidden=h.inspected.length===0||h.provisionalFinished;
+ }
+}
+$('restart').addEventListener('click',()=>{state=fresh();render();});
+render();
+</script></main></body></html>
