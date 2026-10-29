@@ -4,12 +4,16 @@ on:
     paths:
       - 'engine/s01e08-authoring-prototype.mjs'
       - 'tests/s01e08-authoring-prototype.test.mjs'
+      - 'tests/s01e08-browser.mjs'
+      - 'e08-prototype/**'
       - '.github/workflows/wondervale-e08-prototype.yml'
   push:
     branches: [main]
     paths:
       - 'engine/s01e08-authoring-prototype.mjs'
       - 'tests/s01e08-authoring-prototype.test.mjs'
+      - 'tests/s01e08-browser.mjs'
+      - 'e08-prototype/**'
       - '.github/workflows/wondervale-e08-prototype.yml'
 permissions:
   contents: read
@@ -22,15 +26,58 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Check E08 pure model and Node tests
+      - name: Check E08 isolated model, scene and tests
         run: |
           node --check engine/s01e08-authoring-prototype.mjs
           node --check tests/s01e08-authoring-prototype.test.mjs
-      - name: Test computed perspective, safe lamp model and replay
+          node --check tests/s01e08-browser.mjs
+          node --check e08-prototype/main.mjs
+      - name: Test perspective geometry, safe lamp model and replay
         run: node --test tests/s01e08-authoring-prototype.test.mjs
-      - name: Ensure authoring-only E08 is absent from production packaging
+      - name: Keep E08 lab out of production packaging
         run: |
           if grep -R -n -E 's01e08-authoring-prototype|e08-prototype' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
             echo 'E08 synthetic model unexpectedly referenced by production packaging' >&2
             exit 1
           fi
+
+  e08-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Four viewport journeys and keyboard
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . > /tmp/e08-browser-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/e08-prototype/ > /dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/e08-browser-server.log >&2
+            echo 'E08 authoring test server did not become ready' >&2
+            exit 1
+          fi
+          node tests/s01e08-browser.mjs
+      - name: Upload E08 browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e08-browser-evidence
+          path: test-results/e08-*
+          if-no-files-found: ignore
+          retention-days: 7
