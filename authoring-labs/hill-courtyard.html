@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale — Safe Hill to Unnamed Place (paper trial)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;background:#eff3ed;color:#213c34}
+*{box-sizing:border-box}body{margin:0}main{max-width:1080px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#294b42;color:white;border-radius:.65rem;padding:.85rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.3rem 0}
+.notice{background:#fff0cb;border-left:5px solid #94661a;padding:.75rem;margin:.7rem 0;line-height:1.5}
+.panel{background:white;border:1px solid #b9cbbd;border-radius:.65rem;padding:.7rem;margin:.65rem 0}
+.world{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+.place{min-width:0;background:#f4f7ef;border:2px solid #a6b7a9;border-radius:.55rem;padding:.7rem}
+.place.active{border-color:#327b55;background:#e9f4e8}
+.object{margin-top:.5rem;padding:.6rem;border-radius:.4rem;background:#e6e9dc;min-height:3.4rem;line-height:1.5;overflow-wrap:anywhere}
+.actions,nav{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
+button,a{font:inherit;min-height:44px;min-width:44px;border:2px solid #54756a;border-radius:.45rem;padding:.5rem .65rem;background:#f9fcf7;color:#234439;cursor:pointer}
+button{max-width:100%;white-space:normal;overflow-wrap:anywhere}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,a:focus-visible{outline:3px solid #b57d1b;outline-offset:2px}
+#feedback,#progress,#task-cue{line-height:1.5;min-height:2rem;overflow-wrap:anywhere}
+small{line-height:1.5}
+@media(max-width:620px){.world{grid-template-columns:1fr}.actions button{flex:1 1 100%;min-width:0}}
+</style></head><body><main>
+<header><h1>Safe Hill Survey → Place with No Name</h1><div>Child-operated PAPER model · SEEN / MAYBE / NEEDS / UNKNOWN</div></header>
+<p class="notice"><strong>NOT THE PRODUCTION GAME.</strong> The lower route, courtyard, traces and people are fictional. North Hill is CLOSED. No verified entry, real historical source, actual resident testimony, name, Chronicle, E10/E11 unlock, or MN4 deployment. E04 evidence remains blocked.</p>
+<a href="./">Back to isolated labs</a>
+<section class="panel"><h2>Paper world remembers until restart</h2><div class="world">
+<div class="place active" id="hill-place"><strong>E09 · Safe hill viewpoint</strong><div class="object" id="hill-object">UPPER HILL CLOSED. Milo must inspect and revise the lower sketch.</div></div>
+<div class="place" id="courtyard-place"><strong>E10 · Unnamed place model</strong><div class="object" id="courtyard-object">Two undated traces; two simulated present needs. Name UNKNOWN.</div></div>
+</div><nav id="navigation"></nav></section>
+<section class="panel"><h2 id="task-title">E09 · Inspect safely</h2><p id="task-cue"></p>
+<div class="actions" id="actions"></div><p id="feedback" role="status" aria-live="polite"></p>
+<p id="progress" role="status" aria-live="polite"></p>
+<p id="parent-cue" hidden>Parent (optional): “What did Milo SEE? What might it mean? Whose needs are different?”</p>
+<button type="button" id="restart">Restart paper story</button></section>
+<footer><small>Try a route, notice a gap, revise. Then compare two undated traces and listen to two simulated needs. UNKNOWN is a valid result; no name source or safe access is invented. No permanent layout is built.</small></footer>
+<script type="module">
+import {fresh,dispatch,project} from './hill-courtyard.mjs';
+import {NODES as HILL_NODES,CLOSED_NODE as HILL_CLOSED,CLUES,HYPOTHESES,SAFE_EDGES,CLOSED_EDGE} from '../engine/s01e09-authoring-prototype.mjs';
+import {NODES as COURT_NODES,CLOSED_NODE as COURT_CLOSED,TRACES,NEEDS,USE_TAGS,SLOTS} from '../engine/s01e10-authoring-prototype.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const cmd=(scene,type,extra={})=>({scene,type,...extra});
+const ident=a=>[a.scene,a.type,a.to??a.clueId??a.hypothesisId??a.edgeId??a.traceId??a.needId??'',a.useTag??a.slot??a.oldTag??'',a.newTag??''].join(':');
+function add(host,label,a){
+ const after=dispatch(state,a),b=document.createElement('button');
+ b.type='button';b.textContent=label;b.dataset.action=ident(a);
+ b.disabled=after.history.length===state.history.length;
+ b.addEventListener('click',()=>{state=dispatch(state,a);render();});host.append(b);
+}
+function render(){
+ const p=project(state),h=state.hill,c=state.courtyard;
+ $('hill-place').classList.toggle('active',p.stage==='hill');
+ $('courtyard-place').classList.toggle('active',p.stage==='courtyard');
+ $('hill-object').textContent='UPPER HILL CLOSED. '+(h.provisionalFinished?
+   'Safe lower PAPER overlook sketched; distant mark still unnamed.':
+   'Milo at '+h.position+'. Surveyed '+h.surveyedEdges.length+' lower edges. Sketch '+(h.routeResult?.complete?'continuous':h.routeResult?.nextGap??'unchecked')+'.');
+ $('courtyard-object').textContent='Name UNKNOWN. '+c.observations.length+
+   ' undated SEEN traces; '+c.heard.length+' simulated NEEDS; '+(c.tradeoffReviewed?'two needs compared on paper.':'no permanent plan.');
+ const nav=$('navigation');nav.replaceChildren();
+ add(nav,'Return to E09 safe survey',cmd('nav','to-hill'));
+ add(nav,'Visit E10 unnamed PAPER place',cmd('nav','to-courtyard'));
+ const host=$('actions');host.replaceChildren();
+ if(p.stage==='hill'){
+   $('task-title').textContent='E09 · See, sketch, revise';
+   $('task-cue').textContent='Milo at '+h.position+'. Inspect a closed sign, ground, water and distant symbol. The upper way cannot be used. Sketch only the lower edges Milo walked.';
+   for(const to of [...HILL_NODES,HILL_CLOSED])add(host,'Walk: '+to,cmd('hill','walk',{to}));
+   for(const clueId of Object.keys(CLUES))add(host,'Look: '+clueId,cmd('hill','inspect',{clueId}));
+   for(const hypothesisId of Object.keys(HYPOTHESES))add(host,'Maybe: '+hypothesisId,cmd('hill','consider',{hypothesisId}));
+   for(const edgeId of [...SAFE_EDGES.map(e=>e.id),CLOSED_EDGE])add(host,'Mark: '+edgeId,cmd('hill','mark',{edgeId}));
+   for(const edgeId of SAFE_EDGES.map(e=>e.id))add(host,'Remove: '+edgeId,cmd('hill','unmark',{edgeId}));
+   for(const type of ['check-route','compare-symbol','review','finish-preview'])
+     add(host,type.replaceAll('-',' '),cmd('hill',type));
+   $('feedback').textContent=h.feedback;
+   $('progress').textContent='SEEN '+h.observations.length+' · MAYBE '+h.hypotheses.length+
+     ' · UNKNOWN: date, cause, distant place, actual entry. Route '+(h.routeResult?.complete?'LOWER PAPER PASS':h.routeResult?.nextGap??'not checked')+
+     '. E10 canonical unlock: NO.';
+   $('parent-cue').hidden=h.observations.length===0||h.provisionalFinished;
+ }else{
+   $('task-title').textContent='E10 · Two traces, two present needs';
+   $('task-cue').textContent='Milo at '+c.position+'. The lower sketch is a question, not an entrance permit. Inspect both undated marks, consider/revise MAYBE uses, listen to two simulated needs and move their paper cards.';
+   for(const to of [...COURT_NODES,COURT_CLOSED])add(host,'Walk: '+to,cmd('courtyard','walk',{to}));
+   for(const traceId of Object.keys(TRACES))add(host,'Look: '+traceId,cmd('courtyard','inspect',{traceId}));
+   add(host,'Compare shape (not a name)',cmd('courtyard','compare-symbol'));
+   for(const traceId of Object.keys(TRACES)){
+     for(const useTag of USE_TAGS){
+       add(host,'Maybe '+traceId+': '+useTag,cmd('courtyard','suggest',{traceId,useTag}));
+       add(host,'Remove '+traceId+': '+useTag,cmd('courtyard','remove',{traceId,useTag}));
+     }
+     for(const oldTag of c.hypotheses[traceId]){
+       for(const newTag of USE_TAGS.filter(t=>t!==oldTag))
+         add(host,'Revise '+traceId+': '+oldTag+' → '+newTag,cmd('courtyard','revise',{traceId,oldTag,newTag}));
+     }
+   }
+   for(const needId of Object.keys(NEEDS)){
+     add(host,'Listen: '+needId,cmd('courtyard','hear',{needId}));
+     for(const slot of SLOTS)add(host,'Paper card '+needId+' → '+slot,cmd('courtyard','place',{needId,slot}));
+   }
+   for(const type of ['check-source','review-tradeoff','review'])
+     add(host,type.replaceAll('-',' '),cmd('courtyard',type));
+   $('feedback').textContent=c.feedback;
+   $('progress').textContent='SEEN '+c.observations.length+' undated traces · MAYBE '+
+     Object.values(c.hypotheses).flat().length+' · NEEDS '+c.heard.length+
+     ' simulated · UNKNOWN: name, ages, access. '+(c.reviewed?'Paper review complete.':'Compare without a final answer.')+
+     ' E11 NOT UNLOCKED. Canonical events 0; unlocks 0.';
+   $('parent-cue').hidden=c.observations.length===0&&c.heard.length===0;
+ }
+}
+$('restart').addEventListener('click',()=>{state=fresh();render();});
+render();
+</script></main></body></html>
