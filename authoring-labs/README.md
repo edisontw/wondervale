@@ -12,3 +12,9 @@ Open `/authoring-labs/` from a local static server (e.g. `python3 -m http.server
 ## Evidence handoff audit (engineering only)
 
 See [E04–E11 continuity/evidence matrix](CONTINUITY_HANDOFF_MATRIX.md) and [machine-readable audit contract](handoff-contract.mjs). Run `node --test tests/season1-handoff-contract.test.mjs` from the repository root to verify the actual E05–E11 reducer fresh/projection boundaries, the eight proposed transitions (including the one E06 in-lab prerequisite), and the absence of canonical events/unlocks. It emits `test-results/season1-handoff-audit.json` for inspection. This is an **inventory**, not proof that the child finished a scene, a historical source was approved or any episode is production-unlocked.
+
+## Evidence Workshop (noncanonical, in-memory)
+
+Open [Evidence Workshop](evidence-workshop.html) from the lab index. Children can select any E05–E11 authoring model (E06 Current and Lower separately), inspect three model/hypothesis/unknown claim cards, classify each, receive a nonpunitive explanation for a wrong grouping, revise a card, and compare what remains unproven. Each model starts fresh; no activity is read from the actual episode lab and no classification is proof the child completed that lab. E04 remains unavailable. The Common name appears only inside the explicitly selected E10/E11 late-arc authoring preview, not E05–E09.
+
+The workshop is intentionally independent of production runtime, source-card approvals, persistence, Chronicle and unlock. It uses no localStorage or cookies. Tests: `node --test tests/season1-evidence-workshop.test.mjs` and `node tests/season1-evidence-workshop-browser.mjs` against the static server. Chromium covers desktop, short phone landscape, portrait, keyboard, retry, early-reveal boundary and zero production storage writes. Passing these checks is not a twelve-scene end-to-end or family acceptance.
