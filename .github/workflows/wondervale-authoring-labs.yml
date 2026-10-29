@@ -15,6 +15,8 @@ on:
       - 'tests/season1-connector-lantern-browser.mjs'
       - 'tests/season1-lantern-hill.test.mjs'
       - 'tests/season1-lantern-hill-browser.mjs'
+      - 'tests/season1-hill-courtyard.test.mjs'
+      - 'tests/season1-hill-courtyard-browser.mjs'
       - '.github/workflows/wondervale-authoring-labs.yml'
   push:
     branches: [main]
@@ -31,6 +33,8 @@ on:
       - 'tests/season1-connector-lantern-browser.mjs'
       - 'tests/season1-lantern-hill.test.mjs'
       - 'tests/season1-lantern-hill-browser.mjs'
+      - 'tests/season1-hill-courtyard.test.mjs'
+      - 'tests/season1-hill-courtyard-browser.mjs'
       - '.github/workflows/wondervale-authoring-labs.yml'
 permissions:
   contents: read
@@ -54,6 +58,9 @@ jobs:
           node --check authoring-labs/garden-connector.mjs
           node --check authoring-labs/connector-lantern.mjs
           node --check authoring-labs/lantern-hill.mjs
+          node --check authoring-labs/hill-courtyard.mjs
+          node --check tests/season1-hill-courtyard.test.mjs
+          node --check tests/season1-hill-courtyard-browser.mjs
           node --check tests/season1-lantern-hill.test.mjs
           node --check tests/season1-lantern-hill-browser.mjs
           node --check tests/season1-connector-lantern.test.mjs
@@ -63,12 +70,12 @@ jobs:
           node --check authoring-labs/world-change.mjs
           node --check tests/season1-world-change.test.mjs
           node --check tests/season1-world-change-browser.mjs
-          if grep -R -n -E 'authoring-labs|season1-authoring-labs-browser|world-change|garden-connector|connector-lantern|lantern-hill' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
+          if grep -R -n -E 'authoring-labs|season1-authoring-labs-browser|world-change|garden-connector|connector-lantern|lantern-hill|hill-courtyard' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
             echo 'Noncanonical labs must not enter production packaging' >&2
             exit 1
           fi
       - name: Verify noncanonical continuity and engine boundaries (Node)
-        run: node --test tests/season1-handoff-contract.test.mjs tests/season1-evidence-workshop.test.mjs tests/season1-world-change.test.mjs tests/season1-garden-connector.test.mjs tests/season1-connector-lantern.test.mjs tests/season1-lantern-hill.test.mjs
+        run: node --test tests/season1-handoff-contract.test.mjs tests/season1-evidence-workshop.test.mjs tests/season1-world-change.test.mjs tests/season1-garden-connector.test.mjs tests/season1-connector-lantern.test.mjs tests/season1-lantern-hill.test.mjs tests/season1-hill-courtyard.test.mjs
       - name: Install pinned Playwright and Chromium
         run: |
           npm install --ignore-scripts --package-lock=false
@@ -97,6 +104,7 @@ jobs:
           node tests/season1-garden-connector-browser.mjs
           node tests/season1-connector-lantern-browser.mjs
           node tests/season1-lantern-hill-browser.mjs
+          node tests/season1-hill-courtyard-browser.mjs
       - name: Upload smoke evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -109,6 +117,7 @@ jobs:
             test-results/garden-connector-*
             test-results/connector-lantern-*
             test-results/lantern-hill-*
+            test-results/hill-courtyard-*
             test-results/season1-handoff-audit.json
           if-no-files-found: ignore
           retention-days: 7
