@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale — Paper world changes (authoring only)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;background:#f1f2e8;color:#213c35}*{box-sizing:border-box}
+body{margin:0}main{max-width:1040px;margin:auto;padding:clamp(.5rem,2vw,1.2rem)}
+header{background:#274b42;color:white;padding:1rem;border-radius:.7rem}h1{font-size:1.4rem;margin:0}h2{font-size:1.05rem}
+.notice{background:#fff0cc;border-left:5px solid #a77718;padding:.75rem;margin:.7rem 0;line-height:1.45}
+button,a{font:inherit;min-height:44px;border:2px solid #527569;border-radius:.5rem;background:#fafcf8;color:#234438;padding:.55rem .7rem;cursor:pointer}
+button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:3px solid #b16c0d;outline-offset:2px}
+nav,.actions{display:flex;flex-wrap:wrap;gap:.4rem;margin:.65rem 0}
+.panel{background:white;border:1px solid #bdc8bc;border-radius:.6rem;padding:.8rem;margin:.7rem 0}
+.world{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.place{border:2px solid #b6c8ba;border-radius:.65rem;padding:.8rem;min-height:150px;background:#f6f9f2}
+.place strong{display:block;margin-bottom:.45rem}.place.active{border-color:#386f57;background:#eaf5e9}
+.object{padding:.6rem;margin-top:.55rem;background:#e5e8e0;border-radius:.5rem;min-height:3rem}
+.object.built{background:#d2e8b9;border:2px solid #618b45}
+.object.pending{border:2px dashed #a38a50;background:#fff5d8}
+#feedback,#progress{line-height:1.55;min-height:2.2rem}small{line-height:1.4}
+@media(max-width:650px){.world{grid-template-columns:1fr}.place{min-height:105px}.actions button{flex:1 1 44%}}
+</style></head><body><main>
+<header><h1>Paper World Changes · E05 → E06</h1><div>Milo tests a map room, compares rain, then tries a small garden pocket.</div></header>
+<p class="notice"><strong>AUTHORING MODEL — NOT THE PRODUCTION GAME.</strong> Fictional station marks, water and garden positions are only paper experiments. E04 evidence is not approved. This page does not save, unlock, plant anything, or change the real world.</p>
+<a href="./">Back to isolated labs</a>
+<section class="panel"><h2>Visit the paper places</h2><nav id="navigation"></nav>
+<div class="world">
+<div class="place" id="station"><strong>E05 · Old Station</strong><span id="station-status"></span><div class="object" id="map-object"></div></div>
+<div class="place" id="current"><strong>E06 · Current Garden</strong><span id="current-status"></span><div class="object built" id="upper-object">Healthy beds stay here.</div></div>
+<div class="place" id="lower"><strong>E06 · Lower Garden</strong><span id="lower-status"></span><div class="object" id="pocket-object"></div></div>
+</div></section>
+<section class="panel"><h2 id="task-title"></h2><p id="task-cue"></p><div id="actions" class="actions"></div>
+<p id="feedback" role="status" aria-live="polite"></p><p id="progress" role="status" aria-live="polite"></p>
+<button id="restart" type="button">Start the paper story again</button></section>
+<footer><small>Parent cue: “What changed in our model? What is still only a guess?” The paper Map Room and pocket remain visible on revisits. This is not a canonical Chronicle or real-world permission. No audio, storage or automatic episode unlock.</small></footer>
+<script type="module">
+import {fresh,dispatch,project} from './world-change.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const command=(scene,type,extra={})=>({scene,type,...extra});
+const ident=a=>[a.scene,a.type,a.id??a.target??a.orientation??a.position??a.weather??a.channel??a.site??''].join(':');
+function add(host,label,a,enabled=true){
+ const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.action=ident(a);b.disabled=!enabled;
+ b.addEventListener('click',()=>{state=dispatch(state,a);render();});host.append(b);
+}
+function render(){
+ const p=project(state),e5=state.e05,e6=state.e06;
+ for(const id of ['station','current','lower'])$(id).classList.toggle('active',p.stage===id);
+ $('map-object').className='object '+(p.mapRoomVisible?'built':'pending');
+ $('map-object').textContent=p.mapRoomVisible?'Map Room paper table: now visible on every revisit.':'Empty corner: no map table yet.';
+ $('upper-object').textContent='Healthy beds stay. '+(p.rainCompared?'Rain tray compared; this is NOT a real historical cause.':'Rain comparison not finished.');
+ $('pocket-object').className='object '+(p.lowerPocketVisible?'built':'pending');
+ $('pocket-object').textContent=p.lowerPocketVisible?'Small PAPER planting pocket appears. The upper garden remains.':'No pocket trial yet; real permission is still needed.';
+ $('station-status').textContent=p.mapRoomVisible?'Model room ready':'Replica and walkway test needed';
+ $('current-status').textContent=p.rainCompared?'Rain model compared':'Present garden still healthy';
+ $('lower-status').textContent=p.lowerPocketVisible?'Paper pocket trial visible':'No real planting';
+ $('navigation').replaceChildren();
+ add($('navigation'),'Visit station',command('nav','to-station'),p.stage!=='station');
+ add($('navigation'),'Visit current garden',command('nav','to-current'),p.mapRoomVisible&&p.stage!=='current');
+ add($('navigation'),'Visit lower garden',command('nav','to-lower'),e6.phase!=='current'&&p.stage!=='lower');
+ const host=$('actions');host.replaceChildren();
+ if(p.stage==='station'){
+  $('task-title').textContent='E05 · Look, turn, test';
+  $('task-cue').textContent='I see two marks. Does the removable copy fit? Keep the public walkway clear.';
+  for(const id of ['peg-pair','worn-edge'])
+   add(host,'Look: '+id,command('e05','inspect-feature',{id}),!e5.inspected.includes(id)&&!['layout','done'].includes(e5.phase));
+  if(e5.inspected.length&&!['layout','done'].includes(e5.phase)){
+   for(const orientation of ['side-b','side-a'])
+    add(host,'Turn copy: '+orientation,command('e05','place-replica',{orientation}),e5.orientation!==orientation);
+   add(host,'Check both marks',command('e05','compare-fit'),e5.inspected.length===2&&!!e5.orientation&&!e5.comparison);
+   add(host,'Say what the model cannot prove',command('e05','note-limits'),e5.comparison?.matched===true);
+  }
+  if(e5.phase==='layout'){
+   for(const position of ['across-walkway','near-wall'])
+    add(host,'Place table: '+position,command('e05','place-table',{position}),e5.table!==position);
+   add(host,'Keep this map table',command('e05','confirm-room'),e5.table==='near-wall');
+  }
+  $('feedback').textContent=p.station.message;
+ }else if(p.stage==='current'){
+  $('task-title').textContent='E06 · Look and compare the rain tray';
+  $('task-cue').textContent='The upper garden is healthy. I see a slope. Water might move. A model is not a memory.';
+  if(e6.phase==='current'){
+   for(const target of ['present-bed','slope','shared-path','model-tray'])
+    add(host,'Walk Milo: '+target,command('e06','walk-to',{target}),e6.location!==target);
+   for(const id of ['present-bed','slope','shared-path'])
+    add(host,'Look: '+id,command('e06','inspect',{id}),e6.location===id&&!e6.currentObserved.includes(id));
+   if(e6.currentObserved.length>=2){
+    for(const weather of ['dry','rain'])add(host,'Weather: '+weather,command('e06','set-weather',{weather}),e6.weather!==weather);
+    for(const channel of ['open','blocked'])add(host,'Channel: '+channel,command('e06','set-channel',{channel}),e6.channel!==channel);
+    add(host,'Run the paper rain model',command('e06','run-model'),e6.location==='model-tray'&&e6.modelRuns.length<4&&!e6.modelRuns.some(r=>r.weather===e6.weather&&r.channel===e6.channel));
+    add(host,'Compare three trials',command('e06','compare-model'),e6.location==='model-tray'&&e6.modelRuns.some(r=>r.weather==='dry')&&e6.modelRuns.some(r=>r.weather==='rain'&&r.channel==='open')&&e6.modelRuns.some(r=>r.weather==='rain'&&r.channel==='blocked')&&!e6.modelCompared);
+    add(host,'Walk to lower garden',command('e06','visit-lower'),e6.modelCompared);
+   }
+  }
+  $('feedback').textContent=e6.modelRuns.length?'Paper tray trials: '+e6.modelRuns.map(r=>r.weather+'/'+r.channel+' water '+r.catchment).join('; ')+'.':'Look at two places, then walk to the model tray.';
+ }else{
+  $('task-title').textContent='E06 · Choose a small lower pocket';
+  $('task-cue').textContent='Look at the water trace and path. A wet spot or blocked footpath is a reason to try again.';
+  if(e6.phase==='lower'){
+   for(const target of ['runoff-trace','public-path','runoff-channel','footpath','raised-pocket'])
+    add(host,'Walk Milo: '+target,command('e06','walk-to',{target}),e6.location!==target);
+   for(const id of ['runoff-trace','public-path'])
+    add(host,'Look: '+id,command('e06','inspect',{id}),e6.location===id&&!e6.lowerObserved.includes(id));
+   if(e6.lowerObserved.length===2){
+    for(const site of ['runoff-channel','footpath','raised-pocket'])
+     add(host,'Try marker: '+site,command('e06','move-marker',{site}),e6.location===site&&e6.markerSite!==site);
+    add(host,'Look at marker result',command('e06','inspect-result'),!!e6.markerSite&&!e6.markerInspected);
+    add(host,'Keep the small paper pocket',command('e06','confirm-small-trial'),e6.markerInspected&&e6.markerSite==='raised-pocket');
+   }
+  }
+  $('feedback').textContent=p.garden.message;
+ }
+ $('progress').textContent='Paper world: '+(p.mapRoomVisible?'Map Room visible':'Map Room pending')+' · '+(p.rainCompared?'Rain comparison recorded in memory':'Rain comparison pending')+' · '+(p.lowerPocketVisible?'Lower pocket visible':'Lower pocket pending')+'. No real history, Chronicle or unlock.';
+}
+$('restart').addEventListener('click',()=>{state=fresh();render();});render();
+</script></main></body></html>
