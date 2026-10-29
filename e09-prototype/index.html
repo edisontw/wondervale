@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale E09 — The Closed Hill (authoring lab)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#263a37;background:#f2f2e9}
+*{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:auto;padding:clamp(.45rem,2vw,1rem)}
+header{background:#314d4b;color:#fff;border-radius:.75rem;padding:.8rem 1rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.08rem;margin:.2rem 0 .5rem}
+.notice{background:#fff0c7;border-left:5px solid #9c6a20;padding:.7rem;margin:.6rem 0;line-height:1.5}
+.panel{background:white;border:1px solid #c4d0c9;border-radius:.7rem;padding:.7rem;margin:.6rem 0;min-width:0}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem}
+button{font:inherit;min-width:44px;min-height:44px;padding:.4rem .6rem;border:2px solid #57756b;border-radius:.5rem;color:#203b34;background:#fafcf8;cursor:pointer}
+button:disabled{opacity:.53;cursor:not-allowed}
+button:focus-visible{outline:3px solid #b4751d;outline-offset:2px}
+button[aria-pressed=true]{background:#dceedd;border-color:#37684c}
+.status{background:#ebf1ec;border-radius:.4rem;padding:.55rem;line-height:1.5;margin:.45rem 0}
+.scene{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:16/7;min-height:240px;border:3px solid #55726d;border-radius:.7rem;background:linear-gradient(165deg,#c5d4ce 0%,#c7d3b3 47%,#d9caa9 48%,#c6b89c 100%)}
+.scene:before{content:"";position:absolute;inset:45% 0 0;background:repeating-linear-gradient(135deg,#c3b59c 0 18px,#d5c6ac 18px 36px);opacity:.55}
+.edge{position:absolute;height:6px;z-index:1;transform-origin:left center;background:#9b9e91;border-radius:4px;pointer-events:none}
+.edge.surveyed{background:#537c69}.edge.marked{height:9px;background:#235b48}
+.edge.closed{height:5px;background:repeating-linear-gradient(90deg,#8d3838 0 10px,transparent 10px 16px)}
+.anchor{position:absolute;z-index:3;transform:translate(-50%,-50%);max-width:30%;font-size:clamp(.69rem,1.6vw,.9rem);padding:.25rem .4rem;background:#fff9eb}
+.anchor.active{background:#ffdfa0;border-color:#8c5c17}
+.milo{position:absolute;z-index:4;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;border:3px solid #385e72;background:#efb77d;color:#173a50;display:grid;place-items:center;font-size:.78rem;font-weight:800;pointer-events:none;transition:left .18s ease,top .18s ease}
+.world-label,.closed-label{position:absolute;z-index:2;top:.35rem;padding:.25rem .4rem;border-radius:.3rem;font-size:.72rem;font-weight:700}
+.world-label{left:.35rem;background:#fff8e5}.closed-label{right:.35rem;max-width:46%;background:#542e34;color:white}
+.closed-node{position:absolute;z-index:2;left:80%;top:16%;transform:translate(-50%,-50%);background:#f4d9d5;border:2px dashed #8d3838;border-radius:.3rem;padding:.2rem;font-size:.68rem;font-weight:700;pointer-events:none}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.card{border:1px solid #b8c7c0;border-radius:.5rem;padding:.5rem;min-width:0;overflow-wrap:anywhere}
+.card h3{font-size:.95rem;margin:.1rem 0 .3rem}
+.finish-controls{position:relative;z-index:10;display:flex;flex-wrap:wrap;gap:.4rem;
+  background:#fff;padding:.65rem .2rem;margin:.6rem 0 .9rem;border:1px solid #c4d0c9;border-radius:.4rem}
+.card ul{margin:.2rem 0;padding-left:1.15rem;line-height:1.45}
+small{color:#485f55}
+@media(max-width:700px){.two,.cards{grid-template-columns:1fr}.scene{min-height:240px}.milo{width:40px;height:40px}.closed-node{font-size:.6rem}}
+@media(prefers-reduced-motion:reduce){.milo{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<header><h1>E09 — The Closed Hill</h1><div>Milo surveys a boundary and revises a route sketch · isolated authoring lab</div></header>
+<div class="notice" role="note"><strong>FICTIONAL MODEL — NOT A REAL HILL ROUTE.</strong> All paths, terrain clues, viewpoints and symbol positions are synthetic. The upper hill remains closed. No access permission, history claim, production Chronicle, save or E10 unlock.</div>
+<div id="scene" class="scene" role="group" aria-label="Fictional five-anchor safe survey graph; closed upper hill cannot be entered" data-phase="survey"></div>
+<section class="panel">
+<h2>1. Walk and look from safe ground</h2>
+<p>Nia: "What can we learn without crossing?" Move Milo one connected model edge at a time.</p>
+<div id="walk-controls" class="controls" aria-label="Accessible movement alternatives"></div>
+<div id="inspect-controls" class="controls"></div>
+<div id="boundary-controls" class="controls"></div>
+<p id="feedback" class="status" aria-live="polite"></p>
+<p id="inspections" class="status" aria-live="polite"></p>
+<p id="parent-cue" hidden><strong>Optional parent cue:</strong> What can Milo see without crossing the fence?</p>
+</section>
+<div class="two">
+<section class="panel">
+<h2>2. Mark only where Milo walked</h2>
+<p>Finn: "Our sketch should match our steps." A gap is an invitation to revise.</p>
+<div id="mark-controls" class="controls"></div>
+<div id="route-controls" class="controls"></div>
+<p id="route-status" class="status" aria-live="polite"></p>
+</section>
+<section class="panel">
+<h2>3. Compare the distant mark</h2>
+<p>Nia: "We see a shape. Do we know the place?" Keep guesses separate from observations.</p>
+<div id="thought-controls" class="controls"></div>
+<p id="symbol-status" class="status" aria-live="polite"></p>
+</section>
+</div>
+<section class="panel">
+<h2>4. Field notebook — seen / think / unknown</h2>
+<div id="finish-controls" class="finish-controls" aria-label="Survey review and finish"></div>
+<div class="controls"><button id="restart">Restart this preview</button></div>
+<div class="cards">
+<div class="card"><h3>I SEE</h3><ul id="seen"></ul></div>
+<div class="card"><h3>I THINK</h3><ul id="think"></ul></div>
+<div class="card"><h3>WE DON'T KNOW YET</h3><ul id="unknown"></ul></div>
+</div>
+
+<p id="chronicle" class="status" aria-live="polite"></p>
+<p id="hook" class="status" hidden></p>
+
+<p><small>Touch or Tab + Enter/Space. No timer, penalty, recorded voice, storage, telemetry, new history or canonical unlock. Reload resets this isolated model.</small></p>
+</section>
+</main>
+<script type="module" src="./main.mjs"></script>
+</body>
+</html>
