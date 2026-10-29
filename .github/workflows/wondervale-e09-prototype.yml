@@ -1,0 +1,40 @@
+name: Wondervale E09 isolated safe hill survey model
+on:
+  pull_request:
+    paths:
+      - 'engine/s01e09-authoring-prototype.mjs'
+      - 'tests/s01e09-authoring-prototype.test.mjs'
+      - 'tests/s01e09-browser.mjs'
+      - 'e09-prototype/**'
+      - '.github/workflows/wondervale-e09-prototype.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'engine/s01e09-authoring-prototype.mjs'
+      - 'tests/s01e09-authoring-prototype.test.mjs'
+      - 'tests/s01e09-browser.mjs'
+      - 'e09-prototype/**'
+      - '.github/workflows/wondervale-e09-prototype.yml'
+permissions:
+  contents: read
+jobs:
+  e09-authoring:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax check E09 synthetic engine and tests
+        run: |
+          node --check engine/s01e09-authoring-prototype.mjs
+          node --check tests/s01e09-authoring-prototype.test.mjs
+      - name: Test safe graph, observed evidence and fail-closed replay
+        run: node --test tests/s01e09-authoring-prototype.test.mjs
+      - name: Keep E09 synthetic model out of production packaging
+        run: |
+          if grep -R -n -E 's01e09-authoring-prototype|e09-prototype' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
+            echo 'E09 authoring model unexpectedly referenced by production packaging' >&2
+            exit 1
+          fi
