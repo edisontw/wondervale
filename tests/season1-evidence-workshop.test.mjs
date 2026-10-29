@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {WORKSHOPS,TYPES,getWorkshop,fresh,selectCard,placeCard,review} from '../authoring-labs/evidence-workshop.mjs';
-test('seven independent E05–E11 scenes, including two E06 spaces',()=>{
- assert.deepEqual(WORKSHOPS.map(s=>s.id),['e05','e06-current','e06-lower','e07','e08','e09','e10','e11'].filter(id=>id!=='e06-current'||true));
+test('eight independent E05–E11 scene slots, including two E06 spaces',()=>{
+ assert.deepEqual(WORKSHOPS.map(s=>s.id),['e05','e06-current','e06-lower','e07','e08','e09','e10','e11']);
  assert.equal(WORKSHOPS.length,8);
  assert.equal(WORKSHOPS.every(s=>s.cards.length===3),true);
  for(const s of WORKSHOPS)assert.deepEqual(s.cards.map(c=>c.type),TYPES);
