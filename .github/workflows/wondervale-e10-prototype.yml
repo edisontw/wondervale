@@ -4,12 +4,16 @@ on:
     paths:
       - 'engine/s01e10-authoring-prototype.mjs'
       - 'tests/s01e10-authoring-prototype.test.mjs'
+      - 'tests/s01e10-browser.mjs'
+      - 'e10-prototype/**'
       - '.github/workflows/wondervale-e10-prototype.yml'
   push:
     branches: [main]
     paths:
       - 'engine/s01e10-authoring-prototype.mjs'
       - 'tests/s01e10-authoring-prototype.test.mjs'
+      - 'tests/s01e10-browser.mjs'
+      - 'e10-prototype/**'
       - '.github/workflows/wondervale-e10-prototype.yml'
 permissions:
   contents: read
@@ -26,6 +30,8 @@ jobs:
         run: |
           node --check engine/s01e10-authoring-prototype.mjs
           node --check tests/s01e10-authoring-prototype.test.mjs
+          node --check tests/s01e10-browser.mjs
+          node --check e10-prototype/main.mjs
       - name: Test source isolation, needs and strict replay
         run: node --test tests/s01e10-authoring-prototype.test.mjs
       - name: Reject accidental production packaging
@@ -34,3 +40,43 @@ jobs:
             echo 'E10 authoring model unexpectedly referenced by production packaging' >&2
             exit 1
           fi
+  e10-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Four viewport journeys, source gate and keyboard
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . > /tmp/e10-browser-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/e10-prototype/ > /dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/e10-browser-server.log >&2
+            echo 'E10 authoring server did not become ready' >&2
+            exit 1
+          fi
+          node tests/s01e10-browser.mjs
+      - name: Upload E10 browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e10-browser-evidence
+          path: test-results/e10-*
+          if-no-files-found: ignore
+          retention-days: 7
