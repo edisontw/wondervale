@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale — Connector to Lantern Steps (paper authoring only)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;background:#f0f3eb;color:#233e35}
+*{box-sizing:border-box}body{margin:0}main{max-width:1050px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#294b42;color:white;border-radius:.65rem;padding:.85rem}
+h1{font-size:1.4rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.3rem 0}
+.notice{background:#fff0cb;border-left:5px solid #94661a;padding:.75rem;margin:.7rem 0;line-height:1.5}
+.panel{background:white;border:1px solid #b9cbbd;border-radius:.65rem;padding:.7rem;margin:.65rem 0}
+.world{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+.place{min-width:0;background:#f4f7ef;border:2px solid #a6b7a9;border-radius:.55rem;padding:.75rem;min-height:115px}
+.place.active{border-color:#327b55;background:#e9f4e8}
+.object{margin-top:.5rem;padding:.6rem;border-radius:.4rem;background:#e6e9dc;min-height:3.4rem;line-height:1.4}
+.object.lit{background:#fff1c1}.actions,nav{display:flex;flex-wrap:wrap;gap:.4rem;margin:.6rem 0}
+button,a{font:inherit;min-height:44px;min-width:44px;border:2px solid #54756a;border-radius:.45rem;padding:.5rem .65rem;background:#f9fcf7;color:#234439;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:3px solid #b57d1b;outline-offset:2px}
+#feedback,#progress,#task-cue{line-height:1.5;min-height:2rem}
+small{line-height:1.5}
+@media(max-width:620px){.world{grid-template-columns:1fr}.place{min-height:85px}.actions button{flex:1 1 42%}}
+</style></head><body><main>
+<header><h1>Finn's Connector → Lower Lantern Steps</h1>
+<div>Child-controlled PAPER model · FIRST / NOW · FROM HERE / FROM THERE</div></header>
+<p class="notice"><strong>NOT THE PRODUCTION GAME.</strong> The connector, lamps, safe anchors and markers are synthetic. Real construction, electrical work, site access, source dates and historical claims are NOT approved. E04 remains blocked. No save, Chronicle, unlock, real E08 opening or MN4 deployment.</p>
+<a href="./">Back to isolated labs</a>
+<section class="panel"><h2>World that remembers (only during this paper trial)</h2>
+<div class="world">
+<div class="place active" id="connector-place"><strong>E07 · Connector</strong>
+<div class="object" id="connector-object">Finn's short route needs testing for other people and water.</div></div>
+<div class="place" id="steps-place"><strong>E08 · Lower Lantern Steps</strong>
+<div class="object" id="lamps-object">Both LOWER lamps OFF. Upper North Hill CLOSED.</div></div>
+</div><nav id="navigation"></nav></section>
+<section class="panel"><h2 id="task-title">E07 · Test Finn's connector</h2>
+<p id="task-cue"></p><div id="actions" class="actions"></div>
+<p id="feedback" role="status" aria-live="polite"></p>
+<p id="progress" role="status" aria-live="polite"></p>
+<p id="parent-cue" hidden>Parent (optional): “From here, they line up. How could Milo check from another place?”</p>
+<button id="restart" type="button">Restart paper story</button></section>
+<footer><small>Try → see what blocks → change → test again. EFL: first / now, for everyone, from here / from there, I see a gap, maybe. Lower lamps start OFF even after E07 is complete. The upper hill remains closed. An undated service plate is a source question, not a date.</small></footer>
+<script type="module">
+import {fresh,dispatch,project} from './connector-lantern.mjs';
+import {ANCHORS,SNAPS} from '../engine/s01e07-authoring-prototype.mjs';
+import {VIEWPOINTS,FEATURES,FIXTURES} from '../engine/s01e08-authoring-prototype.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const cmd=(scene,type,extra={})=>({scene,type,...extra});
+const ident=a=>[a.scene,a.type,a.anchor??a.feature??a.lampId??a.snapId??''].join(':');
+function add(host,label,a){
+  const trial=dispatch(state,a);
+  const b=document.createElement('button');b.type='button';b.textContent=label;
+  b.dataset.action=ident(a);b.disabled=trial.history.length===state.history.length;
+  b.addEventListener('click',()=>{state=dispatch(state,a);render();});host.append(b);
+}
+function render(){
+  const p=project(state),c=state.connector,l=state.steps;
+  $('connector-place').classList.toggle('active',p.stage==='connector');
+  $('steps-place').classList.toggle('active',p.stage==='steps');
+  $('connector-object').textContent=c.previewComplete?
+    'Revised PAPER connector remains: Milo, another person and water can pass in the model.':
+    c.firstTrials.milo?
+    'FIRST: Milo passes, but the short connector blocks another person and water. Revise it.':
+    'Finn suggests a short PAPER route. Test it for Milo, another person and water.';
+  $('lamps-object').classList.toggle('lit',l.lights['lower-a']||l.lights['lower-b']);
+  $('lamps-object').textContent='LOWER A '+(l.lights['lower-a']?'ON':'OFF')+
+    ' · LOWER B '+(l.lights['lower-b']?'ON':'OFF')+
+    ' · UPPER HILL CLOSED. '+(l.previewComplete?'Two model viewpoints compared; source date UNKNOWN.':
+    l.observations.length+' viewpoint(s) recorded; historical date UNKNOWN.');
+  const nav=$('navigation');nav.replaceChildren();
+  add(nav,'Return to E07 paper connector',cmd('nav','to-connector'));
+  add(nav,'Visit E08 lower Steps model',cmd('nav','to-steps'));
+  const host=$('actions');host.replaceChildren();
+  if(p.stage==='connector'){
+    $('task-title').textContent='E07 · FIRST / NOW: who can pass?';
+    $('task-cue').textContent='Milo at '+c.miloPosition+'. Walk adjacent anchors, inspect path and water, test Finn’s short route, then move a paper piece.';
+    for(const anchor of ANCHORS)add(host,'Walk: '+anchor,cmd('connector','walk',{anchor}));
+    for(const anchor of ['shared-path','channel'])add(host,'Look: '+anchor,cmd('connector','inspect',{anchor}));
+    for(const type of ['test-milo','test-resident','test-water'])
+      add(host,type.replaceAll('-',' '),cmd('connector',type));
+    for(const snapId of Object.keys(SNAPS))
+      add(host,'Place: '+snapId,cmd('connector','place-piece',{pieceId:'connector',snapId}));
+    for(const type of ['undo-piece','run-all-traces','compare-layouts','confirm-preview'])
+      add(host,type.replaceAll('-',' '),cmd('connector',type));
+    const fmt=t=>t?(t.pass?'PASS':'BLOCKED'):'not tested';
+    $('feedback').textContent=p.connector.message;
+    $('progress').textContent='FIRST Milo '+fmt(c.firstTrials.milo)+', person '+fmt(c.firstTrials.resident)+
+      ', water '+fmt(c.firstTrials.water)+'. NOW Milo '+fmt(c.revisedTrials.milo)+
+      ', person '+fmt(c.revisedTrials.resident)+', water '+fmt(c.revisedTrials.water)+
+      '. E08 lights remain '+(l.lights['lower-a']||l.lights['lower-b']?'as last tested in this model.':'OFF.');
+    $('parent-cue').hidden=true;
+  }else{
+    $('task-title').textContent='E08 · Look twice at lower Lantern Steps';
+    $('task-cue').textContent='Milo at '+l.miloPosition+'. Inspect brackets and CLOSED boundary. Test only the two LOWER model lamps, then compare two safe viewpoints.';
+    for(const anchor of Object.keys(VIEWPOINTS))
+      add(host,'Walk: '+anchor,cmd('steps','walk',{anchor}));
+    for(const feature of Object.keys(FEATURES))
+      add(host,'Look: '+feature,cmd('steps','inspect',{feature}));
+    for(const lampId of FIXTURES)
+      add(host,'Toggle LOWER lamp: '+lampId,cmd('steps','toggle-lamp',{lampId}));
+    for(const type of ['observe-view','compare-views','confirm-preview'])
+      add(host,type.replaceAll('-',' '),cmd('steps',type));
+    $('feedback').textContent=p.steps.message+' No upper route is available.';
+    $('progress').textContent='FROM HERE / FROM THERE: '+l.observations.map(o=>
+      o.viewpoint+' ('+o.spreadDegrees.toFixed(1)+'°)').join(' → ')+
+      '. '+(l.compared?'Same three markers; different apparent spacing.':'Two different views needed.')+
+      ' Service plate: '+(p.servicePlate||'not inspected')+
+      '. Canonical events 0; unlocks 0; historical dates UNKNOWN.';
+    $('parent-cue').hidden=l.observations.length===0||l.previewComplete;
+  }
+}
+$('restart').addEventListener('click',()=>{state=fresh();render();});
+render();
+</script></main></body></html>
