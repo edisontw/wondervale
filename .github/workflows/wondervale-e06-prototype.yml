@@ -4,6 +4,7 @@ on:
     paths:
       - 'engine/s01e06-authoring-prototype.mjs'
       - 'tests/s01e06-authoring-prototype.test.mjs'
+      - 'tests/s01e06-browser.mjs'
       - 'e06-prototype/**'
       - '.github/workflows/wondervale-e06-prototype.yml'
   push:
@@ -11,6 +12,7 @@ on:
     paths:
       - 'engine/s01e06-authoring-prototype.mjs'
       - 'tests/s01e06-authoring-prototype.test.mjs'
+      - 'tests/s01e06-browser.mjs'
       - 'e06-prototype/**'
       - '.github/workflows/wondervale-e06-prototype.yml'
 permissions:
@@ -25,6 +27,7 @@ jobs:
         run: |
           node --check engine/s01e06-authoring-prototype.mjs
           node --check tests/s01e06-authoring-prototype.test.mjs
+          node --check tests/s01e06-browser.mjs
           node --check e06-prototype/main.mjs
       - name: Test two-garden authoring state and preview isolation
         run: node --test tests/s01e06-authoring-prototype.test.mjs
@@ -34,3 +37,44 @@ jobs:
             echo 'E06 authoring engine unexpectedly referenced by production packaging' >&2
             exit 1
           fi
+
+  e06-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Exercise real two-garden UI, keyboard and four viewport journeys
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . > /tmp/e06-browser-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/e06-prototype/ > /dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then
+            cat /tmp/e06-browser-server.log >&2
+            echo 'E06 test HTTP server did not become ready' >&2
+            exit 1
+          fi
+          node tests/s01e06-browser.mjs
+      - name: Upload E06 authoring browser report and scene screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e06-browser-evidence
+          path: test-results/e06-*
+          if-no-files-found: ignore
+          retention-days: 7
