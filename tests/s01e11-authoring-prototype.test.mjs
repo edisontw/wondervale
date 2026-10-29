@@ -52,13 +52,16 @@ test('invalid token, cells, duplicate cells and forged approval rejected',()=>{
   {type:'place',tokenId:'access',cells:['0,1','0,2']}
  ])assert.deepEqual(dispatch(s,a),s);
 });
-test('declared access strip refuses occupied cells',()=>{
+test('declared access strip can reveal a reversible occupancy conflict',()=>{
  let s=put(fresh(),'quiet',['1,1']);
- assert.deepEqual(put(s,'access',['1,1','1,2']),s);
- s=go(s,'lift',{tokenId:'quiet'});
  s=put(s,'access',['1,2','1,1']);
  assert.deepEqual(s.layout.access,['1,1','1,2']);
- assert.deepEqual(put(s,'activity',['1,2']),s);
+ s=put(s,'activity',['1,2']);
+ s=run(s,'activity_group');
+ assert.equal(s.tests.activity_group.passed,false);
+ assert.match(s.tests.activity_group.reason,/blocked/);
+ s=go(s,'lift',{tokenId:'quiet'});
+ assert.deepEqual(s.layout.quiet,[]);
 });
 test('quiet and activity pieces cannot overlap; lifting preserves other need',()=>{
  let s=put(fresh(),'quiet',['0,1']);
