@@ -11,6 +11,8 @@ on:
       - 'tests/season1-world-change-browser.mjs'
       - 'tests/season1-garden-connector.test.mjs'
       - 'tests/season1-garden-connector-browser.mjs'
+      - 'tests/season1-connector-lantern.test.mjs'
+      - 'tests/season1-connector-lantern-browser.mjs'
       - '.github/workflows/wondervale-authoring-labs.yml'
   push:
     branches: [main]
@@ -23,6 +25,8 @@ on:
       - 'tests/season1-world-change-browser.mjs'
       - 'tests/season1-garden-connector.test.mjs'
       - 'tests/season1-garden-connector-browser.mjs'
+      - 'tests/season1-connector-lantern.test.mjs'
+      - 'tests/season1-connector-lantern-browser.mjs'
       - '.github/workflows/wondervale-authoring-labs.yml'
 permissions:
   contents: read
@@ -44,17 +48,20 @@ jobs:
           node --check tests/season1-evidence-workshop.test.mjs
           node --check tests/season1-evidence-workshop-browser.mjs
           node --check authoring-labs/garden-connector.mjs
+          node --check authoring-labs/connector-lantern.mjs
+          node --check tests/season1-connector-lantern.test.mjs
+          node --check tests/season1-connector-lantern-browser.mjs
           node --check tests/season1-garden-connector.test.mjs
           node --check tests/season1-garden-connector-browser.mjs
           node --check authoring-labs/world-change.mjs
           node --check tests/season1-world-change.test.mjs
           node --check tests/season1-world-change-browser.mjs
-          if grep -R -n -E 'authoring-labs|season1-authoring-labs-browser|world-change|garden-connector' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
+          if grep -R -n -E 'authoring-labs|season1-authoring-labs-browser|world-change|garden-connector|connector-lantern' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
             echo 'Noncanonical labs must not enter production packaging' >&2
             exit 1
           fi
       - name: Verify noncanonical continuity and engine boundaries (Node)
-        run: node --test tests/season1-handoff-contract.test.mjs tests/season1-evidence-workshop.test.mjs tests/season1-world-change.test.mjs tests/season1-garden-connector.test.mjs
+        run: node --test tests/season1-handoff-contract.test.mjs tests/season1-evidence-workshop.test.mjs tests/season1-world-change.test.mjs tests/season1-garden-connector.test.mjs tests/season1-connector-lantern.test.mjs
       - name: Install pinned Playwright and Chromium
         run: |
           npm install --ignore-scripts --package-lock=false
@@ -81,6 +88,7 @@ jobs:
           node tests/season1-evidence-workshop-browser.mjs
           node tests/season1-world-change-browser.mjs
           node tests/season1-garden-connector-browser.mjs
+          node tests/season1-connector-lantern-browser.mjs
       - name: Upload smoke evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -91,6 +99,7 @@ jobs:
             test-results/evidence-workshop-*
             test-results/world-change-*
             test-results/garden-connector-*
+            test-results/connector-lantern-*
             test-results/season1-handoff-audit.json
           if-no-files-found: ignore
           retention-days: 7
