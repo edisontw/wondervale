@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale — Pocket and passage (authoring only)</title>
+<style>
+:root{font-family:system-ui,sans-serif;background:#f0f3e9;color:#213e35}*{box-sizing:border-box}
+body{margin:0}main{max-width:1100px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#2a5043;color:white;padding:1rem;border-radius:.7rem}h1{font-size:1.35rem;margin:0}h2{font-size:1.06rem}
+.notice{background:#fff1cc;border-left:5px solid #9b711e;padding:.7rem;line-height:1.45;margin:.7rem 0}
+.panel{background:white;border:1px solid #bacbbf;border-radius:.6rem;padding:.75rem;margin:.65rem 0}
+.world{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.place{background:#f5f8ef;border:2px solid #aebfb3;border-radius:.6rem;min-height:145px;padding:.7rem}
+.place.active{border-color:#3b7853;background:#eaf6e7}.place strong{display:block}
+.object{margin-top:.5rem;padding:.65rem;min-height:4rem;border-radius:.5rem;background:#e5e8dd}
+.object.seed{background:#f8edcb}.object.sprout{background:#dff0ce}.object.leaves{background:#c4e5b0}
+.actions,nav{display:flex;gap:.4rem;flex-wrap:wrap;margin:.5rem 0}
+button,a{font:inherit;min-height:44px;min-width:44px;border:2px solid #537365;border-radius:.45rem;padding:.5rem .65rem;background:#f9fcf7;color:#25473c;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:3px solid #b47a19;outline-offset:2px}
+#feedback,#progress{line-height:1.55;min-height:2rem}
+small{line-height:1.45}
+@media(max-width:650px){.world{grid-template-columns:1fr}.place{min-height:95px}.actions button{flex:1 1 42%}}
+</style></head><body><main>
+<header><h1>Paper Pocket → Connector Passage</h1><div>Milo observes, revises a small garden trial, then tests Finn's passage for everyone.</div></header>
+<p class="notice"><strong>AUTHORING MODEL — NOT THE PRODUCTION GAME.</strong> Paper growth stages are story markers, not real time or botanical predictions. Terrain, drainage, passage and planting are fictional test fixtures. E04 evidence and permissions are not approved. No saves, Chronicle or episode unlock.</p>
+<a href="./">Back to isolated labs</a>
+<section class="panel"><h2>World that remembers — on this paper only</h2>
+<div class="world">
+<div class="place" id="upper"><strong>Current Garden</strong><div class="object">Healthy beds stay in place.</div></div>
+<div class="place" id="pocket"><strong>Lower Garden</strong><div class="object" id="pocket-object">No pocket trial yet.</div></div>
+<div class="place" id="passage"><strong>E07 · Connector Passage</strong><div class="object" id="passage-object">Finn has a model idea; it has not been tested.</div></div>
+</div><nav id="navigation"></nav></section>
+<section class="panel"><h2 id="task-title">Explore the garden</h2><p id="task-cue"></p><div id="actions" class="actions"></div>
+<p id="feedback" role="status" aria-live="polite"></p>
+<p id="progress" role="status" aria-live="polite"></p>
+<button type="button" id="restart">Restart the paper story</button></section>
+<footer><small>Try, look, change, and test again. Optional parent cue: “The short path works for Milo. What about other people and water?” EFL: higher/lower, wet/dry, first/now, because, maybe. The paper pocket remains visible on return; no real growth, construction or safe access is claimed. Lantern Steps remains a question, not an unlock.</small></footer>
+<script type="module">
+import {fresh,dispatch,project} from './garden-connector.mjs';
+import {CURRENT_ANCHORS,LOWER_ANCHORS} from '../engine/s01e06-authoring-prototype.mjs';
+import {ANCHORS,SNAPS} from '../engine/s01e07-authoring-prototype.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const cmd=(scene,type,extra={})=>({scene,type,...extra});
+const ident=a=>[a.scene,a.type,a.target??a.id??a.weather??a.channel??a.site??a.anchor??a.snapId??''].join(':');
+function add(host,label,a){
+ const trial=dispatch(state,a),allowed=trial.history.length>state.history.length;
+ const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.action=ident(a);b.disabled=!allowed;
+ b.addEventListener('click',()=>{state=dispatch(state,a);render();});host.append(b);
+}
+function render(){
+ const p=project(state),g=state.garden,c=state.connector;
+ $('upper').classList.toggle('active',p.stage==='garden'&&g.phase==='current');
+ $('pocket').classList.toggle('active',p.stage==='garden'&&g.phase!=='current');
+ $('passage').classList.toggle('active',p.stage==='connector');
+ $('pocket-object').className='object '+(p.pocketStage==='paper-seed'?'seed':p.pocketStage==='paper-sprout'?'sprout':p.pocketStage==='paper-leaves'?'leaves':'');
+ $('pocket-object').textContent={
+  'not-planted':'No pocket trial yet.',
+  'paper-seed':'Small PAPER pocket planted. No growth assumed.',
+  'paper-sprout':'PAPER sprout marker appears after the FIRST connector tests; not elapsed real time.',
+  'paper-leaves':'PAPER leaf marker appears after the revised connector passes all three tests.'
+ }[p.pocketStage];
+ $('passage-object').textContent=p.connectorPreviewComplete?
+  'Revised PAPER connector: Milo, another person and water can pass in this model.':
+  p.firstConnectorTested?'Finn’s short PAPER connector works for Milo but blocks others/water. Revise it.':
+  'Finn’s short PAPER connector is not yet tested for everyone.';
+ const nav=$('navigation');nav.replaceChildren();
+ add(nav,'Visit Lower / Current Garden',cmd('nav','to-garden'));
+ add(nav,'Visit Connector Passage',cmd('nav','to-connector'));
+ const actions=$('actions');actions.replaceChildren();
+ if(p.stage==='garden'){
+  $('task-title').textContent=g.phase==='current'?'E06 · Current Garden rain tray':g.phase==='lower'?'E06 · Lower Garden pocket':'E06 · Small paper pocket kept';
+  $('task-cue').textContent='Milo at '+g.location+'. Look at real-looking model marks, compare water, then choose a small trial. The healthy upper beds stay.';
+  if(g.phase==='current'){
+   for(const target of CURRENT_ANCHORS)add(actions,'Walk: '+target,cmd('garden','walk-to',{target}));
+   for(const id of ['present-bed','slope','shared-path'])add(actions,'Look: '+id,cmd('garden','inspect',{id}));
+   for(const weather of ['dry','rain'])add(actions,'Weather: '+weather,cmd('garden','set-weather',{weather}));
+   for(const channel of ['open','blocked'])add(actions,'Channel: '+channel,cmd('garden','set-channel',{channel}));
+   for(const type of ['run-model','compare-model','visit-lower'])add(actions,type.replaceAll('-',' '),cmd('garden',type));
+  }else if(g.phase==='lower'){
+   for(const target of LOWER_ANCHORS)add(actions,'Walk: '+target,cmd('garden','walk-to',{target}));
+   for(const id of ['runoff-trace','public-path'])add(actions,'Look: '+id,cmd('garden','inspect',{id}));
+   for(const site of ['runoff-channel','footpath','raised-pocket'])add(actions,'Try marker: '+site,cmd('garden','move-marker',{site}));
+   for(const type of ['inspect-result','confirm-small-trial'])add(actions,type.replaceAll('-',' '),cmd('garden',type));
+  }
+  $('feedback').textContent=p.garden.message;
+  $('progress').textContent='Garden phase: '+g.phase+'. Model runs: '+g.modelRuns.length+'. Pocket: '+p.pocketStage+'.';
+ }else{
+  $('task-title').textContent='E07 · Finn’s connector: FIRST / NOW';
+  $('task-cue').textContent='Milo at '+c.miloPosition+'. Walk neighboring anchors, look at shared path and water, test the short model, then move a connector piece.';
+  for(const anchor of ANCHORS)add(actions,'Walk: '+anchor,cmd('connector','walk',{anchor}));
+  for(const anchor of ['shared-path','channel'])add(actions,'Look: '+anchor,cmd('connector','inspect',{anchor}));
+  for(const type of ['test-milo','test-resident','test-water'])add(actions,type.replaceAll('-',' '),cmd('connector',type));
+  for(const snapId of Object.keys(SNAPS))add(actions,'Place: '+snapId,cmd('connector','place-piece',{pieceId:'connector',snapId}));
+  for(const type of ['undo-piece','run-all-traces','compare-layouts','confirm-preview'])add(actions,type.replaceAll('-',' '),cmd('connector',type));
+  $('feedback').textContent=p.connector.message;
+  const fmt=x=>x?x.pass?'PASS':'BLOCKED':'not tested';
+  $('progress').textContent='FIRST Milo '+fmt(c.firstTrials.milo)+', person '+fmt(c.firstTrials.resident)+', water '+fmt(c.firstTrials.water)+
+   '. NOW Milo '+fmt(c.revisedTrials.milo)+', person '+fmt(c.revisedTrials.resident)+', water '+fmt(c.revisedTrials.water)+
+   '. '+(p.stepsBaseHook||'The Lantern Steps lights remain off.');
+ }
+}
+$('restart').addEventListener('click',()=>{state=fresh();render();});
+render();
+</script></main></body></html>
