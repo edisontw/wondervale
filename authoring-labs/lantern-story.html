@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale E08 — Lantern Steps PAPER Story</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#203d39;background:#f1f2ed}*{box-sizing:border-box}
+body{margin:0}main{max-width:1050px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#2d4954;color:#fff;padding:.8rem;border-radius:.6rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.3rem 0}
+.notice{background:#fff0cc;border-left:5px solid #a26c23;padding:.7rem;margin:.6rem 0;line-height:1.45}
+.dialogue{background:#e1ebe5;padding:.75rem;border-radius:.5rem;margin:.6rem 0;line-height:1.5}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.panel{min-width:0;background:white;border:1px solid #b6c7c0;border-radius:.5rem;padding:.7rem;margin:.4rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{font:inherit;min-width:44px;min-height:44px;padding:.45rem .65rem;border:2px solid #53776f;border-radius:.4rem;background:#fff;color:#21443e;cursor:pointer}
+button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px solid #b67d27;outline-offset:2px}
+button[aria-pressed=true]{background:#d8eddd;font-weight:700}
+.track{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.3rem;padding:.5rem;background:#e3e8dd;border:2px solid #879d97;border-radius:.5rem}
+.anchor{min-width:0;background:#f8f8ee;border:1px solid #acbfb4;padding:.4rem;text-align:center;overflow-wrap:anywhere}
+.anchor[data-here=true]{background:#ffe7b5;outline:2px solid #a36e20}
+.lamps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+.lamp{border:2px solid #607870;border-radius:.5rem;padding:.5rem;text-align:center;background:#e1e5df}
+.lamp[data-on=true]{background:#ffe2a0;box-shadow:inset 0 0 0 3px #f4d180}
+.paper{padding:.65rem;background:#f3f5ec;border:1px dashed #9aaa9b;border-radius:.4rem;margin:.5rem 0;line-height:1.5;overflow-wrap:anywhere}
+.views{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+.view{min-width:0;padding:.55rem;border:1px solid #a6bdb1;border-radius:.4rem;background:#fff}
+.bar{height:14px;background:#dce8e0;border-radius:.25rem;overflow:hidden;margin:.4rem 0}
+.bar span{display:block;height:100%;background:#648b89;min-width:0}
+[hidden]{display:none!important}
+@media(max-width:700px){.columns,.views{grid-template-columns:1fr}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E08 — When the Steps Light Up</h1><div>Milo tests two safe views · child-driven PAPER story</div></header>
+<p class="notice"><strong>AUTHORING ONLY — SYNTHETIC LOWER STEPS.</strong> Not actual pavement, electrical repair, historical evidence, approved art, production Chronicle, E09 unlock or MN4 deployment. The upper North Hill is CLOSED.</p>
+<div class="dialogue" aria-live="polite"><strong id="speaker">Finn</strong>: <span id="line"></span><div id="stage"></div></div>
+<div class="controls"><button data-action="start">Begin Milo's story</button></div>
+<div class="columns">
+<section class="panel"><h2>1. Walk Milo and look</h2>
+<p>Only adjacent lower viewing places connect. The upper hill is never a destination.</p>
+<div id="track" class="track" aria-label="Three synthetic lower safe anchors">
+<div class="anchor" data-anchor="base">Base</div>
+<div class="anchor" data-anchor="lower-landing">Lower landing</div>
+<div class="anchor" data-anchor="side">Side lookout</div></div>
+<div class="controls">
+<button data-action="walk" data-value="base">Walk: base</button>
+<button data-action="walk" data-value="lower-landing">Walk: lower landing</button>
+<button data-action="walk" data-value="side">Walk: side lookout</button></div>
+<div class="controls">
+<button data-action="inspect" data-value="brackets">Look: three brackets</button>
+<button data-action="inspect" data-value="boundary">Look: CLOSED boundary</button>
+<button data-action="inspect" data-value="lower-a">Look: lower lamp A</button>
+<button data-action="inspect" data-value="lower-b">Look: lower lamp B</button>
+<button data-action="inspect" data-value="service-plate">Look: undated service plate</button></div>
+<p id="inspected" class="paper" role="status"></p>
+</section>
+<section class="panel"><h2>2. Try two small model lights</h2>
+<p>Finn suggests a reversible test, not new wiring. One light may not be enough.</p>
+<div class="lamps"><div class="lamp" id="lamp-a">Lower A: OFF</div><div class="lamp" id="lamp-b">Lower B: OFF</div></div>
+<div class="controls"><button data-action="toggle-lamp" data-value="lower-a">Switch lower A</button>
+<button data-action="toggle-lamp" data-value="lower-b">Switch lower B</button></div>
+<p id="light-note" class="paper"></p>
+<h2>3. Look from here and there</h2>
+<div class="controls"><button data-action="observe-view">Observe from Milo's place</button>
+<button data-action="compare-views">Compare two views</button></div>
+<p id="parent" class="paper" hidden></p>
+</section></div>
+<section class="panel"><h2>4. Same three marks, different apparent spacing</h2>
+<div class="views">
+<div class="view"><strong>FROM HERE</strong><p id="first">No view yet.</p><div class="bar"><span id="first-bar"></span></div></div>
+<div class="view"><strong>FROM THERE</strong><p id="second">No second view yet.</p><div class="bar"><span id="second-bar"></span></div></div></div>
+<p id="compare-note" class="paper" aria-live="polite">One view cannot prove an old route.</p>
+<div class="controls"><button data-action="confirm-preview">Finish PAPER observation</button><button id="restart">Restart paper story</button></div>
+<p id="note" class="paper" role="status"></p>
+</section>
+<p><small>Look → try a lower light → observe from two separate safe places → compare → inspect an undated plate → leave a question for E09. Try again without penalty. Keyboard Tab + Enter/Space. No sound, scores, accounts, storage or canonical progression.</small></p>
+<script type="module">
+import {fresh,dispatch,can,view} from './lantern-story-model.mjs';
+let state=fresh();
+const $=id=>document.getElementById(id);
+const names={base:'base','lower-landing':'lower landing',side:'side lookout'};
+const features={brackets:'brackets',boundary:'closed boundary','lower-a':'lower lamp A','lower-b':'lower lamp B','service-plate':'undated service plate'};
+const action=b=>{
+ const type=b.dataset.action,value=b.dataset.value;
+ if(type==='walk')return {type,anchor:value};
+ if(type==='inspect')return {type,feature:value};
+ if(type==='toggle-lamp')return {type,lampId:value};
+ return {type};
+};
+function paint(id,obs){
+ $(id).textContent=obs?names[obs.viewpoint]+': '+obs.spreadDegrees.toFixed(1)+' degrees between the fixed marks.':'No observation yet.';
+ $(id+'-bar').style.width=obs?Math.min(100,Math.max(3,obs.spreadDegrees*2))+'%':'0%';
+}
+function render(){
+ const v=view(state);
+ $('speaker').textContent=v.speaker;$('line').textContent=v.line;
+ $('stage').textContent='Story stage: '+v.stage+' · Milo: '+names[v.milo];
+ for(const a of document.querySelectorAll('.anchor'))a.dataset.here=String(a.dataset.anchor===v.milo);
+ $('inspected').textContent='Seen: '+(v.inspected.map(x=>features[x]).join(', ')||'nothing yet')+'. Upper hill CLOSED.';
+ for(const [id,el] of [['lower-a','lamp-a'],['lower-b','lamp-b']]){
+  $(el).dataset.on=String(v.lights[id]);$(el).textContent=(id==='lower-a'?'Lower A: ':'Lower B: ')+(v.lights[id]?'ON':'OFF');
+ }
+ $('light-note').textContent=v.lights['lower-a']&&v.lights['lower-b']?'Both lower model lamps ON. Now move and look.':'Not enough light to compare yet. Try the inspected lower fixtures.';
+ $('parent').hidden=!v.parentCue;$('parent').textContent=v.parentCue?'Optional parent cue: '+v.parentCue:'';
+ paint('first',v.firstView);paint('second',v.secondView);
+ $('compare-note').textContent=v.compared?
+  'Same three fixed marks. Different apparent spacing: '+v.comparison.spreadDifferenceDegrees.toFixed(1)+' degrees. This is not historical proof.':
+  'Look from two different safe places. A single line-up is not proof.';
+ $('note').textContent=v.paperNote;
+ for(const b of document.querySelectorAll('[data-action]')){
+  const a=action(b);b.disabled=!can(state,a);
+  if(a.type==='toggle-lamp')b.setAttribute('aria-pressed',String(v.lights[a.lampId]));
+ }
+}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button[data-action]');if(!b)return;
+ state=dispatch(state,action(b));render();
+});
+$('restart').addEventListener('click',()=>{state=fresh();render();});
+render();
+</script></main></body></html>
