@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E05 — paper source detective rehearsal</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#213d3a;background:#f1eee4}*{box-sizing:border-box}
+body{margin:0}main{max-width:960px;margin:auto;padding:clamp(.5rem,2vw,1rem);min-width:0}
+header{background:#2d514d;color:white;border-radius:.7rem;padding:.8rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.3rem 0}
+.notice{background:#fff0cc;border-left:5px solid #986719;padding:.65rem;margin:.65rem 0;line-height:1.5}
+.scene{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.panel{background:white;border:1px solid #b4c7c1;border-radius:.65rem;padding:.7rem;min-width:0}
+.paper{min-height:54px;border:2px dashed #78988f;border-radius:.5rem;padding:.6rem;margin:.5rem 0;background:#e6eee7;line-height:1.5;overflow-wrap:anywhere}
+.provenance{font-weight:600}.placement[data-slot=unknown]{background:#dcead9}
+.placement[data-slot=earlier],.placement[data-slot=later]{background:#f7e4cf}
+.controls{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0}
+button{font:inherit;min-height:44px;padding:.45rem .6rem;border:2px solid #47766a;border-radius:.4rem;background:white;color:#1d4036;cursor:pointer;max-width:100%}
+button:disabled{opacity:.5;cursor:not-allowed}button[aria-pressed=true]{background:#d1e8d9;font-weight:700}
+button:focus-visible{outline:3px solid #b36c18;outline-offset:2px}
+.dialogue{background:#dcebe5;border-radius:.6rem;padding:.7rem;line-height:1.5;margin:.6rem 0}
+#note{background:#f6f0dc;padding:.6rem;border-radius:.4rem;line-height:1.5}
+@media(max-width:650px){.scene{grid-template-columns:1fr}main{padding:.5rem}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E05 — Source Detective</h1><div>Child-driven paper provenance and ordering rehearsal · NOT a production episode</div></header>
+<p class="notice"><strong>AUTHORING ONLY.</strong> MOCK A and MOCK B are newly drawn examples, NOT discovered station records. They have no maker, date or verified original. This page does not establish station access, E04 completion, actual history, Chronicle, E06 unlock, approved art or saved progress.</p>
+<div class="dialogue" aria-live="polite"><strong id="speaker">Nia</strong>: <span id="line"></span><div id="phase"></div></div>
+<div class="controls">
+<button data-action="start">Begin source investigation</button>
+<button data-action="walk" data-value="door">Milo: door</button>
+<button data-action="walk" data-value="desk-a">Milo: MOCK A desk</button>
+<button data-action="walk" data-value="desk-b">Milo: MOCK B desk</button>
+<button data-action="walk" data-value="compare">Milo: paper timeline</button>
+</div>
+<p id="milo" class="paper" role="status"></p>
+<div class="scene">
+<section id="card-a" class="panel" aria-label="Mock drawing A"><h2>MOCK A · imaginary route drawing</h2>
+<p class="drawing paper"></p><p class="provenance paper"></p><p class="placement paper" role="status"></p>
+<div class="controls">
+<button data-action="inspect" data-card="a">Look at MOCK A</button>
+<button data-action="source-check" data-card="a">Flip A source tag</button>
+<button data-action="place" data-card="a" data-slot="earlier">A: earlier?</button>
+<button data-action="place" data-card="a" data-slot="later">A: later?</button>
+<button data-action="place" data-card="a" data-slot="unknown">A: unknown</button>
+<button data-action="test" data-card="a">Test A placement</button>
+</div></section>
+<section id="card-b" class="panel" aria-label="Mock drawing B"><h2>MOCK B · imaginary route drawing</h2>
+<p class="drawing paper"></p><p class="provenance paper"></p><p class="placement paper" role="status"></p>
+<div class="controls">
+<button data-action="inspect" data-card="b">Look at MOCK B</button>
+<button data-action="source-check" data-card="b">Flip B source tag</button>
+<button data-action="place" data-card="b" data-slot="earlier">B: earlier?</button>
+<button data-action="place" data-card="b" data-slot="later">B: later?</button>
+<button data-action="place" data-card="b" data-slot="unknown">B: unknown</button>
+<button data-action="test" data-card="b">Test B placement</button>
+</div></section>
+</div>
+<section class="panel"><h2>Compare without guessing a date</h2>
+<p id="comparison" class="paper" role="status"></p>
+<div class="controls"><button data-action="compare">Compare two mock drawings</button><button data-action="finish">Make a paper source request</button></div>
+</section>
+<p id="parent" class="dialogue"></p><p id="note" role="status" aria-live="polite"></p>
+<button id="restart">Restart source investigation</button>
+<p><small>Look at each imaginary drawing at its desk, flip both missing-source tags, then move Milo to the paper timeline. Try an earlier/later placement, see why a dated original is needed, and revise to UNKNOWN. No real record or historical order is supplied.</small></p>
+<script type="module" src="./station-sources.mjs"></script></main></body></html>
