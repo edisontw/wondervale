@@ -1,0 +1,52 @@
+name: Wondervale E08 Lantern Steps PAPER story rehearsal
+on:
+  pull_request:
+    paths:
+      - 'authoring-labs/lantern-story*'
+      - 'tests/season1-lantern-story*'
+      - '.github/workflows/wondervale-e08-lantern-story.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'authoring-labs/lantern-story*'
+      - 'tests/season1-lantern-story*'
+      - '.github/workflows/wondervale-e08-lantern-story.yml'
+permissions:
+  contents: read
+jobs:
+  e08-lantern-story:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Strict story replay and existing E08 reducer regression
+        run: |
+          node --check authoring-labs/lantern-story-model.mjs
+          node --check tests/season1-lantern-story-browser.mjs
+          node --test tests/season1-lantern-story.test.mjs tests/s01e08-authoring-prototype.test.mjs
+      - name: Keep synthetic story out of production packages
+        run: |
+          if grep -R -n 'lantern-story' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
+            echo 'Noncanonical E08 story cannot enter production' >&2
+            exit 1
+          fi
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Desktop, mobile and keyboard browser journey
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . > /tmp/e08-lantern-story-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/authoring-labs/lantern-story.html > /dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/e08-lantern-story-server.log >&2; exit 1; fi
+          node tests/season1-lantern-story-browser.mjs
