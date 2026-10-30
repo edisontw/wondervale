@@ -1,0 +1,53 @@
+name: Wondervale E05 mock-source provenance rehearsal
+on:
+  pull_request:
+    paths:
+      - 'authoring-labs/station-sources*'
+      - 'tests/season1-station-sources*'
+      - '.github/workflows/wondervale-e05-source-rehearsal.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'authoring-labs/station-sources*'
+      - 'tests/season1-station-sources*'
+      - '.github/workflows/wondervale-e05-source-rehearsal.yml'
+permissions:
+  contents: read
+jobs:
+  e05-mock-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Node replay, source uncertainty and syntax
+        run: |
+          node --check authoring-labs/station-sources-model.mjs
+          node --check authoring-labs/station-sources.mjs
+          node --check tests/season1-station-sources-browser.mjs
+          node --test tests/season1-station-sources.test.mjs tests/season1-station-story.test.mjs
+      - name: Prevent accidental production packaging
+        run: |
+          if grep -R -n 'station-sources' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
+            echo 'Mock-source rehearsal unexpectedly included in production' >&2
+            exit 1
+          fi
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Desktop, phone and keyboard Chromium
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . > /tmp/e05-sources-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/authoring-labs/station-sources.html > /dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/e05-sources-server.log >&2; exit 1; fi
+          node tests/season1-station-sources-browser.mjs
