@@ -180,7 +180,7 @@ function render(){
   $('shortcut-first').textContent='FIRST · '+trialText(t.firstTrials);
   $('shortcut-now').textContent='NOW · '+trialText(t.revisedTrials);
   $('shortcut-note').textContent='Milo at '+t.milo+' · '+t.line+' · '+t.paperNote+
-   ' North Hill CLOSED. Lantern lights OFF. Real permissions UNKNOWN.';
+   ' North Hill CLOSED. Real lights OFF; E08 lower model lamps '+(l.lights['lower-a']||l.lights['lower-b']?'may be ON in PAPER only.':'OFF.')+' Real permissions UNKNOWN.';
   drawShortcutBoard(t);
   return;
  }
