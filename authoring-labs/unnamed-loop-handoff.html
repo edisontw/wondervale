@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale E10 to E11 — Child Story PAPER Handoff</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#25433a;background:#eff2ea}*{box-sizing:border-box}
+body{margin:0}main{max-width:1080px;margin:auto;padding:clamp(.55rem,2vw,1rem)}
+header{background:#294c43;color:white;border-radius:.55rem;padding:.8rem}h1{font-size:1.4rem;margin:.15rem 0}
+h2{font-size:1.05rem;margin:.3rem 0}.notice{background:#fff0cb;border-left:5px solid #9a6a17;padding:.75rem;margin:.6rem 0;line-height:1.5}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.panel{min-width:0;background:#fff;border:1px solid #b6c6b8;border-radius:.5rem;padding:.75rem;margin:.4rem 0}
+.actions{display:flex;flex-wrap:wrap;gap:.35rem;margin:.45rem 0}
+button{font:inherit;min-height:44px;min-width:44px;max-width:100%;overflow-wrap:anywhere;border:2px solid #547b69;border-radius:.4rem;background:#f8fcf7;color:#214539;padding:.45rem .6rem;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px solid #b67b1a;outline-offset:2px}
+.paper{background:#edf3ec;border:1px dashed #91a998;border-radius:.4rem;padding:.65rem;line-height:1.5;overflow-wrap:anywhere;margin:.4rem 0}
+.map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.35rem}
+.map span{border:1px solid #a3b5a5;padding:.6rem .3rem;text-align:center;overflow-wrap:anywhere}
+.map span[data-here=true]{background:#ffe2a2}.map .closed{background:#f8d9d0}
+[hidden]{display:none!important}
+@media(max-width:700px){.columns{grid-template-columns:1fr}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E10 → E11 PAPER handoff</h1><div>Milo listens, tests two needs, and revises a shared-space model</div></header>
+<p class="notice"><strong>AUTHORING ONLY — NONCANONICAL.</strong> Both places, evidence and resident needs are fictional models. The name, history, access and consent are UNKNOWN. North Hill CLOSED. This is NOT a production unlock, Chronicle, Common reveal, deployment or Season completion.</p>
+<p class="paper" id="status" role="status" aria-live="polite"></p>
+<div class="actions" id="navigation"></div>
+<section id="e10-panel">
+<div class="columns">
+<div class="panel"><h2>E10 — Look and test ideas</h2><div class="map" id="e10-map"></div>
+<div class="actions" id="e10-explore"></div><div class="actions" id="e10-ideas"></div>
+<p class="paper" id="e10-evidence"></p></div>
+<div class="panel"><h2>E10 — Listen, move needs, revise</h2><div class="actions" id="e10-needs"></div>
+<p class="paper" id="e10-board"></p><p class="paper" id="e10-hook"></p>
+</div></div></section>
+<section id="e11-panel" hidden>
+<div class="columns">
+<div class="panel"><h2>E11 — Walk and build a temporary model</h2>
+<div class="map" id="e11-map"></div><div class="actions" id="e11-layout"></div>
+<p class="paper" id="e11-tests"></p></div>
+<div class="panel"><h2>E11 — Compare FIRST / NOW and try a new line</h2>
+<div class="actions" id="e11-compare"></div>
+<p class="paper" id="e11-trials"></p><p class="paper" id="e11-hook"></p></div>
+</div></section>
+<p><small>Touch or Tab + Enter/Space. The child moves Milo and the paper pieces; a parent may ask why a change helps. No score, autoplay, storage, real historical claim or audio.</small></p>
+<script type="module">
+import {fresh,dispatch,can,view} from './unnamed-loop-handoff-model.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const e10=(type,x={})=>({scene:'e10',action:{type,...x}});
+const e11=(type,x={})=>({scene:'e11',action:{type,...x}});
+const nav=type=>({scene:'nav',type});
+function add(host,key,label,action){
+ const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
+ b.disabled=!can(state,action);b.addEventListener('click',()=>{state=dispatch(state,action);render();});
+ host.append(b);
+}
+function group(id,items){const host=$(id);host.replaceChildren();
+ for(const [key,label,action] of items)add(host,key,label,action);}
+const walk=['entry','stone_edge','notice_wall','quiet_corner','meeting_edge','closed_hill'];
+function render(){
+ const v=view(state),u=v.e10,l=v.e11;
+ $('status').textContent='Stage: '+v.stage+' · SOURCE: UNKNOWN · '+v.note+
+   ' E10 PAPER finished: '+u.finishedPaper+' · E11 PAPER finished: '+l.finishedPaper;
+ $('e10-panel').hidden=v.stage!=='e10';$('e11-panel').hidden=v.stage!=='e11';
+ group('navigation',[
+  ['to-e11','Try E11 PAPER layout (NOT an unlock)',nav('to-e11')],
+  ['to-e10','Revisit E10 PAPER notes',nav('to-e10')],
+  ['restart-e10','Revise E10 from the beginning (clear downstream)',nav('restart-e10')],
+  ['reset','Restart both PAPER scenes',nav('reset-all')]].filter(x=>x[0]!=='reset'));
+ // Reset is deliberately a separate explicit control, never an episode event.
+ const map=$('e10-map');map.replaceChildren();
+ for(const id of walk){const el=document.createElement('span');el.textContent=id.replaceAll('_',' ');
+  el.dataset.here=String(u.position===id);if(id==='closed_hill')el.className='closed';map.append(el);}
+ group('e10-explore',[
+  ['e10-start','Begin E10 investigation',e10('start')],
+  ...walk.map(to=>['walk-'+to,'Walk: '+to.replaceAll('_',' '),e10('walk',{to})]),
+  ['inspect-surface','Inspect worn surface',e10('inspect',{traceId:'surface'})],
+  ['inspect-holes','Inspect mounting holes',e10('inspect',{traceId:'holes'})],
+  ['compare-mark','Compare mark (not a name)',e10('compare-symbol')],
+  ['check-source','Check source: UNKNOWN',e10('check-source')]]);
+ group('e10-ideas',[
+  ['suggest-surface','MAYBE: surface for passing',e10('suggest',{traceId:'surface',useTag:'passing'})],
+  ['revise-surface','Revise surface: resting',e10('revise',{traceId:'surface',oldTag:'passing',newTag:'resting'})],
+  ['suggest-holes','MAYBE: holes for display',e10('suggest',{traceId:'holes',useTag:'display'})]]);
+ group('e10-needs',[
+  ['hear-quiet','Hear simulated quiet reader',e10('hear',{needId:'quiet'})],
+  ['hear-activity','Hear simulated activity group',e10('hear',{needId:'activity'})],
+  ['quiet-shared','Quiet → shared',e10('place',{needId:'quiet',slot:'shared'})],
+  ['activity-shared','Activity → shared',e10('place',{needId:'activity',slot:'shared'})],
+  ['test-conflict','Test both in one spot',e10('test-one-slot')],
+  ['quiet-left','Move quiet → left',e10('place',{needId:'quiet',slot:'left'})],
+  ['activity-right','Move activity → right',e10('place',{needId:'activity',slot:'right'})],
+  ['tradeoff','Compare both needs',e10('review-tradeoff')],
+  ['review-e10','Review SEEN / MAYBE / NEEDS / UNKNOWN',e10('review')],
+  ['finish-e10','Finish E10 PAPER note',e10('finish-paper')]]);
+ $('e10-evidence').textContent='Milo: '+u.position+' · SEEN '+u.observations.map(x=>x.text).join(' / ')+
+  ' · MAYBE '+u.hypotheses.map(x=>x.useTag).join(', ')+
+  ' · UNKNOWN: real source, date, name and access.';
+ $('e10-board').textContent='SIMULATED NEEDS: quiet '+(u.board.quiet||'unplaced')+
+  ' / activity '+(u.board.activity||'unplaced')+' · Conflict tested: '+u.testedOneSlot+
+  ' · Revised: '+u.changedAfterTest;
+ $('e10-hook').textContent=u.paperNote;
+ const lm=$('e11-map');lm.replaceChildren();
+ for(let row=0;row<3;row++)for(let col=0;col<4;col++){
+  const cell=row+','+col,el=document.createElement('span');el.dataset.here=String(l.position===cell);
+  el.textContent=cell+(l.position===cell?' Milo':'')+
+   (l.layout.quiet.includes(cell)?' Quiet':'')+(l.layout.activity.includes(cell)?' Activity':'')+
+   (l.layout.access.includes(cell)?' Access':'');lm.append(el);
+ }
+ group('e11-layout',[
+  ['e11-start','Begin E11 PAPER trial',e11('start')],
+  ['step-1','Walk Milo to 1,1',e11('move-milo',{to:'1,1'})],
+  ['step-2','Walk Milo to 1,0',e11('move-milo',{to:'1,0'})],
+  ['access','Place access strip',e11('place',{tokenId:'access',cells:['1,1','1,2']})],
+  ['quiet','Place quiet seat at 0,1',e11('place',{tokenId:'quiet',cells:['0,1']})],
+  ['activity-first','Place activity at 0,2',e11('place',{tokenId:'activity',cells:['0,2']})],
+  ['test-reader','Test quiet reader',e11('test-user',{userId:'quiet_reader'})],
+  ['test-group','Test activity group',e11('test-user',{userId:'activity_group'})],
+  ['save-first','Save FIRST trial',e11('snapshot-trial')],
+  ['activity-revise','Move activity to 2,1',e11('place',{tokenId:'activity',cells:['2,1']})]]);
+ $('e11-tests').textContent='Milo steps '+l.walked+' · first conflict: '+l.firstFailed+
+  ' · revised: '+l.revisedAfterFailure+' · quiet: '+(l.tests.quiet_reader?.passed??'not tested')+
+  ' · activity: '+(l.tests.activity_group?.passed??'not tested');
+ group('e11-compare',[
+  ['compare-trials','Compare FIRST / NOW',e11('compare-trials',{first:'trial-1',second:'trial-2'})],
+  ['cite-needs','Recall E10 simulated needs (NOT evidence)',e11('cite-earlier',{discoveryId:'e10_needs'})],
+  ...['square-market','market-common','common-square'].map(edgeId=>['edge-'+edgeId,'Draw model link: '+edgeId,e11('add-loop-edge',{edgeId})]),
+  ['check-loop','Check PAPER loop',e11('check-loop')],
+  ['review-e11','Review model layout',e11('review-preview')],
+  ['finish-e11','Finish E11 PAPER notes',e11('finish-paper')]]);
+ $('e11-trials').textContent='E10 handoff: '+JSON.stringify(v.handoff)+
+  ' · Trials: '+l.trials.length+' · FIRST/NOW: '+(l.comparison?'compared':'not yet')+
+  ' · Model loop: '+l.loopChecked;
+ $('e11-hook').textContent='SOURCE UNKNOWN. Both needs are SIMULATED. Shared space CLOSED. North Hill CLOSED. No Chronicle, unlock or Season completion. '+l.line;
+}
+render();
+</script></main></body></html>
