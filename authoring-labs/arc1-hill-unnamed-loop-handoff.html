@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale Arc 1 — E03 memories through E11 PAPER story</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#233e35;background:#f0f2e9}*{box-sizing:border-box}
+body{margin:0}main{max-width:1050px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#2b5042;color:white;padding:.85rem;border-radius:.6rem}
+h1{font-size:1.35rem;margin:.15rem 0}h2{font-size:1.08rem;margin:.3rem 0}
+.notice{background:#fff0ca;border-left:5px solid #966821;padding:.7rem;line-height:1.5;margin:.7rem 0}
+.world{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem}
+.place{background:#e6eee2;border:2px solid #9db4a5;border-radius:.5rem;padding:.6rem;min-height:90px;line-height:1.5;overflow-wrap:anywhere}
+.place[data-done=true]{background:#d1e8c9;border-color:#497453}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.panel{background:white;border:1px solid #b9c8bd;border-radius:.55rem;padding:.7rem;min-width:0;margin:.5rem 0}
+.paper{background:#edf2e8;border:1px dashed #95ab9b;border-radius:.45rem;padding:.65rem;line-height:1.5;margin:.45rem 0;overflow-wrap:anywhere}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{font:inherit;min-height:44px;min-width:44px;max-width:100%;overflow-wrap:anywhere;padding:.45rem .6rem;border:2px solid #547967;border-radius:.4rem;background:#f8fbf6;color:#214337;cursor:pointer}
+button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px solid #b67a1a;outline-offset:2px}
+[hidden]{display:none!important}@media(max-width:680px){.grid,.world{grid-template-columns:1fr}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E03 memories → E04 UNKNOWN → E05 Station → E06 Gardens → E07 Shortcut → E08 Lantern Steps → E09 CLOSED Hill → E10 Unnamed PAPER Place → E11 Reversible PAPER Layout</h1>
+<div>Milo surveys a CLOSED boundary, then explores a separate FICTIONAL courtyard · noncanonical story</div></header>
+<p class="notice"><strong>AUTHORING ONLY — NOT THE PRODUCTION GAME.</strong> E03 quotations are sincere but undated. Station, gardens, connector, brackets and lamps are SYNTHETIC models. No real wiring, light installation or safe hill access. No historical date, cause, real site, planting, approved name, real entry or construction permission. E11 shared-space model is fictional and CLOSED. No production Chronicle, unlock, save, MN4 deployment or Season completion.</p>
+<div class="world" aria-label="Visible paper world changes">
+<div class="place" id="station-world"><strong>E05 Station</strong><div id="station-state">Paper Map Room not built.</div></div>
+<div class="place" id="current-world" data-done="true"><strong>E06 Current Garden</strong><div id="current-state">Healthy upper garden stays.</div></div>
+<div class="place" id="lower-world"><strong>E06 Lower Garden</strong><div id="lower-state">No paper pocket trial.</div></div>
+<div class="place" id="connector-world"><strong>E07 Connector</strong><div id="connector-state">Finn’s FIRST idea is untested.</div></div>
+<div class="place" id="lantern-world"><strong>E08 Lower Steps</strong><div id="lantern-state">Model lamps OFF.</div></div>
+<div class="place" id="hill-world"><strong>E09 CLOSED Hill</strong><div id="hill-state">Lower PAPER survey not started. Upper hill CLOSED.</div></div><div class="place" id="e10-world"><strong>E10 Fictional Courtyard</strong><div id="e10-state">PAPER notes not started. No real entry.</div></div><div class="place" id="e11-world"><strong>E11 Reversible PAPER Layout</strong><div id="e11-state">No model trial. Shared space CLOSED.</div></div>
+</div>
+<div id="status" class="paper" role="status" aria-live="polite"></div>
+<div id="dialogue" class="paper" aria-live="polite"></div>
+<div id="nav" class="controls"></div>
+<div class="grid">
+<section class="panel" id="arc-panel"><h2 id="arc-title">E04 · Two memories</h2>
+<p id="arc-cue">Hear both. Try an order. Revise to UNKNOWN when dates are missing.</p>
+<div id="arc-actions" class="controls"></div>
+<div id="arc-note" class="paper"></div></section>
+<section class="panel" id="garden-panel" hidden><h2 id="garden-title">E06 · Current Garden</h2>
+<p id="garden-cue">Walk Milo to inspect the upper garden and run the PAPER rain tray.</p>
+<div id="garden-actions" class="controls"></div>
+<div id="garden-note" class="paper"></div></section>
+<section class="panel" id="shortcut-panel" hidden><h2>E07 · Finn’s removable connector</h2>
+<p id="shortcut-cue">The lower PAPER pocket raises a new question: can Finn help Milo without blocking other people or water?</p>
+<div id="shortcut-actions" class="controls"></div>
+<div id="shortcut-first" class="paper">FIRST not tested.</div>
+<div id="shortcut-now" class="paper">NOW not tested.</div>
+<div id="shortcut-board" class="paper" role="img" aria-label="Synthetic eight by seven connector model"></div>
+<div id="shortcut-note" class="paper"></div></section>
+<section class="panel" id="lantern-panel" hidden><h2>E08 · Lower Lantern Steps PAPER viewpoint test</h2>
+<p>Walk Milo only between three declared lower anchors. Upper North Hill remains CLOSED. Compare the same three fixed marks from two safe places; the removable lower model lamps are not real electrical work.</p>
+<div id="lantern-actions" class="controls"></div>
+<div id="lantern-first" class="paper">FROM HERE: not observed.</div>
+<div id="lantern-second" class="paper">FROM THERE: not observed.</div>
+<div id="lantern-note" class="paper"></div></section>
+<section class="panel" id="hill-panel" hidden><h2>E09 · CLOSED Hill safe PAPER survey</h2>
+<p>Look from fictional lower anchors only. The uphill edge stops at a CLOSED fence. A model sketch does not approve a real route.</p>
+<div id="hill-actions" class="controls"></div>
+<div id="hill-seen" class="paper">SEEN: none yet.</div>
+<div id="hill-route" class="paper">No checked PAPER route.</div>
+<div id="hill-note" class="paper">UNKNOWN: real closure cause/date, access, distant place identity.</div></section>
+<section class="panel" id="e10-panel" hidden><h2>E10 · The Place with No Name (FICTIONAL PAPER model)</h2>
+<p>This separate model is NOT a route through the CLOSED hill. Milo investigates two simulated traces, revises MAYBE, listens to two simulated needs and moves reversible cards.</p>
+<div id="e10-actions" class="controls"></div>
+<div id="e10-seen" class="paper"></div><div id="e10-maybe" class="paper"></div>
+<div id="e10-needs" class="paper"></div><div id="e10-board" class="paper"></div>
+<div id="e10-note" class="paper"></div></section>
+<section class="panel" id="e11-panel" hidden><h2>E11 · Reversible shared-space PAPER layout</h2>
+<p>Milo walks a fictional grid, tests two SIMULATED needs, moves a piece after a conflict, and compares FIRST/NOW. No real site, construction, opening or Season ending.</p>
+<div id="e11-map" class="paper" role="img" aria-label="Fictional twelve-cell paper layout"></div>
+<div id="e11-actions" class="controls"></div>
+<div id="e11-tests" class="paper"></div><div id="e11-trials" class="paper"></div>
+<div id="e11-note" class="paper"></div></section>
+<section class="panel"><h2>What changes and what remains unknown?</h2>
+<div id="world-note" class="paper"></div>
+<p id="parent" class="paper">Parent: let Milo try first.</p>
+</section></div>
+<p><small>Touch or Tab + Enter/Space. An unsuitable paper placement is a test, not a penalty. Revisiting keeps the gardens and connector model; restarting E04 clears all downstream PAPER models. North Hill stays CLOSED and the unnamed place remains unrevealed. E08 lamps, E09 routes and E11 shared-space layout are PAPER only.</small></p>
+<script type="module">
+import {fresh,dispatch,can,view} from './arc1-hill-unnamed-loop-handoff-model.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const wrap=action=>({scene:'upstream',action});
+const nav=type=>wrap(['to-shortcut','to-upstream','restart-shortcut','restart-all'].includes(type)?
+ {scene:'nav',type}:{scene:'upstream',action:{scene:'nav',type}});
+const arc=(scene,type,x)=>wrap({scene:'upstream',action:{scene:'arc1',action:scene==='nav'?{scene:'nav',type}:
+ {scene,action:x===undefined?{type}:{type,...x}}}});
+const station=(type,value)=>arc('e05',type,value===undefined?undefined:{value});
+const garden=(type,value)=>wrap({scene:'upstream',action:{scene:'garden',action:value===undefined?{type}:{type,value}}});
+const shortcut=(type,value)=>wrap({scene:'shortcut',action:value===undefined?{type}:{type,value}});
+function group(id,rows){
+ const el=$(id);el.replaceChildren();
+ for(const [key,label,action] of rows){
+  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
+  const routed=action.scene==='hill'||(action.scene==='nav'&&
+   ['to-hill','to-steps','restart-hill','restart-whole'].includes(action.type))?
+   action:{scene:'upstream',action};
+  const legacy=action.scene==='e10'||(action.scene==='nav'&&['to-e10','to-hill-e10','restart-e10','restart-all-e10'].includes(action.type))?action:{scene:'upstream',action:routed};
+  const next=action.scene==='e11'||(action.scene==='nav'&&['to-e11','to-e10-e11','restart-e11','restart-all-e11'].includes(action.type))?action:{scene:'upstream',action:legacy};
+  b.disabled=!can(state,next);
+  b.addEventListener('click',()=>{state=dispatch(state,next);render();});
+  el.append(b);
+ }
+}
+function trialText(trials){
+ return ['milo','resident','water'].map(k=>k+': '+
+  (trials[k]?(trials[k].pass?'PASS':'BLOCKED'):'not tested')).join(' · ');
+}
+function drawShortcutBoard(t){
+ const board=$('shortcut-board');board.replaceChildren();
+ const footprint=new Set(t.layout.footprint),person=new Set(t.layout.traces.resident.path),
+  water=new Set(t.layout.traces.water.path);
+ board.style.display='grid';board.style.gridTemplateColumns='repeat(8,minmax(0,1fr))';
+ board.style.gap='2px';
+ for(let y=0;y<7;y++)for(let x=0;x<8;x++){
+  const id=x+','+y,C=footprint.has(id),P=person.has(id),W=water.has(id);
+  const cell=document.createElement('span');
+  cell.dataset.conflict=String(C&&(P||W));
+  cell.textContent=C&&(P||W)?'X':C?'C':P?'P':W?'W':'·';
+  cell.title='Synthetic model '+id;
+  cell.style.textAlign='center';cell.style.minWidth='0';cell.style.padding='.18rem 0';
+  cell.style.background=C&&(P||W)?'#efb7a6':C?'#e7d5a5':'#f8faf5';
+  board.append(cell);
+ }
+}
+function render(){
+ const root=view(state),prior=root.upstream,v=prior.upstream,old=v.upstream,u=old.upstream.upstream,a=u.arc1,g=u.garden,
+  t=old.upstream.shortcut,l=old.lantern,h=v.hill,e=prior.e10,eleven=root.e11,atE11=root.stage==='e11',atE10=!atE11&&prior.stage==='e10',atHill=!atE11&&!atE10&&v.stage==='hill',
+  atLantern=!atE10&&!atHill&&old.stage==='lantern',
+  atShortcut=!atE10&&!atHill&&old.stage==='upstream'&&old.upstream.stage==='shortcut',
+  atGarden=!atE10&&!atHill&&old.stage==='upstream'&&old.upstream.stage==='upstream'&&u.stage==='garden';
+ $('arc-panel').hidden=atE11||atE10||atHill||atGarden||atShortcut||atLantern;
+ $('garden-panel').hidden=atE11||atE10||atHill||!atGarden||atShortcut||atLantern;
+ $('shortcut-panel').hidden=atE11||atE10||atHill||!atShortcut;
+ $('station-world').dataset.done=String(v.stationMapRoomPaper);
+ $('lower-world').dataset.done=String(v.lowerPocketPaper);
+ $('connector-world').dataset.done=String(v.connectorPaperRevised);
+ $('lantern-world').dataset.done=String(v.lanternPaperFinished);
+ $('lantern-panel').hidden=atE11||atE10||atHill||!atLantern;
+ $('hill-panel').hidden=atE11||!atHill;
+ $('e10-panel').hidden=atE11||!atE10;
+ $('e10-world').dataset.done=String(prior.e10PaperFinished);
+ $('e10-state').textContent=prior.e10PaperFinished?'PAPER notes complete; no name or entry.':atE10?'Milo explores a fictional model.':'PAPER notes not started. No real entry.';
+ $('e11-world').dataset.done=String(root.e11PaperFinished);
+ $('e11-state').textContent=root.e11PaperFinished?'FIRST/NOW PAPER layout revised; shared space CLOSED.':
+  atE11?'Milo tests a reversible PAPER layout.':'No model trial. Shared space CLOSED.';
+ $('e11-panel').hidden=!atE11;
+ $('hill-world').dataset.done=String(v.hillPaperFinished);
+ $('hill-state').textContent=v.hillPaperFinished?'Lower PAPER route revised; upper hill CLOSED.':
+  h.stage==='opening'?'Lower PAPER survey not started. Upper hill CLOSED.':
+  'Milo surveys from '+h.position+'; upper hill CLOSED.';
+ $('station-state').textContent=v.stationMapRoomPaper?'Small PAPER Map Room; walkway clear.':'Paper Map Room not built.';
+ $('current-state').textContent='Healthy beds stay. '+(v.currentGardenCompared?'PAPER rain compared.':'Rain question open.');
+ $('lower-state').textContent=v.lowerPocketPaper?'Raised PAPER pocket marked. Not real planting.':
+  v.lowerGardenVisited?'Milo is testing removable paper markers.':'No lower pocket trial.';
+ $('connector-state').textContent=v.connectorPaperRevised?
+  'FIRST/NOW PAPER connector revised; not built.':
+  t.stage==='opening'?'Finn’s FIRST idea is untested.':'Finn is testing a removable connector.';
+ $('status').textContent='Stage: '+(atE11?'e11 / '+eleven.stage:atE10?'e10 / '+e.stage:atHill?'hill / '+h.stage:atLantern?'lantern / '+l.stage:atShortcut?'shortcut / '+t.stage:atGarden?'garden / '+g.phase:'upstream / '+a.stage)+
+  ' · E05 PAPER finished: '+a.stationPaperFinished+
+  ' · Lower PAPER pocket: '+v.lowerPocketPaper+
+  ' · E07 PAPER revised: '+v.connectorPaperRevised+' · E08 PAPER finished: '+v.lanternPaperFinished+
+  ' · E09 PAPER finished: '+v.hillPaperFinished+' · E10 PAPER finished: '+prior.e10PaperFinished+' · E11 PAPER finished: '+root.e11PaperFinished+' · production unlock: false';
+ $('dialogue').textContent=(atE11?eleven.speaker:atE10?e.speaker:atHill?h.speaker:atLantern?l.speaker:atShortcut?t.speaker:atGarden?g.speaker:a.speaker)+': '+
+  (atE11?eleven.line:atE10?e.line:atHill?h.line:atLantern?l.line:atShortcut?t.line:atGarden?g.line:a.line);
+ $('world-note').textContent=root.paperNote+' '+prior.paperNote+' '+v.paperNote+
+  ' Source dates UNKNOWN. Real water, planting and access UNKNOWN. No production Chronicle.';
+ $('parent').textContent='Optional parent question: '+(atE11?(eleven.parentCue||'Who else needs this space? Let Milo test first.'):atE10?(e.parentNeedsCue||e.parentEvidenceCue||'What did Milo see? What remains unknown?'):atHill?(h.parentCue||'What can Milo learn without crossing the fence?'):atLantern?(l.parentCue||'What changed: the marks or where Milo stood?'):atShortcut?
+  (t.parentCue||'Who else uses Finn’s route? Let Milo test first.'):
+  atGarden?(g.parentCue||'What could Milo test before deciding?'):
+  (a.parentCue||'What does the evidence show, and what is still unknown?'));
+ group('nav',[
+  ['to-garden','Visit E06 Two Gardens (PAPER only)',nav('to-garden')],
+  ['to-arc1','Revisit E05 station and E04 notes',nav('to-arc1')],
+  ['restart-garden','Restart only E06 PAPER trials',nav('restart-garden')],
+  ['restart-arc1','Restart whole PAPER arc',nav('restart-arc1')],
+  ['to-shortcut','Try E07 Finn’s connector (PAPER only)',nav('to-shortcut')],
+  ['to-upstream','Revisit E06 gardens and E05 station',nav('to-upstream')],
+  ['restart-shortcut','Restart only E07 model',nav('restart-shortcut')],
+  ['restart-all','Restart all PAPER stories',nav('restart-all')],
+  ['to-lantern','Visit E08 lower Steps (PAPER only)',{scene:'nav',type:'to-lantern'}],
+  ['to-e07','Revisit E07 revised connector',{scene:'nav',type:'to-upstream'}],
+  ['restart-lantern','Restart E08 PAPER only',{scene:'nav',type:'restart-lantern'}],
+  ['restart-whole','Restart whole E07→E08 PAPER arc',{scene:'nav',type:'restart-all'}],
+  ['to-hill','Try E09 CLOSED Hill lower PAPER survey',{scene:'nav',type:'to-hill'}],
+  ['to-steps','Revisit E08 lower viewpoint observations',{scene:'nav',type:'to-steps'}],
+  ['restart-hill','Restart only E09 PAPER sketch',{scene:'nav',type:'restart-hill'}],
+  ['restart-whole-hill','Restart all E04→E09 PAPER stories',{scene:'nav',type:'restart-whole'}],
+  ['to-e10','Try E10 FICTIONAL courtyard PAPER model',{scene:'nav',type:'to-e10'}],
+  ['to-hill-e10','Revisit E09 CLOSED boundary',{scene:'nav',type:'to-hill-e10'}],
+  ['restart-e10','Restart E10 PAPER only',{scene:'nav',type:'restart-e10'}],
+  ['restart-all-e10','Restart whole E04→E10 PAPER rehearsal',{scene:'nav',type:'restart-all-e10'}],
+  ['to-e11','Try E11 reversible PAPER layout (NOT an unlock)',{scene:'nav',type:'to-e11'}],
+  ['to-e10-e11','Revisit E10 fictional evidence notes',{scene:'nav',type:'to-e10-e11'}],
+  ['restart-e11','Restart only E11 PAPER layout',{scene:'nav',type:'restart-e11'}],
+  ['restart-all-e11','Restart E04→E11 PAPER rehearsal',{scene:'nav',type:'restart-all-e11'}]
+ ]);
+ $('lantern-state').textContent=v.lanternPaperFinished?'Two viewpoints compared; source UNKNOWN.':
+  v.lanternPaperCompared?'Views compared; plate source pending.':
+  l.stage==='opening'?'Model lamps OFF.':'Lower A '+(l.lights['lower-a']?'ON':'OFF')+'; lower B '+(l.lights['lower-b']?'ON':'OFF')+'.';
+ if(atE11){
+  const action=(type,extra={})=>({scene:'e11',action:{type,...extra}});
+  const grid=$('e11-map');grid.replaceChildren();
+  grid.style.display='grid';grid.style.gridTemplateColumns='repeat(4,minmax(0,1fr))';grid.style.gap='3px';
+  for(let y=0;y<3;y++)for(let x=0;x<4;x++){
+   const id=y+','+x,cell=document.createElement('span');cell.dataset.here=String(eleven.position===id);
+   cell.textContent=id+(eleven.position===id?' Milo':'')+
+    (eleven.layout.quiet.includes(id)?' Quiet':'')+
+    (eleven.layout.activity.includes(id)?' Activity':'')+
+    (eleven.layout.access.includes(id)?' Access':'');
+   cell.style.background=eleven.position===id?'#ffe2a2':'#f8faf5';
+   cell.style.padding='.4rem .15rem';cell.style.textAlign='center';cell.style.overflowWrap='anywhere';
+   grid.append(cell);
+  }
+  group('e11-actions',[
+   ['e11-start','Hear Finn: try a PAPER plan',action('start')],
+   ['e11-step-1','Walk Milo to 1,1',action('move-milo',{to:'1,1'})],
+   ['e11-step-2','Walk Milo to 1,0',action('move-milo',{to:'1,0'})],
+   ['e11-access','Place removable access strip',action('place',{tokenId:'access',cells:['1,1','1,2']})],
+   ['e11-quiet','Place quiet reader seat',action('place',{tokenId:'quiet',cells:['0,1']})],
+   ['e11-activity-first','Try activity near quiet seat',action('place',{tokenId:'activity',cells:['0,2']})],
+   ['e11-test-reader','Test simulated quiet reader',action('test-user',{userId:'quiet_reader'})],
+   ['e11-test-group','Test simulated activity group',action('test-user',{userId:'activity_group'})],
+   ['e11-snapshot','Save PAPER trial',action('snapshot-trial')],
+   ['e11-activity-revise','Move activity to a safer model spot',action('place',{tokenId:'activity',cells:['2,1']})],
+   ['e11-compare','Compare FIRST and NOW',action('compare-trials',{first:'trial-1',second:'trial-2'})],
+   ['e11-cite','Recall E10 SIMULATED needs (not history)',action('cite-earlier',{discoveryId:'e10_needs'})],
+   ...['square-market','market-common','common-square'].map((edgeId,i)=>
+    ['e11-link-'+i,'Draw FICTIONAL loop link '+(i+1),action('add-loop-edge',{edgeId})]),
+   ['e11-check-loop','Check fictional PAPER loop',action('check-loop')],
+   ['e11-review','Review two needs and safe model',action('review-preview')],
+   ['e11-finish','Keep E11 PAPER note (NOT Season ending)',action('finish-paper')]
+  ]);
+  $('e11-tests').textContent='Milo steps: '+eleven.walked+' · first conflict: '+eleven.firstFailed+
+   ' · revised after test: '+eleven.revisedAfterFailure+' · quiet: '+
+   (eleven.tests.quiet_reader?.passed??'not tested')+' · activity: '+
+   (eleven.tests.activity_group?.passed??'not tested');
+  $('e11-trials').textContent='E10 simulated handoff: '+JSON.stringify(root.handoff)+
+   ' · trials: '+eleven.trials.length+' · FIRST/NOW: '+(eleven.comparison?'compared':'pending')+
+   ' · fictional loop checked: '+eleven.loopChecked;
+  $('e11-note').textContent=eleven.line+' · '+eleven.hook+
+   ' · E05 Map Room, both gardens, E07 connector, E08 views, E09 CLOSED hill and E10 notes remain above.';
+  return;
+ }
+ if(atE10){
+  const action=(type,extra={})=>({scene:'e10',action:{type,...extra}});
+  group('e10-actions',[
+   ['e10-start','Hear Finn: investigate without naming',action('start')],
+   ...['entry','stone_edge','notice_wall','quiet_corner','meeting_edge','closed_hill'].map(to=>['e10-walk-'+to,'Walk Milo: '+to,action('walk',{to})]),
+   ...['surface','holes'].map(traceId=>['e10-inspect-'+traceId,'I see: '+traceId,action('inspect',{traceId})]),
+   ['e10-compare-symbol','Compare marks without naming place',action('compare-symbol')],
+   ['e10-check-source','Check source: UNKNOWN',action('check-source')],
+   ...['surface','holes'].flatMap(traceId=>['passing','resting','display','meeting'].map(useTag=>
+    ['e10-suggest-'+traceId+'-'+useTag,'MAYBE '+traceId+': '+useTag,action('suggest',{traceId,useTag})])),
+   ...e.hypotheses.flatMap(h=>['passing','resting','display','meeting'].filter(newTag=>newTag!==h.useTag).map(newTag=>
+    ['e10-revise-'+h.traceId+'-'+h.useTag+'-'+newTag,'Revise '+h.traceId+' → '+newTag,
+     action('revise',{traceId:h.traceId,oldTag:h.useTag,newTag})])),
+   ...['quiet','activity'].map(needId=>['e10-hear-'+needId,'Listen: simulated '+needId,action('hear',{needId})]),
+   ...['quiet','activity'].flatMap(needId=>['shared','left','right'].map(slot=>
+    ['e10-place-'+needId+'-'+slot,'Move PAPER '+needId+' → '+slot,action('place',{needId,slot})])),
+   ['e10-test-one-slot','Test both needs in one spot',action('test-one-slot')],
+   ['e10-review-tradeoff','Compare two needs',action('review-tradeoff')],
+   ['e10-review','Review SEEN / MAYBE / NEEDS / UNKNOWN',action('review')],
+   ['e10-finish','Keep E10 PAPER note',action('finish-paper')]
+  ]);
+  $('e10-seen').textContent='SEEN: '+(e.observations.map(x=>x.text).join(' / ')||'none yet')+' · E09 distant identity UNKNOWN.';
+  $('e10-maybe').textContent='MAYBE: '+(e.hypotheses.map(x=>x.traceId+': '+x.useTag).join(' / ')||'no idea yet');
+  $('e10-needs').textContent='SIMULATED NEEDS: '+(e.needs.map(x=>x.role+': '+x.want).join(' / ')||'not heard');
+  $('e10-board').textContent='PAPER slots: quiet '+(e.board.quiet||'unplaced')+', activity '+(e.board.activity||'unplaced')+
+   ' · one-slot test '+(e.testedOneSlot?'tried':'pending')+' · revision '+(e.changedAfterTest?'tried':'pending');
+  $('e10-note').textContent=e.feedback+' · '+e.paperNote+' · North Hill CLOSED; E11 NOT UNLOCKED.';
+  return;
+ }
+ if(atHill){
+  const action=(type,key,value)=>({scene:'hill',action:key?{type,[key]:value}:{type}});
+  group('hill-actions',[
+   ['hill-start','Begin safe PAPER hill survey',action('start')],
+   ...['steps_base','signpost','fence_view','lower_bend','overlook','upper_closed'].map(x=>
+    ['hill-walk-'+x,'Walk Milo: '+x,action('walk','to',x)]),
+   ...['entry_note','boundary_sign','disturbed_ground','runoff_marks','distant_symbol'].map(x=>
+    ['hill-inspect-'+x,'Look: '+x,action('inspect','clueId',x)]),
+   ...['water_may_change_ground','old_line_may_continue'].map(x=>
+    ['hill-consider-'+x,'MAYBE: '+x,action('consider','hypothesisId',x)]),
+   ...['steps_base:signpost','signpost:fence_view','signpost:lower_bend','lower_bend:overlook','fence_view:upper_closed'].map(x=>
+    ['hill-mark-'+x,'Mark PAPER edge: '+x,action('mark','edgeId',x)]),
+   ...['steps_base:signpost','signpost:fence_view','signpost:lower_bend','lower_bend:overlook'].map(x=>
+    ['hill-unmark-'+x,'Undo PAPER edge: '+x,action('unmark','edgeId',x)]),
+   ['hill-check','Check PAPER route for gaps',action('check-route')],
+   ['hill-symbol','Compare distant mark without naming place',action('compare-symbol')],
+   ['hill-review','Separate SEEN / THINK / UNKNOWN',action('review')],
+   ['hill-finish','Keep E09 PAPER survey note',action('finish-preview')]
+  ]);
+  $('hill-seen').textContent='SEEN: '+(h.inspected.join(', ')||'nothing yet')+
+   ' · safe stopped attempts: '+h.blockedAttempts+
+   ' · E08 from here: '+(l.firstView?.spreadDegrees.toFixed(1)??'not observed')+
+   '°, from there: '+(l.secondView?.spreadDegrees.toFixed(1)??'not observed')+'°.';
+  $('hill-route').textContent=h.routeResult?
+   h.routeResult.complete?'Lower PAPER sketch reaches overlook; CLOSED uphill edge remains excluded.':
+   'PAPER sketch gap: '+h.routeResult.nextGap+'. Revise and retry.':
+   'No checked PAPER route yet.';
+  $('hill-note').textContent=h.feedback+' · '+h.paperNote+
+   ' · E05 Map Room, both E06 gardens, E07 FIRST/NOW and E08 lower lamps remain visible above.';
+  return;
+ }
+ if(atLantern){
+  const action=(type,key,value)=>({scene:'lantern',action:key?{type,[key]:value}:{type}});
+  group('lantern-actions',[
+   ['lantern-start','Hear Nia: look first',action('start')],
+   ...['base','lower-landing','side'].map(x=>['lantern-walk-'+x,'Walk Milo: '+x,action('walk','anchor',x)]),
+   ...['brackets','boundary','lower-a','lower-b','service-plate'].map(x=>['lantern-inspect-'+x,'Look: '+x,action('inspect','feature',x)]),
+   ...['lower-a','lower-b'].map(x=>['lantern-toggle-'+x,'Switch PAPER lamp: '+x,action('toggle-lamp','lampId',x)]),
+   ['lantern-observe','Observe from Milo’s place',action('observe-view')],
+   ['lantern-compare','Compare two viewpoints',action('compare-views')],
+   ['lantern-finish','Keep E08 PAPER observation',action('confirm-preview')]
+  ]);
+  $('lantern-first').textContent='FROM HERE · '+(l.firstView?l.firstView.viewpoint+': '+l.firstView.spreadDegrees.toFixed(1)+' degrees':'not observed');
+  $('lantern-second').textContent='FROM THERE · '+(l.secondView?l.secondView.viewpoint+': '+l.secondView.spreadDegrees.toFixed(1)+' degrees':'not observed');
+  $('lantern-note').textContent='Milo at '+l.milo+' · '+l.paperNote+' · E07 FIRST/NOW remains visible above.';
+  return;
+ }
+ if(atShortcut){
+  group('shortcut-actions',[
+   ['shortcut-start','Hear Finn’s idea',shortcut('start')],
+   ...['entry','shared-path','channel','workbench'].map(id=>
+    ['shortcut-walk-'+id,'Walk Milo: '+id,shortcut('walk',id)]),
+   ...['shared-path','channel'].map(id=>
+    ['shortcut-inspect-'+id,'Look: '+id,shortcut('inspect',id)]),
+   ...['milo','resident','water'].map(id=>
+    ['shortcut-trial-'+id,'Test: '+id,shortcut('trial',id)]),
+   ...['path-clear-water-blocked','channel-clear-path-blocked','side-offset','lower-offset'].map(id=>
+    ['shortcut-place-'+id,'Move model: '+id,shortcut('place',id)]),
+   ['shortcut-undo','Undo model move',shortcut('undo')],
+   ['shortcut-compare','Compare FIRST / NOW',shortcut('compare')],
+   ['shortcut-finish','Finish E07 PAPER note',shortcut('finish')]
+  ]);
+  $('shortcut-first').textContent='FIRST · '+trialText(t.firstTrials);
+  $('shortcut-now').textContent='NOW · '+trialText(t.revisedTrials);
+  $('shortcut-note').textContent='Milo at '+t.milo+' · '+t.line+' · '+t.paperNote+
+   ' North Hill CLOSED. Real lights OFF; E08 lower model lamps '+(l.lights['lower-a']||l.lights['lower-b']?'may be ON in PAPER only.':'OFF.')+' Real permissions UNKNOWN.';
+  drawShortcutBoard(t);
+  return;
+ }
+ if(!atGarden){
+  if(a.stage==='e04'){
+   $('arc-title').textContent='E04 · Two sincere memories and UNKNOWN timeline';
+   group('arc-actions',[
+    ['hear-station','Hear Market coordinator',arc('e04','inspect',{which:'station'})],
+    ['hear-garden','Hear Garden resident',arc('e04','inspect',{which:'garden'})],
+    ...['station','garden'].flatMap(which=>['earlier','later','unknown'].map(slot=>
+     [which+'-'+slot,which+' → '+slot.toUpperCase(),arc('e04','place',{which,slot})])),
+    ['compare','Compare evidence',arc('e04','compare')],
+    ['finish-e04','Keep UNKNOWN PAPER note',arc('e04','finish-paper')],
+    ['to-e05','Try E05 PAPER station',arc('nav','to-e05')]
+   ]);
+   $('arc-note').textContent=Object.values(a.memoryCards).map(m=>
+    m.speaker+': '+(m.text??'not heard')+' · '+(m.slot??'unplaced')).join(' | ')+
+    ' · source dates UNKNOWN';
+  }else{
+   $('arc-title').textContent='E05 · Station paper board and clear-path Map Room';
+   group('arc-actions',[
+    ['start-e05','Begin station PAPER story',station('start')],
+    ['walk-board','Walk Milo to board',station('walk','board')],
+    ['walk-table','Walk Milo to table',station('walk','table')],
+    ['walk-door','Walk Milo to door',station('walk','door')],
+    ['inspect-peg','Inspect peg pair',station('inspect','peg-pair')],
+    ['inspect-worn','Inspect worn edge',station('inspect','worn-edge')],
+    ['guess-route','MAYBE route board',station('guess','route-board')],
+    ['guess-unsure','I am not sure',station('guess','unsure')],
+    ['copy-b','Try removable copy B',station('try-copy','side-b')],
+    ['copy-a','Turn to copy A',station('try-copy','side-a')],
+    ['check','Check both marks',station('check')],
+    ['qualify','A fit does not prove history',station('qualify')],
+    ['table-block','Place table across walkway',station('place-table','across-walkway')],
+    ['table-clear','Move table near wall',station('place-table','near-wall')],
+    ['confirm','Test public path',station('confirm')],
+    ['reflect','Write E05 PAPER note',station('reflect')],
+    ['to-e04','Revisit E04 memories',arc('nav','to-e04')],
+    ['restart-e04','Restart E04 (clears E05/E06)',arc('nav','restart-e04')]
+   ]);
+   $('arc-note').textContent='Milo at '+a.station.milo+' · copy fit '+a.station.fit+
+    ' · path clear '+a.station.clear+' · Map Room PAPER '+a.station.mapRoom+
+    ' · '+(a.station.chroniclePreview||'Garden cause UNKNOWN.');
+  }
+ }else{
+  const lower=g.phase==='lower'||g.phase==='finished';
+  $('garden-title').textContent=lower?'E06 · Lower Garden PAPER pocket':'E06 · Current Garden PAPER rain';
+  const rows=[['start-garden','Begin two-garden story',garden('start')]];
+  if(!lower){
+   for(const id of ['present-bed','slope','shared-path','model-tray'])
+    rows.push(['walk-'+id,'Walk Milo: '+id,garden('walk',id)]);
+   for(const id of ['present-bed','slope','shared-path'])
+    rows.push(['inspect-'+id,'Look: '+id,garden('inspect',id)]);
+   for(const weather of ['dry','rain'])rows.push(['weather-'+weather,'Weather: '+weather,garden('weather',weather)]);
+   for(const channel of ['open','blocked'])rows.push(['channel-'+channel,'Channel: '+channel,garden('channel',channel)]);
+   rows.push(['run','Run PAPER rain tray',garden('run')],['compare-garden','Compare water results',garden('compare')],
+    ['enter-lower','Walk to Lower Garden PAPER site',garden('enter')]);
+  }else{
+   for(const id of ['runoff-trace','public-path','runoff-channel','footpath','raised-pocket'])
+    rows.push(['walk-'+id,'Walk Milo: '+id,garden('walk',id)]);
+   for(const id of ['runoff-trace','public-path'])
+    rows.push(['inspect-'+id,'Look: '+id,garden('inspect',id)]);
+   for(const site of ['runoff-channel','footpath','raised-pocket'])
+    rows.push(['place-'+site,'Place marker: '+site,garden('place',site)]);
+   rows.push(['check-marker','Check water and path',garden('check')],
+    ['think-path','I think: keep the path open',garden('think','keep-path')],
+    ['think-more','I am not sure yet',garden('think','need-more')],
+    ['finish-garden','Finish PAPER pocket',garden('finish')]);
+  }
+  group('garden-actions',rows);
+  $('garden-note').textContent='Milo at '+g.milo+' · current observations '+g.observedCurrent.join(', ')+
+   ' · rain runs '+g.runs.length+' · lower observations '+g.observedLower.join(', ')+
+   ' · marker '+(g.markerSite??'not placed')+
+   ' · '+g.attempts.map(x=>x.site+':'+(x.wet?'wet':x.blocksPath?'blocks path':'model clear')).join(' → ');
+ }
+}
+render();
+</script></main></body></html>
