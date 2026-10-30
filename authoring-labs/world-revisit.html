@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale — Paper World Revisit (noncanonical)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#23413a;background:#eef1e8}
+*{box-sizing:border-box}body{margin:0}main{max-width:1160px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#2b5148;color:#fff;padding:.85rem;border-radius:.7rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.2rem 0}
+.notice{background:#fff0c7;border-left:5px solid #9c6b20;padding:.75rem;margin:.75rem 0;line-height:1.5}
+.panel{background:#fff;border:1px solid #b6c9bd;border-radius:.6rem;padding:.7rem;margin:.65rem 0;min-width:0}
+#map{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.4rem}
+.place{min-width:0;text-align:left;display:flex;flex-direction:column;justify-content:space-between;gap:.2rem}
+.place.done{background:#dfefe1}.place.active{border-color:#2a805a;box-shadow:inset 0 0 0 2px #2a805a}
+.place:disabled{background:#eceeeb}
+.place small{font-size:.75rem;line-height:1.3}
+button,a{font:inherit;min-height:44px;min-width:44px;padding:.55rem .65rem;border:2px solid #648175;border-radius:.45rem;background:#f8fbf5;color:#22463b;cursor:pointer;overflow-wrap:anywhere;max-width:100%}
+button:disabled{opacity:.6;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:3px solid #aa741c;outline-offset:2px}
+a{display:inline-flex;align-items:center;text-decoration:none}
+#actions,#views{display:flex;flex-wrap:wrap;gap:.45rem;margin:.6rem 0}
+#actions button{flex:1 1 165px}#views button[aria-pressed=true]{background:#d8eadb;border-color:#267a51;font-weight:700}
+#world{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.6rem}
+.paper{padding:.7rem;background:#f0f4eb;border:2px solid #c3d1c5;border-radius:.5rem;min-height:112px;line-height:1.5}
+.paper.selected{border-color:#2c7859;background:#e4f2e6}
+#paper-notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+.note{padding:.5rem;background:#f2f6ed;border-left:3px solid #658a6c;line-height:1.4;overflow-wrap:anywhere}
+#feedback,#progress,#story-cue{line-height:1.5;min-height:1.6rem;overflow-wrap:anywhere}
+#feedback{font-weight:600}
+footer{line-height:1.5;font-size:.85rem}
+@media(max-width:700px){#map{grid-template-columns:repeat(2,minmax(0,1fr))}#world,#paper-notes{grid-template-columns:1fr}}
+@media(max-width:420px){.place{font-size:.85rem}#actions button{flex:1 1 100%}}
+</style></head><body><main>
+<header><h1>Milo's Paper World — Before / Now</h1><div>Revisit eight paper places · E05–E11 retrospective authoring model</div></header>
+<p class="notice"><strong>NOT THE PRODUCTION GAME.</strong> This is an independent, unsaved paper recap, NOT a transfer of E05–E11 progress. E04 genuine memories are still blocked. North Hill remains CLOSED. Later place names, historical dates, resident needs, planting, lighting, construction and a Season ending are NOT verified. No canonical Chronicle, unlock, persistence or MN4 deployment.</p>
+<a href="./">Back to isolated authoring labs</a>
+<section class="panel">
+<h2>Where will Milo look again?</h2>
+<p id="progress" role="status" aria-live="polite">Paper places are explored in order, then revisited freely.</p>
+<div id="map" aria-label="Eight paper places"></div>
+</section>
+<section class="panel">
+<h2 id="title">E05 · Station</h2>
+<p id="story-cue">The paper map has a missing room.</p>
+<div id="world">
+<div id="before" class="paper"><strong>BEFORE</strong><p id="before-text"></p></div>
+<div id="now" class="paper selected"><strong>NOW</strong><p id="now-text"></p></div>
+</div>
+<div id="views" aria-label="Compare first and now"></div>
+<p id="task">Choose a model action. A mistake can be revised.</p>
+<div id="actions"></div>
+<p id="feedback" role="status" aria-live="polite"></p>
+<p id="parent-cue">Optional adult prompt: “What changed? Who benefits? What do we still not know?”</p>
+<button id="restart" type="button">Restart paper revisit</button>
+</section>
+<section class="panel"><h2>Paper notes — changes Milo can revisit</h2>
+<p>These are <strong>MODEL</strong> notes, not the production Chronicle. They are earned only by actions inside this separate preview.</p>
+<div id="paper-notes" aria-live="polite"></div>
+</section>
+<footer>Short English, deeper thinking: “It fits.” “What if it rains?” “Who else?” “Let's test.” “I changed it because…” Use Tab + Enter/Space; no drag-only action. No recorded voice or music.</footer>
+<script type="module">
+import {fresh,dispatch,project,LABELS,PLACES} from './world-revisit.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const action=(type,value)=>value===undefined?{type}:{type,value};
+function add(host,label,type,value){
+ const a=action(type,value),b=document.createElement('button');
+ b.type='button';b.textContent=label;b.dataset.action=type+(value===undefined?'':':'+value);
+ b.disabled=dispatch(state,a).history.length===state.history.length;
+ b.addEventListener('click',()=>{state=dispatch(state,a);render();});host.append(b);
+}
+const menu={
+ station:[['Rotate replica: wrong side','rotate','side-b'],['Rotate replica: matching side','rotate','side-a'],
+  ['Table across walkway','shift-table','across'],['Move table near wall','shift-table','near-wall'],
+  ['Test marks and public path','try-fit']],
+ current:[['Dry weather','rain','dry'],['Try rain','rain','rain'],
+  ['Blocked water channel','channel','blocked'],['Open model channel','channel','open'],
+  ['Run water tray','run-tray']],
+ lower:[['Pocket in runoff','move-pocket','runoff'],['Pocket on footpath','move-pocket','footpath'],
+  ['Move to raised pocket','move-pocket','raised'],['Test pocket and path','test-pocket']],
+ connector:[['Finn’s short blocked piece','move-bridge','blocked'],
+  ['Shift connector to clear side','move-bridge','clear'],['Test Milo, walker and water','test-passage']],
+ steps:[['Lower lamps OFF','lights','off'],['Lower lamps ON (paper only)','lights','on'],
+  ['Look from base','look-from','base'],['Look from side','look-from','side'],
+  ['Compare both lower views','compare-views']],
+ hill:[['Read CLOSED sign','inspect-sign'],['Try upper edge: stop safely','try-closed'],
+  ['Mark lower paper line','mark-lower'],['Review safe survey','review-hill']],
+ needs:[['Hear simulated quiet need','hear','quiet'],['Hear simulated activity need','hear','activity'],
+  ['Put needs together (conflict)','separate-needs','overlap'],
+  ['Give needs separate paper places','separate-needs','separate'],['Review both needs','review-needs']],
+ layout:[['Try overlapping layout','move-layout','overlap'],
+  ['Revise to clear shared layout','move-layout','clear'],['Test both simulated uses','test-layout']]
+};
+const hook={
+ station:'The station paper table may help us compare two garden maps.',
+ current:'Present beds stay healthy. Could a small lower paper pocket work?',
+ lower:'The paper seed marker will remain when Milo visits the connector.',
+ connector:'The paper passage is clear. What can we see from the lower Steps?',
+ steps:'Lower model lights reveal different views, but no historical date.',
+ hill:'The safe paper survey reaches an unnamed place; the upper hill stays closed.',
+ needs:'Two simulated needs can guide a reversible paper layout, not a real building.',
+ layout:'Look back at the station, gardens and lower path. This is not a Season ending.'
+};
+function render(){
+ const p=project(state),place=p.place,entry=p.current;
+ $('title').textContent=LABELS[place];
+ $('story-cue').textContent=p.cue+' '+hook[place];
+ $('progress').textContent=p.completed+' of 8 PAPER changes tested. This is not episode progress or an unlock.';
+ $('feedback').textContent=p.feedback;
+ $('task').textContent='Milo can try, revise, compare BEFORE / NOW, then visit the next PAPER place.';
+ const map=$('map');map.replaceChildren();
+ for(const x of p.progress){
+  const b=document.createElement('button');b.type='button';b.className='place';
+  b.classList.toggle('done',x.done);b.classList.toggle('active',x.id===place);
+  b.dataset.place=x.id;b.disabled=!x.available||x.id===place;
+  const name=document.createElement('strong');name.textContent=x.label;
+  const note=document.createElement('small');
+  note.textContent=!x.available?'Later paper task':x.done?'Paper change visible':'Not yet tested';
+  b.append(name,note);
+  b.addEventListener('click',()=>{state=dispatch(state,action('visit',x.id));render();});
+  map.append(b);
+ }
+ $('before-text').textContent=entry.before;
+ $('now-text').textContent=entry.now;
+ $('before').classList.toggle('selected',p.view==='before');
+ $('now').classList.toggle('selected',p.view==='now');
+ const views=$('views');views.replaceChildren();
+ for(const v of ['before','now']){
+  add(views,v==='before'?'Look BEFORE':'Look NOW','look',v);
+  const b=views.lastElementChild;b.setAttribute('aria-pressed',String(p.view===v));
+ }
+ const acts=$('actions');acts.replaceChildren();
+ for(const [label,type,value] of menu[place])add(acts,label,type,value);
+ $('parent-cue').textContent='Optional adult prompt: “What changed here? Who benefits? What is still UNKNOWN?”';
+ const notes=$('paper-notes');notes.replaceChildren();
+ if(!p.paperNotes.length){
+  const d=document.createElement('p');d.textContent='No model changes yet. Milo can test and revise the station first.';notes.append(d);
+ }
+ for(const n of p.paperNotes){
+  const d=document.createElement('div');d.className='note';
+  const strong=document.createElement('strong');strong.textContent=LABELS[n.place]+' · PAPER MODEL';
+  const detail=document.createElement('div');detail.textContent=n.text;
+  d.append(strong,detail);notes.append(d);
+ }
+}
+$('restart').addEventListener('click',()=>{state=fresh();render();});
+render();
+</script></main></body></html>
