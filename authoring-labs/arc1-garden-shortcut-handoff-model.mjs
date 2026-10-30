@@ -5,10 +5,14 @@ import * as Short from './shortcut-story-model.mjs';
 export const VERSION='arc1-e06-e07-paper-continuity-v1';
 export const MAX_ACTIONS=360;
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+// Identity cache is safe only while exact serialized bytes match; mutated nested snapshots
+// are replayed and rejected, never trusted from an old object identity.
+const verified=new WeakMap();
+const mark=s=>{verified.set(s,JSON.stringify(s));return s;};
 export function fresh(){
- return {version:VERSION,mode:'noncanonical_paper',stage:'upstream',
+ return mark({version:VERSION,mode:'noncanonical_paper',stage:'upstream',
   upstream:Up.fresh(),shortcut:Short.fresh(),history:[],
-  canonicalEvents:[],unlocks:[],historicalClaims:[],rights:[]};
+  canonicalEvents:[],unlocks:[],historicalClaims:[],rights:[]});
 }
 function clean(raw){
  if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
@@ -54,13 +58,14 @@ export function replay(history){
   const next=apply(s,a);if(!next)return null;
   s={...next,history:[...s.history,a]};
  }
- return s;
+ return mark(s);
 }
 export function restore(snapshot){
  if(!snapshot||typeof snapshot!=='object'||Array.isArray(snapshot)||
    snapshot.version!==VERSION||snapshot.mode!=='noncanonical_paper')return null;
+ if(verified.get(snapshot)===JSON.stringify(snapshot))return snapshot;
  const s=replay(snapshot.history);
- return s&&same(s,snapshot)?s:null;
+ return s&&same(s,snapshot)?mark(snapshot):null;
 }
 export function can(snapshot,action){
  const s=restore(snapshot),a=clean(action);
@@ -70,7 +75,7 @@ export function dispatch(snapshot,action){
  const s=restore(snapshot);if(!s)return fresh();
  if(!can(s,action))return s;
  const a=clean(action),next=apply(s,a);
- return {...next,history:[...s.history,a]};
+ return mark({...next,history:[...s.history,a]});
 }
 export function view(snapshot){
  const s=restore(snapshot);if(!s)return null;
