@@ -68,7 +68,13 @@ export function restore(snapshot){
 }
 export function can(snapshot,action){
  const s=restore(snapshot),a=clean(action);
- return !!(s&&a&&s.history.length<MAX_ACTIONS&&apply(s,a));
+ if(!s||!a||s.history.length>=MAX_ACTIONS)return false;
+ // Rendering asks for many button states; read-only reducer validation avoids
+ // the extra nested dispatch/replay needed only for an actual child action.
+ if(a.scene==='upstream')return s.stage==='upstream'&&Up.can(s.upstream,a.action);
+ if(a.scene==='shortcut')return s.stage==='shortcut'&&
+  s.upstream.garden.phase==='finished'&&Short.can(s.shortcut,a.action);
+ return !!apply(s,a);
 }
 export function dispatch(snapshot,action){
  const s=restore(snapshot);if(!s)return fresh();
