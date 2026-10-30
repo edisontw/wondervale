@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale E11 — A New Line on the Map PAPER Story</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#243f38;background:#edf1e9}*{box-sizing:border-box}body{margin:0}
+main{max-width:1100px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#2b4d45;color:white;border-radius:.6rem;padding:.8rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.06rem;margin:.2rem 0 .55rem}
+.notice{background:#fff0ca;border-left:5px solid #976a1c;padding:.75rem;line-height:1.5;margin:.65rem 0}
+.dialogue{background:#e0eae2;border-radius:.5rem;padding:.7rem;line-height:1.5;margin:.5rem 0}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.panel{background:#fff;border:1px solid #b7c8bb;border-radius:.5rem;padding:.7rem;margin:.4rem 0;min-width:0}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{font:inherit;min-width:44px;min-height:44px;padding:.4rem .6rem;background:#fff;color:#23443b;border:2px solid #597e70;border-radius:.4rem;cursor:pointer;max-width:100%;overflow-wrap:anywhere}
+button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible{outline:3px solid #aa741b;outline-offset:2px}
+button[aria-pressed=true]{background:#d1e9d8}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.3rem;background:#d6d2bd;padding:.4rem;border-radius:.5rem}
+.cell{min-width:0;min-height:64px;font-size:.8rem;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cell small{font-size:.7rem}.cell[data-here=true]{background:#ffdfab}
+.cell[data-blocked=true]{background:#646a64;color:#fff}
+.cell[data-quiet=true]{box-shadow:inset 0 0 0 4px #8ab6d3}
+.cell[data-activity=true]{box-shadow:inset 0 0 0 4px #d8a16e}
+.cell[data-access=true]{background:#d7edda}
+.paper{background:#f1f4ec;border:1px dashed #9eafa0;border-radius:.4rem;padding:.55rem;line-height:1.5;margin:.45rem 0;overflow-wrap:anywhere}
+[hidden]{display:none!important}
+@media(max-width:700px){.columns{grid-template-columns:1fr}.cell{min-height:52px;font-size:.72rem}.grid{gap:.2rem;padding:.25rem}}
+</style></head><body><main>
+<header><h1>E11 — A New Line on the Map</h1><div>Child-driven PAPER story · Milo tests, listens, changes and draws</div></header>
+<p class="notice"><strong>AUTHORING ONLY — FICTIONAL MODEL.</strong> The shared space, simulated needs, grid and map links are not verified access, testimony, history or construction permission. Common CLOSED. North Hill CLOSED. No production Chronicle, unlock, MN4 deployment, approved artwork or Season completion.</p>
+<div class="dialogue" aria-live="polite"><strong id="speaker">Milo</strong>: <span id="line"></span><div id="stage"></div></div>
+<div class="controls"><button data-action="start">Begin PAPER story</button></div>
+<div class="columns">
+<section class="panel"><h2>1. Walk Milo and try a temporary layout</h2>
+<p>Two simulated needs: a quiet reader and an activity group. Walk at least one adjacent step. Then place the access strip and move the quiet/activity pieces. All pieces can be lifted.</p>
+<div id="tools" class="controls"></div>
+<div id="grid" class="grid" aria-label="Fictional 3 by 4 shared-space board"></div>
+<div class="controls"><button data-action="place-access">Place model access strip</button>
+<button data-action="lift" data-value="quiet">Lift quiet piece</button>
+<button data-action="lift" data-value="activity">Lift activity piece</button></div>
+<p id="position" class="paper"></p><p id="feedback" class="paper" role="status"></p>
+<p id="parent" class="paper" hidden></p>
+<h2>2. Test both people, then revise</h2>
+<div class="controls"><button data-action="test-user" data-value="quiet_reader">Test quiet reader</button>
+<button data-action="test-user" data-value="activity_group">Test activity group</button>
+<button data-action="snapshot-trial">Save tested PAPER trial</button></div>
+<div id="test-results" class="paper"></div><div id="trials" class="paper"></div>
+<div class="controls"><button data-action="compare-trials">Compare FIRST / NOW</button></div>
+<p id="comparison" class="paper"></p>
+</section>
+<section class="panel"><h2>3. Recall a model discovery</h2>
+<p>Earlier episode labels are reminders for thinking, NOT confirmed sources.</p>
+<div id="evidence" class="controls"></div>
+<h2>4. Draw a different current loop</h2>
+<p>Try adding links and check whether they form a connected cycle. The unsafe historic hill line is never offered.</p>
+<div id="links" class="controls"></div>
+<div class="controls"><button data-action="check-loop">Check PAPER loop</button></div>
+<p id="map" class="paper"></p>
+<h2>5. Review the unfinished story</h2>
+<p>“We changed it because…” / “Both need…” / “We don't know yet.”</p>
+<div class="controls"><button data-action="review-preview">Review model finale</button>
+<button data-action="finish-paper">Finish PAPER notes</button><button id="restart">Restart story</button></div>
+<p id="hook" class="paper" role="status"></p>
+</section></div>
+<p><small>Touch or Tab + Enter/Space. No points, timer, audio, login, persistence or automatic answers. Parents may ask a question after the first failed trial, but Milo makes the changes.</small></p>
+<script type="module">
+import {fresh,dispatch,can,view} from './loop-story-model.mjs';
+import {BOUNDARY,START,EXIT,EVIDENCE,SAFE_LINKS,USERS} from '../engine/s01e11-authoring-prototype.mjs';
+const $=id=>document.getElementById(id),labels={e03_delivery:'E03 delivery',e06_drainage:'E06 water',e07_user_impact:'E07 shared use',e09_closure:'E09 closed hill',e10_needs:'E10 simulated needs'};
+let state=fresh(),tool='walk';
+const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
+function action(type,value){
+ if(type==='start'||type==='snapshot-trial'||type==='check-loop'||type==='review-preview'||type==='finish-paper')return {type};
+ if(type==='place-access')return {type:'place',tokenId:'access',cells:['1,1','1,2']};
+ if(type==='place-cell')return {type:'place',tokenId:tool,cells:[value]};
+ if(type==='move-milo')return {type,to:value};
+ if(type==='lift')return {type,tokenId:value};
+ if(type==='test-user')return {type,userId:value};
+ if(type==='cite-earlier')return {type,discoveryId:value};
+ if(type==='add-loop-edge'||type==='remove-loop-edge')return {type,edgeId:value};
+ if(type==='compare-trials')return {type,first:state.e11.trials[0]?.id,second:state.e11.trials.at(-1)?.id};
+ return null;
+}
+function add(host,type,value,label,extraDisabled=false){
+ const b=document.createElement('button');b.type='button';b.dataset.action=type;
+ if(value!==null)b.dataset.value=value;b.textContent=label;
+ const a=action(type,value);b.disabled=extraDisabled||!a||!can(state,a);
+ host.append(b);return b;
+}
+function render(){
+ const v=view(state);$('speaker').textContent=v.speaker;$('line').textContent=v.line;
+ $('stage').textContent='Story stage: '+v.stage+' · Milo: '+v.position;
+ $('position').textContent='Milo '+v.position+' · steps '+v.walked+' · model revision '+state.e11.revision;
+ $('feedback').textContent=v.feedback;
+ $('parent').hidden=!v.parentCue;$('parent').textContent=v.parentCue?'Optional parent cue: '+v.parentCue:'';
+ const tools=$('tools');tools.replaceChildren();
+ for(const [id,label] of [['walk','Walk Milo'],['quiet','Place quiet seat'],['activity','Place activity area']]){
+  const b=document.createElement('button');b.textContent=label;b.type='button';b.dataset.tool=id;
+  b.setAttribute('aria-pressed',String(tool===id));tools.append(b);
+ }
+ const grid=$('grid');grid.replaceChildren();
+ for(let r=0;r<3;r++)for(let c=0;c<4;c++){
+  const cell=r+','+c,blocked=BOUNDARY.includes(cell),quiet=v.layout.quiet.includes(cell),activity=v.layout.activity.includes(cell),access=v.layout.access.includes(cell);
+  const type=tool==='walk'?'move-milo':'place-cell',a=action(type,cell);
+  const b=add(grid,type,cell,cell+' · '+[blocked?'CLOSED':'',v.position===cell?'Milo':'',quiet?'Quiet':'',activity?'Activity':'',access?'Access':''].filter(Boolean).join(' '),blocked|| (tool==='walk'&&!adjacent(v.position,cell))|| (tool!=='walk'&&(cell===START||cell===EXIT|| (tool==='quiet'&&activity)||(tool==='activity'&&quiet))));
+  b.className='cell';b.dataset.here=String(v.position===cell);b.dataset.blocked=String(blocked);
+  b.dataset.quiet=String(quiet);b.dataset.activity=String(activity);b.dataset.access=String(access);
+ }
+ const tests=$('test-results');tests.textContent=USERS.map(id=>id+': '+(v.tests[id]?(v.tests[id].passed?'PASS':'RETRY')+' — '+v.tests[id].reason:'not tested')).join(' / ');
+ $('trials').textContent=v.trials.map(t=>t.id+': reader '+(t.tests.quiet_reader?.passed?'PASS':'RETRY')+', group '+(t.tests.activity_group?.passed?'PASS':'RETRY')).join(' / ')||'No saved PAPER trials.';
+ $('comparison').textContent=v.comparison?'FIRST '+v.comparison.first+' / NOW '+v.comparison.second+' — '+v.comparison.limitation:'Try a conflict, move a piece, retest both users, save and compare.';
+ const evidence=$('evidence');evidence.replaceChildren();for(const id of EVIDENCE)add(evidence,'cite-earlier',id,'Recall '+labels[id]);
+ const links=$('links');links.replaceChildren();
+ for(const [id,nodes] of Object.entries(SAFE_LINKS)){const selected=v.loopEdges.includes(id);
+  add(links,selected?'remove-loop-edge':'add-loop-edge',id,(selected?'Remove ':'Add ')+nodes.join(' ↔ '));}
+ $('map').textContent='PAPER links: '+(v.loopEdges.join(', ')||'none')+' · connected: '+(v.loopChecked?'YES, MODEL ONLY':'not proven')+' · North Hill CLOSED.';
+ $('hook').textContent=v.hook+' Canonical events: 0; unlocks: 0; Season complete: NO.';
+ for(const b of document.querySelectorAll('button[data-action]:not(.cell)'))b.disabled=!can(state,action(b.dataset.action,b.dataset.value));
+}
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.tool){tool=t.dataset.tool;render();return;}
+ if(t.id==='restart'){state=fresh();tool='walk';render();return;}
+ if(!t.dataset.action)return;
+ const a=action(t.dataset.action,t.dataset.value);if(a)state=dispatch(state,a);render();
+});
+render();
+</script></main></body></html>
