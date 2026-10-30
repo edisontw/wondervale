@@ -47,7 +47,7 @@ try{
    await hit('test-layout');await hit('move-layout:clear');await hit('test-layout');
    assert.match(await page.locator('#progress').innerText(),/8 of 8 PAPER/);
    assert.equal(await page.locator('#paper-notes .note').count(),8);
-   assert.match(await page.locator('#paper-notes').innerText(),/North Hill stays CLOSED/);
+   assert.match(await page.locator('#paper-notes').innerText(),/upper hill CLOSED/);
    await visit('station');
    await hit('look:before');assert.match(await page.locator('#before-text').innerText(),/walkway/);
    await hit('look:now');assert.match(await page.locator('#now-text').innerText(),/Map Room/);
