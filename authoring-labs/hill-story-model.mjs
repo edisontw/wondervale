@@ -79,7 +79,7 @@ export function view(snapshot){
   parentCue:h.inspected.includes('boundary_sign')&&!h.provisionalFinished?
    'What can Milo still learn without crossing the closed way?':null,
   paperNote:h.provisionalFinished?
-   'PAPER NOTE: Closed old hill way. A surveyed model route to a lower overlook; a matching distant mark, identity UNKNOWN. E10 NOT UNLOCKED.':
+   'PAPER NOTE: CLOSED old hill way. A surveyed model route to a lower overlook; a matching distant mark, identity UNKNOWN. E10 NOT UNLOCKED.':
    'AUTHORING MODEL ONLY: Real trail access, terrain, closure date and cause UNKNOWN. Upper North Hill CLOSED.',
   upperHillClosed:true,realAccessApproved:false,historicalDate:null,historicalCause:null,
   distantPlaceName:null,e10Unlocked:false,canonicalEvents:[],unlocks:[],historicalClaims:[]};
