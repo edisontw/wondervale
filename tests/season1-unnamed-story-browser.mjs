@@ -35,7 +35,7 @@ try{
    await hit('place','quiet:left');await hit('place','activity:right');
    assert.match(await page.locator('#needs').innerText(),/left/);
    await hit('walk','notice_wall');await hit('inspect','holes');
-   assert.match(await page.locator('#parent-evidence').innerText(),/different ways/);
+   assert.match(await page.locator('#parent-evidence').innerText(),/more than one use/);
    await hit('suggest','holes:display');
    await hit('check-source');
    assert.match(await page.locator('#line').innerText(),/UNKNOWN/);
