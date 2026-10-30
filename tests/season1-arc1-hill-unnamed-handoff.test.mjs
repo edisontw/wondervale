@@ -119,12 +119,12 @@ function survey(){
 }
 
 import * as Next from '../authoring-labs/arc1-hill-unnamed-handoff-model.mjs';
-const act=(s,scene,action)=>Next.dispatch(s,{scene,action});
+const nextAct=(s,scene,action)=>Next.dispatch(s,{scene,action});
 const go=(s,type)=>Next.dispatch(s,{scene:'nav',type});
-function ready(){let s=Next.fresh();for(const a of survey().history)s=act(s,'upstream',a);return s;}
+function ready(){let s=Next.fresh();for(const a of survey().history)s=nextAct(s,'upstream',a);return s;}
 function completed(){
  let s=go(ready(),'to-e10');
- const a=(type,extra={})=>{s=act(s,'e10',{type,...extra});};
+ const a=(type,extra={})=>{s=nextAct(s,'e10',{type,...extra});};
  a('start');a('compare-symbol');a('walk',{to:'stone_edge'});a('inspect',{traceId:'surface'});
  a('suggest',{traceId:'surface',useTag:'passing'});
  a('revise',{traceId:'surface',oldTag:'passing',newTag:'resting'});
@@ -163,7 +163,7 @@ test('revisit retains E10; E10-only restart retains E09; E09 restart clears E10'
  s=go(s,'restart-e10');assert.equal(Next.view(s).e10.stage,'opening');
  assert.equal(Next.view(s).upstream.hillPaperFinished,true);
  s=go(completed(),'to-hill-e10');
- s=act(s,'upstream',{scene:'nav',type:'restart-hill'});
+ s=nextAct(s,'upstream',{scene:'nav',type:'restart-hill'});
  assert.equal(Next.view(s).e10PaperFinished,false);
  assert.equal(Next.can(s,{scene:'nav',type:'to-e10'}),false);
  assert.equal(Next.view(s).upstream.lanternPaperFinished,true);
