@@ -3,9 +3,12 @@
 import * as E10 from '../engine/s01e10-authoring-prototype.mjs';
 export const VERSION='s01e10-unnamed-story-paper-v1',MAX_STEPS=120;
 const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
-export function fresh(){return {version:VERSION,mode:'authoring_preview',started:false,
+// A mutated snapshot loses its fingerprint and is checked by strict history replay.
+const verified=new WeakMap();
+const mark=s=>(verified.set(s,JSON.stringify(s)),s);
+export function fresh(){return mark({version:VERSION,mode:'authoring_preview',started:false,
  e10:E10.fresh(),testedOneSlot:false,changedAfterTest:false,finishedPaper:false,
- history:[],canonicalEvents:[],unlocks:[],historicalClaims:[],rights:[]};}
+ history:[],canonicalEvents:[],unlocks:[],historicalClaims:[],rights:[]});}
 function clean(a){
  if(!a||typeof a!=='object'||Array.isArray(a))return null;
  if(['start','test-one-slot','finish-paper'].includes(a.type))return {type:a.type};
@@ -49,12 +52,13 @@ export function replay(history){
   const n=apply(s,a);if(!n)return null;
   s={...n,history:[...s.history,a]};
  }
- return s;
+ return mark(s);
 }
 export function restore(snapshot){
  if(!snapshot||typeof snapshot!=='object'||Array.isArray(snapshot)||
   snapshot.version!==VERSION||snapshot.mode!=='authoring_preview')return null;
- const s=replay(snapshot.history);return s&&eq(s,snapshot)?s:null;
+ if(verified.get(snapshot)===JSON.stringify(snapshot))return snapshot;
+ const s=replay(snapshot.history);return s&&eq(s,snapshot)?mark(snapshot):null;
 }
 export function can(snapshot,action){
  const s=restore(snapshot),a=clean(action);
@@ -63,9 +67,10 @@ export function can(snapshot,action){
 export function dispatch(snapshot,action){
  const s=restore(snapshot);if(!s)return fresh();
  if(action?.type==='reset'&&eq(action,{type:'reset'}))return fresh();
- if(!can(s,action))return s;
- const a=clean(action),n=apply(s,a);
- return {...n,history:[...s.history,a]};
+ const a=clean(action);
+ if(!a||!eq(a,action)||s.history.length>=MAX_STEPS)return s;
+ const n=apply(s,a);
+ return n?mark({...n,history:[...s.history,a]}):s;
 }
 export function view(snapshot){
  const s=restore(snapshot);if(!s)return null;
