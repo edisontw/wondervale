@@ -18,6 +18,8 @@ function clean(a){
  return out&&eq(out,a)?out:null;
 }
 function eligible(upstream){
+ // Most Arc 1 actions precede E10; skip expensive nested projections until E10 finishes.
+ if(!upstream?.e10?.finishedPaper)return false;
  const v=Up.view(upstream);
  return !!(v?.e10PaperFinished&&v.e10?.finishedPaper&&v.e10.sourceChecked&&
   v.e10.sourceApproved===false&&v.e10.actualName===null&&
@@ -39,13 +41,12 @@ function apply(s,a){
   return null;
  }
  if(a.scene==='upstream'&&s.stage==='upstream'){
-  if(!Up.can(s.upstream,a.action))return null;
+  // The strict upstream reducer already rejects invalid actions; do not replay its guard twice.
   const n=Up.dispatch(s.upstream,a.action);if(eq(n,s.upstream))return null;
   const keep=eligible(n)&&eq(n.e10,s.upstream.e10);
   return {...s,upstream:n,e11:keep?s.e11:E11.fresh(),handoff:keep?s.handoff:null};
  }
  if(a.scene==='e11'&&s.stage==='e11'&&eligible(s.upstream)){
-  if(!E11.can(s.e11,a.action))return null;
   const n=E11.dispatch(s.e11,a.action);
   return eq(n,s.e11)?null:{...s,e11:n};
  }
