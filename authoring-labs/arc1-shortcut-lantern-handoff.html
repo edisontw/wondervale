@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale Arc 1 — Finn’s Shortcut to Lantern Steps PAPER story</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#233e35;background:#f0f2e9}*{box-sizing:border-box}
+body{margin:0}main{max-width:1050px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#2b5042;color:white;padding:.85rem;border-radius:.6rem}
+h1{font-size:1.35rem;margin:.15rem 0}h2{font-size:1.08rem;margin:.3rem 0}
+.notice{background:#fff0ca;border-left:5px solid #966821;padding:.7rem;line-height:1.5;margin:.7rem 0}
+.world{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.45rem}
+.place{background:#e6eee2;border:2px solid #9db4a5;border-radius:.5rem;padding:.6rem;min-height:90px;line-height:1.5;overflow-wrap:anywhere}
+.place[data-done=true]{background:#d1e8c9;border-color:#497453}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.panel{background:white;border:1px solid #b9c8bd;border-radius:.55rem;padding:.7rem;min-width:0;margin:.5rem 0}
+.paper{background:#edf2e8;border:1px dashed #95ab9b;border-radius:.45rem;padding:.65rem;line-height:1.5;margin:.45rem 0;overflow-wrap:anywhere}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{font:inherit;min-height:44px;min-width:44px;max-width:100%;overflow-wrap:anywhere;padding:.45rem .6rem;border:2px solid #547967;border-radius:.4rem;background:#f8fbf6;color:#214337;cursor:pointer}
+button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px solid #b67a1a;outline-offset:2px}
+[hidden]{display:none!important}@media(max-width:680px){.grid,.world{grid-template-columns:1fr}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E03 memories → E04 UNKNOWN → E05 Station → E06 Gardens → E07 Shortcut → E08 Lantern Steps</h1>
+<div>Milo revisits Finn’s revised connector, then checks lower-step marks from two viewpoints · noncanonical PAPER story</div></header>
+<p class="notice"><strong>AUTHORING ONLY — NOT THE PRODUCTION GAME.</strong> E03 quotations are sincere but undated. Station, gardens, connector, brackets and lamps are SYNTHETIC models. No real wiring or light installation. No historical date, cause, real site, planting or construction permission, production Chronicle, unlock, save, MN4 deployment or Season completion.</p>
+<div class="world" aria-label="Visible paper world changes">
+<div class="place" id="station-world"><strong>E05 Station</strong><div id="station-state">Paper Map Room not built.</div></div>
+<div class="place" id="current-world" data-done="true"><strong>E06 Current Garden</strong><div id="current-state">Healthy upper garden stays.</div></div>
+<div class="place" id="lower-world"><strong>E06 Lower Garden</strong><div id="lower-state">No paper pocket trial.</div></div>
+<div class="place" id="connector-world"><strong>E07 Connector</strong><div id="connector-state">Finn’s FIRST idea is untested.</div></div>
+<div class="place" id="lantern-world"><strong>E08 Lower Steps</strong><div id="lantern-state">Model lamps OFF.</div></div>
+</div>
+<div id="status" class="paper" role="status" aria-live="polite"></div>
+<div id="dialogue" class="paper" aria-live="polite"></div>
+<div id="nav" class="controls"></div>
+<div class="grid">
+<section class="panel" id="arc-panel"><h2 id="arc-title">E04 · Two memories</h2>
+<p id="arc-cue">Hear both. Try an order. Revise to UNKNOWN when dates are missing.</p>
+<div id="arc-actions" class="controls"></div>
+<div id="arc-note" class="paper"></div></section>
+<section class="panel" id="garden-panel" hidden><h2 id="garden-title">E06 · Current Garden</h2>
+<p id="garden-cue">Walk Milo to inspect the upper garden and run the PAPER rain tray.</p>
+<div id="garden-actions" class="controls"></div>
+<div id="garden-note" class="paper"></div></section>
+<section class="panel" id="shortcut-panel" hidden><h2>E07 · Finn’s removable connector</h2>
+<p id="shortcut-cue">The lower PAPER pocket raises a new question: can Finn help Milo without blocking other people or water?</p>
+<div id="shortcut-actions" class="controls"></div>
+<div id="shortcut-first" class="paper">FIRST not tested.</div>
+<div id="shortcut-now" class="paper">NOW not tested.</div>
+<div id="shortcut-board" class="paper" role="img" aria-label="Synthetic eight by seven connector model"></div>
+<div id="shortcut-note" class="paper"></div></section>
+<section class="panel" id="lantern-panel" hidden><h2>E08 · Lower Lantern Steps PAPER viewpoint test</h2>
+<p>Walk Milo only between three declared lower anchors. Upper North Hill remains CLOSED. Compare the same three fixed marks from two safe places; the removable lower model lamps are not real electrical work.</p>
+<div id="lantern-actions" class="controls"></div>
+<div id="lantern-first" class="paper">FROM HERE: not observed.</div>
+<div id="lantern-second" class="paper">FROM THERE: not observed.</div>
+<div id="lantern-note" class="paper"></div></section>
+<section class="panel"><h2>What changes and what remains unknown?</h2>
+<div id="world-note" class="paper"></div>
+<p id="parent" class="paper">Parent: let Milo try first.</p>
+</section></div>
+<p><small>Touch or Tab + Enter/Space. An unsuitable paper placement is a test, not a penalty. Revisiting keeps the gardens and connector model; restarting E04 clears all downstream PAPER models. North Hill stays CLOSED and the unnamed place remains unrevealed. E08 PAPER lamps are not real lighting.</small></p>
+<script type="module">
+import {fresh,dispatch,can,view} from './arc1-shortcut-lantern-handoff-model.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const wrap=action=>({scene:'upstream',action});
+const nav=type=>wrap(['to-shortcut','to-upstream','restart-shortcut','restart-all'].includes(type)?
+ {scene:'nav',type}:{scene:'upstream',action:{scene:'nav',type}});
+const arc=(scene,type,x)=>wrap({scene:'upstream',action:{scene:'arc1',action:scene==='nav'?{scene:'nav',type}:
+ {scene,action:x===undefined?{type}:{type,...x}}}});
+const station=(type,value)=>arc('e05',type,value===undefined?undefined:{value});
+const garden=(type,value)=>wrap({scene:'upstream',action:{scene:'garden',action:value===undefined?{type}:{type,value}}});
+const shortcut=(type,value)=>wrap({scene:'shortcut',action:value===undefined?{type}:{type,value}});
+function group(id,rows){
+ const el=$(id);el.replaceChildren();
+ for(const [key,label,action] of rows){
+  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
+  b.disabled=!can(state,action);
+  b.addEventListener('click',()=>{state=dispatch(state,action);render();});
+  el.append(b);
+ }
+}
+function trialText(trials){
+ return ['milo','resident','water'].map(k=>k+': '+
+  (trials[k]?(trials[k].pass?'PASS':'BLOCKED'):'not tested')).join(' · ');
+}
+function drawShortcutBoard(t){
+ const board=$('shortcut-board');board.replaceChildren();
+ const footprint=new Set(t.layout.footprint),person=new Set(t.layout.traces.resident.path),
+  water=new Set(t.layout.traces.water.path);
+ board.style.display='grid';board.style.gridTemplateColumns='repeat(8,minmax(0,1fr))';
+ board.style.gap='2px';
+ for(let y=0;y<7;y++)for(let x=0;x<8;x++){
+  const id=x+','+y,C=footprint.has(id),P=person.has(id),W=water.has(id);
+  const cell=document.createElement('span');
+  cell.dataset.conflict=String(C&&(P||W));
+  cell.textContent=C&&(P||W)?'X':C?'C':P?'P':W?'W':'·';
+  cell.title='Synthetic model '+id;
+  cell.style.textAlign='center';cell.style.minWidth='0';cell.style.padding='.18rem 0';
+  cell.style.background=C&&(P||W)?'#efb7a6':C?'#e7d5a5':'#f8faf5';
+  board.append(cell);
+ }
+}
+function render(){
+ const v=view(state),u=v.upstream.upstream,a=u.arc1,g=u.garden,t=v.upstream.shortcut,l=v.lantern,
+  atLantern=v.stage==='lantern',atShortcut=v.stage==='upstream'&&v.upstream.stage==='shortcut',
+  atGarden=v.stage==='upstream'&&v.upstream.stage==='upstream'&&u.stage==='garden';
+ $('arc-panel').hidden=atGarden||atShortcut||atLantern;
+ $('garden-panel').hidden=!atGarden||atShortcut||atLantern;
+ $('shortcut-panel').hidden=!atShortcut;
+ $('station-world').dataset.done=String(v.stationMapRoomPaper);
+ $('lower-world').dataset.done=String(v.lowerPocketPaper);
+ $('connector-world').dataset.done=String(v.connectorPaperRevised);
+ $('lantern-world').dataset.done=String(v.lanternPaperFinished);
+ $('lantern-panel').hidden=!atLantern;
+ $('station-state').textContent=v.stationMapRoomPaper?'Small PAPER Map Room; walkway clear.':'Paper Map Room not built.';
+ $('current-state').textContent='Healthy beds stay. '+(v.currentGardenCompared?'PAPER rain compared.':'Rain question open.');
+ $('lower-state').textContent=v.lowerPocketPaper?'Raised PAPER pocket marked. Not real planting.':
+  v.lowerGardenVisited?'Milo is testing removable paper markers.':'No lower pocket trial.';
+ $('connector-state').textContent=v.connectorPaperRevised?
+  'FIRST/NOW PAPER connector revised; not built.':
+  t.stage==='opening'?'Finn’s FIRST idea is untested.':'Finn is testing a removable connector.';
+ $('status').textContent='Stage: '+(atLantern?'lantern / '+l.stage:atShortcut?'shortcut / '+t.stage:atGarden?'garden / '+g.phase:'upstream / '+a.stage)+
+  ' · E05 PAPER finished: '+a.stationPaperFinished+
+  ' · Lower PAPER pocket: '+v.lowerPocketPaper+
+  ' · E07 PAPER revised: '+v.connectorPaperRevised+' · E08 PAPER finished: '+v.lanternPaperFinished+' · production unlock: false';
+ $('dialogue').textContent=(atLantern?l.speaker:atShortcut?t.speaker:atGarden?g.speaker:a.speaker)+': '+(atLantern?l.line:atShortcut?t.line:atGarden?g.line:a.line);
+ $('world-note').textContent=v.paperNote+
+  ' Source dates UNKNOWN. Real water, planting and access UNKNOWN. No production Chronicle.';
+ $('parent').textContent='Optional parent question: '+(atLantern?(l.parentCue||'What changed: the marks or where Milo stood?'):atShortcut?
+  (t.parentCue||'Who else uses Finn’s route? Let Milo test first.'):
+  atGarden?(g.parentCue||'What could Milo test before deciding?'):
+  (a.parentCue||'What does the evidence show, and what is still unknown?'));
+ group('nav',[
+  ['to-garden','Visit E06 Two Gardens (PAPER only)',nav('to-garden')],
+  ['to-arc1','Revisit E05 station and E04 notes',nav('to-arc1')],
+  ['restart-garden','Restart only E06 PAPER trials',nav('restart-garden')],
+  ['restart-arc1','Restart whole PAPER arc',nav('restart-arc1')],
+  ['to-shortcut','Try E07 Finn’s connector (PAPER only)',nav('to-shortcut')],
+  ['to-upstream','Revisit E06 gardens and E05 station',nav('to-upstream')],
+  ['restart-shortcut','Restart only E07 model',nav('restart-shortcut')],
+  ['restart-all','Restart all PAPER stories',nav('restart-all')],
+  ['to-lantern','Visit E08 lower Steps (PAPER only)',{scene:'nav',type:'to-lantern'}],
+  ['to-e07','Revisit E07 revised connector',{scene:'nav',type:'to-upstream'}],
+  ['restart-lantern','Restart E08 PAPER only',{scene:'nav',type:'restart-lantern'}],
+  ['restart-whole','Restart whole E07→E08 PAPER arc',{scene:'nav',type:'restart-all'}]
+ ]);
+ $('lantern-state').textContent=v.lanternPaperFinished?'Two viewpoints compared; source UNKNOWN.':
+  v.lanternPaperCompared?'Views compared; plate source pending.':
+  l.stage==='opening'?'Model lamps OFF.':'Lower A '+(l.lights['lower-a']?'ON':'OFF')+'; lower B '+(l.lights['lower-b']?'ON':'OFF')+'.';
+ if(atLantern){
+  const action=(type,key,value)=>({scene:'lantern',action:key?{type,[key]:value}:{type}});
+  group('lantern-actions',[
+   ['lantern-start','Hear Nia: look first',action('start')],
+   ...['base','lower-landing','side'].map(x=>['lantern-walk-'+x,'Walk Milo: '+x,action('walk','anchor',x)]),
+   ...['brackets','boundary','lower-a','lower-b','service-plate'].map(x=>['lantern-inspect-'+x,'Look: '+x,action('inspect','feature',x)]),
+   ...['lower-a','lower-b'].map(x=>['lantern-toggle-'+x,'Switch PAPER lamp: '+x,action('toggle-lamp','lampId',x)]),
+   ['lantern-observe','Observe from Milo’s place',action('observe-view')],
+   ['lantern-compare','Compare two viewpoints',action('compare-views')],
+   ['lantern-finish','Keep E08 PAPER observation',action('confirm-preview')]
+  ]);
+  $('lantern-first').textContent='FROM HERE · '+(l.firstView?l.firstView.viewpoint+': '+l.firstView.spreadDegrees.toFixed(1)+' degrees':'not observed');
+  $('lantern-second').textContent='FROM THERE · '+(l.secondView?l.secondView.viewpoint+': '+l.secondView.spreadDegrees.toFixed(1)+' degrees':'not observed');
+  $('lantern-note').textContent='Milo at '+l.milo+' · '+l.paperNote+' · E07 FIRST/NOW remains visible above.';
+  return;
+ }
+ if(atShortcut){
+  group('shortcut-actions',[
+   ['shortcut-start','Hear Finn’s idea',shortcut('start')],
+   ...['entry','shared-path','channel','workbench'].map(id=>
+    ['shortcut-walk-'+id,'Walk Milo: '+id,shortcut('walk',id)]),
+   ...['shared-path','channel'].map(id=>
+    ['shortcut-inspect-'+id,'Look: '+id,shortcut('inspect',id)]),
+   ...['milo','resident','water'].map(id=>
+    ['shortcut-trial-'+id,'Test: '+id,shortcut('trial',id)]),
+   ...['path-clear-water-blocked','channel-clear-path-blocked','side-offset','lower-offset'].map(id=>
+    ['shortcut-place-'+id,'Move model: '+id,shortcut('place',id)]),
+   ['shortcut-undo','Undo model move',shortcut('undo')],
+   ['shortcut-compare','Compare FIRST / NOW',shortcut('compare')],
+   ['shortcut-finish','Finish E07 PAPER note',shortcut('finish')]
+  ]);
+  $('shortcut-first').textContent='FIRST · '+trialText(t.firstTrials);
+  $('shortcut-now').textContent='NOW · '+trialText(t.revisedTrials);
+  $('shortcut-note').textContent='Milo at '+t.milo+' · '+t.line+' · '+t.paperNote+
+   ' North Hill CLOSED. Real lights OFF; E08 lower model lamps '+(l.lights['lower-a']||l.lights['lower-b']?'may be ON in PAPER only.':'OFF.')+' Real permissions UNKNOWN.';
+  drawShortcutBoard(t);
+  return;
+ }
+ if(!atGarden){
+  if(a.stage==='e04'){
+   $('arc-title').textContent='E04 · Two sincere memories and UNKNOWN timeline';
+   group('arc-actions',[
+    ['hear-station','Hear Market coordinator',arc('e04','inspect',{which:'station'})],
+    ['hear-garden','Hear Garden resident',arc('e04','inspect',{which:'garden'})],
+    ...['station','garden'].flatMap(which=>['earlier','later','unknown'].map(slot=>
+     [which+'-'+slot,which+' → '+slot.toUpperCase(),arc('e04','place',{which,slot})])),
+    ['compare','Compare evidence',arc('e04','compare')],
+    ['finish-e04','Keep UNKNOWN PAPER note',arc('e04','finish-paper')],
+    ['to-e05','Try E05 PAPER station',arc('nav','to-e05')]
+   ]);
+   $('arc-note').textContent=Object.values(a.memoryCards).map(m=>
+    m.speaker+': '+(m.text??'not heard')+' · '+(m.slot??'unplaced')).join(' | ')+
+    ' · source dates UNKNOWN';
+  }else{
+   $('arc-title').textContent='E05 · Station paper board and clear-path Map Room';
+   group('arc-actions',[
+    ['start-e05','Begin station PAPER story',station('start')],
+    ['walk-board','Walk Milo to board',station('walk','board')],
+    ['walk-table','Walk Milo to table',station('walk','table')],
+    ['walk-door','Walk Milo to door',station('walk','door')],
+    ['inspect-peg','Inspect peg pair',station('inspect','peg-pair')],
+    ['inspect-worn','Inspect worn edge',station('inspect','worn-edge')],
+    ['guess-route','MAYBE route board',station('guess','route-board')],
+    ['guess-unsure','I am not sure',station('guess','unsure')],
+    ['copy-b','Try removable copy B',station('try-copy','side-b')],
+    ['copy-a','Turn to copy A',station('try-copy','side-a')],
+    ['check','Check both marks',station('check')],
+    ['qualify','A fit does not prove history',station('qualify')],
+    ['table-block','Place table across walkway',station('place-table','across-walkway')],
+    ['table-clear','Move table near wall',station('place-table','near-wall')],
+    ['confirm','Test public path',station('confirm')],
+    ['reflect','Write E05 PAPER note',station('reflect')],
+    ['to-e04','Revisit E04 memories',arc('nav','to-e04')],
+    ['restart-e04','Restart E04 (clears E05/E06)',arc('nav','restart-e04')]
+   ]);
+   $('arc-note').textContent='Milo at '+a.station.milo+' · copy fit '+a.station.fit+
+    ' · path clear '+a.station.clear+' · Map Room PAPER '+a.station.mapRoom+
+    ' · '+(a.station.chroniclePreview||'Garden cause UNKNOWN.');
+  }
+ }else{
+  const lower=g.phase==='lower'||g.phase==='finished';
+  $('garden-title').textContent=lower?'E06 · Lower Garden PAPER pocket':'E06 · Current Garden PAPER rain';
+  const rows=[['start-garden','Begin two-garden story',garden('start')]];
+  if(!lower){
+   for(const id of ['present-bed','slope','shared-path','model-tray'])
+    rows.push(['walk-'+id,'Walk Milo: '+id,garden('walk',id)]);
+   for(const id of ['present-bed','slope','shared-path'])
+    rows.push(['inspect-'+id,'Look: '+id,garden('inspect',id)]);
+   for(const weather of ['dry','rain'])rows.push(['weather-'+weather,'Weather: '+weather,garden('weather',weather)]);
+   for(const channel of ['open','blocked'])rows.push(['channel-'+channel,'Channel: '+channel,garden('channel',channel)]);
+   rows.push(['run','Run PAPER rain tray',garden('run')],['compare-garden','Compare water results',garden('compare')],
+    ['enter-lower','Walk to Lower Garden PAPER site',garden('enter')]);
+  }else{
+   for(const id of ['runoff-trace','public-path','runoff-channel','footpath','raised-pocket'])
+    rows.push(['walk-'+id,'Walk Milo: '+id,garden('walk',id)]);
+   for(const id of ['runoff-trace','public-path'])
+    rows.push(['inspect-'+id,'Look: '+id,garden('inspect',id)]);
+   for(const site of ['runoff-channel','footpath','raised-pocket'])
+    rows.push(['place-'+site,'Place marker: '+site,garden('place',site)]);
+   rows.push(['check-marker','Check water and path',garden('check')],
+    ['think-path','I think: keep the path open',garden('think','keep-path')],
+    ['think-more','I am not sure yet',garden('think','need-more')],
+    ['finish-garden','Finish PAPER pocket',garden('finish')]);
+  }
+  group('garden-actions',rows);
+  $('garden-note').textContent='Milo at '+g.milo+' · current observations '+g.observedCurrent.join(', ')+
+   ' · rain runs '+g.runs.length+' · lower observations '+g.observedLower.join(', ')+
+   ' · marker '+(g.markerSite??'not placed')+
+   ' · '+g.attempts.map(x=>x.site+':'+(x.wet?'wet':x.blocksPath?'blocks path':'model clear')).join(' → ');
+ }
+}
+render();
+</script></main></body></html>
