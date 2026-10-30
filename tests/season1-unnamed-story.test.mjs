@@ -69,7 +69,7 @@ test('parent prompts follow actual inspections and listening',()=>{
  assert.equal(view(s).parentEvidenceCue,null);
  s=act(s,'walk',{to:'entry'});s=act(s,'walk',{to:'notice_wall'});
  s=act(s,'inspect',{traceId:'holes'});
- assert.match(view(s).parentEvidenceCue,/different ways/);
+ assert.match(view(s).parentEvidenceCue,/more than one use/);
  s=act(s,'walk',{to:'meeting_edge'});s=act(s,'hear',{needId:'activity'});
  assert.equal(view(s).parentNeedsCue,null);
  s=act(s,'walk',{to:'quiet_corner'});s=act(s,'hear',{needId:'quiet'});
