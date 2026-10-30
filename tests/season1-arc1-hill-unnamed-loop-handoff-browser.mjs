@@ -114,7 +114,7 @@ try{
    assert.match(await page.locator('#e11-state').innerText(),/shared space CLOSED/);
    assert.match(await page.locator('#e11-tests').innerText(),/first conflict: true/);
    assert.match(await page.locator('#e11-trials').innerText(),/FIRST.NOW: compared/);
-   assert.match(await page.locator('#world-note').innerText(),/North Hill CLOSED|hill CLOSED/);
+   assert.match(await page.locator('#world-note').innerText(),/CLOSED hill|CLOSED fence|North Hill CLOSED/);
    await hit('to-e10-e11');assert.match(await page.locator('#status').innerText(),/e10 .* finished/);
    await hit('to-e11');assert.match(await page.locator('#status').innerText(),/E11 PAPER finished: true/);
    await hit('to-e10-e11');
