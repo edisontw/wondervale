@@ -1,0 +1,53 @@
+name: Wondervale E05 paper story and EFL rehearsal
+on:
+  pull_request:
+    paths:
+      - 'authoring-labs/station-story*'
+      - 'tests/season1-station-story*'
+      - '.github/workflows/wondervale-e05-story-rehearsal.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'authoring-labs/station-story*'
+      - 'tests/season1-station-story*'
+      - '.github/workflows/wondervale-e05-story-rehearsal.yml'
+permissions:
+  contents: read
+jobs:
+  e05-story-rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax and isolated story model Node
+        run: |
+          node --check authoring-labs/station-story-model.mjs
+          node --check authoring-labs/station-story.mjs
+          node --check tests/season1-station-story-browser.mjs
+          node --test tests/season1-station-story.test.mjs tests/s01e05-authoring-prototype.test.mjs
+      - name: Ensure noncanonical paper rehearsal is not packaged
+        run: |
+          if grep -R -n 'station-story' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
+            echo 'Paper rehearsal unexpectedly included in production' >&2
+            exit 1
+          fi
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Desktop, phone and keyboard Chromium
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . > /tmp/e05-story-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/authoring-labs/station-story.html > /dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/e05-story-server.log >&2; exit 1; fi
+          node tests/season1-station-story-browser.mjs

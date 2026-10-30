@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E05 Station — child-driven paper story rehearsal</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#213d3a;background:#f1eee4}*{box-sizing:border-box}
+body{margin:0}main{max-width:980px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#2d514d;color:white;border-radius:.7rem;padding:.8rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.3rem 0}
+.notice{background:#fff0cc;border-left:5px solid #986719;padding:.65rem;margin:.65rem 0;line-height:1.4}
+.scene{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.6rem}
+.panel{background:white;border:1px solid #b4c7c1;border-radius:.65rem;padding:.7rem;min-width:0}
+.paper{min-height:85px;border:2px dashed #78988f;border-radius:.5rem;padding:.8rem;margin:.5rem 0;background:#e6eee7;line-height:1.5}
+#board[data-orientation=side-a]{border-color:#26745e}#board[data-orientation=side-b]{border-color:#af7035}
+#table[data-position=across-walkway]{background:linear-gradient(90deg,#e6eee7 60%,#e4b3a0 60%)}
+#table[data-position=near-wall]{background:linear-gradient(90deg,#d2e7d4 40%,#e6eee7 40%)}
+.controls{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0}
+button{font:inherit;min-height:44px;padding:.45rem .65rem;border:2px solid #47766a;border-radius:.4rem;background:white;color:#1d4036;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}button[aria-pressed=true]{background:#d1e8d9;font-weight:700}
+button:focus-visible{outline:3px solid #b36c18;outline-offset:2px}
+.dialogue{background:#dcebe5;border-radius:.6rem;padding:.8rem;line-height:1.5;margin:.6rem 0}
+#note{background:#f6f0dc;padding:.6rem;border-radius:.4rem;line-height:1.5}
+@media(max-width:650px){.scene{grid-template-columns:1fr}main{padding:.5rem}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E05 — The Station with No Trains</h1><div>Child-driven paper story rehearsal · NOT a production episode</div></header>
+<p class="notice"><strong>AUTHORING ONLY.</strong> Milo moves a paper marker, not through an approved painted foyer. All board marks, placements and speech are unapproved models. No access permission, historical source, E04 completion, real Map Room, Chronicle, E06 unlock, audio or saved progress.</p>
+<div class="dialogue" aria-live="polite"><strong id="speaker">Nia</strong>: <span id="line"></span><div id="phase"></div></div>
+<div class="controls"><button data-action="start">Begin paper story</button><button data-action="walk" data-value="door">Milo: door</button><button data-action="walk" data-value="board">Milo: board</button><button data-action="walk" data-value="table">Milo: table</button></div>
+<p id="milo" class="paper" role="status"></p>
+<div class="scene">
+<section class="panel"><h2>Look and test · board paper model</h2>
+<div id="board" class="paper" role="status" aria-live="polite"></div>
+<div class="controls">
+<button data-action="inspect" data-value="peg-pair">Look: peg pair</button>
+<button data-action="inspect" data-value="worn-edge">Look: worn edge</button>
+<button data-action="guess" data-value="route-board">I think: route board</button>
+<button data-action="guess" data-value="notice-board">I think: notice board</button>
+<button data-action="guess" data-value="unsure">I'm not sure</button>
+<button data-action="try-copy" data-value="side-b">Try copy B</button>
+<button data-action="try-copy" data-value="side-a">Try copy A</button>
+<button data-action="check">Check two marks</button>
+<button data-action="qualify">It fits. What do we know?</button>
+</div></section>
+<section class="panel"><h2>Make space · paper Map Room</h2>
+<div id="table" class="paper" role="status" aria-live="polite"></div>
+<div class="controls">
+<button data-action="place-table" data-value="across-walkway">Table in path</button>
+<button data-action="place-table" data-value="near-wall">Table near wall</button>
+<button data-action="confirm">Check clear path</button>
+<button data-action="reflect">Look at paper note</button>
+</div></section>
+</div>
+<p id="parent" class="dialogue"></p><p id="note" role="status" aria-live="polite"></p>
+<button id="restart">Restart paper story</button>
+<p><small>Only a paper fit and a clear route are tested. No historical date, true cause of the garden move or later place identity is supplied. Try a mismatch, turn the copy, move a blocking table and revisit the questions.</small></p>
+<script type="module" src="./station-story.mjs"></script></main></body></html>
