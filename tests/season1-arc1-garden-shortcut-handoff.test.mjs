@@ -44,12 +44,16 @@ function lowerDone(){
 
 const act=(s,scene,action)=>C.dispatch(s,{scene,action});
 const navC=(s,type)=>C.dispatch(s,{scene:'nav',type});
+let cachedGarden=null,cachedShortcut=null;
 function gardenReady(){
+ if(cachedGarden)return cachedGarden;
  let s=C.fresh();
  for(const action of lowerDone().history)s=act(s,'upstream',action);
+ cachedGarden=s;
  return s;
 }
 function shortcutDone(){
+ if(cachedShortcut)return cachedShortcut;
  let s=navC(gardenReady(),'to-shortcut');
  for(const a of [{type:'start'},{type:'walk',value:'shared-path'},
   {type:'inspect',value:'shared-path'},{type:'walk',value:'channel'},
@@ -60,6 +64,7 @@ function shortcutDone(){
   {type:'place',value:'side-offset'},
   ...['water','milo','resident'].map(value=>({type:'trial',value})),
   {type:'compare'},{type:'finish'}])s=act(s,'shortcut',a);
+ cachedShortcut=s;
  return s;
 }
 test('E07 is inaccessible without completed E04 UNKNOWN, E05 and both E06 paper spaces',()=>{
