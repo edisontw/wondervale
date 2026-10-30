@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale Arc 1 — Memories to Station PAPER story</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#243f37;background:#f0f2e9}*{box-sizing:border-box}
+body{margin:0}main{max-width:1020px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#294d42;color:white;padding:.85rem;border-radius:.6rem}
+h1{font-size:1.4rem;margin:.1rem 0}h2{font-size:1.1rem;margin:.3rem 0}
+.notice{background:#fff0c9;border-left:5px solid #98651a;padding:.7rem;line-height:1.5;margin:.6rem 0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.panel{background:white;border:1px solid #b5c6bb;border-radius:.55rem;padding:.7rem;min-width:0;margin:.4rem 0}
+.paper{background:#eaf1e9;border:1px dashed #93a99a;border-radius:.45rem;padding:.65rem;line-height:1.5;margin:.4rem 0;overflow-wrap:anywhere}
+.controls{display:flex;flex-wrap:wrap;gap:.35rem;margin:.45rem 0}
+button{font:inherit;min-height:44px;min-width:44px;max-width:100%;overflow-wrap:anywhere;padding:.45rem .65rem;border:2px solid #537969;border-radius:.4rem;background:#f8fbf6;color:#204337;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}button[aria-pressed=true]{background:#d6eadb;font-weight:700}
+button:focus-visible{outline:3px solid #b47718;outline-offset:2px}
+blockquote{border-left:3px solid #7a9b8b;margin:.4rem 0;padding:.35rem .6rem}
+[hidden]{display:none!important}@media(max-width:680px){.grid{grid-template-columns:1fr}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E03 memories → E04 uncertainty → E05 station</h1><div>Milo's child-driven PAPER story · Arc 1 rehearsal</div></header>
+<p class="notice"><strong>AUTHORING ONLY — NONCANONICAL.</strong> The two quotations are accepted E03 character memories, NOT dated source evidence. The chronology is UNKNOWN. The E05 board, foyer and table are SYNTHETIC paper models; station access and historical records are not approved. No real E04 completion, E05 production unlock, Chronicle, persistence, deployment or new place reveal.</p>
+<p id="status" class="paper" role="status" aria-live="polite"></p>
+<p id="dialogue" class="paper" aria-live="polite"></p>
+<div class="controls" id="nav"></div>
+<section id="e04">
+<div class="grid">
+<div class="panel"><h2>E03 — Hear both sincere memories</h2>
+<p>Market Lane has changed. Milo asks what the old way connected.</p>
+<div class="controls" id="inspect"></div><div id="memories" class="paper"></div></div>
+<div class="panel"><h2>E04 — Try a timeline, then revise</h2>
+<p>Place each memory on a PAPER board. Without dated sources, EARLIER and LATER remain guesses. Choose UNKNOWN when evidence is missing.</p>
+<div class="controls" id="timeline"></div><div id="e04-summary" class="paper"></div>
+<div class="controls" id="e04-finish"></div></div></div>
+</section>
+<section id="e05" hidden>
+<div class="grid">
+<div class="panel"><h2>E05 — Move Milo and inspect a paper board</h2>
+<div class="controls" id="e05-explore"></div><div id="e05-board" class="paper"></div></div>
+<div class="panel"><h2>E05 — Try a removable copy and clear-path table</h2>
+<div class="controls" id="e05-test"></div><div id="e05-table" class="paper"></div>
+<div class="controls" id="e05-layout"></div></div></div>
+<p id="e05-note" class="paper"></p>
+</section>
+<p id="parent" class="paper"></p>
+<p><small>Use touch or Tab + Enter/Space. Wrong guesses can be revised without penalty. Nia asks what the evidence supports; Finn suggests a removable test. This lab never reads or writes the E02/E03/E04 production saves.</small></p>
+<script type="module">
+import {fresh,dispatch,can,view} from './arc1-memory-station-handoff-model.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const e04=(type,x={})=>({scene:'e04',action:{type,...x}});
+const e05=(type,value)=>({scene:'e05',action:value===undefined?{type}:{type,value}});
+const nav=type=>({scene:'nav',type});
+function add(host,key,label,action){
+ const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
+ b.disabled=!can(state,action);b.addEventListener('click',()=>{state=dispatch(state,action);render();});
+ host.append(b);
+}
+function group(id,rows){const host=$(id);host.replaceChildren();
+ for(const [key,label,action] of rows)add(host,key,label,action);}
+function render(){
+ const v=view(state),t=v.timeline,s=v.station;
+ $('e04').hidden=v.stage!=='e04';$('e05').hidden=v.stage!=='e05';
+ $('status').textContent='Stage: '+v.stage+' · E04 PAPER finished: '+t.finishedPaper+
+  ' · E05 PAPER finished: '+v.stationPaperFinished+
+  ' · source dates: UNKNOWN · production unlock: false';
+ $('dialogue').textContent=v.speaker+': '+v.line;
+ $('parent').textContent=v.parentCue?'Optional parent question: '+v.parentCue:'Parent: ask what Milo sees; do not give the answer.';
+ group('nav',[
+  ['to-e05','Try E05 PAPER station (NOT an unlock)',nav('to-e05')],
+  ['to-e04','Revisit E04 PAPER notes',nav('to-e04')],
+  ['restart-e04','Restart E04 and clear E05 PAPER trial',nav('restart-e04')]
+ ]);
+ group('inspect',[
+  ['inspect-station','Hear Market coordinator',e04('inspect',{which:'station'})],
+  ['inspect-garden','Hear Garden resident',e04('inspect',{which:'garden'})]
+ ]);
+ const memories=$('memories');memories.replaceChildren();
+ for(const k of ['station','garden']){
+  const m=v.memoryCards[k],p=document.createElement('blockquote');
+  p.textContent=m.speaker+' ['+m.sourceId+']: '+(m.text??'Not yet heard');
+  memories.append(p);
+ }
+ group('timeline',['station','garden'].flatMap(which=>
+  ['earlier','later','unknown'].map(slot=>[
+   which+'-'+slot,which+' → '+slot.toUpperCase(),e04('place',{which,slot})
+  ])));
+ $('e04-summary').textContent='Station memory: '+(t.slots.station??'not placed')+
+  ' · Garden memory: '+(t.slots.garden??'not placed')+
+  ' · '+(t.compared?'Both are sincere; neither has a verified date.':'What can the memories alone prove?')+
+  (v.paperNote?' · '+v.paperNote:'');
+ group('e04-finish',[
+  ['compare','Compare evidence and uncertainty',e04('compare')],
+  ['finish-e04','Keep UNKNOWN as E04 PAPER note',e04('finish-paper')]
+ ]);
+ group('e05-explore',[
+  ['start-e05','Begin station PAPER story',e05('start')],
+  ['walk-board','Milo: walk to board',e05('walk','board')],
+  ['walk-table','Milo: walk to table',e05('walk','table')],
+  ['walk-door','Milo: return to door',e05('walk','door')],
+  ['inspect-peg','Inspect peg pair',e05('inspect','peg-pair')],
+  ['inspect-worn','Inspect worn edge',e05('inspect','worn-edge')],
+  ['guess-route','MAYBE: route board',e05('guess','route-board')],
+  ['guess-unsure','I am not sure',e05('guess','unsure')]
+ ]);
+ group('e05-test',[
+  ['copy-b','Try removable copy B',e05('try-copy','side-b')],
+  ['copy-a','Turn to copy A',e05('try-copy','side-a')],
+  ['check','Check both marks',e05('check')],
+  ['qualify','Fit does not prove history',e05('qualify')]
+ ]);
+ $('e05-board').textContent='Milo: '+s.milo+' · seen '+s.inspected.join(', ')+
+  ' · copy '+(s.orientation??'not placed')+' · fit '+String(s.fit);
+ group('e05-layout',[
+  ['table-block','Put table across walkway',e05('place-table','across-walkway')],
+  ['table-clear','Move table near wall',e05('place-table','near-wall')],
+  ['confirm','Test public path',e05('confirm')],
+  ['reflect','Write PAPER note',e05('reflect')]
+ ]);
+ $('e05-table').textContent='Table: '+(s.table??'not placed')+
+  ' · walkway clear: '+String(s.clear)+' · Map Room PAPER: '+s.mapRoom;
+ $('e05-note').textContent=s.chroniclePreview||
+  'Old train service CLOSED. No verified station record, date or permission. E06 garden question still open.';
+}
+render();
+</script></main></body></html>
