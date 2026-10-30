@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale Arc 1 — Station to Two Gardens PAPER story</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#233e35;background:#f0f2e9}*{box-sizing:border-box}
+body{margin:0}main{max-width:1050px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#2b5042;color:white;padding:.85rem;border-radius:.6rem}
+h1{font-size:1.35rem;margin:.15rem 0}h2{font-size:1.08rem;margin:.3rem 0}
+.notice{background:#fff0ca;border-left:5px solid #966821;padding:.7rem;line-height:1.5;margin:.7rem 0}
+.world{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem}
+.place{background:#e6eee2;border:2px solid #9db4a5;border-radius:.5rem;padding:.6rem;min-height:90px;line-height:1.5;overflow-wrap:anywhere}
+.place[data-done=true]{background:#d1e8c9;border-color:#497453}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.panel{background:white;border:1px solid #b9c8bd;border-radius:.55rem;padding:.7rem;min-width:0;margin:.5rem 0}
+.paper{background:#edf2e8;border:1px dashed #95ab9b;border-radius:.45rem;padding:.65rem;line-height:1.5;margin:.45rem 0;overflow-wrap:anywhere}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{font:inherit;min-height:44px;min-width:44px;max-width:100%;overflow-wrap:anywhere;padding:.45rem .6rem;border:2px solid #547967;border-radius:.4rem;background:#f8fbf6;color:#214337;cursor:pointer}
+button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px solid #b67a1a;outline-offset:2px}
+[hidden]{display:none!important}@media(max-width:680px){.grid,.world{grid-template-columns:1fr}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E03 memories → E04 UNKNOWN → E05 Map Room → E06 Two Gardens</h1>
+<div>Milo chooses, moves, tests and revisits · noncanonical PAPER story</div></header>
+<p class="notice"><strong>AUTHORING ONLY — NOT THE PRODUCTION GAME.</strong> E03 quotations are sincere but undated. Station, rain tray and Lower Garden are SYNTHETIC models. No historical date, cause, real site, planting permission, production Chronicle, unlock, save, MN4 deployment or Season completion.</p>
+<div class="world" aria-label="Visible paper world changes">
+<div class="place" id="station-world"><strong>E05 Station</strong><div id="station-state">Paper Map Room not built.</div></div>
+<div class="place" id="current-world" data-done="true"><strong>E06 Current Garden</strong><div id="current-state">Healthy upper garden stays.</div></div>
+<div class="place" id="lower-world"><strong>E06 Lower Garden</strong><div id="lower-state">No paper pocket trial.</div></div>
+</div>
+<div id="status" class="paper" role="status" aria-live="polite"></div>
+<div id="dialogue" class="paper" aria-live="polite"></div>
+<div id="nav" class="controls"></div>
+<div class="grid">
+<section class="panel" id="arc-panel"><h2 id="arc-title">E04 · Two memories</h2>
+<p id="arc-cue">Hear both. Try an order. Revise to UNKNOWN when dates are missing.</p>
+<div id="arc-actions" class="controls"></div>
+<div id="arc-note" class="paper"></div></section>
+<section class="panel" id="garden-panel" hidden><h2 id="garden-title">E06 · Current Garden</h2>
+<p id="garden-cue">Walk Milo to inspect the upper garden and run the PAPER rain tray.</p>
+<div id="garden-actions" class="controls"></div>
+<div id="garden-note" class="paper"></div></section>
+<section class="panel"><h2>What changes and what remains unknown?</h2>
+<div id="world-note" class="paper"></div>
+<p id="parent" class="paper">Parent: let Milo try first.</p>
+</section></div>
+<p><small>Touch or Tab + Enter/Space. An unsuitable paper placement is a test, not a penalty. Revisiting keeps both garden models; restarting E04 clears downstream models. North Hill stays CLOSED and the unnamed place remains unrevealed.</small></p>
+<script type="module">
+import {fresh,dispatch,can,view} from './arc1-garden-story-handoff-model.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const nav=type=>({scene:'nav',type});
+const arc=(scene,type,x)=>({scene:'arc1',action:scene==='nav'?{scene:'nav',type}:
+ {scene,action:x===undefined?{type}:{type,...x}}});
+const station=(type,value)=>arc('e05',type,value===undefined?undefined:{value});
+const garden=(type,value)=>({scene:'garden',action:value===undefined?{type}:{type,value}});
+function group(id,rows){
+ const el=$(id);el.replaceChildren();
+ for(const [key,label,action] of rows){
+  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
+  b.disabled=!can(state,action);
+  b.addEventListener('click',()=>{state=dispatch(state,action);render();});
+  el.append(b);
+ }
+}
+function render(){
+ const v=view(state),a=v.arc1,g=v.garden,atGarden=v.stage==='garden';
+ $('arc-panel').hidden=atGarden;$('garden-panel').hidden=!atGarden;
+ $('station-world').dataset.done=String(v.stationMapRoomPaper);
+ $('lower-world').dataset.done=String(v.lowerPocketPaper);
+ $('station-state').textContent=v.stationMapRoomPaper?'Small PAPER Map Room; walkway clear.':'Paper Map Room not built.';
+ $('current-state').textContent='Healthy beds stay. '+(v.currentGardenCompared?'PAPER rain compared.':'Rain question open.');
+ $('lower-state').textContent=v.lowerPocketPaper?'Raised PAPER pocket marked. Not real planting.':
+  v.lowerGardenVisited?'Milo is testing removable paper markers.':'No lower pocket trial.';
+ $('status').textContent='Stage: '+v.stage+(atGarden?' / '+g.phase:' / '+a.stage)+
+  ' · E05 PAPER finished: '+a.stationPaperFinished+
+  ' · Lower PAPER pocket: '+v.lowerPocketPaper+' · production unlock: false';
+ $('dialogue').textContent=(atGarden?g.speaker:a.speaker)+': '+(atGarden?g.line:a.line);
+ $('world-note').textContent=v.paperNote+
+  ' Source dates UNKNOWN. Real water, planting and access UNKNOWN. No production Chronicle.';
+ $('parent').textContent='Optional parent question: '+(atGarden?
+  (g.parentCue||'What could Milo test before deciding?'):
+  (a.parentCue||'What does the evidence show, and what is still unknown?'));
+ group('nav',[
+  ['to-garden','Visit E06 Two Gardens (PAPER only)',nav('to-garden')],
+  ['to-arc1','Revisit E05 station and E04 notes',nav('to-arc1')],
+  ['restart-garden','Restart only E06 PAPER trials',nav('restart-garden')],
+  ['restart-arc1','Restart whole PAPER arc',nav('restart-arc1')]
+ ]);
+ if(!atGarden){
+  if(a.stage==='e04'){
+   $('arc-title').textContent='E04 · Two sincere memories and UNKNOWN timeline';
+   group('arc-actions',[
+    ['hear-station','Hear Market coordinator',arc('e04','inspect',{which:'station'})],
+    ['hear-garden','Hear Garden resident',arc('e04','inspect',{which:'garden'})],
+    ...['station','garden'].flatMap(which=>['earlier','later','unknown'].map(slot=>
+     [which+'-'+slot,which+' → '+slot.toUpperCase(),arc('e04','place',{which,slot})])),
+    ['compare','Compare evidence',arc('e04','compare')],
+    ['finish-e04','Keep UNKNOWN PAPER note',arc('e04','finish-paper')],
+    ['to-e05','Try E05 PAPER station',arc('nav','to-e05')]
+   ]);
+   $('arc-note').textContent=Object.values(a.memoryCards).map(m=>
+    m.speaker+': '+(m.text??'not heard')+' · '+(m.slot??'unplaced')).join(' | ')+
+    ' · source dates UNKNOWN';
+  }else{
+   $('arc-title').textContent='E05 · Station paper board and clear-path Map Room';
+   group('arc-actions',[
+    ['start-e05','Begin station PAPER story',station('start')],
+    ['walk-board','Walk Milo to board',station('walk','board')],
+    ['walk-table','Walk Milo to table',station('walk','table')],
+    ['walk-door','Walk Milo to door',station('walk','door')],
+    ['inspect-peg','Inspect peg pair',station('inspect','peg-pair')],
+    ['inspect-worn','Inspect worn edge',station('inspect','worn-edge')],
+    ['guess-route','MAYBE route board',station('guess','route-board')],
+    ['guess-unsure','I am not sure',station('guess','unsure')],
+    ['copy-b','Try removable copy B',station('try-copy','side-b')],
+    ['copy-a','Turn to copy A',station('try-copy','side-a')],
+    ['check','Check both marks',station('check')],
+    ['qualify','A fit does not prove history',station('qualify')],
+    ['table-block','Place table across walkway',station('place-table','across-walkway')],
+    ['table-clear','Move table near wall',station('place-table','near-wall')],
+    ['confirm','Test public path',station('confirm')],
+    ['reflect','Write E05 PAPER note',station('reflect')],
+    ['to-e04','Revisit E04 memories',arc('nav','to-e04')],
+    ['restart-e04','Restart E04 (clears E05/E06)',arc('nav','restart-e04')]
+   ]);
+   $('arc-note').textContent='Milo at '+a.station.milo+' · copy fit '+a.station.fit+
+    ' · path clear '+a.station.clear+' · Map Room PAPER '+a.station.mapRoom+
+    ' · '+(a.station.chroniclePreview||'Garden cause UNKNOWN.');
+  }
+ }else{
+  const lower=g.phase==='lower'||g.phase==='finished';
+  $('garden-title').textContent=lower?'E06 · Lower Garden PAPER pocket':'E06 · Current Garden PAPER rain';
+  const rows=[['start-garden','Begin two-garden story',garden('start')]];
+  if(!lower){
+   for(const id of ['present-bed','slope','shared-path','model-tray'])
+    rows.push(['walk-'+id,'Walk Milo: '+id,garden('walk',id)]);
+   for(const id of ['present-bed','slope','shared-path'])
+    rows.push(['inspect-'+id,'Look: '+id,garden('inspect',id)]);
+   for(const weather of ['dry','rain'])rows.push(['weather-'+weather,'Weather: '+weather,garden('weather',weather)]);
+   for(const channel of ['open','blocked'])rows.push(['channel-'+channel,'Channel: '+channel,garden('channel',channel)]);
+   rows.push(['run','Run PAPER rain tray',garden('run')],['compare-garden','Compare water results',garden('compare')],
+    ['enter-lower','Walk to Lower Garden PAPER site',garden('enter')]);
+  }else{
+   for(const id of ['runoff-trace','public-path','runoff-channel','footpath','raised-pocket'])
+    rows.push(['walk-'+id,'Walk Milo: '+id,garden('walk',id)]);
+   for(const id of ['runoff-trace','public-path'])
+    rows.push(['inspect-'+id,'Look: '+id,garden('inspect',id)]);
+   for(const site of ['runoff-channel','footpath','raised-pocket'])
+    rows.push(['place-'+site,'Place marker: '+site,garden('place',site)]);
+   rows.push(['check-marker','Check water and path',garden('check')],
+    ['think-path','I think: keep the path open',garden('think','keep-path')],
+    ['think-more','I am not sure yet',garden('think','need-more')],
+    ['finish-garden','Finish PAPER pocket',garden('finish')]);
+  }
+  group('garden-actions',rows);
+  $('garden-note').textContent='Milo at '+g.milo+' · current observations '+g.observedCurrent.join(', ')+
+   ' · rain runs '+g.runs.length+' · lower observations '+g.observedLower.join(', ')+
+   ' · marker '+(g.markerSite??'not placed')+
+   ' · '+g.attempts.map(x=>x.site+':'+(x.wet?'wet':x.blocksPath?'blocks path':'model clear')).join(' → ');
+ }
+}
+render();
+</script></main></body></html>
