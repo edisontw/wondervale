@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E05 Station Foyer — isolated scene shell</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#213b3a;background:#f0eee6}*{box-sizing:border-box}body{margin:0}
+main{max-width:1000px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#294b48;color:white;padding:.8rem 1rem;border-radius:.7rem}
+h1{font-size:1.35rem;margin:.2rem 0}h2{font-size:1.08rem;margin:.2rem 0 .5rem}
+.notice{background:#fff0ce;border-left:5px solid #9b6d20;padding:.65rem;margin:.65rem 0;line-height:1.4}
+.panel{background:white;border:1px solid #b4c6c1;border-radius:.65rem;padding:.7rem;margin:.65rem 0}
+.scene{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.65rem}
+.controls{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0}
+button{font:inherit;min-height:44px;padding:.45rem .65rem;border:2px solid #456e63;border-radius:.4rem;background:white;color:#213b3a;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px solid #b87a24;outline-offset:2px}
+button[aria-pressed=true]{background:#d4e9dc;font-weight:700}
+.paper{border:2px dashed #91a69a;border-radius:.45rem;padding:.65rem;background:#eaf0e8;line-height:1.5;min-height:3rem}
+.dialogue{background:#dcece5;padding:.7rem;border-radius:.5rem;line-height:1.5}
+[hidden]{display:none!important}
+@media(max-width:650px){.scene{grid-template-columns:1fr}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E05 — The Station with No Trains</h1><div>Isolated scene engineering shell · child-driven PAPER rehearsal</div></header>
+<p class="notice"><strong>AUTHORING ONLY — NOT A RELEASE.</strong> All floor positions, board marks and MOCK source drawings are synthetic. The station foyer has no approved entry permission, original records, painted scene, E04 canonical checkpoint, real Map Room, Chronicle, E06 unlock or saved progress. No train service or North Hill access.</p>
+<div class="dialogue" aria-live="polite"><strong id="speaker"></strong>: <span id="line"></span><p id="stage-text"></p></div>
+<section class="panel" id="foyer"><h2>1. Inspect and test the removable copy</h2>
+<p id="foyer-map" class="paper" role="status"></p>
+<div class="controls">
+<button data-scene="station" data-type="start">Begin story</button>
+<button data-scene="station" data-type="walk" data-value="door">Milo: door</button>
+<button data-scene="station" data-type="walk" data-value="board">Milo: board</button>
+<button data-scene="station" data-type="inspect" data-value="peg-pair">Inspect two pegs</button>
+<button data-scene="station" data-type="inspect" data-value="worn-edge">Inspect worn edge</button>
+<button data-scene="station" data-type="guess" data-value="route-board">Maybe a route board</button>
+<button data-scene="station" data-type="guess" data-value="notice-board">Maybe a notice board</button>
+<button data-scene="station" data-type="guess" data-value="unsure">Not sure yet</button>
+<button data-scene="station" data-type="try-copy" data-value="side-b">Try copy B</button>
+<button data-scene="station" data-type="try-copy" data-value="side-a">Try copy A</button>
+<button data-scene="station" data-type="check">Compare two marks</button>
+<button data-scene="station" data-type="qualify">A fit is not the full story</button>
+<button data-scene="nav" data-type="to-records">Walk to MOCK record desks</button>
+</div></section>
+<section class="panel" id="records" hidden><h2>2. Check two MOCK drawings and their missing sources</h2>
+<p class="paper" id="record-map" role="status"></p>
+<div class="controls">
+<button data-scene="sources" data-type="start">Look at mock desks</button>
+<button data-scene="sources" data-type="walk" data-value="desk-a">Milo: desk A</button>
+<button data-scene="sources" data-type="inspect" data-card="a">Inspect MOCK A</button>
+<button data-scene="sources" data-type="source-check" data-card="a">Check A's source</button>
+<button data-scene="sources" data-type="walk" data-value="desk-b">Milo: desk B</button>
+<button data-scene="sources" data-type="inspect" data-card="b">Inspect MOCK B</button>
+<button data-scene="sources" data-type="source-check" data-card="b">Check B's source</button>
+<button data-scene="sources" data-type="walk" data-value="compare">Milo: comparison table</button>
+</div>
+<div class="scene">
+<div><h2>MOCK A</h2><div class="controls">
+<button data-scene="sources" data-type="place" data-card="a" data-slot="earlier">Try EARLIER</button>
+<button data-scene="sources" data-type="place" data-card="a" data-slot="unknown">Revise UNKNOWN</button>
+<button data-scene="sources" data-type="test" data-card="a">Check A</button></div></div>
+<div><h2>MOCK B</h2><div class="controls">
+<button data-scene="sources" data-type="place" data-card="b" data-slot="later">Try LATER</button>
+<button data-scene="sources" data-type="place" data-card="b" data-slot="unknown">Revise UNKNOWN</button>
+<button data-scene="sources" data-type="test" data-card="b">Check B</button></div></div>
+</div><div class="controls">
+<button data-scene="sources" data-type="compare">Compare uncertain drawings</button>
+<button data-scene="sources" data-type="finish">Finish source request</button>
+<button data-scene="nav" data-type="to-layout">Return to the foyer layout</button>
+<button data-scene="nav" data-type="back-to-records">Review drawings</button>
+</div></section>
+<section class="panel" id="layout" hidden><h2>3. Make a small paper Map Room</h2>
+<p id="layout-map" class="paper" role="status"></p>
+<div class="controls">
+<button data-scene="station" data-type="walk" data-value="table">Milo: table</button>
+<button data-scene="station" data-type="place-table" data-value="across-walkway">Try table in walkway</button>
+<button data-scene="station" data-type="place-table" data-value="near-wall">Move table by wall</button>
+<button data-scene="station" data-type="confirm">Check clear passage</button>
+<button data-scene="station" data-type="reflect">Ask the garden question</button>
+<button data-scene="nav" data-type="back-to-records">Review source limits</button>
+<button data-scene="nav" data-type="to-review">See paper Chronicle note</button>
+</div></section>
+<section class="panel" id="review" hidden><h2>4. Paper Chronicle rehearsal</h2><p id="paper-note" class="paper" role="status"></p></section>
+<p id="parent" class="dialogue"></p><p id="guard" class="notice" role="status"></p>
+<button data-scene="nav" data-type="restart">Restart E05 paper scene</button>
+<p><small>Keyboard and tap controls are equivalent; no drag, voice or timer required. No data is stored. Formal production entry remains fail-closed in engine/s01e05-production-entry.mjs.</small></p>
+<script type="module" src="./main.mjs"></script>
+</main></body></html>
