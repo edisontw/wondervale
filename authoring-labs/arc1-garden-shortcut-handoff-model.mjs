@@ -26,8 +26,8 @@ function clean(raw){
 }
 function apply(s,a){
  if(a.scene==='nav'){
-  const u=Up.view(s.upstream);
-  if(a.type==='to-shortcut'&&s.stage==='upstream'&&u?.stage==='garden'&&u.lowerPocketPaper)
+  if(a.type==='to-shortcut'&&s.stage==='upstream'&&
+     s.upstream.stage==='garden'&&s.upstream.garden.phase==='finished')
    return {...s,stage:'shortcut'};
   if(a.type==='to-upstream'&&s.stage==='shortcut')return {...s,stage:'upstream'};
   if(a.type==='restart-shortcut'&&s.stage==='shortcut')return {...s,shortcut:Short.fresh()};
@@ -35,16 +35,15 @@ function apply(s,a){
     upstream:Up.fresh(),shortcut:Short.fresh()};
   return null;
  }
- if(a.scene==='upstream'&&s.stage==='upstream'&&Up.can(s.upstream,a.action)){
+ if(a.scene==='upstream'&&s.stage==='upstream'){
   const next=Up.dispatch(s.upstream,a.action);
   if(same(next,s.upstream))return null;
   const reset=a.action.scene==='nav'&&['restart-garden','restart-arc1'].includes(a.action.type)||
    a.action.scene==='arc1'&&a.action.action?.scene==='nav'&&a.action.action.type==='restart-e04';
-  const lostPocket=Up.view(s.upstream).lowerPocketPaper&&!Up.view(next).lowerPocketPaper;
+  const lostPocket=s.upstream.garden.phase==='finished'&&next.garden.phase!=='finished';
   return {...s,upstream:next,shortcut:reset||lostPocket?Short.fresh():s.shortcut};
  }
- if(a.scene==='shortcut'&&s.stage==='shortcut'&&
-   Up.view(s.upstream).lowerPocketPaper&&Short.can(s.shortcut,a.action)){
+ if(a.scene==='shortcut'&&s.stage==='shortcut'&&s.upstream.garden.phase==='finished'){
   const next=Short.dispatch(s.shortcut,a.action);
   return same(next,s.shortcut)?null:{...s,shortcut:next};
  }
@@ -73,9 +72,10 @@ export function can(snapshot,action){
 }
 export function dispatch(snapshot,action){
  const s=restore(snapshot);if(!s)return fresh();
- if(!can(s,action))return s;
- const a=clean(action),next=apply(s,a);
- return mark({...next,history:[...s.history,a]});
+ const a=clean(action);
+ if(!a||s.history.length>=MAX_ACTIONS)return s;
+ const next=apply(s,a);
+ return next?mark({...next,history:[...s.history,a]}):s;
 }
 export function view(snapshot){
  const s=restore(snapshot);if(!s)return null;
