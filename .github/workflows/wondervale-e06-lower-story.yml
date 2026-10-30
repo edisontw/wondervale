@@ -1,0 +1,52 @@
+name: Wondervale E06 Lower Garden paper story rehearsal
+on:
+  pull_request:
+    paths:
+      - 'authoring-labs/lower-garden-story*'
+      - 'tests/season1-lower-garden-story*'
+      - '.github/workflows/wondervale-e06-lower-story.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'authoring-labs/lower-garden-story*'
+      - 'tests/season1-lower-garden-story*'
+      - '.github/workflows/wondervale-e06-lower-story.yml'
+permissions:
+  contents: read
+jobs:
+  e06-lower-garden-story:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Syntax and deterministic Lower Garden story tests
+        run: |
+          node --check authoring-labs/lower-garden-story-model.mjs
+          node --check tests/season1-lower-garden-story-browser.mjs
+          node --test tests/season1-lower-garden-story.test.mjs tests/s01e06-authoring-prototype.test.mjs
+      - name: Keep synthetic Lower Garden outside production package
+        run: |
+          if grep -R -n 'lower-garden-story' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
+            echo 'Noncanonical Lower Garden rehearsal must not enter production' >&2
+            exit 1
+          fi
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Desktop phone and keyboard browser journey
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . > /tmp/e06-lower-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/authoring-labs/lower-garden-story.html > /dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/e06-lower-server.log >&2; exit 1; fi
+          node tests/season1-lower-garden-story-browser.mjs

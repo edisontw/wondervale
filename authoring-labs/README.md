@@ -15,6 +15,13 @@ Open [Current Garden Story](current-garden-story.html) from the lab index. This 
 
 This is **not** the second Lower Garden scene, a canonical E05 handoff, real terrain evidence, approved art, actual planting, Chronicle or unlock. It writes no storage and adds no production package import. Run `node --test tests/season1-current-garden-story.test.mjs` and `node tests/season1-current-garden-story-browser.mjs` (local static server and Chromium) for deterministic replay, forged-progress rejection, desktop/phone/keyboard journey and storage isolation. The separate original E06 two-garden prototype remains unchanged.
 
+
+## E06 Lower Garden story and EFL rehearsal (noncanonical)
+
+Open [Lower Garden Story](lower-garden-story.html). This **separate, unsaved PAPER rehearsal** uses the existing E06 reducer and requires the child to actually observe two Current Garden cues and compare dry/rain/open/blocked tray outcomes before entering the lower model. Milo then walks to the water trace and public path, tests temporary markers at wet, path-blocking and raised model sites, inspects the visible consequences and revises the placement. Nia and Finn respond with short EFL lines; the optional parent question appears only after comparing an unsuitable and a suitable model site. The upper garden remains healthy. The final PAPER note leaves actual water, land rights, planting/care permission, source history and biological growth UNKNOWN, with a question about Finn's future connector.
+
+This is **not** real planting, real-site access, a production Lower Garden scene, E04/E05 bypass, canonical Chronicle/unlock, actual historical evidence, production art or MN4 deployment. It writes no storage. Tests: `node --test tests/season1-lower-garden-story.test.mjs` and `node tests/season1-lower-garden-story-browser.mjs` with local static server and Chromium; separate CI checks Node replay/tamper, desktop/phone/keyboard, nonpunitive revision, no storage and packaging isolation.
+
 ## Evidence handoff audit (engineering only)
 
 See [E04–E11 continuity/evidence matrix](CONTINUITY_HANDOFF_MATRIX.md) and [machine-readable audit contract](handoff-contract.mjs). Run `node --test tests/season1-handoff-contract.test.mjs` from the repository root to verify the actual E05–E11 reducer fresh/projection boundaries, the eight proposed transitions (including the one E06 in-lab prerequisite), and the absence of canonical events/unlocks. It emits `test-results/season1-handoff-audit.json` for inspection. This is an **inventory**, not proof that the child finished a scene, a historical source was approved or any episode is production-unlocked.
