@@ -10,11 +10,14 @@ export const MEMORIES=Object.freeze({
   event:E04_SOURCE_EVENTS.garden,text:'I remember a way to the garden.'})
 });
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+// Cache only byte-identical snapshots; nested mutation forces full replay validation.
+const verified=new WeakMap();
+const mark=s=>(verified.set(s,JSON.stringify(s)),s);
 const has=(xs,x)=>xs.includes(x);
 const emptyTimeline=()=>({phase:'memories',inspected:[],slots:{},compared:false,finishedPaper:false});
-export function fresh(){return {version:VERSION,mode:'noncanonical_paper',stage:'e04',
+export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',stage:'e04',
  timeline:emptyTimeline(),station:Station.fresh(),history:[],canonicalEvents:[],
- unlocks:[],historicalClaims:[],rights:[]};}
+ unlocks:[],historicalClaims:[],rights:[]});}
 function clean(raw){
  if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
  if(raw.scene==='nav'&&has(['to-e05','to-e04','restart-e04'],raw.type))
@@ -71,13 +74,14 @@ export function replay(history){
   const n=apply(s,a);if(!n)return null;
   s={...n,history:[...s.history,a]};
  }
- return s;
+ return mark(s);
 }
 export function restore(snapshot){
  if(!snapshot||typeof snapshot!=='object'||Array.isArray(snapshot)||
    snapshot.version!==VERSION||snapshot.mode!=='noncanonical_paper')return null;
+ if(verified.get(snapshot)===JSON.stringify(snapshot))return snapshot;
  const s=replay(snapshot.history);
- return s&&same(s,snapshot)?s:null;
+ return s&&same(s,snapshot)?mark(snapshot):null;
 }
 export function can(snapshot,action){
  const s=restore(snapshot),a=clean(action);
@@ -85,9 +89,10 @@ export function can(snapshot,action){
 }
 export function dispatch(snapshot,action){
  const s=restore(snapshot);if(!s)return fresh();
- if(!can(s,action))return s;
- const a=clean(action),n=apply(s,a);
- return {...n,history:[...s.history,a]};
+ const a=clean(action);
+ if(!a||!same(a,action)||s.history.length>=MAX_ACTIONS)return s;
+ const n=apply(s,a);
+ return n?mark({...n,history:[...s.history,a]}):s;
 }
 export function view(snapshot){
  const s=restore(snapshot);if(!s)return null;
