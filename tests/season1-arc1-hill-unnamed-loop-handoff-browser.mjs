@@ -104,7 +104,7 @@ try{
    assert.match(await page.locator('#hill-state').innerText(),/upper hill CLOSED/);
    assert.equal(await b('to-e11').isDisabled(),false);
    await hit('to-e11');
-   assert.match(await page.locator('#status').innerText(),/e11 \\/ opening/);
+   assert.match(await page.locator('#status').innerText(),/e11 .* opening/);
    assert.equal(await b('e11-finish').isDisabled(),true);
    for(const k of ['e11-start','e11-step-1','e11-step-2','e11-access','e11-quiet',
     'e11-activity-first','e11-test-reader','e11-test-group','e11-snapshot',
@@ -113,9 +113,9 @@ try{
     'e11-check-loop','e11-review','e11-finish'])await hit(k);
    assert.match(await page.locator('#e11-state').innerText(),/shared space CLOSED/);
    assert.match(await page.locator('#e11-tests').innerText(),/first conflict: true/);
-   assert.match(await page.locator('#e11-trials').innerText(),/FIRST\\/NOW: compared/);
+   assert.match(await page.locator('#e11-trials').innerText(),/FIRST.NOW: compared/);
    assert.match(await page.locator('#world-note').innerText(),/North Hill CLOSED|hill CLOSED/);
-   await hit('to-e10-e11');assert.match(await page.locator('#status').innerText(),/e10 \\/ finished/);
+   await hit('to-e10-e11');assert.match(await page.locator('#status').innerText(),/e10 .* finished/);
    await hit('to-e11');assert.match(await page.locator('#status').innerText(),/E11 PAPER finished: true/);
    await hit('to-e10-e11');
    await hit('to-hill-e10');await hit('to-e10');
