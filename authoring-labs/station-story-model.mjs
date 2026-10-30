@@ -41,23 +41,23 @@ function apply(s,a){
   if(s.milo!=='board'||s.inspected.length!==2||!s.guess||
      !has(ORIENTATIONS,a.value)||['layout','room'].includes(s.phase))return null;
   {const next=replicaAction(r,{type:'place-replica',orientation:a.value});
-   return next===r?null:{...s,phase:'test',replica:next};}
+   return same(next,r)?null:{...s,phase:'test',replica:next};}
  case 'check':
   if(s.milo!=='board'||s.phase!=='test'||!r.orientation||r.comparison)return null;
   {const next=replicaAction(r,{type:'compare-fit'});
-   return next===r?null:{...s,replica:next};}
+   return same(next,r)?null:{...s,replica:next};}
  case 'qualify':
   if(s.milo!=='board'||s.phase!=='test'||!r.comparison?.matched)return null;
   {const next=replicaAction(r,{type:'note-limits'});
-   return next===r?null:{...s,phase:'layout',replica:next};}
+   return same(next,r)?null:{...s,phase:'layout',replica:next};}
  case 'place-table':
   if(s.milo!=='table'||s.phase!=='layout'||!has(POSITIONS,a.value))return null;
   {const next=replicaAction(r,{type:'place-table',position:a.value});
-   return next===r?null:{...s,replica:next};}
+   return same(next,r)?null:{...s,replica:next};}
  case 'confirm':
   if(s.milo!=='table'||s.phase!=='layout')return null;
   {const next=replicaAction(r,{type:'confirm-room'});
-   return next===r?null:{...s,phase:'room',replica:next};}
+   return same(next,r)?null:{...s,phase:'room',replica:next};}
  case 'reflect':
   return s.phase==='room'&&s.milo==='table'?{...s,phase:'finished',reflection:true}:null;
  default:return null;
