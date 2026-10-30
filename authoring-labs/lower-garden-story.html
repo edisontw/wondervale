@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E06 Lower Garden — child-driven paper story</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#243d35;background:#f2f0e7}*{box-sizing:border-box}
+body{margin:0}main{max-width:980px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#355b48;color:white;padding:.8rem;border-radius:.6rem}h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.06rem}
+.notice{background:#fff0c9;border-left:5px solid #a36d24;padding:.65rem;margin:.65rem 0;line-height:1.5}
+.dialogue{background:#dceae0;padding:.7rem;border-radius:.6rem;line-height:1.5;margin:.6rem 0}
+.scene{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.panel{min-width:0;background:white;padding:.7rem;border:1px solid #b9c8bc;border-radius:.6rem}
+.paper{border:2px dashed #8eaa91;border-radius:.5rem;background:#edf2e9;padding:.6rem;line-height:1.5;margin:.5rem 0}
+.map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem;padding:.5rem;background:linear-gradient(150deg,#dcead3,#e7d4ae);border-radius:.6rem;min-height:150px}
+.place{min-width:0;min-height:64px;padding:.3rem;border:1px solid #86a58a;border-radius:.4rem;background:#f7fbf3;text-align:center;font-size:.83rem;overflow-wrap:anywhere}
+.place[data-active=true]{outline:3px solid #b27d26;font-weight:700}
+.place[data-marker=true]{border:3px solid #386b54;background:#e4eac3}
+.place[data-risk=wet]{background:#b5d7ef}.place[data-risk=path]{background:#f2c8b2}
+.controls{display:flex;flex-wrap:wrap;gap:.35rem;margin:.55rem 0}
+button{font:inherit;min-height:44px;min-width:44px;padding:.4rem .6rem;border:2px solid #4e7964;border-radius:.45rem;background:white;color:#1e3f32;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}button[aria-pressed=true]{background:#d1e8d9;font-weight:700}
+button:focus-visible{outline:3px solid #c58b2d;outline-offset:2px}
+#note{background:#f7f0dc;border-radius:.4rem;padding:.65rem}
+[hidden]{display:none!important}
+@media(max-width:680px){.scene{grid-template-columns:1fr}.panel{padding:.55rem}main{padding:.5rem}}
+</style></head><body><main>
+<header><h1>E06 — The Garden That Moved</h1><div>Lower Garden · reversible planting-marker PAPER rehearsal</div></header>
+<p class="notice"><strong>AUTHORING ONLY — ALL TERRAIN AND PLANTING ARE SYNTHETIC.</strong> No real lower-site access, water survey, planting/care permission, historical evidence, approved art, E04/E05 bypass, canonical Chronicle, unlock or save.</p>
+<div class="dialogue" aria-live="polite"><strong id="speaker">Nia</strong>: <span id="line"></span><div id="phase"></div></div>
+<div class="controls"><button data-action="start">Begin paper story</button></div>
+<div class="scene">
+<section class="panel"><h2>Milo explores · two garden places</h2>
+<div class="paper">The present upper garden remains healthy. The old lower garden is a PAPER question, not an approved site.</div>
+<div class="map" id="map" aria-label="Abstract synthetic garden model; not real site geometry">
+<div class="place" data-place="present-bed">Healthy beds</div>
+<div class="place" data-place="slope">Higher slope</div>
+<div class="place" data-place="shared-path">Upper shared path</div>
+<div class="place" data-place="model-tray">Rain tray</div>
+<div class="place" data-place="runoff-trace">Lower water trace</div>
+<div class="place" data-place="public-path">Lower public path</div>
+<div class="place" data-place="runoff-channel">Water channel</div>
+<div class="place" data-place="footpath">Footpath</div>
+<div class="place" data-place="raised-pocket">Raised pocket</div>
+</div>
+<p id="marker" role="status">Milo paper marker</p>
+<div id="current-controls">
+<div class="controls">
+<button data-action="walk" data-value="present-bed">Walk: beds</button><button data-action="walk" data-value="slope">Walk: slope</button>
+<button data-action="walk" data-value="shared-path">Walk: upper path</button><button data-action="walk" data-value="model-tray">Walk: tray</button></div>
+<div class="controls">
+<button data-action="inspect" data-value="present-bed">Look: beds</button><button data-action="inspect" data-value="slope">Look: slope</button>
+<button data-action="inspect" data-value="shared-path">Look: path</button></div>
+</div>
+<div id="lower-controls" hidden>
+<div class="controls">
+<button data-action="walk" data-value="runoff-trace">Walk: water trace</button>
+<button data-action="walk" data-value="public-path">Walk: public path</button>
+<button data-action="walk" data-value="runoff-channel">Walk: channel</button>
+<button data-action="walk" data-value="footpath">Walk: footpath</button>
+<button data-action="walk" data-value="raised-pocket">Walk: raised pocket</button></div>
+<div class="controls">
+<button data-action="inspect" data-value="runoff-trace">Look: water trace</button>
+<button data-action="inspect" data-value="public-path">Look: public path</button></div>
+<div class="controls">
+<button data-action="place" data-value="runoff-channel">Place marker: channel</button>
+<button data-action="place" data-value="footpath">Place marker: path</button>
+<button data-action="place" data-value="raised-pocket">Place marker: raised pocket</button></div>
+</div>
+</section>
+<section class="panel"><h2>Test, notice and revise</h2>
+<div id="current-model">
+<div class="paper" id="runs" role="status">Compare dry/rain/open/blocked in a removable model.</div>
+<div class="controls">
+<button data-action="weather" data-value="dry">Dry</button><button data-action="weather" data-value="rain">Rain</button>
+<button data-action="channel" data-value="open">Channel open</button><button data-action="channel" data-value="blocked">Channel blocked</button></div>
+<div class="controls"><button data-action="run">Run rain tray</button><button data-action="compare">Compare model</button>
+<button data-action="enter">Walk to Lower Garden PAPER site</button></div>
+</div>
+<div id="lower-model" hidden>
+<div id="outcome" class="paper" role="status">No marker placed yet.</div>
+<div class="controls"><button data-action="check">Check water and path</button></div>
+<div id="attempts" class="paper" role="status">No placement tests yet.</div>
+<div class="controls">
+<button data-action="think" data-value="keep-path">I think: keep the path open</button>
+<button data-action="think" data-value="need-more">I am not sure yet</button></div>
+<div class="controls"><button data-action="finish">Finish PAPER pocket trial</button></div>
+</div>
+<p id="parent" class="dialogue">Parent: let Milo test first.</p>
+<p id="note" role="status">No paper note. Actual site, history and permission UNKNOWN.</p>
+</section></div>
+<button id="restart">Restart paper rehearsal</button>
+<p><small>Move Milo to two upper observations, compare three model conditions, then inspect two lower anchors. Test an unsuitable and a suitable marker site; move it freely before the final PAPER note. Wrong sites are not penalties. No actual planting occurs.</small></p>
+<script type="module">
+import {fresh,dispatch,can,view} from './lower-garden-story-model.mjs';
+let state=fresh();
+const $=id=>document.getElementById(id);
+const actionOf=b=>b.dataset.value?{type:b.dataset.action,value:b.dataset.value}:{type:b.dataset.action};
+function render(){
+ const v=view(state),lower=v.phase==='lower'||v.phase==='finished';
+ $('speaker').textContent=v.speaker;$('line').textContent=v.line;
+ $('phase').textContent='Paper stage: '+v.phase+' · upper garden stays healthy';
+ $('marker').textContent='Milo paper marker: '+v.milo.replaceAll('-',' ');
+ $('current-controls').hidden=lower;$('current-model').hidden=lower;
+ $('lower-controls').hidden=!lower;$('lower-model').hidden=!lower;
+ $('runs').textContent='SYNTHETIC tray: '+v.runs.map(r=>r.weather+'/'+r.channel+' = low '+r.catchment+'/3').join('; ')+
+  (v.modelCompared?' · Compared, real historical cause UNKNOWN.':' · Need dry and both rain channel states.');
+ $('outcome').textContent=!v.markerSite?'No marker placed yet.':
+  v.markerEffect.wet?'WET model water route — move the marker.':
+  v.markerEffect.blocksPath?'BLOCKED model public path — move the marker.':
+  'MODEL path and channel stay clear — actual permission UNKNOWN.';
+ $('attempts').textContent='Placement tests: '+(v.attempts.length?v.attempts.map(a=>a.site+': '+
+  (a.wet?'wet':a.blocksPath?'blocks path':'model clear')).join(' → '):'none yet');
+ $('parent').textContent=v.parentCue?'Optional parent cue: '+v.parentCue:'Parent: let Milo test and revise before asking why.';
+ $('note').textContent=v.paperNote||'No final PAPER note. Real history, water, access and planting permission UNKNOWN.';
+ for(const el of document.querySelectorAll('[data-place]')){
+  el.dataset.active=String(el.dataset.place===v.milo);
+  el.dataset.marker=String(el.dataset.place===v.markerSite);
+  el.dataset.risk=el.dataset.place!==v.markerSite?'none':
+   v.markerEffect?.wet?'wet':v.markerEffect?.blocksPath?'path':'clear';
+ }
+ for(const b of document.querySelectorAll('[data-action]')){
+  b.disabled=!can(state,actionOf(b));
+  if(['walk','weather','channel','place','think'].includes(b.dataset.action)){
+   const selected=b.dataset.action==='walk'?v.milo:
+    b.dataset.action==='weather'?v.weather:b.dataset.action==='channel'?v.channel:
+    b.dataset.action==='place'?v.markerSite:v.thought;
+   b.setAttribute('aria-pressed',String(selected===b.dataset.value));
+  }
+ }
+}
+document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>{
+ state=dispatch(state,actionOf(b));render();
+}));
+$('restart').addEventListener('click',()=>{state=fresh();render();});
+render();
+</script></main></body></html>
