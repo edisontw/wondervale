@@ -5,6 +5,8 @@ import assert from 'node:assert/strict';
 import {fresh as fresh02, dispatch as dispatch02, payload as payload02, EVENTS as EVENTS02} from '../engine/s01e02.mjs';
 import {fresh as fresh03, dispatch as dispatch03, restore as restore03, payload as payload03, EVENTS as EVENTS03} from '../engine/s01e03.mjs';
 import {e04Handoff, e04Ready, E04_SOURCE_EVENTS} from '../engine/s01e04-handoff.mjs';
+import {e05ProductionHandoff} from '../engine/s01e05-production-entry.mjs';
+import {fresh as freshE05, dispatch as dispatchE05, restore as restoreE05} from '../engine/s01e05-authoring-prototype.mjs';
 
 const drain02 = s => {while(s.queue.length) s=dispatch02(s,{type:'next'}); return s;};
 const drain03 = s => {while(s.queue.length) s=dispatch03(s,{type:'next'}); return s;};
@@ -116,4 +118,66 @@ test('E04 authoring preview requires verified earlier chapters and has an isolat
   assert.equal(draftPayload(replay.session),null);
   assert.equal(JSON.stringify(e02),before02,'E04 operations must never modify E02');
   assert.equal(JSON.stringify(e03),before03,'E04 operations must never modify E03');
+});
+
+test('E03 completion + finished E04 draft + finished E05 paper lab never authorizes canonical E05',()=>{
+  const e02=payload02(realE02()),e03=payload03(realE03());
+  assert.equal(e04Handoff(e02,e03).ready,true,'the genuine E03 source handoff remains available');
+  const pack={
+    id:'gate-test-only',revision:'test-r1',
+    cards:[{id:'old-map',label:'Old map',kind:'map'},{id:'new-map',label:'Updated map',kind:'map'}],
+    clues:[{id:'update-note',label:'Map revision',text:'A simulated note relates the two copies.'}],
+    relativeOrder:{earlier:'old-map',later:'new-map',basis:'update-note'}
+  };
+  let draft=openE04Authoring(e02,e03,pack).session;
+  for(const action of [
+    {type:'inspect-memory',which:'station'},{type:'inspect-memory',which:'garden'},
+    {type:'inspect-card',id:'old-map'},{type:'inspect-card',id:'new-map'},
+    {type:'inspect-clue',id:'update-note'},
+    {type:'place',id:'new-map',slot:'earlier'},
+    {type:'place',id:'new-map',slot:'later'},
+    {type:'place',id:'old-map',slot:'earlier'},
+    {type:'explain',kind:'different_times',basis:'update-note'},
+    {type:'chronicle'},{type:'finish'}
+  ]) draft=draftAction(draft,action,pack);
+  assert.equal(draft.phase,'completed','the test intentionally completes the noncanonical E04 draft');
+
+  let paper=freshE05();
+  for(const action of [
+    {type:'inspect-feature',id:'peg-pair'},{type:'inspect-feature',id:'worn-edge'},
+    {type:'place-replica',orientation:'side-b'},{type:'compare-fit'},
+    {type:'place-replica',orientation:'side-a'},{type:'compare-fit'},
+    {type:'note-limits'},{type:'place-table',position:'across-walkway'},
+    {type:'place-table',position:'near-wall'},{type:'confirm-room'}
+  ]) paper=dispatchE05(paper,action);
+  assert.equal(restoreE05(paper).roomPreview,true,'the paper Map Room is genuinely complete');
+
+  const before=JSON.stringify([e02,e03,draft,paper]);
+  for(const candidate of [null,draft,draftPayload(draft),
+    {...draft,mode:'canonical',phase:'completed'},
+    {mode:'canonical',phase:'completed',ledger:['e04.finish'],ready:true},
+    paper,{ready:true,unlocks:['s01e05']}]){
+    assert.deepEqual(e05ProductionHandoff(e02,e03,candidate),{
+      ready:false,reason:'e04-canonical-checkpoint-unavailable',
+      e03CanonicalComplete:true,e04CanonicalComplete:false,
+      canonicalEvents:[],unlocks:[]
+    });
+  }
+  assert.equal(JSON.stringify([e02,e03,draft,paper]),before,'gate inspection must be read-only');
+});
+
+test('E05 canonical entry rejects missing or reset E02/E03 before considering E04',()=>{
+  const e02=payload02(realE02()),e03=payload03(realE03());
+  for(const [a,b,reason] of [
+    [null,e03,'complete-riverside-first'],
+    [e02,null,'complete-market-lane-first'],
+    [e02,payload03(realE03(['station','garden'],false)),'complete-market-lane-first']
+  ]){
+    const gate=e05ProductionHandoff(a,b,{ready:true,phase:'completed',mode:'canonical'});
+    assert.equal(gate.ready,false);
+    assert.equal(gate.reason,reason);
+    assert.equal(gate.e03CanonicalComplete,false);
+    assert.deepEqual(gate.canonicalEvents,[]);
+    assert.deepEqual(gate.unlocks,[]);
+  }
 });
