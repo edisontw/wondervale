@@ -21,12 +21,24 @@ a{display:inline-flex;align-items:center;text-decoration:none}
 #world{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.6rem}
 .paper{padding:.7rem;background:#f0f4eb;border:2px solid #c3d1c5;border-radius:.5rem;min-height:112px;line-height:1.5}
 .paper.selected{border-color:#2c7859;background:#e4f2e6}
+#visual-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.45rem;margin:.65rem 0}
+.visual-tile{min-width:0;padding:.4rem;border:2px solid #bccdc0;border-radius:.5rem;background:#f8faf5}
+.visual-tile.active{border-color:#2a805a}.visual-tile[data-stage="after"]{background:#e4f1e5}
+.visual-tile[data-stage="locked"]{background:#e9ece8;color:#65746b}
+.visual-tile strong{display:block;font-size:.8rem;overflow-wrap:anywhere}
+.visual-tile small{display:block;font-size:.72rem;line-height:1.3}
+.visual-art{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(3,1.7rem);gap:.12rem;margin:.35rem 0;background:repeating-linear-gradient(90deg,#f4f0e5,#f4f0e5 16px,#eee9db 16px,#eee9db 17px);border:1px solid #c7c3b7;border-radius:.25rem;overflow:hidden}
+.piece{min-width:0;display:grid;place-items:center;text-align:center;font-size:.67rem;line-height:1.05;overflow:hidden;overflow-wrap:anywhere;padding:.1rem;border:1px solid #9caa9c;border-radius:.2rem;background:#dde6d9}
+.piece.block{background:#f2d0ae}.piece.table{background:#d6b28d}.piece.board{background:#d9d4c0}
+.piece.path{background:#b9dcc5}.piece.water{background:#b7ddeb}.piece.garden,.piece.seed{background:#c9e4aa}
+.piece.lamp-on{background:#f5e39b}.piece.lamp-off,.piece.fence{background:#d5d6d7}
+.piece.quiet{background:#d4d9f0}.piece.activity{background:#f4d4aa}
 #paper-notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
 .note{padding:.5rem;background:#f2f6ed;border-left:3px solid #658a6c;line-height:1.4;overflow-wrap:anywhere}
 #feedback,#progress,#story-cue{line-height:1.5;min-height:1.6rem;overflow-wrap:anywhere}
 #feedback{font-weight:600}
 footer{line-height:1.5;font-size:.85rem}
-@media(max-width:700px){#map{grid-template-columns:repeat(2,minmax(0,1fr))}#world,#paper-notes{grid-template-columns:1fr}}
+@media(max-width:700px){#map,#visual-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}#world,#paper-notes{grid-template-columns:1fr}}
 @media(max-width:420px){.place{font-size:.85rem}#actions button{flex:1 1 100%}}
 </style></head><body><main>
 <header><h1>Milo's Paper World — Before / Now</h1><div>Revisit eight paper places · E05–E11 retrospective authoring model</div></header>
@@ -36,6 +48,9 @@ footer{line-height:1.5;font-size:.85rem}
 <h2>Where will Milo look again?</h2>
 <p id="progress" role="status" aria-live="polite">Paper places are explored in order, then revisited freely.</p>
 <div id="map" aria-label="Eight paper places"></div>
+<h2>Paper-world atlas — visible changes</h2>
+<p>Abstract paper pieces, not approved scene art. Switch BEFORE / NOW below to compare the whole model. Unvisited places stay hidden.</p>
+<div id="visual-tiles" aria-label="Eight-place paper model atlas"></div>
 </section>
 <section class="panel">
 <h2 id="title">E05 · Station</h2>
@@ -58,6 +73,7 @@ footer{line-height:1.5;font-size:.85rem}
 <footer>Short English, deeper thinking: “It fits.” “What if it rains?” “Who else?” “Let's test.” “I changed it because…” Use Tab + Enter/Space; no drag-only action. No recorded voice or music.</footer>
 <script type="module">
 import {fresh,dispatch,project,LABELS,PLACES} from './world-revisit.mjs';
+import {visualTiles} from './paper-world-visual.mjs';
 let state=fresh();const $=id=>document.getElementById(id);
 const action=(type,value)=>value===undefined?{type}:{type,value};
 function add(host,label,type,value){
@@ -105,6 +121,26 @@ function render(){
  $('progress').textContent=p.completed+' of 8 PAPER changes tested. This is not episode progress or an unlock.';
  $('feedback').textContent=p.feedback;
  $('task').textContent='Milo can try, revise, compare BEFORE / NOW, then visit the next PAPER place.';
+ const atlas=$('visual-tiles');atlas.replaceChildren();
+ for(const item of visualTiles(p)){
+  const tile=document.createElement('div');tile.className='visual-tile';
+  tile.classList.toggle('active',item.active);
+  tile.dataset.visualPlace=item.id;tile.dataset.stage=item.stage;
+  const heading=document.createElement('strong');heading.textContent=item.visible?item.label:'Later paper place';
+  const art=document.createElement('div');art.className='visual-art';
+  art.setAttribute('role','img');
+  art.setAttribute('aria-label',item.visible
+    ? item.label+': '+item.stage.toUpperCase()+' paper pieces: '+item.pieces.map(x=>x.label).join(', ')
+    : 'Not yet explored in this paper model');
+  for(const piece of item.pieces){
+   const shape=document.createElement('span');shape.className='piece '+piece.kind;
+   shape.style.gridColumn=piece.col+' / span '+piece.span;
+   shape.style.gridRow=String(piece.row);shape.textContent=piece.label;art.append(shape);
+  }
+  const stateText=document.createElement('small');
+  stateText.textContent=!item.visible?'Hidden until earlier paper trial':item.stage==='after'?'NOW · revised paper pieces':'BEFORE · paper trial';
+  tile.append(heading,art,stateText);atlas.append(tile);
+ }
  const map=$('map');map.replaceChildren();
  for(const x of p.progress){
   const b=document.createElement('button');b.type='button';b.className='place';
