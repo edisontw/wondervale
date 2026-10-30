@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale — Needs to Shared-Space Trial (paper)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;background:#eef2eb;color:#203b33}
+*{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#294b42;color:#fff;border-radius:.6rem;padding:.8rem}h1{font-size:1.3rem;margin:.1rem 0}h2{font-size:1.05rem}
+.notice{background:#fff0c8;border-left:5px solid #966519;padding:.75rem;margin:.7rem 0;line-height:1.5}
+.panel{background:#fff;border:1px solid #bdccc0;border-radius:.6rem;padding:.7rem;margin:.6rem 0;min-width:0}
+.world{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.place{background:#edf4e9;padding:.6rem;border:2px solid #b6c7b7;border-radius:.5rem;overflow-wrap:anywhere}
+.place.active{border-color:#26754c}
+.actions,nav{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0}
+button,a{font:inherit;min-height:44px;min-width:44px;padding:.5rem .65rem;border:2px solid #527369;border-radius:.4rem;background:#f8fbf5;color:#234439;cursor:pointer;max-width:100%;overflow-wrap:anywhere}
+button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:3px solid #a56b16;outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.3rem;max-width:500px;background:#d9d5c5;padding:.4rem;border-radius:.5rem}
+.cell{min-height:54px;min-width:0;padding:.3rem;font-size:.8rem}
+.cell.boundary{background:#646b68;color:#fff}.cell.quiet{box-shadow:inset 0 0 0 3px #7aa6c7}
+.cell.activity{box-shadow:inset 0 0 0 3px #d3a06e}.cell.access{background:#d3edda}
+.cell.milo{outline:3px solid #b37921;outline-offset:-4px}
+#feedback,#progress,#needs-board,#layout-board{line-height:1.5;overflow-wrap:anywhere;min-height:2rem}
+@media(max-width:650px){.world{grid-template-columns:1fr}.actions button{flex:1 1 100%;min-width:0}}
+</style></head><body><main>
+<header><h1>Two Needs → One Reversible Paper Plan</h1><div>Milo listens, tests, changes and compares · E10→E11 authoring model</div></header>
+<p class="notice"><strong>NOT THE PRODUCTION GAME.</strong> E10 needs, courtyard and E11 layout/loop are fictional. Name and source UNKNOWN. North Hill CLOSED. No real entry, resident testimony, historical date, construction, canonical Chronicle, E11 unlock, season ending, storage or MN4 deployment. E04 approval remains blocked.</p>
+<a href="./">Back to isolated labs</a>
+<section class="panel"><h2>Paper world remembers until restart</h2><div class="world">
+<div class="place active" id="needs-place"><strong>E10 · Unfinished place</strong><div id="needs-board">Listen to two simulated needs. Name UNKNOWN.</div></div>
+<div class="place" id="layout-place"><strong>E11 · Shared-space trial</strong><div id="layout-board">Try a layout for both needs; no construction.</div></div>
+</div><nav id="navigation"></nav></section>
+<section class="panel"><h2 id="task-title">E10 · Look and listen</h2>
+<p id="task-cue">The paper needs board is not real testimony.</p>
+<div id="actions" class="actions"></div><div id="grid" class="grid" hidden aria-label="Fictional 3 by 4 paper layout"></div>
+<p id="feedback" role="status" aria-live="polite"></p><p id="progress" role="status" aria-live="polite"></p>
+<p id="parent-cue" hidden>Optional parent cue: “Who needs this path? What could Milo change?”</p>
+<button id="restart" type="button">Restart paper story</button></section>
+<footer><small>Short English: “Both need…” / “It blocks…” / “Let's test.” / “We changed it because…” Real-world evidence and access remain unresolved. Tab + Enter/Space supported; no drag-only task.</small></footer>
+<script type="module">
+import {fresh,dispatch,project} from './needs-layout.mjs';
+import {NODES,TRACES,NEEDS,USE_TAGS,SLOTS} from '../engine/s01e10-authoring-prototype.mjs';
+import {TOKENS,USERS,EVIDENCE,SAFE_LINKS,BOUNDARY} from '../engine/s01e11-authoring-prototype.mjs';
+let state=fresh(),tool='quiet';const $=id=>document.getElementById(id);
+const cmd=(scene,type,extra={})=>({scene,type,...extra});
+const id=a=>[a.scene,a.type,a.to??a.traceId??a.needId??a.tokenId??a.edgeId??a.userId??a.discoveryId??'',a.useTag??a.slot??a.oldTag??'',a.newTag??''].join(':');
+function add(host,label,a){
+ const b=document.createElement('button'),next=dispatch(state,a);
+ b.type='button';b.textContent=label;b.dataset.action=id(a);
+ b.disabled=next.history.length===state.history.length;
+ b.addEventListener('click',()=>{state=dispatch(state,a);render();});host.append(b);
+}
+function toolButton(host,label,name){
+ const b=document.createElement('button');b.type='button';b.textContent=label;
+ b.dataset.tool=name;b.setAttribute('aria-pressed',String(tool===name));
+ b.addEventListener('click',()=>{tool=name;render();});host.append(b);
+}
+function render(){
+ const p=project(state),n=state.needs,l=state.layout;
+ $('needs-place').classList.toggle('active',p.stage==='needs');
+ $('layout-place').classList.toggle('active',p.stage==='layout');
+ $('needs-board').textContent='Name UNKNOWN. '+n.observations.length+' undated SEEN traces; '+
+  n.heard.length+' simulated needs. Quiet '+(n.board.quiet??'unplaced')+' / Activity '+(n.board.activity??'unplaced')+
+  '. '+(n.reviewed?'Paper needs compared.':'No approved source.');
+ $('layout-board').textContent=l.trials.length+' model trials; '+(l.comparison?'FIRST/NOW compared; ':'')+
+  (l.loopChecked?'fictional loop checked; ':'')+(l.reviewed?'NONCANONICAL review only.':'Common NOT OPEN.');
+ const nav=$('navigation');nav.replaceChildren();
+ add(nav,'Return to E10 needs',cmd('nav','to-needs'));
+ add(nav,'Try E11 PAPER layout',cmd('nav','to-layout'));
+ const host=$('actions');host.replaceChildren();
+ const grid=$('grid');grid.replaceChildren();grid.hidden=p.stage!=='layout';
+ if(p.stage==='needs'){
+  $('task-title').textContent='E10 · Two undated traces and two present needs';
+  $('task-cue').textContent='Milo at '+n.position+'. Inspect, revise MAYBE, listen to both simulated needs and move their cards to different slots.';
+  for(const to of NODES)add(host,'Walk: '+to,cmd('needs','walk',{to}));
+  for(const traceId of Object.keys(TRACES)){
+   add(host,'Look: '+traceId,cmd('needs','inspect',{traceId}));
+   for(const useTag of USE_TAGS)add(host,'Maybe '+traceId+': '+useTag,cmd('needs','suggest',{traceId,useTag}));
+   for(const oldTag of n.hypotheses[traceId])for(const newTag of USE_TAGS.filter(x=>x!==oldTag))
+    add(host,'Revise '+traceId+': '+oldTag+' → '+newTag,cmd('needs','revise',{traceId,oldTag,newTag}));
+  }
+  add(host,'Compare symbol, not name',cmd('needs','compare-symbol'));
+  for(const needId of Object.keys(NEEDS)){
+   add(host,'Listen: '+needId,cmd('needs','hear',{needId}));
+   for(const slot of SLOTS)add(host,'Paper '+needId+' → '+slot,cmd('needs','place',{needId,slot}));
+  }
+  for(const type of ['check-source','review-tradeoff','review'])add(host,type.replaceAll('-',' '),cmd('needs',type));
+  $('feedback').textContent=n.feedback;
+  $('progress').textContent='SEEN '+n.observations.length+' · NEEDS '+n.heard.length+
+   ' · UNKNOWN: name, dates, access. E11 canonical unlock: NO.';
+  $('parent-cue').hidden=n.heard.length===0;
+ }else{
+  $('task-title').textContent='E11 · Move pieces, test both users, revise and compare';
+  $('task-cue').textContent='Milo at '+l.position+'. The two E10 needs remain simulated. Choose a paper tool, then a cell. North Hill CLOSED.';
+  for(const x of ['quiet','activity','walk'])toolButton(host,x==='walk'?'Walk Milo':'Place '+x+' piece',x);
+  add(host,'Place access strip',cmd('layout','place',{tokenId:'access',cells:['1,1','1,2']}));
+  for(const x of ['quiet','activity'])add(host,'Lift '+x+' piece',cmd('layout','lift',{tokenId:x}));
+  for(const userId of USERS)add(host,'Test '+userId,cmd('layout','test-user',{userId}));
+  add(host,'Save tested trial',cmd('layout','snapshot-trial'));
+  if(l.trials.length>=2)add(host,'Compare FIRST and NOW',cmd('layout','compare-trials',
+   {first:l.trials[0].id,second:l.trials[l.trials.length-1].id}));
+  for(const discoveryId of ['e10_needs','e09_closure','e06_drainage'])
+   add(host,'Recall '+discoveryId+' (model)',cmd('layout','cite-earlier',{discoveryId}));
+  for(const edgeId of Object.keys(SAFE_LINKS)){
+   add(host,'Add link: '+edgeId,cmd('layout','add-loop-edge',{edgeId}));
+   add(host,'Remove link: '+edgeId,cmd('layout','remove-loop-edge',{edgeId}));
+  }
+  add(host,'Check paper loop',cmd('layout','check-loop'));
+  add(host,'Review NONCANONICAL trial',cmd('layout','review-preview'));
+  for(let r=0;r<3;r++)for(let c=0;c<4;c++){
+   const cell=r+','+c,b=document.createElement('button');b.type='button';b.className='cell';
+   b.dataset.cell=cell;b.textContent=cell+(l.position===cell?' · Milo':'')+
+    (l.layout.quiet.includes(cell)?' · Quiet':'')+(l.layout.activity.includes(cell)?' · Activity':'');
+   for(const x of TOKENS)if(l.layout[x].includes(cell))b.classList.add(x);
+   if(l.position===cell)b.classList.add('milo');
+   if(BOUNDARY.includes(cell))b.classList.add('boundary');
+   const a=tool==='walk'?cmd('layout','move-milo',{to:cell}):
+    cmd('layout','place',{tokenId:tool,cells:[cell]});
+   b.disabled=dispatch(state,a).history.length===state.history.length;
+   b.addEventListener('click',()=>{state=dispatch(state,a);render();});
+   grid.append(b);
+  }
+  $('feedback').textContent=l.feedback;
+  $('progress').textContent='Quiet '+(l.tests.quiet_reader?.passed?'PASS':l.tests.quiet_reader?'RETRY':'not tested')+
+   ' · Activity '+(l.tests.activity_group?.passed?'PASS':l.tests.activity_group?'RETRY':'not tested')+
+   ' · Trials '+l.trials.length+' · Loop '+(l.loopChecked?'PAPER PASS':'not verified')+
+   ' · '+(l.reviewed?'Paper review complete; ':'')+'Common NOT OPEN. Season NOT COMPLETE. Canonical events 0; unlocks 0.';
+  $('parent-cue').hidden=!l.trials.length;
+ }
+}
+$('restart').addEventListener('click',()=>{state=fresh();tool='quiet';render();});
+render();
+</script></main></body></html>
