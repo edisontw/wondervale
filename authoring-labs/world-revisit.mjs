@@ -78,7 +78,14 @@ function clean(a){
 const nextPlace=(m)=>{const n=PLACES.findIndex(x=>!m[x].done);return n<0?PLACES.length-1:n;};
 function apply(s,a){
  const m=structuredClone(s.models),p=s.place,one=m[p];
- const move=(feedback)=>({...s,models:m,feedback});
+ const move=(feedback)=>{
+  if(s.models[p].done&&!m[p].done){
+   const defaults=model(),i=PLACES.indexOf(p);
+   for(const id of PLACES.slice(i+1))m[id]=defaults[id];
+   feedback+=' Later paper models must be retested after this revision.';
+  }
+  return {...s,models:m,feedback};
+ };
  if(a.type==='visit'){
   const idx=PLACES.indexOf(a.value);
   if(idx>nextPlace(m)||a.value===p)return null;
