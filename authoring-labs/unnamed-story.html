@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale E10 — Unnamed Place PAPER Story</title>
+<style>
+:root{font:16px system-ui,sans-serif;background:#eef2ed;color:#203c35}*{box-sizing:border-box}
+body{margin:0}main{max-width:1080px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#294a45;color:#fff;padding:.8rem;border-radius:.6rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.35rem 0}
+.notice{background:#fff0c9;border-left:5px solid #94661a;padding:.75rem;line-height:1.5;margin:.6rem 0}
+.dialogue{background:#e1ebe5;border-radius:.5rem;padding:.75rem;margin:.6rem 0;line-height:1.5}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.panel{min-width:0;background:#fff;border:1px solid #b6c8bd;border-radius:.5rem;padding:.7rem;margin:.4rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{font:inherit;min-width:44px;min-height:44px;padding:.45rem .65rem;border:2px solid #50776c;border-radius:.4rem;background:#fff;color:#21443e;cursor:pointer;overflow-wrap:anywhere;max-width:100%}
+button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px solid #b47a20;outline-offset:2px}
+.map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.35rem;background:#e4e9e0;padding:.5rem;border:2px solid #879f93;border-radius:.5rem}
+.anchor{min-width:0;padding:.55rem .25rem;border:1px solid #a9bcae;background:#f9fbf5;text-align:center;overflow-wrap:anywhere}
+.anchor[data-here=true]{background:#ffe6af;outline:2px solid #a46d20}
+.closed{background:#f9dfd7;border:2px solid #a44d37;text-align:center;padding:.5rem;font-weight:700}
+.paper{background:#f3f5ed;border:1px dashed #98ad9b;border-radius:.4rem;padding:.6rem;margin:.5rem 0;line-height:1.5;overflow-wrap:anywhere}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem}
+.cards .paper{margin:.15rem 0}
+[hidden]{display:none!important}
+@media(max-width:700px){.columns,.cards{grid-template-columns:1fr}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E10 — The Place with No Name</h1><div>Milo looks, revises, listens and compares · child-driven EFL PAPER rehearsal</div></header>
+<p class="notice"><strong>AUTHORING ONLY — FICTIONAL COURTYARD.</strong> All traces, routes and voices are simulated. Name, dates, safe access and source rights UNKNOWN. North Hill CLOSED. No approved art, Chronicle, E11 unlock, MN4 release or family acceptance. The historical name is intentionally not revealed.</p>
+<div class="dialogue" aria-live="polite"><strong id="speaker">Milo</strong>: <span id="line"></span><div id="stage"></div></div>
+<div class="controls"><button data-action="start">Begin Milo's investigation</button></div>
+<div class="columns">
+<section class="panel"><h2>1. Walk Milo and look</h2>
+<p>Only adjoining PAPER anchors connect. The closed hill is never an entrance.</p>
+<div id="scene" class="map" aria-label="Five fictional courtyard anchors">
+<div class="anchor" data-anchor="entry">Entry / mark</div><div class="anchor" data-anchor="stone_edge">Stone edge</div>
+<div class="anchor" data-anchor="notice_wall">Notice wall</div><div class="anchor" data-anchor="quiet_corner">Quiet corner</div>
+<div class="anchor" data-anchor="meeting_edge">Meeting edge</div><div class="closed">HILL CLOSED</div></div>
+<div class="controls">
+<button data-action="walk" data-value="entry">Walk: entry</button>
+<button data-action="walk" data-value="stone_edge">Walk: stone edge</button>
+<button data-action="walk" data-value="notice_wall">Walk: notice wall</button>
+<button data-action="walk" data-value="quiet_corner">Walk: quiet corner</button>
+<button data-action="walk" data-value="meeting_edge">Walk: meeting edge</button>
+<button data-action="walk" data-value="closed_hill">Try CLOSED way (stop)</button></div>
+<div class="controls">
+<button data-action="inspect" data-value="surface">I see: worn surface</button>
+<button data-action="inspect" data-value="holes">I see: mounting holes</button>
+<button data-action="compare-symbol">Compare the old mark</button>
+<button data-action="check-source">Check for a real name source</button></div>
+<h2>2. Try and change MAYBE ideas</h2>
+<p>These tags are possibilities, never dated facts. Try an idea, then revise it without changing SEEN.</p>
+<div id="ideas" class="controls"></div>
+<p id="parent-evidence" class="paper" hidden></p>
+<h2>3. Listen to different needs</h2>
+<p>Two simulated roles ask for different things today. Their voices are not historical evidence.</p>
+<div class="controls"><button data-action="hear" data-value="quiet">Listen: quiet reader</button>
+<button data-action="hear" data-value="activity">Listen: activity group</button></div>
+</section>
+<section class="panel"><h2>4. Try a reversible needs board</h2>
+<p>First put BOTH paper cards in one shared slot and test it. Then move a card and compare. No permanent design.</p>
+<div id="need-actions" class="controls"></div>
+<div class="controls"><button data-action="test-one-slot">Test both cards in one spot</button>
+<button data-action="review-tradeoff">Compare the two needs</button></div>
+<p id="parent-needs" class="paper" hidden></p>
+<h2>5. Review SEEN / MAYBE / NEEDS / UNKNOWN</h2>
+<div class="cards">
+<div class="paper"><strong>SEEN</strong><div id="seen"></div></div>
+<div class="paper"><strong>MAYBE</strong><div id="maybe"></div></div>
+<div class="paper"><strong>NEEDS (SIMULATED)</strong><div id="needs"></div></div>
+<div class="paper"><strong>UNKNOWN</strong><div id="unknown"></div></div></div>
+<p id="feedback" class="paper" role="status"></p>
+<div class="controls"><button data-action="review">Review four columns</button>
+<button data-action="finish-paper">Finish PAPER notes</button>
+<button id="restart">Restart story</button></div>
+<p id="hook" class="paper" role="status"></p>
+</section></div>
+<p><small>Useful English: “I see…” · “It could be…” · “They need…” · “Can both fit?” · “We don't know yet.” Use Tab and Enter/Space, or touch/click. No score, account, timer, speech or storage.</small></p>
+<script type="module">
+import {fresh,dispatch,can,view} from './unnamed-story-model.mjs';
+import {TRACES,USE_TAGS,NEEDS,SLOTS} from '../engine/s01e10-authoring-prototype.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const names={entry:'entry',stone_edge:'stone edge',notice_wall:'notice wall',quiet_corner:'quiet corner',meeting_edge:'meeting edge'};
+function action(b){
+ const type=b.dataset.action,value=b.dataset.value;
+ if(type==='walk')return {type,to:value};
+ if(type==='inspect')return {type,traceId:value};
+ if(type==='hear'||type==='place')return type==='hear'?{type,needId:value}:
+  {type,needId:value.split(':')[0],slot:value.split(':')[1]};
+ if(type==='suggest'||type==='remove'){
+  const [traceId,useTag]=value.split(':');return {type,traceId,useTag};
+ }
+ if(type==='revise'){
+  const [traceId,oldTag,newTag]=value.split(':');return {type,traceId,oldTag,newTag};
+ }
+ return {type};
+}
+function add(host,type,value,label){
+ const b=document.createElement('button');b.type='button';b.dataset.action=type;
+ if(value!==null)b.dataset.value=value;b.textContent=label;host.append(b);
+}
+function render(){
+ const v=view(state);
+ $('speaker').textContent=v.speaker;$('line').textContent=v.line;
+ $('stage').textContent='Story stage: '+v.stage+' · Milo: '+names[v.position];
+ for(const a of document.querySelectorAll('.anchor'))a.dataset.here=String(a.dataset.anchor===v.position);
+ const ideas=$('ideas');ideas.replaceChildren();
+ for(const traceId of Object.keys(TRACES)){
+  for(const tag of USE_TAGS)add(ideas,'suggest',traceId+':'+tag,'MAYBE '+traceId+': '+tag);
+  for(const oldTag of state.e10.hypotheses[traceId]){
+   for(const newTag of USE_TAGS.filter(x=>x!==oldTag))
+    add(ideas,'revise',traceId+':'+oldTag+':'+newTag,'Revise '+traceId+': '+oldTag+' → '+newTag);
+   add(ideas,'remove',traceId+':'+oldTag,'Remove '+traceId+': '+oldTag);
+  }
+ }
+ const needs=$('need-actions');needs.replaceChildren();
+ for(const needId of Object.keys(NEEDS))for(const slot of SLOTS)
+  add(needs,'place',needId+':'+slot,'Paper '+needId+' → '+slot);
+ $('seen').textContent=v.observations.map(x=>x.text).join(' / ')||'Not inspected yet.';
+ $('maybe').textContent=v.hypotheses.map(x=>x.traceId+': '+x.useTag+' (MAYBE)').join(' / ')||'No idea yet.';
+ $('needs').textContent=v.needs.map(x=>x.role+': '+x.want+' → '+(x.slot||'unplaced')).join(' / ')||'Not heard yet.';
+ $('unknown').textContent=v.unknown.join(' / ')+'; no approved place name or access.';
+ $('parent-evidence').hidden=!v.parentEvidenceCue;
+ $('parent-evidence').textContent=v.parentEvidenceCue?'Optional parent cue: '+v.parentEvidenceCue:'';
+ $('parent-needs').hidden=!v.parentNeedsCue;
+ $('parent-needs').textContent=v.parentNeedsCue?'Optional parent cue: '+v.parentNeedsCue:'';
+ $('feedback').textContent=v.feedback+' · One-slot test: '+(v.testedOneSlot?'tried':'not yet')+
+  ' · Revision: '+(v.changedAfterTest?'tried':'not yet');
+ $('hook').textContent=v.paperNote;
+ for(const b of document.querySelectorAll('button[data-action]'))b.disabled=!can(state,action(b));
+}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button[data-action]');if(!b)return;
+ state=dispatch(state,action(b));render();
+});
+$('restart').addEventListener('click',()=>{state=fresh();render();});
+render();
+</script></main></body></html>
