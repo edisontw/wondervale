@@ -7,7 +7,7 @@ const arc=(s,scene,type,x={})=>H.dispatch(s,{scene:'arc1',action:
 const station=(s,type,value)=>H.dispatch(s,{scene:'arc1',action:
  {scene:'e05',action:value===undefined?{type}:{type,value}}});
 const garden=(s,type,value)=>H.dispatch(s,{scene:'garden',action:
- value===undefined?{type}:{type,value}}});
+ value===undefined?{type}:{type,value}});
 const nav=(s,type)=>H.dispatch(s,{scene:'nav',type});
 function arcReady(){
  let s=H.fresh();
