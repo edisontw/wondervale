@@ -18,6 +18,7 @@ on:
       - 'tests/season1-hill-courtyard.test.mjs'
       - 'tests/season1-hill-courtyard-browser.mjs'
       - 'tests/season1-needs-layout.test.mjs'
+      - 'tests/season1-chain-continuity.test.mjs'
       - 'tests/season1-needs-layout-browser.mjs'
       - '.github/workflows/wondervale-authoring-labs.yml'
   push:
@@ -38,6 +39,7 @@ on:
       - 'tests/season1-hill-courtyard.test.mjs'
       - 'tests/season1-hill-courtyard-browser.mjs'
       - 'tests/season1-needs-layout.test.mjs'
+      - 'tests/season1-chain-continuity.test.mjs'
       - 'tests/season1-needs-layout-browser.mjs'
       - '.github/workflows/wondervale-authoring-labs.yml'
 permissions:
@@ -65,6 +67,7 @@ jobs:
           node --check authoring-labs/hill-courtyard.mjs
           node --check authoring-labs/needs-layout.mjs
           node --check tests/season1-needs-layout.test.mjs
+          node --check tests/season1-chain-continuity.test.mjs
           node --check tests/season1-needs-layout-browser.mjs
           node --check tests/season1-hill-courtyard.test.mjs
           node --check tests/season1-hill-courtyard-browser.mjs
@@ -82,7 +85,7 @@ jobs:
             exit 1
           fi
       - name: Verify noncanonical continuity and engine boundaries (Node)
-        run: node --test tests/season1-handoff-contract.test.mjs tests/season1-evidence-workshop.test.mjs tests/season1-world-change.test.mjs tests/season1-garden-connector.test.mjs tests/season1-connector-lantern.test.mjs tests/season1-lantern-hill.test.mjs tests/season1-hill-courtyard.test.mjs tests/season1-needs-layout.test.mjs
+        run: node --test tests/season1-handoff-contract.test.mjs tests/season1-evidence-workshop.test.mjs tests/season1-world-change.test.mjs tests/season1-garden-connector.test.mjs tests/season1-connector-lantern.test.mjs tests/season1-lantern-hill.test.mjs tests/season1-hill-courtyard.test.mjs tests/season1-needs-layout.test.mjs tests/season1-chain-continuity.test.mjs
       - name: Install pinned Playwright and Chromium
         run: |
           npm install --ignore-scripts --package-lock=false
