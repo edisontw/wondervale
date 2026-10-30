@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E07 Finn's Shortcut — child-driven paper story</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#203d36;background:#f2f0e7}*{box-sizing:border-box}
+body{margin:0}main{max-width:1050px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#305a49;color:white;padding:.8rem;border-radius:.6rem}h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.04rem;margin:.3rem 0}
+.notice{background:#fff0c9;border-left:5px solid #9a6724;padding:.65rem;margin:.65rem 0;line-height:1.5}
+.dialogue{background:#dcece0;padding:.75rem;border-radius:.55rem;line-height:1.5;margin:.65rem 0}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.panel{min-width:0;background:white;border:1px solid #b5c8ba;border-radius:.55rem;padding:.7rem}
+.controls{display:flex;flex-wrap:wrap;gap:.35rem;margin:.55rem 0}
+button{font:inherit;min-width:44px;min-height:44px;padding:.4rem .55rem;border:2px solid #547a65;border-radius:.4rem;background:#fff;color:#204534;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}button[aria-pressed=true]{background:#d2e9d7;font-weight:700}
+button:focus-visible{outline:3px solid #b88022;outline-offset:2px}
+.paper{background:#f0f3e9;border:1px dashed #8ba593;border-radius:.45rem;padding:.55rem;margin:.45rem 0;line-height:1.45;overflow-wrap:anywhere}
+#board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:2px;padding:.3rem;background:#c9d7c7;border-radius:.4rem}
+.cell{min-width:0;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;background:#f9fbf7;border:1px solid #a2b7a7;font-size:clamp(.55rem,1.5vw,.82rem);font-weight:700}
+.cell[data-connector=true]{background:#e7d5a5}.cell[data-person=true]{border-bottom:4px solid #436c9a}
+.cell[data-water=true]{border-top:4px dashed #327b98}.cell[data-conflict=true]{background:#edb9aa}
+#anchors{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.25rem}
+.anchor{min-width:0;padding:.4rem;background:#e4ede3;text-align:center;border-radius:.4rem;overflow-wrap:anywhere}
+.anchor[data-here=true]{outline:3px solid #a77b2e}
+[hidden]{display:none!important}
+@media(max-width:720px){.columns{grid-template-columns:1fr}.panel{padding:.55rem}.cell{font-size:.63rem}}
+</style></head><body><main>
+<header><h1>E07 — Finn's Perfect Shortcut</h1><div>Milo tests a clever idea · child-driven PAPER rehearsal</div></header>
+<p class="notice"><strong>AUTHORING ONLY — SYNTHETIC CONNECTOR MODEL.</strong> Not real pavement, clearance, drainage, resident evidence, construction permission, E06 completion, Chronicle, E08 unlock, approved art or MN4 release. The North Hill remains CLOSED.</p>
+<div class="dialogue" aria-live="polite"><strong id="speaker">Finn</strong>: <span id="line"></span><div id="stage"></div></div>
+<div class="controls"><button data-action="start">Begin Finn's paper story</button></div>
+<div class="columns">
+<section class="panel"><h2>Move Milo and notice</h2>
+<div id="anchors" aria-label="Synthetic walking anchors">
+<div class="anchor" data-anchor="entry">Entry</div><div class="anchor" data-anchor="shared-path">Shared path</div>
+<div class="anchor" data-anchor="channel">Water channel</div><div class="anchor" data-anchor="workbench">Work bench</div></div>
+<div class="controls">
+<button data-action="walk" data-value="entry">Walk: entry</button>
+<button data-action="walk" data-value="shared-path">Walk: shared path</button>
+<button data-action="walk" data-value="channel">Walk: water channel</button>
+<button data-action="walk" data-value="workbench">Walk: work bench</button></div>
+<div class="controls">
+<button data-action="inspect" data-value="shared-path">Look: shared path</button>
+<button data-action="inspect" data-value="channel">Look: water channel</button></div>
+<p class="paper" id="observed" role="status">Nothing inspected yet.</p>
+<h2>Removable connector board</h2>
+<div class="paper">C = connector · P = other user's route · W = water trace · X = overlap. All cells are invented for this paper experiment.</div>
+<div id="board" role="img" aria-label="Eight by seven synthetic connector grid"></div>
+<p id="layout" class="paper">FIRST: short crossing</p>
+</section>
+<section class="panel"><h2>Try, notice, move and retest</h2>
+<div class="paper">Finn's first route is short for Milo. A full test also checks another traveler and water. No penalty for trying an unsuitable position.</div>
+<div class="controls">
+<button data-action="trial" data-value="milo">Test Milo</button>
+<button data-action="trial" data-value="resident">Test other traveler</button>
+<button data-action="trial" data-value="water">Test water</button></div>
+<p id="first" class="paper" role="status">FIRST tests not started.</p>
+<div class="controls">
+<button data-action="place" data-value="path-clear-water-blocked">Move: near water</button>
+<button data-action="place" data-value="channel-clear-path-blocked">Move: near shared path</button>
+<button data-action="place" data-value="side-offset">Move: upper offset</button>
+<button data-action="place" data-value="lower-offset">Move: lower offset</button>
+<button data-action="undo">Undo last move</button></div>
+<p id="now" class="paper" role="status">NOW needs fresh tests after each move.</p>
+<div class="controls"><button data-action="compare">Compare FIRST / NOW</button>
+<button data-action="finish">Finish PAPER trial</button></div>
+<p id="parent" class="dialogue">Parent: let Milo try first.</p>
+<p id="note" class="paper" role="status">Real access and sources remain UNKNOWN.</p>
+</section></div>
+<div class="controls"><button id="restart">Restart paper rehearsal</button></div>
+<p><small>Story path: walk and inspect both constraints → test Milo → test another traveler and water → move a model piece → retest all three → compare FIRST/NOW. The child's actions reveal the problem; Finn is not blamed. No audio or permanent save.</small></p>
+<script type="module">
+import {fresh,dispatch,can,view} from './shortcut-story-model.mjs';
+let state=fresh();
+const $=id=>document.getElementById(id);
+const actionOf=b=>b.dataset.value?{type:b.dataset.action,value:b.dataset.value}:{type:b.dataset.action};
+const names={milo:'Milo',resident:'other traveler',water:'water'};
+function traceText(trials){
+ return ['milo','resident','water'].map(k=>names[k]+': '+
+  (trials[k]?(trials[k].pass?'PASS':'BLOCKED'):'not tested')).join(' · ');
+}
+function drawBoard(v){
+ const board=$('board');board.replaceChildren();
+ const footprint=new Set(v.layout.footprint);
+ const person=new Set(v.layout.traces.resident.path);
+ const water=new Set(v.layout.traces.water.path);
+ for(let y=0;y<7;y++)for(let x=0;x<8;x++){
+  const id=x+','+y,c=document.createElement('div');
+  const C=footprint.has(id),P=person.has(id),W=water.has(id);
+  c.className='cell';c.dataset.connector=String(C);c.dataset.person=String(P);
+  c.dataset.water=String(W);c.dataset.conflict=String(C&&(P||W));
+  c.textContent=C&&(P||W)?'X':C?'C':P?'P':W?'W':'·';
+  c.title='Model cell '+id+(C?' connector':'')+(P?' traveler':'')+(W?' water':'');
+  board.append(c);
+ }
+}
+function render(){
+ const v=view(state);
+ $('speaker').textContent=v.speaker;$('line').textContent=v.line;
+ $('stage').textContent='Paper stage: '+v.stage+' · Milo at '+v.milo.replaceAll('-',' ');
+ $('observed').textContent='Milo looked at: '+(v.observed.length?v.observed.join(', '):'nothing yet');
+ $('layout').textContent='NOW model: '+v.layout.layout+' · Milo route steps: '+v.layout.traces.milo.steps+
+  ' · FIRST: '+v.baseline.layout;
+ $('first').textContent='FIRST: '+traceText(v.firstTrials);
+ $('now').textContent='NOW: '+traceText(v.revisedTrials);
+ $('parent').textContent=v.parentCue?'Optional parent cue: '+v.parentCue:'Parent: let Milo test first.';
+ $('note').textContent=v.paperNote;
+ drawBoard(v);
+ for(const el of document.querySelectorAll('[data-anchor]'))
+  el.dataset.here=String(el.dataset.anchor===v.milo);
+ for(const b of document.querySelectorAll('[data-action]')){
+  b.disabled=!can(state,actionOf(b));
+  if(['walk','place'].includes(b.dataset.action))
+   b.setAttribute('aria-pressed',String(b.dataset.action==='walk'?
+    b.dataset.value===v.milo:b.dataset.value===v.layout.layout));
+ }
+}
+document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>{
+ state=dispatch(state,actionOf(b));render();
+}));
+$('restart').addEventListener('click',()=>{state=fresh();render();});
+render();
+</script></main></body></html>
