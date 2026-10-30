@@ -71,7 +71,8 @@ export function view(snapshot){
  const s=restore(snapshot);if(!s)return null;
  const u=Up.view(s.upstream),l=Lantern.view(s.lantern);
  return {stage:s.stage,upstream:u,lantern:l,stationMapRoomPaper:u.stationMapRoomPaper,
-  currentGardenHealthy:u.currentGardenHealthy,lowerPocketPaper:u.lowerPocketPaper,
+  currentGardenHealthy:u.currentGardenHealthy,currentGardenCompared:u.currentGardenCompared,
+  lowerGardenVisited:u.lowerGardenVisited,lowerPocketPaper:u.lowerPocketPaper,
   connectorPaperRevised:u.connectorPaperRevised,lanternPaperCompared:l.compared,
   lanternPaperFinished:l.previewComplete,lanternAvailable:ready(s.upstream),
   lowerModelLamps:{...l.lights},sourceDates:'UNKNOWN',servicePlateSource:'UNKNOWN',
