@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E06 Current Garden — story and EFL paper rehearsal</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#233c35;background:#f2f0e7}*{box-sizing:border-box}
+body{margin:0}main{max-width:960px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#355b48;color:white;padding:.8rem;border-radius:.6rem}h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.06rem}
+.notice{background:#fff0c9;border-left:5px solid #a36d24;padding:.65rem;margin:.65rem 0;line-height:1.45}
+.dialogue{background:#dceae0;padding:.7rem;border-radius:.6rem;line-height:1.5;margin:.6rem 0}
+.scene{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:.65rem}
+.panel{min-width:0;background:white;padding:.7rem;border:1px solid #b9c8bc;border-radius:.6rem}
+.paper{border:2px dashed #8eaa91;border-radius:.5rem;background:#edf2e9;padding:.6rem;min-height:75px;line-height:1.5}
+.garden{position:relative;min-height:140px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem;padding:.5rem;background:linear-gradient(145deg,#d8e9ce 55%,#e8d9b7 55%);border-radius:.6rem}
+.place{min-height:53px;padding:.35rem;border:1px solid #86a58a;border-radius:.4rem;background:#f7fbf3;text-align:center;font-size:.85rem}
+.place[data-active=true]{outline:3px solid #b27d26;font-weight:700}
+#marker{background:#2c5a47;color:white;border-radius:.5rem;padding:.4rem;margin:.5rem 0}
+.tray{display:flex;gap:.4rem;align-items:stretch;margin:.6rem 0}
+.tray>div{flex:1;min-width:0;padding:.55rem;background:#e6f0f1;border:1px solid #8eacb6;border-radius:.4rem}
+.tray[data-weather=rain] .catchment{background:#a7cfeb}
+.tray[data-channel=blocked] .channel{background:#e9c5a8}
+.controls{display:flex;flex-wrap:wrap;gap:.35rem;margin:.5rem 0}
+button{font:inherit;min-height:44px;min-width:44px;padding:.4rem .65rem;border:2px solid #4e7964;border-radius:.45rem;background:white;color:#1e3f32;cursor:pointer}
+button:disabled{opacity:.48;cursor:not-allowed}button[aria-pressed=true]{background:#d1e8d9;font-weight:700}
+button:focus-visible{outline:3px solid #c58b2d;outline-offset:2px}
+#note{background:#f7f0dc;border-radius:.4rem;padding:.65rem}
+@media(max-width:680px){.scene{grid-template-columns:1fr}.panel{padding:.55rem}main{padding:.5rem}}
+</style></head><body><main>
+<header><h1>E06 — The Garden That Moved</h1><div>Current Garden · child-controlled story and EFL PAPER rehearsal</div></header>
+<p class="notice"><strong>AUTHORING ONLY — SYNTHETIC TRAY.</strong> This is not a production scene, real hillside survey, historical explanation, approved artwork, access or planting permission. No E04/E05 bypass, Chronicle, save or E07 unlock.</p>
+<div class="dialogue" aria-live="polite"><strong id="speaker">Nia</strong>: <span id="line"></span><div id="phase"></div></div>
+<div class="controls"><button data-action="start">Begin garden story</button></div>
+<div class="scene">
+<section class="panel"><h2>Walk and look · present garden</h2>
+<div class="garden" id="garden" aria-label="Abstract paper garden, not actual site geometry">
+<div class="place" data-place="present-bed">Healthy beds</div><div class="place" data-place="slope">Higher slope</div>
+<div class="place" data-place="shared-path">Shared path</div><div class="place" data-place="model-tray">Paper rain tray</div></div>
+<div id="marker" role="status">Milo: healthy beds</div>
+<div class="controls">
+<button data-action="walk" data-value="present-bed">Walk: beds</button>
+<button data-action="walk" data-value="slope">Walk: slope</button>
+<button data-action="walk" data-value="shared-path">Walk: path</button>
+<button data-action="walk" data-value="model-tray">Walk: tray</button></div>
+<div class="controls">
+<button data-action="inspect" data-value="present-bed">Look: healthy beds</button>
+<button data-action="inspect" data-value="slope">Look: slope</button>
+<button data-action="inspect" data-value="shared-path">Look: shared path</button></div>
+<div class="paper" id="observations" role="status"></div>
+<div class="controls"><button data-action="guess" data-value="put-back">I think: put it back?</button>
+<button data-action="guess" data-value="not-sure">I am not sure yet</button></div>
+</section>
+<section class="panel"><h2>Test and revise · removable rain tray</h2>
+<div class="tray" id="tray" data-weather="dry" data-channel="open">
+<div>HIGH<br>Model rain: <strong id="weather">dry</strong></div>
+<div class="channel">CHANNEL<br><strong id="channel">open</strong></div>
+<div class="catchment">LOW<br><strong id="catchment">not tested</strong></div></div>
+<div class="controls"><button data-action="weather" data-value="dry">Dry</button><button data-action="weather" data-value="rain">Rain</button>
+<button data-action="channel" data-value="open">Channel open</button><button data-action="channel" data-value="blocked">Channel blocked</button></div>
+<div class="controls"><button data-action="run">Run model</button><button data-action="compare">Compare dry / rain / channel</button></div>
+<div id="model" class="paper" role="status" aria-live="polite"></div>
+<div class="controls"><button data-action="revise" data-value="small-test">Maybe a small trial below</button>
+<button data-action="revise" data-value="need-evidence">We need more evidence</button></div>
+</section></div>
+<p id="parent" class="dialogue"></p><p id="note" role="status">No paper note yet. Historical cause UNKNOWN.</p>
+<button id="restart">Restart paper rehearsal</button>
+<p><small>Use Milo to inspect two different anchors, make a prediction, run dry/rain/open/blocked models and revise. This tray cannot prove why the garden moved. The real upper garden is never changed.</small></p>
+<script type="module" src="./current-garden-story.mjs"></script></main></body></html>
