@@ -52,7 +52,7 @@ try{
    assert.equal(await page.locator('#shortcut-board [data-conflict="true"]').count(),0);
    await hit('shortcut-compare');await hit('shortcut-finish');
    await hit('to-lantern');
-   assert.match(await page.locator('#status').innerText(),/lantern \\/ opening/);
+   assert.match(await page.locator('#status').innerText(),/lantern \/ opening/);
    assert.equal(await b('lantern-walk-side').isDisabled(),true);
    for(const k of ['lantern-start','lantern-inspect-brackets','lantern-inspect-boundary',
     'lantern-inspect-lower-a','lantern-toggle-lower-a','lantern-walk-lower-landing',
@@ -70,9 +70,9 @@ try{
    await hit('to-e07');
    assert.match(await page.locator('#connector-state').innerText(),/revised/);
    await hit('to-lantern');
-   assert.match(await page.locator('#status').innerText(),/lantern \\/ finished/);
+   assert.match(await page.locator('#status').innerText(),/lantern \/ finished/);
    await hit('restart-lantern');
-   assert.match(await page.locator('#status').innerText(),/lantern \\/ opening/);
+   assert.match(await page.locator('#status').innerText(),/lantern \/ opening/);
    assert.match(await page.locator('#connector-state').innerText(),/revised/);
    await hit('to-e07');
    assert.match(await page.locator('#connector-state').innerText(),/revised/);
