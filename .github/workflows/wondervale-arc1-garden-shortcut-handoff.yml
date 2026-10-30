@@ -1,0 +1,52 @@
+name: Wondervale Arc 1 E06 to E07 PAPER connector continuity
+on:
+  pull_request:
+    paths:
+      - 'authoring-labs/arc1-garden-shortcut-handoff*'
+      - 'tests/season1-arc1-garden-shortcut-handoff*'
+      - '.github/workflows/wondervale-arc1-garden-shortcut-handoff.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'authoring-labs/arc1-garden-shortcut-handoff*'
+      - 'tests/season1-arc1-garden-shortcut-handoff*'
+      - '.github/workflows/wondervale-arc1-garden-shortcut-handoff.yml'
+permissions:
+  contents: read
+jobs:
+  arc1-paper-gardens:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Strict story replay and upstream gate
+        run: |
+          node --check authoring-labs/arc1-garden-shortcut-handoff-model.mjs
+          node --check tests/season1-arc1-garden-shortcut-handoff-browser.mjs
+          node --test tests/season1-arc1-garden-shortcut-handoff.test.mjs tests/season1-arc1-garden-story-handoff.test.mjs tests/season1-shortcut-story.test.mjs
+      - name: No production packaging of paper story
+        run: |
+          if grep -R -n 'arc1-garden-shortcut-handoff' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
+            echo 'PAPER story cannot enter production package' >&2
+            exit 1
+          fi
+      - name: Install Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Desktop phone keyboard and cross-scene revisit
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . >/tmp/arc1-garden-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/authoring-labs/arc1-garden-shortcut-handoff.html >/dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/arc1-garden-server.log >&2; exit 1; fi
+          node tests/season1-arc1-garden-shortcut-handoff-browser.mjs
