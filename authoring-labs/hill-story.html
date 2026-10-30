@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale E09 — Closed Hill PAPER Story</title>
+<style>
+:root{font:16px system-ui,sans-serif;background:#eef2ed;color:#203c35}*{box-sizing:border-box}
+body{margin:0}main{max-width:1060px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#294a45;color:white;padding:.8rem;border-radius:.6rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.3rem 0}
+.notice{background:#fff0c9;border-left:5px solid #94661a;padding:.7rem;line-height:1.5;margin:.6rem 0}
+.dialogue{background:#e1ebe5;border-radius:.5rem;padding:.75rem;margin:.6rem 0;line-height:1.5}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.panel{min-width:0;background:white;border:1px solid #b6c8bd;border-radius:.5rem;padding:.7rem;margin:.4rem 0}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{font:inherit;min-width:44px;min-height:44px;padding:.45rem .65rem;border:2px solid #50776c;border-radius:.4rem;background:#fff;color:#21443e;cursor:pointer;overflow-wrap:anywhere}
+button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px solid #b47a20;outline-offset:2px}
+.map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.35rem;background:#e4e9e0;padding:.5rem;border:2px solid #879f93;border-radius:.5rem}
+.anchor{min-width:0;padding:.55rem .3rem;border:1px solid #a9bcae;background:#f9fbf5;text-align:center;overflow-wrap:anywhere}
+.anchor[data-here=true]{background:#ffe6af;outline:2px solid #a46d20}
+.closed{background:#f9dfd7;border:2px solid #a44d37;text-align:center;padding:.5rem;font-weight:700}
+.paper{background:#f3f5ed;border:1px dashed #98ad9b;border-radius:.4rem;padding:.6rem;margin:.5rem 0;line-height:1.5;overflow-wrap:anywhere}
+.edges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+.edge{border:1px solid #a7b9a9;border-radius:.4rem;padding:.5rem;min-width:0}
+.edge[data-marked=true]{background:#d8eedb;border-color:#387956}
+[hidden]{display:none!important}
+@media(max-width:700px){.columns,.edges{grid-template-columns:1fr}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E09 — The Closed Hill</h1><div>Milo surveys a safe PAPER alternative · EFL story rehearsal</div></header>
+<p class="notice"><strong>AUTHORING ONLY — FICTIONAL HILL GRAPH.</strong> Not actual access, safe terrain, closure history, official art, Chronicle, E10 unlock or MN4 release. UPPER NORTH HILL CLOSED.</p>
+<div class="dialogue" aria-live="polite"><strong id="speaker">Finn</strong>: <span id="line"></span><div id="stage"></div></div>
+<div class="controls"><button data-action="start">Begin Milo's story</button></div>
+<div class="columns">
+<section class="panel"><h2>1. Move Milo to safe survey places</h2>
+<p>Only adjacent model anchors connect. The old uphill line ends at the fence.</p>
+<div id="scene" class="map" aria-label="Five fictional lower hill survey anchors">
+<div class="anchor" data-anchor="steps_base">Steps base</div><div class="anchor" data-anchor="signpost">Signpost</div>
+<div class="anchor" data-anchor="fence_view">Fence view</div><div class="anchor" data-anchor="lower_bend">Lower bend</div>
+<div class="anchor" data-anchor="overlook">Lower overlook</div><div class="closed">UPPER HILL CLOSED</div></div>
+<div class="controls">
+<button data-action="walk" data-value="steps_base">Walk: steps base</button>
+<button data-action="walk" data-value="signpost">Walk: signpost</button>
+<button data-action="walk" data-value="fence_view">Walk: fence view</button>
+<button data-action="walk" data-value="lower_bend">Walk: lower bend</button>
+<button data-action="walk" data-value="overlook">Walk: overlook</button>
+<button data-action="walk" data-value="upper_closed">Try old way (stop at fence)</button></div>
+<h2>2. Look before guessing</h2>
+<div class="controls">
+<button data-action="inspect" data-value="entry_note">Look: old sketch</button>
+<button data-action="inspect" data-value="boundary_sign">Look: CLOSED sign</button>
+<button data-action="inspect" data-value="disturbed_ground">Look: uneven ground</button>
+<button data-action="inspect" data-value="runoff_marks">Look: water marks</button>
+<button data-action="inspect" data-value="distant_symbol">Look: distant mark</button></div>
+<p id="seen" class="paper"></p>
+<p id="parent" class="paper" hidden></p>
+<div class="controls">
+<button data-action="consider" data-value="water_may_change_ground">I think: water might change ground</button>
+<button data-action="consider" data-value="old_line_may_continue">I think: old line might continue</button></div>
+</section>
+<section class="panel"><h2>3. Make and fix a PAPER route sketch</h2>
+<p>Walk an edge first, then mark it. A tempting straight line can be incomplete. No timer or penalty.</p>
+<div class="edges" id="edges">
+<div class="edge" data-edge="steps_base:signpost">Steps ↔ Signpost<div class="controls"><button data-action="mark" data-value="steps_base:signpost">Mark: steps–signpost</button><button data-action="unmark" data-value="steps_base:signpost">Remove: steps–signpost</button></div></div>
+<div class="edge" data-edge="signpost:fence_view">Signpost ↔ Fence view<div class="controls"><button data-action="mark" data-value="signpost:fence_view">Mark: signpost–fence</button><button data-action="unmark" data-value="signpost:fence_view">Remove: signpost–fence</button></div></div>
+<div class="edge" data-edge="signpost:lower_bend">Signpost ↔ Lower bend<div class="controls"><button data-action="mark" data-value="signpost:lower_bend">Mark: signpost–bend</button><button data-action="unmark" data-value="signpost:lower_bend">Remove: signpost–bend</button></div></div>
+<div class="edge" data-edge="lower_bend:overlook">Lower bend ↔ Overlook<div class="controls"><button data-action="mark" data-value="lower_bend:overlook">Mark: bend–overlook</button><button data-action="unmark" data-value="lower_bend:overlook">Remove: bend–overlook</button></div></div>
+</div>
+<div class="controls"><button data-action="mark" data-value="fence_view:upper_closed">Try marking CLOSED edge</button>
+<button data-action="check-route">Check sketch</button></div>
+<p id="route" class="paper"></p><p id="feedback" class="paper" role="status"></p>
+<h2>4. Compare, review and leave a question</h2>
+<div class="controls"><button data-action="compare-symbol">Compare distant mark</button>
+<button data-action="review">Review seen / think / unknown</button>
+<button data-action="finish-preview">Finish PAPER survey</button><button id="restart">Restart story</button></div>
+<p id="notes" class="paper"></p>
+<p id="hook" class="paper" role="status"></p>
+</section></div>
+<p><small>Look → safely stop → walk another way → mark a surveyed route → revise a gap → compare evidence. Keyboard Tab and Enter/Space supported. No account, audio, score, storage or canonical progress.</small></p>
+<script type="module">
+import {fresh,dispatch,can,view} from './hill-story-model.mjs';
+let state=fresh();
+const $=id=>document.getElementById(id);
+const names={steps_base:'steps base',signpost:'signpost',fence_view:'fence view',lower_bend:'lower bend',overlook:'lower overlook'};
+const features={entry_note:'old sketch',boundary_sign:'CLOSED sign',disturbed_ground:'uneven ground',runoff_marks:'water marks',distant_symbol:'distant mark'};
+function action(b){
+ const type=b.dataset.action,value=b.dataset.value;
+ if(type==='walk')return {type,to:value};
+ if(type==='inspect')return {type,clueId:value};
+ if(type==='consider')return {type,hypothesisId:value};
+ if(type==='mark'||type==='unmark')return {type,edgeId:value};
+ return {type};
+}
+function render(){
+ const v=view(state);
+ $('speaker').textContent=v.speaker;$('line').textContent=v.line;
+ $('stage').textContent='Story stage: '+v.stage+' · Milo: '+names[v.position];
+ for(const a of document.querySelectorAll('.anchor'))a.dataset.here=String(a.dataset.anchor===v.position);
+ for(const e of document.querySelectorAll('.edge'))e.dataset.marked=String(v.markedEdges.includes(e.dataset.edge));
+ $('seen').textContent='I SEE: '+(v.inspected.map(x=>features[x]).join(', ')||'nothing yet')+'.';
+ $('parent').hidden=!v.parentCue;$('parent').textContent=v.parentCue?'Optional parent cue: '+v.parentCue:'';
+ $('route').textContent=v.routeResult?(v.routeResult.complete?
+  'PAPER route reaches lower overlook; upper hill stays CLOSED.':
+  'Sketch gap: '+(v.routeResult.nextGap||'no route')+'. Try another mark.'):'No checked route yet.';
+ $('feedback').textContent=v.feedback+' · Safe stopped attempts: '+v.blockedAttempts;
+ $('notes').textContent='I THINK: '+(v.hypotheses.join(' / ')||'not yet')+
+  '. I DO NOT KNOW: closure cause/date, real safe access, distant place identity. Seen clues: '+v.observations.length+'.';
+ $('hook').textContent=v.paperNote;
+ for(const b of document.querySelectorAll('[data-action]'))b.disabled=!can(state,action(b));
+}
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button[data-action]');if(!b)return;
+ state=dispatch(state,action(b));render();
+});
+$('restart').addEventListener('click',()=>{state=fresh();render();});
+render();
+</script></main></body></html>
