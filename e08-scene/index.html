@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E08 Lantern Steps — PAPER scene</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#243d42;background:#f1f3ef}*{box-sizing:border-box}body{margin:0}
+main{max-width:1060px;margin:auto;padding:clamp(.5rem,2vw,1rem)}header{background:#314c58;color:#fff;border-radius:.6rem;padding:.8rem}
+h1{font-size:1.35rem;margin:.2rem 0}h2{font-size:1.1rem;margin:.3rem 0}
+.notice{background:#fff0c9;border-left:5px solid #98641b;padding:.7rem;margin:.7rem 0;line-height:1.5}
+.panel{background:#fff;border:1px solid #b9c6c9;border-radius:.6rem;padding:.7rem;margin:.65rem 0;min-width:0}
+.world{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.place{background:#e7edef;border:2px solid #a6b8c0;border-radius:.5rem;padding:.6rem;min-width:0}
+.place[data-done=true]{background:#d8e9df;border-color:#477960}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{font:inherit;min-height:44px;min-width:44px;max-width:100%;padding:.45rem .65rem;border:2px solid #55727a;border-radius:.45rem;background:white;color:#204550;cursor:pointer;overflow-wrap:anywhere}
+button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px solid #b47820;outline-offset:2px}
+.paper{background:#edf3f3;border:1px dashed #9ab3b7;border-radius:.4rem;padding:.65rem;line-height:1.5;margin:.45rem 0;overflow-wrap:anywhere}
+.anchors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.3rem}
+.anchor{background:#e8eff1;padding:.55rem .25rem;text-align:center;border-radius:.35rem;overflow-wrap:anywhere}
+.anchor[data-here=true]{outline:3px solid #b47820}
+.map{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:2px;background:#c3d0d2;padding:.25rem;border-radius:.4rem}
+.cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;background:#f7faf8;font-size:clamp(.7rem,1.8vw,.95rem);font-weight:700}
+.cell[data-here=true]{background:#f3d99d}.cell[data-marker=true]{background:#b5d3db}.cell[data-dark=true]{background:#d8dedf}
+[hidden]{display:none!important}@media(max-width:700px){.columns,.world{grid-template-columns:1fr}.panel{padding:.55rem}.anchors{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style></head><body><main>
+<header><h1>E08 — When the Steps Light Up</h1><div>Scene 09 of 12 · independent child-controlled PAPER model</div></header>
+<p class="notice"><strong>AUTHORING ONLY — NOT THE PRODUCTION GAME.</strong> All markers, walking anchors and lamps are synthetic. No verified E07 completion, real electrical safety, access permission, historical service date, approved art, canonical Chronicle, E09 unlock, saved progress or MN4 release. Upper North Hill CLOSED.</p>
+<div class="world" aria-label="Visible PAPER world">
+<div class="place"><strong>Current Garden</strong><p>Healthy NOW; not moved.</p></div>
+<div class="place"><strong>Finn's connector</strong><p>Revised PAPER proposal, not a built path.</p></div>
+<div class="place" id="steps-world"><strong>Lower Lantern Steps</strong><p id="steps-world-note">Lower model lamps OFF. Upper hill CLOSED.</p></div></div>
+<p id="stage" class="paper" role="status"></p><p class="paper" aria-live="polite"><strong id="speaker"></strong>: <span id="line"></span></p>
+<section id="step-scene" class="panel"><h2>Walk, test the light, change viewpoint</h2>
+<p>Finn proposes a small reversible model. Milo inspects the CLOSED boundary, tries two lower lamps, then compares the SAME three marks from different safe places.</p>
+<div class="anchors" aria-label="Connected synthetic lower viewpoints"><div class="anchor" data-anchor="base">Base</div><div class="anchor" data-anchor="lower-landing">Lower landing</div><div class="anchor" data-anchor="side">Side viewpoint</div></div>
+<p id="milo" class="paper"></p><div id="walk-controls" class="controls"></div><p id="inspected" class="paper"></p>
+<div class="columns"><section class="panel"><h2>Inspect and try two lower lamps</h2><div id="inspect-controls" class="controls"></div><div id="lamp-controls" class="controls"></div><p id="lamp-state" class="paper" role="status"></p><p id="parent" class="paper"></p></section>
+<section class="panel"><h2>Observe and compare</h2><div id="observe-controls" class="controls"></div><p id="first" class="paper"></p><p id="second" class="paper"></p><p id="comparison" class="paper" role="status"></p></section></div>
+<div class="columns"><section class="panel"><h2>Synthetic fixed-marker plan</h2><div id="map" class="map" role="img" aria-label="Synthetic fixed markers and safe viewpoint"></div>
+<p>A, B, C = fixed marks · M = Milo · no upper-hill walking. Pale marks without both lamps are not usable evidence.</p></section>
+<section class="panel"><h2>PAPER Chronicle and next question</h2><p id="note" class="paper" role="status"></p><p id="hook" class="paper"></p></section></div></section>
+<section id="connector-revisit" class="panel" hidden><h2>Look back at Finn's PAPER connector</h2>
+<p>Finn revised a model to consider Milo, another traveler and water. The Current Garden remains healthy. Nothing was built or unlocked. This is a read-only callback, not verified E07 progress.</p></section>
+<section class="panel"><h2>Revisit or restart</h2><div id="nav-controls" class="controls"></div>
+<p><small>Touch, Tab, Enter and Space work. No dragging, score, timer, flashing, sound, storage, real wiring, construction or production unlock.</small></p></section>
+<script type="module" src="./main.mjs"></script></main></body></html>
