@@ -2,8 +2,12 @@ import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {MARKERS,VIEWPOINTS} from '../engine/s01e08-authoring-prototype.mjs';
 import {view as viewE07} from '../e07-scene/scene-model.mjs';
 import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
-const incoming=decodeStepsTransfer(location.hash);
-let state=incoming?.e08||fresh(),linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;const $=id=>document.getElementById(id);
+import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
+import {fresh as freshE09} from '../e09-scene/scene-model.mjs';
+const hillIncoming=decodeHillTransfer(location.hash);
+const incoming=hillIncoming||decodeStepsTransfer(location.hash);
+let state=incoming?.e08||fresh(),linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
+let linkedE09=hillIncoming?.e09||null;const $=id=>document.getElementById(id);
 const a=(type,key,value)=>({scene:'story',action:key?{type,[key]:value}:{type}});
 const n=type=>({scene:'nav',type});
 const rows=[
@@ -33,7 +37,7 @@ const groups={'walk-controls':rows.slice(0,4),'inspect-controls':rows.slice(4,9)
  'trace-controls':rows.slice(14,17),'nav-controls':rows.slice(17)};
 for(const [host,items] of Object.entries(groups))for(const [key,label,action] of items){
  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
- b.addEventListener('click',()=>{state=dispatch(state,action);render();});$(host).append(b);
+ b.addEventListener('click',()=>{if(action.scene==='nav'&&action.type==='restart')linkedE09=null;state=dispatch(state,action);render();});$(host).append(b);
 }
 const spread=o=>o?o.viewpoint.replaceAll('-',' ')+' · fixed marks A/B/C · apparent spread '+o.spreadDegrees.toFixed(1)+'°':'Not observed yet';
 function draw(v){
@@ -101,6 +105,11 @@ function render(){
    'No E08 PAPER viewpoint record yet.');
  const back=$('e07-return'),fragment=linkedE07&&encodeStepsTransfer(linkedE07,state,linkedE06);
  back.hidden=!fragment;if(fragment)back.href='../e07-scene/'+fragment;
+ const hill=$('e09-transfer'),hillFragment=v.lowerLightsPaperOn&&encodeHillTransfer(state,linkedE09||freshE09(),linkedE07,linkedE06);
+ hill.hidden=!hillFragment;if(hillFragment)hill.href='../e09-scene/'+hillFragment;
+ $('e09-callback').textContent=linkedE09&&v.lowerLightsPaperOn?
+  'E09 PAPER return: '+linkedE09.history.length+' recorded model steps; upper hill remains CLOSED.':
+  'The safe hill survey is a separate PAPER rehearsal, not a production unlock.';
  if(s.previewComplete){drawTrace(s,v.reviewMode);
   $('trace-detail').textContent=v.reviewMode==='first'?'FROM HERE: '+spread(s.firstView):
    v.reviewMode==='second'?'FROM THERE: '+spread(s.secondView):
