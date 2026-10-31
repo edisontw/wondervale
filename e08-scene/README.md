@@ -12,3 +12,7 @@ Verification: `node --test tests/season1-e08-scene-shell.test.mjs tests/season1-
 ## E07 ↔ E08 independent PAPER visit (2026-11-01)
 
 A strictly replayed child-checked E07 PAPER route walk to the unlit Steps BASE offers this separate E08 model. A direct E08 visit remains possible for authoring QA without inventing E07 completion. Both model lamps start OFF; only Milo's two-view experiment can complete the model result. Real Steps lights stay OFF and North Hill CLOSED. E08 restart clears only its own model; E07 restart invalidates linked E08. Optional E06 PAPER care may accompany the bounded URL fragment. No historical date, official Chronicle, production unlock, real wiring, access rights or approved art.
+
+## E08 ↔ E09 independent PAPER survey (2026-11-01)
+
+Only after Milo completes both lower-lamp model views and compares the fixed marks does a separate E09 authoring link appear. E09 receives strictly replayed E08 observations (including two apparent spreads), asks Milo to inspect the CLOSED hill from safe synthetic ground, and can return to E08 without losing either model's progress. E09 restart clears only E09; E08 restart invalidates its linked E09 rehearsal. Direct E09 access remains possible for authoring QA, but cannot fabricate E08 proof. Bounded URL fragments; no storage, rights, actual lighting, verified access, canonical Chronicle, official unlock or production release.
