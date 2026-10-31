@@ -17,6 +17,7 @@ try{
    await page.evaluate(()=>localStorage.setItem('e10-paper-sentinel','keep'));
    assert.equal(await b('walk','stone_edge').isDisabled(),true);
    assert.equal(await b('finish-paper').isDisabled(),true);
+   assert.equal(await page.locator('#paper-comparison').isVisible(),false);
    await hit('start');
    assert.equal(await b('walk','meeting_edge').isDisabled(),true);
    await hit('compare-symbol');
@@ -41,6 +42,16 @@ try{
    assert.match(await page.locator('#line').innerText(),/UNKNOWN/);
    await hit('review-tradeoff');await hit('review');await hit('finish-paper');
    assert.match(await page.locator('#stage').innerText(),/finished/);
+   assert.equal(await page.locator('#paper-comparison').isVisible(),true);
+   assert.match(await page.locator('#comparison-summary').innerText(),/NOW: Milo moved/);
+   assert.equal(await page.locator('#comparison-board [data-occupied="true"]').count(),2);
+   assert.equal(await page.locator('#comparison-evidence [data-trace]').count(),2);
+   await page.locator('#compare-first').click();
+   assert.equal(await page.locator('#compare-first').getAttribute('aria-pressed'),'true');
+   assert.equal(await page.locator('#comparison-board [data-conflict="true"]').count(),1);
+   assert.match(await page.locator('#comparison-summary').innerText(),/FIRST: Milo tested/);
+   await page.locator('#compare-now').click();
+   assert.equal(await page.locator('#comparison-board [data-conflict="true"]').count(),0);
    const hook=await page.locator('#hook').innerText();
    assert.match(hook,/UNKNOWN/);assert.match(hook,/E11 NOT UNLOCKED/);
    assert.equal(/\bCommon\b/.test(hook),false);
@@ -49,8 +60,10 @@ try{
    await page.locator('#e09-callback').click();
    assert.equal(await page.locator('#e09-notes').isVisible(),true);
    assert.equal(await page.locator('#e10-work').isVisible(),false);
+   assert.equal(await page.locator('#paper-comparison').isVisible(),false);
    await page.locator('#e10-back').click();
    assert.equal(await page.locator('#e10-work').isVisible(),true);
+   assert.equal(await page.locator('#paper-comparison').isVisible(),true);
    assert.match(await page.locator('#stage').innerText(),/finished/);
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['e10-paper-sentinel']);
    const g=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,
@@ -59,6 +72,7 @@ try{
    for(const x of g.buttons)assert.ok(x.w>=43.5&&x.h>=43.5,JSON.stringify(x));
    await page.locator('#restart').click();
    assert.match(await page.locator('#stage').innerText(),/opening/);
+   assert.equal(await page.locator('#paper-comparison').isVisible(),false);
    await page.reload();
    assert.match(await page.locator('#stage').innerText(),/opening/);
    assert.deepEqual(errors,[]);
