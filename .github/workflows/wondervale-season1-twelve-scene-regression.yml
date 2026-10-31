@@ -1,0 +1,162 @@
+name: Wondervale Season 1 twelve-scene evidence regression (NOT production acceptance)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'tests/season1-twelve-scene-acceptance.test.mjs'
+      - '.github/workflows/wondervale-season1-twelve-scene-regression.yml'
+      - 'e02/**'
+      - 'e03/**'
+      - 'e*-scene/**'
+      - 'authoring-labs/arc1-hill-unnamed-loop-handoff*'
+      - 'engine/s01e0*.mjs'
+      - 'engine/s01e1*.mjs'
+  push:
+    branches: [main]
+    paths:
+      - 'tests/season1-twelve-scene-acceptance.test.mjs'
+      - '.github/workflows/wondervale-season1-twelve-scene-regression.yml'
+      - 'e*-scene/**'
+      - 'authoring-labs/arc1-hill-unnamed-loop-handoff*'
+permissions:
+  contents: read
+
+jobs:
+  canonical-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify unchanged E01-E03 source and isolated release packages
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_production_assets.py
+          python3 scripts/verify_episode_media.py
+          npm run build
+          python3 scripts/compile_e03.py
+          git diff --exit-code -- public/s01e03.json
+          python3 scripts/package_static.py
+          python3 scripts/package_e02.py
+          python3 scripts/package_e03.py
+      - name: Real canonical state, E03/E04/E05 source gates, and twelve-slot inventory
+        run: |
+          set -euo pipefail
+          node --check tests/season1-twelve-scene-acceptance.test.mjs
+          node --test tests/engine.test.mjs tests/s01e02.test.mjs tests/s01e03.test.mjs tests/s01e03-e04-handoff.test.mjs tests/season1-twelve-scene-acceptance.test.mjs
+      - name: Install pinned Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: E02 real browser, then E03 packaged browser (separate servers)
+        run: |
+          set -euo pipefail
+          server_pid=''
+          cleanup() {
+            if [ -n "$server_pid" ]; then kill "$server_pid" 2>/dev/null || true; wait "$server_pid" 2>/dev/null || true; fi
+          }
+          trap cleanup EXIT
+          start() {
+            local root="$1" url="$2" logfile="$3"
+            python3 -m http.server 4173 --bind 127.0.0.1 --directory "$root" >"$logfile" 2>&1 &
+            server_pid=$!
+            local ready=0
+            for attempt in $(seq 1 40); do
+              if curl -fsS "http://127.0.0.1:4173$url" >/dev/null 2>&1; then ready=1; break; fi
+              if ! kill -0 "$server_pid" 2>/dev/null; then break; fi
+              sleep 0.25
+            done
+            if [ "$ready" -ne 1 ]; then cat "$logfile"; exit 1; fi
+          }
+          start . /e02/ /tmp/s1-e02-server.log
+          node tests/s01e02-browser.mjs
+          cleanup
+          server_pid=''
+          start dist/wondervale-e03-preview /e03/ /tmp/s1-e03-server.log
+          node tests/s01e03-browser.mjs
+      - name: Upload canonical browser and coverage evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: season1-canonical-boundary-evidence
+          path: |
+            test-results/season1-twelve-scene-evidence.json
+            test-results/e02-*
+            test-results/e03-*
+          if-no-files-found: ignore
+          retention-days: 7
+
+  paper-continuity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prevent authoring-only content leaking into release allowlists
+        run: |
+          set -euo pipefail
+          if grep -n -E 'e0[5-9]-scene|e1[01]-scene|arc1-hill-unnamed-loop-handoff' scripts/package_static.py scripts/package_e02.py scripts/package_e03.py scripts/compile_episode.py; then
+            echo 'ERROR: PAPER scene referenced by production packaging' >&2
+            exit 1
+          fi
+      - name: Strict E04-E11 paper replay, reset, source and handoff tests
+        run: |
+          set -euo pipefail
+          node --test \
+            tests/s01e04-chronology.test.mjs \
+            tests/s01e05-authoring-prototype.test.mjs \
+            tests/s01e06-authoring-prototype.test.mjs \
+            tests/s01e07-authoring-prototype.test.mjs \
+            tests/s01e08-authoring-prototype.test.mjs \
+            tests/s01e09-authoring-prototype.test.mjs \
+            tests/s01e10-authoring-prototype.test.mjs \
+            tests/s01e11-authoring-prototype.test.mjs \
+            tests/season1-handoff-contract.test.mjs \
+            tests/season1-chain-continuity.test.mjs \
+            tests/season1-e05-scene-shell.test.mjs \
+            tests/season1-e06-scene-shell.test.mjs \
+            tests/season1-e07-scene-shell.test.mjs \
+            tests/season1-e08-scene-shell.test.mjs \
+            tests/season1-e09-scene-shell.test.mjs \
+            tests/season1-e11-scene-shell.test.mjs \
+            tests/season1-arc1-hill-unnamed-loop-handoff.test.mjs
+      - name: Install pinned Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Eight distinct PAPER spaces plus E03-E11 integrated browser journey
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory . >/tmp/s1-paper-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:4173/authoring-labs/arc1-hill-unnamed-loop-handoff.html >/dev/null 2>&1; then ready=1; break; fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then break; fi
+            sleep 0.25
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/s1-paper-server.log; exit 1; fi
+          node tests/season1-e05-scene-shell-browser.mjs
+          node tests/season1-e06-scene-shell-browser.mjs
+          node tests/season1-e07-scene-shell-browser.mjs
+          node tests/season1-e08-scene-shell-browser.mjs
+          node tests/season1-e09-scene-shell-browser.mjs
+          node tests/season1-e10-scene-shell-browser.mjs
+          node tests/season1-e11-scene-shell-browser.mjs
+          node tests/season1-arc1-hill-unnamed-loop-handoff-browser.mjs
+      - name: Upload paper-only browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: season1-paper-continuity-evidence
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
