@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>E06 Two Gardens — isolated PAPER scenes</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#243c35;background:#f1f2e9}*{box-sizing:border-box}
+body{margin:0}main{max-width:1020px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#305745;color:white;padding:.8rem;border-radius:.65rem}
+h1{font-size:1.35rem;margin:.2rem 0}h2{font-size:1.1rem;margin:.25rem 0}
+.notice{background:#fff0c9;border-left:5px solid #93651b;padding:.7rem;margin:.7rem 0;line-height:1.5}
+.panel{background:white;border:1px solid #b4c6b8;border-radius:.65rem;padding:.7rem;margin:.65rem 0}
+.world{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.place{border:2px solid #a0b4a6;background:#eaf1e7;border-radius:.5rem;padding:.65rem;min-width:0}
+.place[data-done=true]{background:#d8e9d0;border-color:#547d58}
+.diagram{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem;margin:.7rem 0}
+.tile{min-height:78px;padding:.55rem;border-radius:.5rem;border:2px dashed #87a89a;background:#edf5eb;overflow-wrap:anywhere}
+.tile.water{background:#dbeaf2;border-color:#7b9eb5}
+.tile.path{background:#f4e9d5;border-color:#b69a69}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{font:inherit;min-height:44px;max-width:100%;padding:.5rem .7rem;border:2px solid #49725c;border-radius:.45rem;background:white;color:#214734;cursor:pointer;overflow-wrap:anywhere}
+button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
+.paper{background:#edf2e9;border:1px dashed #9aaf9f;border-radius:.4rem;padding:.65rem;line-height:1.5;margin:.4rem 0;overflow-wrap:anywhere}
+[hidden]{display:none!important}
+@media(max-width:650px){.world{grid-template-columns:1fr}.diagram{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:.55rem}}
+</style></head><body><main>
+<header><h1>E06 — The Garden That Moved</h1><div>Two distinct child-controlled PAPER scenes · Current Garden / Lower Garden</div></header>
+<p class="notice"><strong>AUTHORING ONLY — NOT THE PRODUCTION GAME.</strong> Both floor plans, water flow and planting markers are synthetic. No approved site access, source chronology, planting/care permission, real growth, canonical Chronicle, E07 unlock, saved progress, or MN4 release. The healthy present garden stays. North Hill remains CLOSED.</p>
+<div class="world" aria-label="Visible reversible paper-world state">
+<div class="place" id="current-world"><strong>Current Garden</strong><p id="current-world-note"></p></div>
+<div class="place" id="lower-world"><strong>Lower Garden</strong><p id="lower-world-note"></p></div></div>
+<p id="stage" class="paper" role="status"></p>
+<p class="paper" aria-live="polite"><strong id="speaker"></strong>: <span id="line"></span></p>
+<p id="milo" class="paper"></p>
+<section id="current-scene" class="panel"><h2>Scene 06 · Healthy Current Garden</h2>
+<p>Walk Milo, inspect what exists NOW, then compare dry/rain water on a detachable MODEL tray. The tray cannot prove why the real garden moved.</p>
+<div class="diagram" aria-label="Synthetic Current Garden model">
+<div class="tile">Healthy bed<br>NOW</div><div class="tile">Slope<br>Higher / lower</div><div class="tile path">Shared path<br>Keep clear</div>
+<div class="tile water">MODEL tray<br>DRY / RAIN</div><div class="tile water">Channel<br>OPEN / BLOCKED</div><div class="tile">Garden stays<br>No transplant</div></div>
+<p id="upper-observations" class="paper"></p><p id="tray" class="paper"></p>
+<div id="current-actions" class="controls"></div></section>
+<section id="lower-scene" class="panel" hidden><h2>Scene 07 · Lower Garden Pocket</h2>
+<p>This is a DIFFERENT paper place. Walk Milo to inspect water and public access. Try a marker, see what fails, move it, and keep only a small provisional plan.</p>
+<div class="diagram" aria-label="Synthetic Lower Garden model">
+<div class="tile water">Runoff trace<br>Wet in MODEL</div><div class="tile path">Public path<br>People pass</div><div class="tile water">Runoff channel<br>Keep open</div>
+<div class="tile path">Footpath<br>Do not block</div><div class="tile">Raised pocket<br>Temporary marker</div><div class="tile">Future growth<br>NOT APPROVED</div></div>
+<p id="lower-observations" class="paper"></p><p id="marker" class="paper"></p>
+<div id="lower-actions" class="controls"></div></section>
+<section class="panel"><h2>Revisit the two places</h2><div id="nav-actions" class="controls"></div>
+<p id="note" class="paper" role="status"></p><p id="parent" class="paper"></p>
+<p><small>Touch, Tab, Enter and Space use the same controls. No precision dragging, score, voice, timer, network writes or localStorage. Returning to Current Garden is a read-only visit after entering Lower Garden; the completed rain model remains visible. Restart clears only these PAPER scenes.</small></p></section>
+<script type="module" src="./main.mjs"></script>
+</main></body></html>
