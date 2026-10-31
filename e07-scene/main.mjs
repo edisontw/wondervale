@@ -1,0 +1,61 @@
+import {fresh,dispatch,can,view} from './scene-model.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+const a=(type,value)=>({scene:'story',action:value===undefined?{type}:{type,value}});
+const n=type=>({scene:'nav',type});
+const rows=[
+ ['start','Begin Finn’s PAPER idea',a('start')],
+ ['walk-entry','Walk Milo to Entry',a('walk','entry')],
+ ['walk-shared','Walk Milo to Shared Path',a('walk','shared-path')],
+ ['inspect-shared','Look: shared path',a('inspect','shared-path')],
+ ['walk-channel','Walk Milo to Water Channel',a('walk','channel')],
+ ['inspect-channel','Look: water route',a('inspect','channel')],
+ ['walk-workbench','Walk Milo to Model Bench',a('walk','workbench')],
+ ['test-milo','Test Milo',a('trial','milo')],
+ ['test-resident','Test another traveler',a('trial','resident')],
+ ['test-water','Test water',a('trial','water')],
+ ['place-water','Move piece: path clear, water blocked',a('place','path-clear-water-blocked')],
+ ['place-path','Move piece: water clear, path blocked',a('place','channel-clear-path-blocked')],
+ ['place-upper','Move piece: upper detour',a('place','side-offset')],
+ ['place-lower','Move piece: lower detour',a('place','lower-offset')],
+ ['undo','Undo piece',a('undo')],
+ ['compare','Compare FIRST / NOW',a('compare')],
+ ['finish','Keep PAPER proposal',a('finish')],
+ ['garden','Review two garden PAPER contexts',n('garden')],
+ ['connector','Return to connector',n('connector')],
+ ['restart','Restart E07 PAPER story',n('restart')]
+];
+const groups={'walk-controls':rows.slice(0,7),'test-controls':rows.slice(7,10),
+ 'piece-controls':rows.slice(10,15),'compare-controls':rows.slice(15,17),'nav-controls':rows.slice(17)};
+for(const [host,items] of Object.entries(groups))for(const [key,label,action] of items){
+ const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
+ b.addEventListener('click',()=>{state=dispatch(state,action);render();});$(host).append(b);
+}
+const names={milo:'Milo',resident:'Traveler',water:'Water'};
+const results=t=>['milo','resident','water'].map(k=>names[k]+': '+(t[k]?(t[k].pass?'PASS':'BLOCKED'):'NOT TESTED')).join(' · ');
+function draw(layout){
+ const root=$('board');root.replaceChildren();const C=new Set(layout.footprint),P=new Set(layout.traces.resident.path),W=new Set(layout.traces.water.path);
+ let conflicts=0;
+ for(let y=0;y<7;y++)for(let x=0;x<8;x++){const id=x+','+y,c=C.has(id),p=P.has(id),w=W.has(id),el=document.createElement('div');
+ el.className='cell';el.dataset.conflict=String(c&&(p||w));if(c&&(p||w))conflicts++;
+ el.textContent=c&&(p||w)?'X':c?'C':p?'P':w?'W':'·';root.append(el);}
+ root.setAttribute('aria-label','Synthetic connector grid, '+conflicts+' overlap cells');
+}
+function render(){
+ const v=view(state),s=v.story;
+ $('connector-scene').hidden=v.screen!=='connector';$('garden-revisit').hidden=v.screen!=='garden';
+ $('stage').textContent='E07 '+s.stage+' · '+v.screen+' · production LOCKED';
+ $('speaker').textContent=s.speaker;$('line').textContent=s.line;
+ $('milo').textContent='Milo at '+s.milo.replaceAll('-',' ');
+ $('observed').textContent='Looked at: '+(s.observed.join(', ')||'nothing yet');
+ $('first').textContent='FIRST — '+results(s.firstTrials);$('now').textContent='NOW — '+results(s.revisedTrials);
+ $('layout').textContent='Model footprint: '+s.layout.layout+' · Milo route steps: '+s.layout.traces.milo.steps;
+ $('connector-world').dataset.done=String(v.connectorPaperRevised);
+ $('connector-world-note').textContent=v.connectorPaperRevised?'Revised PAPER proposal visible. No real route built.':'FIRST model needs testing.';
+ $('note').textContent=s.paperNote;
+ $('parent').textContent='Optional parent cue: '+(s.parentCue||'Who else uses this space?');
+ $('hook').textContent=v.connectorPaperRevised?'Next: Lantern Steps BASE. Lights OFF. No E08 unlock.':'Lantern Steps not yet open.';
+ draw(s.layout);
+ for(const [key,,action] of rows)document.querySelector('[data-key="'+key+'"]').disabled=!can(state,action);
+ for(const el of document.querySelectorAll('[data-anchor]'))el.dataset.here=String(el.dataset.anchor===s.milo);
+}
+render();

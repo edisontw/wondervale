@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>E07 Finn’s Shortcut — PAPER scene</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#234034;background:#f2f2e9}*{box-sizing:border-box}body{margin:0}main{max-width:1050px;margin:auto;padding:clamp(.5rem,2vw,1rem)}
+header{background:#315648;color:white;border-radius:.6rem;padding:.8rem}h1{font-size:1.35rem;margin:.2rem 0}h2{font-size:1.1rem;margin:.3rem 0}
+.notice{background:#fff0c9;border-left:5px solid #95651b;padding:.7rem;margin:.7rem 0;line-height:1.5}
+.panel{background:white;border:1px solid #b4c7b9;border-radius:.6rem;padding:.7rem;margin:.65rem 0;min-width:0}
+.world{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.place{background:#e7f0e6;border:2px solid #a6bcae;border-radius:.5rem;padding:.6rem;min-width:0}
+.place[data-done=true]{background:#d5e8d2;border-color:#487b55}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
+button{font:inherit;min-height:44px;min-width:44px;max-width:100%;padding:.45rem .65rem;border:2px solid #50715e;border-radius:.45rem;background:white;color:#244b36;cursor:pointer;overflow-wrap:anywhere}
+button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px solid #a96e1d;outline-offset:2px}
+.paper{background:#eef3e9;border:1px dashed #95ab9a;border-radius:.4rem;padding:.65rem;line-height:1.5;margin:.45rem 0;overflow-wrap:anywhere}
+.anchors{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.3rem}
+.anchor{background:#e8eee2;padding:.55rem .25rem;text-align:center;border-radius:.35rem;overflow-wrap:anywhere}.anchor[data-here=true]{outline:3px solid #a47b29}
+.board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:2px;background:#c2d1c3;padding:.25rem;border-radius:.4rem}
+.cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;background:#f8faf5;font-size:clamp(.6rem,1.6vw,.85rem);font-weight:700}.cell[data-conflict=true]{background:#edb8a4}
+[hidden]{display:none!important}@media(max-width:700px){.columns,.world{grid-template-columns:1fr}.panel{padding:.55rem}.anchors{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style></head><body><main>
+<header><h1>E07 — Finn’s Perfect Shortcut</h1><div>Scene 08 of 12 · independent child-controlled PAPER model</div></header>
+<p class="notice"><strong>AUTHORING ONLY — NOT THE PRODUCTION GAME.</strong> Synthetic model, not real paving, drainage or clearance. No verified E06 completion, construction/access permission, history, approved art, canonical Chronicle, E08 unlock, saved progress or MN4 release. North Hill CLOSED.</p>
+<div class="world" aria-label="Visible PAPER world">
+<div class="place"><strong>Current Garden</strong><p>Healthy NOW; not moved.</p></div>
+<div class="place"><strong>Lower Garden</strong><p>Provisional unbuilt PAPER pocket.</p></div>
+<div class="place" id="connector-world"><strong>Finn’s connector</strong><p id="connector-world-note"></p></div></div>
+<p id="stage" class="paper" role="status"></p><p class="paper" aria-live="polite"><strong id="speaker"></strong>: <span id="line"></span></p>
+<section id="connector-scene" class="panel"><h2>Walk, test and redesign</h2>
+<p>Finn’s FIRST short model works for Milo. Try another traveler and water, then move a removable piece and retest. A mistake is a chance to learn.</p>
+<div class="anchors" aria-label="Connected synthetic walking anchors"><div class="anchor" data-anchor="entry">Entry</div><div class="anchor" data-anchor="shared-path">Shared path</div><div class="anchor" data-anchor="channel">Water channel</div><div class="anchor" data-anchor="workbench">Model bench</div></div>
+<p id="milo" class="paper"></p><div id="walk-controls" class="controls"></div><p id="observed" class="paper"></p>
+<div class="columns"><section class="panel"><h2>Three model users</h2><div id="test-controls" class="controls"></div><p id="first" class="paper" role="status"></p><p id="now" class="paper" role="status"></p><p id="parent" class="paper"></p></section>
+<section class="panel"><h2>Move and compare</h2><div id="piece-controls" class="controls"></div><div id="compare-controls" class="controls"></div><p id="layout" class="paper"></p></section></div>
+<div class="columns"><section class="panel"><h2>Synthetic 8 × 7 board</h2><div id="board" class="board" role="img" aria-label="Synthetic connector board"></div><p>C = connector · P = traveler · W = water · X = overlap. No real paving is implied.</p></section>
+<section class="panel"><h2>PAPER Chronicle and hook</h2><p id="note" class="paper" role="status"></p><p id="hook" class="paper"></p></section></div></section>
+<section id="garden-revisit" class="panel" hidden><h2>Look back at two garden places</h2><p>Current Garden stays healthy. Lower Garden has only a removable PAPER pocket. Finn’s model changed neither place. This is a story callback, not restored E06 save data or proof of E06 completion.</p></section>
+<section class="panel"><h2>Revisit or restart</h2><div id="nav-controls" class="controls"></div><p><small>Touch, Tab, Enter and Space work. No precision dragging, score, timer, prerecorded audio, network writes, localStorage, construction or production unlock.</small></p></section>
+<script type="module" src="./main.mjs"></script></main></body></html>
