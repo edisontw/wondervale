@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fresh,dispatch,restore,projection} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperRevisit} from '../e11-scene/revisit-model.mjs';
+import {inspectPaperRole} from '../e11-scene/role-inspection.mjs';
 
 test('independent E11 scene imports only fictional reducer and has an honest closed gate',()=>{
  const html=readFileSync(new URL('../e11-scene/index.html',import.meta.url),'utf8');
@@ -44,6 +45,21 @@ test('FIRST/NOW world boards require strictly replayed child trials, and never p
  assert.equal(paperRevisit(s),null,'no comparison before the child compares');
  act({type:'compare-trials',first:'trial-1',second:'trial-2'});
  const quiet=paperRevisit(s);
+ const wrong=inspectPaperRole(s,'quiet_reader','0,0');
+ assert.equal(wrong.found,false,'wrong FIRST cell is a safe retry');
+ assert.match(wrong.response,/look again/);
+ const reader=inspectPaperRole(s,'quiet_reader','0,1');
+ assert.equal(reader.found,true);
+ assert.match(reader.response,/FIRST quiet reader: RETRY/);
+ assert.match(reader.response,/NOW: PASS/);
+ assert.match(reader.nia,/Real people have not told us/);
+ assert.equal(reader.permissionApproved,false);
+ assert.deepEqual(reader.canonicalEvents,[]);
+ const activity=inspectPaperRole(s,'activity_group','0,2');
+ assert.equal(activity.found,true);
+ assert.match(activity.response,/FIRST activity group: PASS/);
+ assert.equal(inspectPaperRole(s,'quiet_reader','9,9'),null);
+ assert.equal(inspectPaperRole({...s,rights:['approved']},'quiet_reader','0,1'),null);
  assert.equal(quiet.firstPass,false);
  assert.equal(quiet.nowPass,true);
  assert.deepEqual(quiet.first.layout.activity,['0,2']);
@@ -72,6 +88,7 @@ test('FIRST/NOW world boards require strictly replayed child trials, and never p
  assert.equal(reviewed.historyApproved,false);
  act({type:'place',tokenId:'activity',cells:['2,2']});
  assert.equal(paperRevisit(s),null,'upstream layout change withdraws stale comparison');
+ assert.equal(inspectPaperRole(s,'quiet_reader','0,1'),null,'stale role talk is withdrawn');
  act({type:'reset'});
  assert.equal(paperRevisit(s),null);
 });
