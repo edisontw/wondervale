@@ -10,6 +10,7 @@ h1{font-size:1.35rem;margin:.15rem 0}h2{font-size:1.08rem;margin:.3rem 0}
 .world{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.45rem}
 .place{background:#e6eee2;border:2px solid #9db4a5;border-radius:.5rem;padding:.6rem;min-height:90px;line-height:1.5;overflow-wrap:anywhere}
 .place[data-done=true]{background:#d1e8c9;border-color:#497453}
+.place[data-stage=paper-sprout]{background:#c4e9ba;border-color:#376e43}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
 .panel{background:white;border:1px solid #b9c8bd;border-radius:.55rem;padding:.7rem;min-width:0;margin:.5rem 0}
 .paper{background:#edf2e8;border:1px dashed #95ab9b;border-radius:.45rem;padding:.65rem;line-height:1.5;margin:.45rem 0;overflow-wrap:anywhere}
@@ -38,14 +39,18 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <section class="panel" id="garden-panel" hidden><h2 id="garden-title">E06 · Current Garden</h2>
 <p id="garden-cue">Walk Milo to inspect the upper garden and run the PAPER rain tray.</p>
 <div id="garden-actions" class="controls"></div>
-<div id="garden-note" class="paper"></div></section>
+<div id="garden-note" class="paper"></div>
+<div id="care-panel" class="paper" hidden><strong>Lower Garden · child-tested PAPER care</strong>
+<div id="care-actions" class="controls"></div><div id="care-result" role="status"></div></div></section>
 <section class="panel" id="shortcut-panel" hidden><h2>E07 · Finn’s removable connector</h2>
 <p id="shortcut-cue">The lower PAPER pocket raises a new question: can Finn help Milo without blocking other people or water?</p>
 <div id="shortcut-actions" class="controls"></div>
 <div id="shortcut-first" class="paper">FIRST not tested.</div>
 <div id="shortcut-now" class="paper">NOW not tested.</div>
 <div id="shortcut-board" class="paper" role="img" aria-label="Synthetic eight by seven connector model"></div>
-<div id="shortcut-note" class="paper"></div></section>
+<div id="shortcut-note" class="paper"></div>
+<div id="care-bridge" class="paper" hidden><strong>E06 → E07 · Revisit the lower PAPER pocket</strong>
+<div id="care-bridge-actions" class="controls"></div><div id="care-bridge-result" role="status"></div></div></section>
 <section class="panel"><h2>What changes and what remains unknown?</h2>
 <div id="world-note" class="paper"></div>
 <p id="parent" class="paper">Parent: let Milo try first.</p>
@@ -61,6 +66,8 @@ const arc=(scene,type,x)=>({scene:'upstream',action:{scene:'arc1',action:scene==
 const station=(type,value)=>arc('e05',type,value===undefined?undefined:{value});
 const garden=(type,value)=>({scene:'upstream',action:{scene:'garden',action:value===undefined?{type}:{type,value}}});
 const shortcut=(type,value)=>({scene:'shortcut',action:value===undefined?{type}:{type,value}});
+const care=(type,value)=>value===undefined?{scene:'care',type}:{scene:'care',type,value};
+const checkCare={scene:'care-callback',type:'observe'};
 function group(id,rows){
  const el=$(id);el.replaceChildren();
  for(const [key,label,action] of rows){
@@ -99,18 +106,23 @@ function render(){
  $('shortcut-panel').hidden=!atShortcut;
  $('station-world').dataset.done=String(v.stationMapRoomPaper);
  $('lower-world').dataset.done=String(v.lowerPocketPaper);
+ $('lower-world').dataset.stage=v.care.stage;
  $('connector-world').dataset.done=String(v.connectorPaperRevised);
  $('station-state').textContent=v.stationMapRoomPaper?'Small PAPER Map Room; walkway clear.':'Paper Map Room not built.';
  $('current-state').textContent='Healthy beds stay. '+(v.currentGardenCompared?'PAPER rain compared.':'Rain question open.');
- $('lower-state').textContent=v.lowerPocketPaper?'Raised PAPER pocket marked. Not real planting.':
+ $('lower-state').textContent=v.lowerPaperGrowthVisible?
+  'Raised PAPER pocket: hypothetical sprout after child-tested water. NOT real growth.':
+  v.care.stage==='paper-soggy'?'Raised PAPER pocket: soggy seed, gentle retry possible.':
+  v.lowerPocketPaper?'Raised PAPER pocket marked. Not real planting.':
   v.lowerGardenVisited?'Milo is testing removable paper markers.':'No lower pocket trial.';
  $('connector-state').textContent=v.connectorPaperRevised?
-  'FIRST/NOW PAPER connector revised; not built.':
+  'FIRST/NOW PAPER connector revised; not built.'+(v.careCheckedInE07?' Milo checked the hypothetical lower pocket.':''):
   t.stage==='opening'?'Finn’s FIRST idea is untested.':'Finn is testing a removable connector.';
  $('status').textContent='Stage: '+v.stage+' / '+(atShortcut?t.stage:atGarden?'garden / '+g.phase:a.stage)+
   ' · E05 PAPER finished: '+a.stationPaperFinished+
   ' · Lower PAPER pocket: '+v.lowerPocketPaper+
-  ' · E07 PAPER revised: '+v.connectorPaperRevised+' · production unlock: false';
+  ' · E07 PAPER revised: '+v.connectorPaperRevised+
+  ' · E06 PAPER care compared: '+v.lowerPaperGrowthVisible+' · production unlock: false';
  $('dialogue').textContent=(atShortcut?t.speaker:atGarden?g.speaker:a.speaker)+': '+(atShortcut?t.line:atGarden?g.line:a.line);
  $('world-note').textContent=v.paperNote+
   ' Source dates UNKNOWN. Real water, planting and access UNKNOWN. No production Chronicle.';
@@ -129,6 +141,15 @@ function render(){
   ['restart-all','Restart all PAPER stories',nav('restart-all')]
  ]);
  if(atShortcut){
+  $('care-bridge').hidden=false;
+  group('care-bridge-actions',[
+   ['observe-care','Milo: compare E06 care with Finn’s water channel',checkCare]
+  ]);
+  $('care-bridge-result').textContent=v.careCheckedInE07?
+   'BEFORE: removable seed marker. NOW: hypothetical PAPER sprout. Finn’s revised MODEL water trial PASSED; actual planting, runoff and access NOT CHECKED.':
+   v.lowerPaperGrowthVisible?
+    'PAPER sprout from E06 is visible. Inspect the E07 channel, test all three users, and revise Finn’s model until water PASSES before comparing.':
+    'No child-tested E06 PAPER care result yet. Return to E06 after the lower pocket plan; no real growth is implied.';
   group('shortcut-actions',[
    ['shortcut-start','Hear Finn’s idea',shortcut('start')],
    ...['entry','shared-path','channel','workbench'].map(id=>
@@ -217,6 +238,18 @@ function render(){
     ['finish-garden','Finish PAPER pocket',garden('finish')]);
   }
   group('garden-actions',rows);
+  $('care-panel').hidden=g.phase!=='finished';
+  if(g.phase==='finished'){
+   group('care-actions',[
+    ['care-heavy','Try LOTS of MODEL water',care('choose','heavy')],
+    ['care-gentle','Try a LITTLE MODEL water',care('choose','gentle')],
+    ['care-test','Test removable PAPER seed',care('test')],
+    ['care-compare','Compare PAPER BEFORE / NOW',care('compare')]
+   ]);
+   $('care-result').textContent='PAPER stage: '+v.care.stage+
+    ' · '+v.care.trials.map(x=>x.choice+' → '+x.result).join(' · ')+
+    (v.care.compared?' · hypothetical growth, not real planting.':' · test both amounts, gentle last.');
+  }
   $('garden-note').textContent='Milo at '+g.milo+' · current observations '+g.observedCurrent.join(', ')+
    ' · rain runs '+g.runs.length+' · lower observations '+g.observedLower.join(', ')+
    ' · marker '+(g.markerSite??'not placed')+

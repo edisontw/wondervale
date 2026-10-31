@@ -36,11 +36,20 @@ try{
     'walk-raised-pocket','place-raised-pocket','check-marker','think-path','finish-garden'])await hit(k);
    assert.match(await page.locator('#lower-state').innerText(),/Raised PAPER pocket/);
    assert.match(await page.locator('#current-state').innerText(),/Healthy beds stay/);
+   assert.equal(await b('care-compare').isDisabled(),true);
+   for(const k of ['care-heavy','care-test'])await hit(k);
+   assert.match(await page.locator('#lower-state').innerText(),/soggy seed/);
+   for(const k of ['care-gentle','care-test','care-compare'])await hit(k);
+   assert.match(await page.locator('#lower-state').innerText(),/hypothetical sprout/);
+   assert.match(await page.locator('#care-result').innerText(),/paper-sprout/);
    await hit('to-shortcut');
+   assert.equal(await b('observe-care').isDisabled(),true);
    assert.match(await page.locator('#status').innerText(),/shortcut \/ opening/);
    for(const k of ['shortcut-start','shortcut-walk-shared-path','shortcut-inspect-shared-path',
     'shortcut-walk-channel','shortcut-inspect-channel','shortcut-walk-workbench',
     'shortcut-trial-milo','shortcut-trial-resident','shortcut-trial-water'])await hit(k);
+   assert.equal(await b('observe-care').isDisabled(),true);
+   assert.match(await page.locator('#lower-state').innerText(),/hypothetical sprout/);
    assert.match(await page.locator('#shortcut-first').innerText(),/resident: BLOCKED/);
    assert.ok(await page.locator('#shortcut-board [data-conflict="true"]').count()>0);
    await hit('shortcut-place-path-clear-water-blocked');
@@ -50,14 +59,21 @@ try{
    for(const k of ['shortcut-trial-water','shortcut-trial-milo','shortcut-trial-resident'])await hit(k);
    assert.equal(await page.locator('#shortcut-board [data-conflict="true"]').count(),0);
    await hit('shortcut-compare');await hit('shortcut-finish');
+   assert.equal(await b('observe-care').isDisabled(),false);
+   await hit('observe-care');
+   assert.match(await page.locator('#care-bridge-result').innerText(),/BEFORE.*NOW/);
+   assert.match(await page.locator('#care-bridge-result').innerText(),/MODEL water trial PASSED/);
+   assert.match(await page.locator('#care-bridge-result').innerText(),/NOT CHECKED/);
    assert.match(await page.locator('#connector-state').innerText(),/revised/);
    await hit('to-upstream');
    assert.match(await page.locator('#connector-state').innerText(),/revised/);
+   assert.match(await page.locator('#lower-state').innerText(),/hypothetical sprout/);
    await hit('to-shortcut');
    assert.match(await page.locator('#status').innerText(),/shortcut \/ finished/);
    await hit('restart-shortcut');
    assert.match(await page.locator('#status').innerText(),/shortcut \/ opening/);
-   assert.match(await page.locator('#lower-state').innerText(),/Raised PAPER pocket/);
+   assert.match(await page.locator('#lower-state').innerText(),/hypothetical sprout/);
+   assert.equal(await b('observe-care').isDisabled(),true);
    await hit('to-upstream');
    await hit('to-arc1');
    assert.match(await page.locator('#lower-state').innerText(),/Raised PAPER pocket/);
@@ -75,6 +91,7 @@ try{
    assert.match(await page.locator('#status').innerText(),/garden \/ opening/);
    assert.match(await page.locator('#station-state').innerText(),/Map Room/);
    assert.match(await page.locator('#lower-state').innerText(),/No lower pocket trial/);
+   assert.match(await page.locator('#status').innerText(),/E06 PAPER care compared: false/);
    await hit('to-arc1');await hit('to-e04');await hit('to-e05');
    await hit('restart-e04');
    assert.equal(await b('to-garden').isDisabled(),true);
