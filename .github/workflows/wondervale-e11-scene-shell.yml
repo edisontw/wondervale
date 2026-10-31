@@ -1,0 +1,54 @@
+name: Wondervale E11 independent shared-space PAPER scene
+on:
+  pull_request:
+    paths:
+      - 'e11-scene/**'
+      - 'engine/s01e11-authoring-prototype.mjs'
+      - 'tests/season1-e11-scene-shell*'
+      - '.github/workflows/wondervale-e11-scene-shell.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'e11-scene/**'
+      - 'engine/s01e11-authoring-prototype.mjs'
+      - 'tests/season1-e11-scene-shell*'
+      - '.github/workflows/wondervale-e11-scene-shell.yml'
+permissions:
+  contents: read
+jobs:
+  e11-paper:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Node strict replay and source gates
+        run: |
+          node --check e11-scene/main.mjs
+          node --check tests/season1-e11-scene-shell-browser.mjs
+          node --test tests/s01e11-authoring-prototype.test.mjs tests/season1-e11-scene-shell.test.mjs
+      - name: Guard noncanonical production packaging
+        run: |
+          if grep -R -n 'e11-scene' scripts/compile_episode.py scripts/package_static.py scripts/package_e02.py scripts/package_e03.py; then
+            echo 'Noncanonical E11 scene in production package' >&2
+            exit 1
+          fi
+      - name: Install Playwright Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Four viewports, keyboard, revised trial and callback
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --directory . >/tmp/e11-scene-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            if curl -fsS http://127.0.0.1:4173/e11-scene/ >/dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/e11-scene-server.log >&2; exit 1; fi
+          node tests/season1-e11-scene-shell-browser.mjs
