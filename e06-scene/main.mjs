@@ -21,8 +21,8 @@ const current=[
 ];
 const lower=[
   ['trace','Inspect runoff trace',garden('inspect','runoff-trace')],
-  ['path-walk','Milo: walk to public path',garden('walk','public-path')],
-  ['path','Inspect public path',garden('inspect','public-path')],
+  ['lower-path-walk','Milo: walk to public path',garden('walk','public-path')],
+  ['lower-path','Inspect public path',garden('inspect','public-path')],
   ['channel-walk','Milo: walk to runoff channel',garden('walk','runoff-channel')],
   ['channel-place','Try marker in water route',garden('place','runoff-channel')],
   ['footpath-walk','Milo: walk to footpath',garden('walk','footpath')],
