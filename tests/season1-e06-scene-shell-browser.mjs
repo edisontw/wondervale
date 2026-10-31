@@ -47,6 +47,7 @@ try{
     assert.equal(await page.locator('#e07-transfer').isVisible(),true);
     await page.locator('#e07-transfer').click();
     assert.match(page.url(),/\/e07-scene\/#paper=/);
+    await page.waitForFunction(()=>document.querySelector('#e06-transfer-note')?.textContent.includes('hypothetical PAPER sprout'));
     assert.match(await page.locator('#e06-transfer-note').innerText(),/hypothetical PAPER sprout/);
     assert.match(await page.locator('#e06-transfer-note').innerText(),/still needs/);
     for(const k of ['start','walk-shared','inspect-shared','walk-channel','inspect-channel',
@@ -58,8 +59,10 @@ try{
     assert.match(await page.locator('#e06-transfer-note').innerText(),/MODEL water: PASS/);
     await page.locator('#e06-return').click();
     assert.match(page.url(),/\/e06-scene\/#paper=/);
+    await page.locator('#lower-growth-tile[data-stage="paper-sprout"]').waitFor();
     assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-sprout');
     await page.locator('#e07-transfer').click();
+    await page.waitForFunction(()=>document.querySelector('#route-feedback')?.textContent.includes('reviewed'));
     assert.match(await page.locator('#route-feedback').innerText(),/reviewed/);
     assert.match(await page.locator('#e06-transfer-note').innerText(),/MODEL water: PASS/);
     await page.locator('#e06-return').click();
