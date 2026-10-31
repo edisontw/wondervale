@@ -93,11 +93,28 @@ async function journey(page,label,shots){
  assert.match(await page.locator('#role-response').innerText(),/NOW: PASS/);
  assert.match(await page.locator('#role-dialogue').innerText(),/Finn:.*Nia:/);
  assert.match(await page.locator('#role-next').innerText(),/safe access and permission/);
+ assert.equal(await page.locator('#verification-plan').isVisible(),true);
+ await press(page,'Unknown: Who needs this space?');
+ await press(page,'Inspect the real route with permission (later)');
+ assert.match(await page.locator('#plan-feedback').innerText(),/try a different station/);
+ assert.match(await page.locator('#draft-checks').innerText(),/still needs a plan/);
+ await press(page,'Ask actual users (later)');
+ assert.match(await page.locator('#draft-checks').innerText(),/NOT CHECKED/);
+ await press(page,'Unknown: Can everyone enter safely?');
+ await press(page,'Inspect the real route with permission (later)');
+ await press(page,'Unknown: Who can approve a change?');
+ await press(page,'Request site-owner permission (later)');
+ assert.match(await page.locator('#plan-finish').innerText(),/ZERO performed/);
+ assert.match(await page.locator('#plan-finish').innerText(),/before anyone opens/);
  assert.doesNotMatch(await page.locator('#role-dialogue').innerText(),/\bCommon\b/);
  await press(page,'Trace activity group');
  assert.match(await page.locator('#role-response').innerText(),/Choose a FIRST piece/);
+ assert.equal(await page.locator('#verification-plan').isVisible(),false);
  await press(page,'Inspect FIRST cell 0,2');
  assert.match(await page.locator('#role-response').innerText(),/FIRST activity group: PASS/);
+ await press(page,'Unknown: Who needs this space?');
+ await press(page,'Ask actual users (later)');
+ assert.match(await page.locator('#draft-checks').innerText(),/NOT CHECKED/);
  assert.match(await page.locator('#revisit-first-result').innerText(),/FIRST Activity group: PASS/);
  assert.match(await page.locator('#revisit-now-result').innerText(),/NOW Activity group: PASS/);
  await press(page,'Recall E09 closed hill');
@@ -133,6 +150,7 @@ async function journey(page,label,shots){
  assert.match(await page.locator('#revisit-first-result').innerText(),/FIRST Activity group: PASS/);
  assert.match(await page.locator('#revisit-world').innerText(),/PAPER revisit/);
  assert.match(await page.locator('#role-response').innerText(),/FIRST activity group: PASS/);
+ assert.match(await page.locator('#draft-checks').innerText(),/NOT CHECKED/);
  await geometry(page,label+' reviewed');
  if(shots){
   await page.locator('#grid').screenshot({path:'test-results/e11-scene-'+label+'-grid.png'});
@@ -146,6 +164,7 @@ async function journey(page,label,shots){
  assert.equal(await btn(page,'Place access strip (two middle cells)').isEnabled(),true);
  assert.equal(await btn(page,'Review NONCANONICAL finale').isDisabled(),true);
  assert.equal(await page.locator('#revisit').isVisible(),false);
+ assert.equal(await page.locator('#verification-plan').isVisible(),false);
  await invariant(page,label+' reset');
  await page.reload();await press(page,'Begin the PAPER trial');await btn(page,'Cell 0,1').waitFor();
  assert.match(await page.locator('#position').innerText(),/Milo at 1,0/);
