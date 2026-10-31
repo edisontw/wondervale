@@ -146,7 +146,8 @@ function miniBoard(host,trial,focus,stage){
   if((focus==='quiet_reader'&&quiet)||(focus==='activity_group'&&activity))
    mark.classList.add('mini-focus');
   mark.textContent=closed?'CLOSED':quiet?'Quiet':activity?'Activity':access?'Way':'·';
-  mark.setAttribute('aria-label',cell+': '+(closed?'closed boundary':quiet?'quiet seat':
+  mark.setAttribute('aria-label',stage==='FIRST'?'Inspect FIRST cell '+cell:
+   cell+': '+(closed?'closed boundary':quiet?'quiet seat':
    activity?'activity area':access?'access strip':'empty paper cell'));
   host.append(mark);
  }
