@@ -44,9 +44,11 @@ try{
    assert.match(await page.locator('#revisit-now-result').innerText(),/PASS/);
    await page.locator('#e10-return').click();
    assert.match(page.url(),/\/e10-scene\/#paper-loop=/);
+   await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    assert.match(await page.locator('#stage').innerText(),/finished/);
    assert.equal(await page.locator('#paper-comparison').isVisible(),true);
    await page.locator('#e11-paper').click();
+   await page.waitForFunction(()=>document.querySelector('#comparison')?.textContent?.includes('trial-1 → NOW trial-2'));
    assert.match(await page.locator('#comparison').innerText(),/trial-1 → NOW trial-2/);
    assert.equal(await page.locator('#revisit').isVisible(),true);
    assert.match(await page.locator('#e10-linked-notes').textContent(),/SEEN/);
@@ -59,6 +61,7 @@ try{
    await page.locator('#restart').click();
    assert.equal(await page.locator('#revisit').isVisible(),false);
    await page.locator('#e10-return').click();
+   await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    assert.match(await page.locator('#stage').innerText(),/finished/);
    await page.locator('#e11-paper').click();
    assert.equal(await page.locator('#revisit').isVisible(),false,'E11 reset clears E11 only');
