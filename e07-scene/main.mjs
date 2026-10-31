@@ -1,5 +1,7 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
-let state=fresh();const $=id=>document.getElementById(id);
+import {decodeTransfer,encodeTransfer} from '../authoring-labs/e06-e07-scene-transfer.mjs';
+const incoming=decodeTransfer(location.hash);
+let state=incoming?.e07||fresh(),linkedE06=incoming?.e06||null;const $=id=>document.getElementById(id);
 const a=(type,value)=>({scene:'story',action:value===undefined?{type}:{type,value}});
 const n=type=>({scene:'nav',type});
 const w=(type,value)=>({scene:'walkthrough',type,...(value===undefined?{}:{value})});
@@ -69,6 +71,15 @@ function render(){
  $('first').textContent='FIRST — '+results(s.firstTrials);$('now').textContent='NOW — '+results(s.revisedTrials);
  $('layout').textContent='Model footprint: '+s.layout.layout+' · Milo route steps: '+s.layout.traces.milo.steps;
  $('connector-world').dataset.done=String(v.connectorPaperRevised);
+ const checkedWater=s.revisedTrials.water?.pass===true&&v.walkthrough.reviewed;
+ $('e06-transfer-note').textContent=linkedE06?
+  (checkedWater?
+   'E06 hypothetical PAPER sprout revisited after Milo checked E07 MODEL water: PASS. No real drainage, planting or growth proven.':
+   'E06 hypothetical PAPER sprout carried from the other playable model. E07 MODEL water still needs a child-checked route walk.'):
+  'No E06 PAPER care record in this independent visit; the lower pocket remains unbuilt.';
+ const back=$('e06-return'),fragment=linkedE06&&encodeTransfer(linkedE06,state);
+ back.hidden=!fragment;
+ if(fragment)back.href='../e06-scene/'+fragment;
  $('connector-world-note').textContent=v.walkthrough.reviewed?
   'Milo walked and checked the revised PAPER route. No real route built.':
   v.connectorPaperRevised?'Revised PAPER proposal visible. No real route built.':'FIRST model needs testing.';
