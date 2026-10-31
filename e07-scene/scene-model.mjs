@@ -13,7 +13,7 @@ function clean(raw){
 }
 function apply(s,a){
  if(a.scene==='nav'){
-  if(a.type==='restart')return {...fresh(),history:s.history};
+  if(a.type==='restart')return fresh();
   if(a.type==='garden'&&s.screen==='connector'&&E07.view(s.story).stage==='finished')return {...s,screen:'garden'};
   if(a.type==='connector'&&s.screen==='garden')return {...s,screen:'connector'};
   return null;
@@ -23,13 +23,13 @@ function apply(s,a){
 }
 export function replay(history){
  if(!Array.isArray(history)||history.length>MAX_ACTIONS)return null;
- let s=fresh();for(const raw of history){const a=clean(raw);if(!a)return null;const n=apply(s,a);if(!n)return null;s={...n,history:[...s.history,a]};}return mark(s);
+ let s=fresh();for(const raw of history){const a=clean(raw);if(!a||a.scene==='nav'&&a.type==='restart')return null;const n=apply(s,a);if(!n)return null;s={...n,history:[...s.history,a]};}return mark(s);
 }
 export function restore(s){
  if(!s||typeof s!=='object'||Array.isArray(s)||s.version!==VERSION||s.mode!=='noncanonical_paper')return null;
  if(verified.get(s)===JSON.stringify(s))return s;
  const r=replay(s.history);return r&&eq(r,s)?mark(s):null;
 }
-export function can(snapshot,action){const s=restore(snapshot),a=clean(action);return !!(s&&a&&s.history.length<MAX_ACTIONS&&apply(s,a));}
-export function dispatch(snapshot,action){const s=restore(snapshot);if(!s)return fresh();const a=clean(action);if(!a||s.history.length>=MAX_ACTIONS)return s;const n=apply(s,a);return n?mark({...n,history:[...s.history,a]}):s;}
+export function can(snapshot,action){const s=restore(snapshot),a=clean(action);return !!(s&&a&&(a.scene==='nav'&&a.type==='restart'||s.history.length<MAX_ACTIONS&&apply(s,a)));}
+export function dispatch(snapshot,action){const s=restore(snapshot);if(!s)return fresh();const a=clean(action);if(!a)return s;if(a.scene==='nav'&&a.type==='restart')return fresh();if(s.history.length>=MAX_ACTIONS)return s;const n=apply(s,a);return n?mark({...n,history:[...s.history,a]}):s;}
 export function view(snapshot){const s=restore(snapshot);if(!s)return null;const story=E07.view(s.story);return {screen:s.screen,story,connectorPaperRevised:story.previewComplete,currentGardenHealthy:true,lowerGardenUnbuilt:true,e06Verified:false,e08Unlocked:false,northHillClosed:true,lightsOff:true,realAccessApproved:false,productionEntryReady:false,canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]};}

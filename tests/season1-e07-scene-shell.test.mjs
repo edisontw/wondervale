@@ -36,3 +36,21 @@ test('forged rights, history and nested state fail closed',()=>{
   assert.deepEqual(dispatch(fresh(),x),fresh());
  assert.equal(replay(Array(MAX_ACTIONS+1).fill(a('start'))),null);
 });
+
+test('restart always resets action budget, including at the cap and after repeated play',()=>{
+ let s=complete();
+ while(s.history.length+2<=MAX_ACTIONS){s=go(s,n('garden'));s=go(s,n('connector'));}
+ if(s.history.length<MAX_ACTIONS)s=go(s,n('garden'));
+ assert.equal(s.history.length,MAX_ACTIONS);
+ assert.equal(can(s,n('restart')),true);
+ assert.equal(can(s,n(s.screen==='garden'?'connector':'garden')),false);
+ s=go(s,n('restart'));
+ assert.deepEqual(s,fresh());assert.equal(s.history.length,0);
+ assert.deepEqual(replay(s.history),s);
+ for(let i=0;i<5;i++)s=go(s,n('restart'));
+ assert.deepEqual(s,fresh());
+ s=complete();assert.equal(view(s).story.stage,'finished');
+ assert.equal(replay([n('restart')]),null);
+ const bad=structuredClone(s);bad.history.push(n('restart'));
+ assert.equal(restore(bad),null);
+});
