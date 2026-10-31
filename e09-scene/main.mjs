@@ -1,6 +1,8 @@
 // E09 fictional safe-survey browser lab. No production imports, storage, telemetry or real route claims.
 import {NODES,SAFE_EDGES,CLOSED_NODE,CLOSED_EDGE,CLUES,HYPOTHESES} from '../engine/s01e09-authoring-prototype.mjs';
 import {fresh,dispatch,can,view} from './scene-model.mjs';
+import {view as viewE08} from '../e08-scene/scene-model.mjs';
+import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
 
 const $=id=>document.getElementById(id);
 const names={steps_base:'Steps base',signpost:'Signpost',fence_view:'Fence lookout',
@@ -11,7 +13,9 @@ const edgeNames={'steps_base:signpost':'Steps–Signpost','signpost:fence_view':
   'signpost:lower_bend':'Signpost–Bend','lower_bend:overlook':'Bend–Overlook'};
 const coords={steps_base:[13,56],signpost:[36,46],fence_view:[64,32],
   lower_bend:[57,76],overlook:[86,70],upper_closed:[80,16]};
-let state=fresh();
+const incoming=decodeHillTransfer(location.hash);
+let state=incoming?.e09||fresh();
+const linkedE08=incoming?.e08||null,linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
 const story=()=>view(state).story;
 const wrap=action=>({scene:'story',action});
 const nav=type=>({scene:'nav',type});
@@ -179,6 +183,14 @@ function render(){
  $('start').disabled=!can(state,wrap({type:'start'}));
  $('revisit').disabled=!can(state,nav('lantern'));
  $('back').disabled=!can(state,nav('hill'));
+ const paper=linkedE08&&viewE08(linkedE08).story;
+ $('lantern-context').textContent=paper?.comparison?
+  'E08 PAPER clue carried forward: FROM HERE '+paper.firstView.spreadDegrees.toFixed(1)+
+  '°, FROM THERE '+paper.secondView.spreadDegrees.toFixed(1)+
+  '°. The SAME marks looked different. Milo must inspect the CLOSED hill from safe ground; neither view proves access.':
+  'No E08 PAPER viewpoint record linked. This direct authoring visit cannot claim E08 completion.';
+ const returnLink=$('e08-return'),fragment=linkedE08&&encodeHillTransfer(linkedE08,state,linkedE07,linkedE06);
+ returnLink.hidden=!fragment;if(fragment)returnLink.href='../e08-scene/'+fragment;
  world();movement();inspect();sketch();thoughts();notebook();survey();
 }
 $('start').addEventListener('click',()=>act({type:'start'}));

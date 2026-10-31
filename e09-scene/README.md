@@ -11,3 +11,7 @@ Uses the existing strict E09 authoring story and graph with an additional strict
 **Not production:** no canonical E08 completion, actual terrain/public access, closure cause/date, genuine source card, real safe overlook, approved painterly art, E10 unlock, Chronicle event, Common reveal, MN4 release or family acceptance. Upper North Hill stays CLOSED. This directory is excluded from production packaging.
 
 Verify: `node --test tests/season1-e09-scene-shell.test.mjs tests/season1-hill-story.test.mjs tests/s01e09-authoring-prototype.test.mjs`. Start a static server at 4173 and run `node tests/season1-e09-scene-shell-browser.mjs`. The dedicated workflow includes server readiness and packaging exclusion.
+
+## E08 ↔ E09 independent PAPER visit (2026-11-01)
+
+A child-earned E08 two-view comparison may be carried here as strictly replayed PAPER evidence, displaying the different apparent spreads of the same fixed markers. Milo still has to walk, inspect the CLOSED boundary, try the closed edge safely, mark the alternate surveyed route and distinguish SEEN/THINK/UNKNOWN. E09's progress survives a round trip to E08; E09 restart does not erase E08. A direct E09 authoring visit has no linked E08 proof. No real hill access, lighting, source date, official unlock or MN4 deployment is implied.
