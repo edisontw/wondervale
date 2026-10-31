@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale E11 — A New Line on the Map (independent PAPER scene)</title>
+<style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#243d39;background:#f1f1e9}
+*{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:auto;padding:clamp(.4rem,2vw,1rem)}
+header{background:#345451;color:#fff;border-radius:.7rem;padding:.7rem 1rem}
+h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.07rem;margin:.2rem 0 .5rem}
+.notice{background:#fff0c7;border-left:5px solid #98651e;padding:.7rem;margin:.6rem 0;line-height:1.45}
+.panel{background:#fff;border:1px solid #c2cdc7;border-radius:.65rem;padding:.7rem;margin:.55rem 0;min-width:0}
+.columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem}
+button{font:inherit;min-width:44px;min-height:44px;padding:.4rem .55rem;border:2px solid #53746c;border-radius:.45rem;background:#f8faf5;color:#203c36;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+button:focus-visible{outline:3px solid #a56815;outline-offset:2px}
+button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
+.status{background:#edf2ed;border-radius:.4rem;padding:.55rem;margin:.45rem 0;line-height:1.45;overflow-wrap:anywhere}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.4rem;padding:.5rem;background:#d7d2bd;border-radius:.6rem;max-width:520px}
+.cell{position:relative;min-height:70px;min-width:0;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:.85rem;overflow-wrap:anywhere}
+.cell.boundary{background:#676b68;color:#fff;border-color:#676b68}
+.cell.milo{background:#ffdfa2;border-color:#8b5b20}
+.cell.quiet{box-shadow:inset 0 0 0 4px #82adce}.cell.activity{box-shadow:inset 0 0 0 4px #d6a06e}
+.cell.access{background:#dbf0dd}
+.cell small{font-size:.72rem;color:inherit}
+.map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+.map button{font-size:.86rem;overflow-wrap:anywhere}
+.map button[aria-pressed=true]{background:#cde9d7}
+.trials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+.trial{border:1px dashed #8a9d92;border-radius:.4rem;padding:.45rem;overflow-wrap:anywhere}
+ul{padding-left:1.3rem;line-height:1.45}
+small{color:#50655e}
+@media(max-width:700px){.columns{grid-template-columns:1fr}.cell{min-height:56px;font-size:.75rem}.grid{gap:.25rem;padding:.25rem}.map{grid-template-columns:1fr}.trials{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style></head><body><main>
+<header><h1>E11 — A New Line on the Map</h1><div>Scene 12 of 12 · child-controlled reversible shared-space and loop PAPER rehearsal</div></header>
+<div class="notice" role="note"><strong>FICTIONAL PAPER MODEL — NOT A REAL TOWN MAP.</strong> Simulated people, grid, routes and earlier clues are NOT verified testimony, history, site access, construction permission or approved art. The unnamed place remains CLOSED. The old North Hill route stays closed. No canonical Chronicle, E11 unlock, save, deployment or season completion.</div>
+<section class="panel"><h2>Story trigger — two needs, one space</h2>
+<p id="story-line" aria-live="polite">Finn wants a quick new line. Nia asks who else needs the space. Milo must try a reversible PAPER plan before deciding.</p>
+<div class="controls"><button id="begin" type="button">Begin the PAPER trial</button>
+<button id="e10-callback" type="button" disabled>Review E10 PAPER needs</button>
+<button id="e11-back" type="button" hidden>Return to E11 trial</button></div>
+<section id="e10-notes" class="status" hidden><strong>Earlier PAPER note (read-only):</strong> Two SIMULATED needs were compared at an unnamed fictional location. No E10 completion, source, safe entrance, place name or production unlock is imported. North Hill remains CLOSED.</section>
+</section>
+<div id="e11-work" hidden>
+<section class="panel"><h2>1. Milo tries a shared-space plan</h2>
+<p>Finn: "This looks easy!" Nia: "Who else needs the way?" Choose a tool, then a cell. The model is not measured terrain.</p>
+<div id="tools" class="controls" aria-label="Choose walking or paper placement tool"></div>
+<div class="controls"><button id="access" type="button">Place access strip (two middle cells)</button><button id="lift-quiet" type="button">Lift quiet piece</button><button id="lift-activity" type="button">Lift activity piece</button></div>
+<div id="grid" class="grid" role="group" aria-label="Fictional three by four paper board"></div>
+<p id="position" class="status"></p><p id="feedback" class="status" aria-live="polite"></p>
+<p id="parent-cue" hidden><strong>Optional parent cue:</strong> Who might find this way hard to use? What could Milo change?</p>
+</section>
+<div class="columns"><section class="panel"><h2>2. Test both people, then change something</h2>
+<p>"It blocks…" / "Both need…" Two simulated users, not real residents.</p>
+<div id="tests" class="controls"></div><div id="test-results" class="status" aria-live="polite"></div>
+<div id="trial-controls" class="controls"></div><div id="trials" class="trials"></div>
+</section>
+<section class="panel"><h2>3. Compare FIRST and NOW</h2>
+<p>Milo: "We changed it because…" Keep the unresolved real-world questions.</p>
+<div id="compare-controls" class="controls"></div>
+<p id="comparison" class="status"></p>
+<div id="citation-controls" class="controls"></div><p id="citation" class="status"></p>
+</section></div>
+<section class="panel"><h2>Earlier changes remain visible (PAPER callbacks)</h2>
+<p class="status">Market deliveries and two sincere undated memories; a station Map Room trial; Current Garden and Lower Garden models; Finn's revised shared path; lower Lantern Steps viewpoints; the CLOSED Hill; and E10 simulated needs. These are authoring callbacks, not claims that later locations have opened in the released game.</p></section>
+<section class="panel"><h2>4. Trace a NEW model loop, not the old hill</h2>
+<p>Try links, check if one connected cycle returns to its start, and erase any extra link. These are role labels, not walkable public routes.</p>
+<div id="map" class="map" role="group" aria-label="Fictional contemporary map links"></div>
+<p class="status">North Hill: CLOSED. Old direct route: CLOSED. Neither can be selected.</p>
+<div class="controls"><button id="check-loop" type="button">Check the current loop</button></div>
+<p id="loop-status" class="status" aria-live="polite"></p>
+</section>
+<section class="panel"><h2>5. Chronicle PREVIEW — nothing has opened</h2>
+<div id="review-controls" class="controls"></div>
+<p id="chronicle" class="status" aria-live="polite"></p><p id="hook" class="status" hidden></p>
+<div class="controls"><button id="restart" type="button">Restart fictional lab</button></div>
+<p><small>Touch or Tab + Enter/Space; no drag-only requirement, timer, penalty, audio, child account, telemetry or persistent storage. Reload starts fresh.</small></p>
+</section>
+</div></main><script type="module" src="./main.mjs"></script></body></html>
