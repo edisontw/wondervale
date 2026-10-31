@@ -15,6 +15,10 @@ h1{font-size:1.35rem;margin:.2rem 0}h2{font-size:1.1rem;margin:.25rem 0}
 .tile{min-height:78px;padding:.55rem;border-radius:.5rem;border:2px dashed #87a89a;background:#edf5eb;overflow-wrap:anywhere}
 .tile.water{background:#dbeaf2;border-color:#7b9eb5}
 .tile.path{background:#f4e9d5;border-color:#b69a69}
+.tile[data-stage="healthy"]{border-style:solid;background:#d8e9d0}
+.tile[data-stage="paper-soggy"]{background:#dbeaf2;border-color:#6a9bb3}
+.tile[data-stage="paper-seed"]{background:#f2eed8;border-color:#9d9a70}
+.tile[data-stage="paper-sprout"]{background:#d7e9d1;border-color:#517a57;border-style:solid}
 .controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
 button{font:inherit;min-height:44px;max-width:100%;padding:.5rem .7rem;border:2px solid #49725c;border-radius:.45rem;background:white;color:#214734;cursor:pointer;overflow-wrap:anywhere}
 button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
@@ -33,7 +37,7 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <section id="current-scene" class="panel"><h2>Scene 06 · Healthy Current Garden</h2>
 <p>Walk Milo, inspect what exists NOW, then compare dry/rain water on a detachable MODEL tray. The tray cannot prove why the real garden moved.</p>
 <div class="diagram" aria-label="Synthetic Current Garden model">
-<div class="tile">Healthy bed<br>NOW</div><div class="tile">Slope<br>Higher / lower</div><div class="tile path">Shared path<br>Keep clear</div>
+<div class="tile" id="upper-bed-tile" data-stage="healthy">Healthy bed<br>NOW · unchanged</div><div class="tile">Slope<br>Higher / lower</div><div class="tile path">Shared path<br>Keep clear</div>
 <div class="tile water">MODEL tray<br>DRY / RAIN</div><div class="tile water">Channel<br>OPEN / BLOCKED</div><div class="tile">Garden stays<br>No transplant</div></div>
 <p id="upper-observations" class="paper"></p><p id="tray" class="paper"></p>
 <div id="current-actions" class="controls"></div></section>
@@ -41,11 +45,14 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <p>This is a DIFFERENT paper place. Walk Milo to inspect water and public access. Try a marker, see what fails, move it, and keep only a small provisional plan.</p>
 <div class="diagram" aria-label="Synthetic Lower Garden model">
 <div class="tile water">Runoff trace<br>Wet in MODEL</div><div class="tile path">Public path<br>People pass</div><div class="tile water">Runoff channel<br>Keep open</div>
-<div class="tile path">Footpath<br>Do not block</div><div class="tile">Raised pocket<br>Temporary marker</div><div class="tile">Future growth<br>NOT APPROVED</div></div>
+<div class="tile path">Footpath<br>Do not block</div><div class="tile">Raised pocket<br>Temporary marker</div><div class="tile" id="lower-growth-tile" data-stage="paper-marker">Future growth<br>NOT APPROVED</div></div>
 <p id="lower-observations" class="paper"></p><p id="marker" class="paper"></p>
 <div id="lower-actions" class="controls"></div></section>
+<section id="care-panel" class="panel" hidden><h2>MODEL care: can a PAPER seed change?</h2>
+<p>After Milo checks the removable lower marker, try two different amounts of MODEL water. A soggy PAPER seed is feedback, not a failure. Revise and compare BEFORE / NOW. The sprout is only a hypothetical paper symbol; it is not real planting or proof of growth.</p>
+<p id="care-feedback" class="paper" role="status"></p><div id="care-actions" class="controls"></div></section>
 <section class="panel"><h2>Revisit the two places</h2><div id="nav-actions" class="controls"></div>
 <p id="note" class="paper" role="status"></p><p id="parent" class="paper"></p>
-<p><small>Touch, Tab, Enter and Space use the same controls. No precision dragging, score, voice, timer, network writes or localStorage. Returning to Current Garden is a read-only visit after entering Lower Garden; the completed rain model remains visible. Restart clears only these PAPER scenes.</small></p></section>
+<p><small>Touch, Tab, Enter and Space use the same controls. No precision dragging, score, voice, timer, network writes or localStorage. Returning to Current Garden is a read-only visit after entering Lower Garden; the completed rain model and PAPER care comparison remain visible. Restart clears only these PAPER scenes.</small></p></section>
 <script type="module" src="./main.mjs"></script>
 </main></body></html>
