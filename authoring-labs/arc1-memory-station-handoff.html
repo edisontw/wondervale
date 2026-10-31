@@ -41,23 +41,39 @@ blockquote{border-left:3px solid #7a9b8b;margin:.4rem 0;padding:.35rem .6rem}
 <div class="controls" id="e05-layout"></div></div></div>
 <p id="e05-note" class="paper"></p>
 </section>
+<p><a id="e05-independent" hidden href="../e05-scene/">Visit independent E05 PAPER station with both undated memories (NOT a production unlock)</a></p>
 <p id="parent" class="paper"></p>
 <p><small>Use touch or Tab + Enter/Space. Wrong guesses can be revised without penalty. Nia asks what the evidence supports; Finn suggests a removable test. This lab never reads or writes the E02/E03/E04 production saves.</small></p>
 <script type="module">
 import {fresh,dispatch,can,view} from './arc1-memory-station-handoff-model.mjs';
-let state=fresh();const $=id=>document.getElementById(id);
+import {fresh as freshE05} from '../e05-scene/scene-model.mjs';
+import {fresh as freshE06} from '../e06-scene/scene-model.mjs';
+import {decodeMemoryStationGardenTransfer,encodeMemoryStationGardenTransfer}
+ from './e04-e06-scene-transfer.mjs';
+const incoming=decodeMemoryStationGardenTransfer(location.hash);
+let state=incoming?.e04||fresh(),linkedE05=incoming?.e05||freshE05(),linkedE06=incoming?.e06||freshE06();
+const $=id=>document.getElementById(id);
 const e04=(type,x={})=>({scene:'e04',action:{type,...x}});
 const e05=(type,value)=>({scene:'e05',action:value===undefined?{type}:{type,value}});
 const nav=type=>({scene:'nav',type});
 function add(host,key,label,action){
  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
- b.disabled=!can(state,action);b.addEventListener('click',()=>{state=dispatch(state,action);render();});
+ b.disabled=!can(state,action);b.addEventListener('click',()=>{
+  state=dispatch(state,action);
+  if(action.scene==='nav'&&action.type==='restart-e04'){
+    linkedE05=freshE05();linkedE06=freshE06();
+  }
+  render();
+ });
  host.append(b);
 }
 function group(id,rows){const host=$(id);host.replaceChildren();
  for(const [key,label,action] of rows)add(host,key,label,action);}
 function render(){
  const v=view(state),t=v.timeline,s=v.station;
+ const fragment=encodeMemoryStationGardenTransfer(state,linkedE05,linkedE06);
+ const link=$('e05-independent');link.hidden=!fragment;
+ if(fragment)link.href='../e05-scene/'+fragment;
  $('e04').hidden=v.stage!=='e04';$('e05').hidden=v.stage!=='e05';
  $('status').textContent='Stage: '+v.stage+' · E04 PAPER finished: '+t.finishedPaper+
   ' · E05 PAPER finished: '+v.stationPaperFinished+

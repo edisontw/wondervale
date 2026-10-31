@@ -2,8 +2,13 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {fresh as freshE06} from '../e06-scene/scene-model.mjs';
 import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
+import {decodeMemoryStationGardenTransfer,encodeMemoryStationGardenTransfer}
+ from '../authoring-labs/e04-e06-scene-transfer.mjs';
+const arcIncoming=decodeMemoryStationGardenTransfer(location.hash);
 const incoming=decodeStationGardenTransfer(location.hash);
-let state=incoming?.e05||fresh(),linkedE06=incoming?.e06||freshE06();
+let state=arcIncoming?.e05||incoming?.e05||fresh(),
+ linkedE06=arcIncoming?.e06||incoming?.e06||freshE06();
+const linkedE04=arcIncoming?.e04||null;
 const $=id=>document.getElementById(id);
 const actionOf=b=>{
   if(b.dataset.scene==='nav')return {scene:'nav',type:b.dataset.type};
@@ -45,7 +50,15 @@ function render(){
     (g.overlay?'Two marks shown together; no date or cause known.':'Inspect both PAPER sheets before overlay.')+
     (g.question?' E06 question recorded on PAPER only.':'');
   garden.append(grid,legend);
-  const fragment=encodeStationGardenTransfer(state,linkedE06),link=$('e06-paper');
+  const memoryFragment=linkedE04&&encodeMemoryStationGardenTransfer(linkedE04,state,linkedE06);
+ const memoryLink=$('e04-return'),memoryContext=$('e04-context');
+ memoryLink.hidden=!memoryFragment;memoryContext.hidden=!memoryFragment;
+ if(memoryFragment){
+  memoryLink.href='../authoring-labs/arc1-memory-station-handoff.html'+memoryFragment;
+  memoryContext.textContent='E04 PAPER: two sincere attributed memories remain undated; EARLIER/LATER unsupported. Milo marked both UNKNOWN. No canonical E04 completion or station rights.';
+ }
+ const earned=encodeStationGardenTransfer(state,linkedE06);
+ const fragment=earned&&(linkedE04?memoryFragment:earned),link=$('e06-paper');
   link.hidden=!fragment;
   if(fragment)link.href='../e06-scene/'+fragment;
   $('parent').textContent=v.parentCue?'Optional parent cue: '+v.parentCue:'Parent: allow Milo to observe and try first.';
