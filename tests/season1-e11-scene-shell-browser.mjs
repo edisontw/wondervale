@@ -108,7 +108,7 @@ async function journey(page,label,shots){
  assert.match(await page.locator('#hook').innerText(),/Season 1 is NOT COMPLETE/);
  assert.match(await page.locator('#revisit-world').innerText(),/unnamed place/);
  assert.match(await page.locator('#revisit-world').innerText(),/North Hill CLOSED/);
- assert.doesNotMatch(await page.locator('#revisit-world').innerText(),/\\bCommon\\b/);
+ assert.doesNotMatch(await page.locator('#revisit-world').innerText(),/\bCommon\b/);
  await invariant(page,label+' reviewed');
  assert.equal(await btn(page,'Review E10 PAPER needs').isEnabled(),true);
  await press(page,'Review E10 PAPER needs');
