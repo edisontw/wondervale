@@ -5,3 +5,9 @@ Scene 11/12. Serve the repository root at port 4173 and open /e10-scene/. This d
 No Common name reveal, approved history, real safe entrance, rights, real voices, production Chronicle, E11 unlock, source art, saved progress, MN4 release or family acceptance. North Hill remains CLOSED. The synthetic fixture token is never enabled. No new portraits or audio.
 
 Node: node --test tests/season1-unnamed-story.test.mjs tests/s01e10-authoring-prototype.test.mjs. Chromium: node tests/season1-e10-scene-shell-browser.mjs after serving the repo root. Dedicated CI checks four viewports and packaging exclusion.
+
+## Child-earned comparison (PAPER only)
+
+After Milo tests both simulated need cards in the shared slot, moves them apart, inspects both fictional traces and finishes the four-column PAPER notes, a visible FIRST/NOW board becomes available. FIRST is reconstructed from his actual strict-replayed one-slot test, **not** the site's historical past. NOW displays his revised reversible layout; the two observed traces and MAYBE tags remain separate from UNKNOWN history. The board survives the read-only E09 callback, resets with E10 and never grants E11 access or official Chronicle.
+
+Regression: `node --test tests/season1-unnamed-story.test.mjs` and `node tests/season1-e10-scene-shell-browser.mjs` with the repository-root HTTP server at port 4173.
