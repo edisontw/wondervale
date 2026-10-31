@@ -67,7 +67,7 @@ test('FIRST/NOW world boards require strictly replayed child trials, and never p
  assert.equal(reviewed.recalled,'e09_closure');
  assert.equal(reviewed.links.length,3);
  assert.match(reviewed.links.join(' '),/unnamed place/);
- assert.doesNotMatch(reviewed.links.join(' '),/\\bcommon\\b/i);
+ assert.doesNotMatch(reviewed.links.join(' '),/\bcommon\b/i);
  assert.equal(reviewed.realAccess,false);
  assert.equal(reviewed.historyApproved,false);
  act({type:'place',tokenId:'activity',cells:['2,2']});
