@@ -18,6 +18,7 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 .anchors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.3rem}
 .anchor{background:#e8eff1;padding:.55rem .25rem;text-align:center;border-radius:.35rem;overflow-wrap:anywhere}
 .anchor[data-here=true]{outline:3px solid #b47820}
+.trace-map{display:block;width:min(100%,360px);height:auto;background:#f4f7f5;border:1px solid #9ab3b7;border-radius:.4rem;margin:.5rem 0}
 .map{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:2px;background:#c3d0d2;padding:.25rem;border-radius:.4rem}
 .cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;background:#f7faf8;font-size:clamp(.7rem,1.8vw,.95rem);font-weight:700}
 .cell[data-here=true]{background:#f3d99d}.cell[data-marker=true]{background:#b5d3db}.cell[data-dark=true]{background:#d8dedf}
@@ -39,8 +40,12 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <div class="columns"><section class="panel"><h2>Synthetic fixed-marker plan</h2><div id="map" class="map" role="img" aria-label="Synthetic fixed markers and safe viewpoint"></div>
 <p>A, B, C = fixed marks · M = Milo · no upper-hill walking. Pale marks without both lamps are not usable evidence.</p></section>
 <section class="panel"><h2>PAPER Chronicle and next question</h2><p id="note" class="paper" role="status"></p><p id="hook" class="paper"></p></section></div></section>
+<section id="trace-panel" class="panel" hidden><h2>Revisit what Milo saw</h2>
+<p>The same three PAPER marks stay in place. Trace the lines from the first or second safe viewpoint, then overlay both. The lower model lamps are not real wiring.</p>
+<div id="trace-controls" class="controls"></div><svg id="trace-map" class="trace-map" viewBox="0 0 360 240" role="img" aria-label="PAPER viewpoint trace"></svg>
+<p id="trace-detail" class="paper" role="status"></p></section>
 <section id="connector-revisit" class="panel" hidden><h2>Look back at Finn's PAPER connector</h2>
-<p>Finn revised a model to consider Milo, another traveler and water. The Current Garden remains healthy. Nothing was built or unlocked. This is a read-only callback, not verified E07 progress.</p></section>
+<p>Finn revised a model to consider Milo, another traveler and water. The Current Garden remains healthy. Nothing was built or unlocked. This is a read-only callback, not verified E07 progress.</p><p id="connector-trace" class="paper"></p></section>
 <section class="panel"><h2>Revisit or restart</h2><div id="nav-controls" class="controls"></div>
 <p><small>Touch, Tab, Enter and Space work. No dragging, score, timer, flashing, sound, storage, real wiring, construction or production unlock.</small></p></section>
 <script type="module" src="./main.mjs"></script></main></body></html>
