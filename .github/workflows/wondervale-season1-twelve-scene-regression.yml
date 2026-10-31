@@ -124,6 +124,7 @@ jobs:
             tests/season1-e06-scene-shell.test.mjs \
             tests/season1-e07-scene-shell.test.mjs \
             tests/season1-e08-scene-shell.test.mjs \
+            tests/season1-e07-e08-scene-transfer.test.mjs \
             tests/season1-e09-scene-shell.test.mjs \
             tests/season1-e11-scene-shell.test.mjs \
             tests/season1-arc1-hill-unnamed-loop-handoff.test.mjs
@@ -148,6 +149,7 @@ jobs:
           node tests/season1-e06-scene-shell-browser.mjs
           node tests/season1-e07-scene-shell-browser.mjs
           node tests/season1-e08-scene-shell-browser.mjs
+          node tests/season1-e07-e08-scene-transfer-browser.mjs
           node tests/season1-e09-scene-shell-browser.mjs
           node tests/season1-e10-scene-shell-browser.mjs
           node tests/season1-e11-scene-shell-browser.mjs

@@ -4,6 +4,8 @@ on:
     paths:
       - 'e08-scene/**'
       - 'tests/season1-e08-scene-shell*'
+      - 'authoring-labs/e07-e08-scene-transfer.mjs'
+      - 'tests/season1-e07-e08-scene-transfer*'
       - '.github/workflows/wondervale-e08-scene-shell.yml'
   push:
     branches: [main]
@@ -27,7 +29,9 @@ jobs:
           node --check e08-scene/scene-model.mjs
           node --check e08-scene/main.mjs
           node --check tests/season1-e08-scene-shell-browser.mjs
-          node --test tests/season1-e08-scene-shell.test.mjs tests/season1-lantern-story.test.mjs tests/s01e08-authoring-prototype.test.mjs
+          node --check authoring-labs/e07-e08-scene-transfer.mjs
+          node --check tests/season1-e07-e08-scene-transfer-browser.mjs
+          node --test tests/season1-e07-e08-scene-transfer.test.mjs tests/season1-e08-scene-shell.test.mjs tests/season1-lantern-story.test.mjs tests/s01e08-authoring-prototype.test.mjs
       - name: Guard production packaging
         run: |
           if grep -R -n 'e08-scene' scripts/compile_episode.py scripts/package_static.py scripts/package_e02.py scripts/package_e03.py; then
@@ -51,3 +55,4 @@ jobs:
           done
           if [ "$ready" -ne 1 ]; then cat /tmp/e08-scene-server.log >&2; exit 1; fi
           node tests/season1-e08-scene-shell-browser.mjs
+          node tests/season1-e07-e08-scene-transfer-browser.mjs
