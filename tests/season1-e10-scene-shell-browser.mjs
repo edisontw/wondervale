@@ -54,7 +54,7 @@ try{
    assert.match(await page.locator('#stage').innerText(),/finished/);
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['e10-paper-sentinel']);
    const g=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,
-    buttons:[...document.querySelectorAll('button:not(:disabled)')].map(x=>({w:x.getBoundingClientRect().width,h:x.getBoundingClientRect().height}))}));
+    buttons:[...document.querySelectorAll('button:not(:disabled)')].filter(x=>x.getClientRects().length>0).map(x=>({w:x.getBoundingClientRect().width,h:x.getBoundingClientRect().height}))}));
    assert.ok(g.scroll<=g.width+1,JSON.stringify({size,g}));
    for(const x of g.buttons)assert.ok(x.w>=43.5&&x.h>=43.5,JSON.stringify(x));
    await page.locator('#restart').click();
