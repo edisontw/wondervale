@@ -61,7 +61,7 @@ export function dispatch(snapshot,action){
 export function view(snapshot){
  const s=restore(snapshot);if(!s)return null;
  const story=E09.view(s.story);
- return {screen:s.screen,surveyLayer:s.surveyLayer,
+ return {screen:s.screen,story,surveyLayer:s.surveyLayer,
   surveyBoard:{kind:'fictional_model_only',walkedEdges:story.surveyedEdges.length,
    markedEdges:story.markedEdges.length,inspectedClues:story.inspected.length,
    closedBoundary:true,realAccessApproved:false},
