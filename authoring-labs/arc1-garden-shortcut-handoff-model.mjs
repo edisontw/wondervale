@@ -2,16 +2,17 @@
 // Replay-only composition: no real garden growth, constructed connector, save or unlock.
 import * as Up from './arc1-garden-story-handoff-model.mjs';
 import * as Short from './shortcut-story-model.mjs';
-export const VERSION='arc1-e06-e07-paper-continuity-v1';
+export const VERSION='arc1-e06-e07-paper-continuity-v2';
 export const MAX_ACTIONS=360;
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 // Identity cache is safe only while exact serialized bytes match; mutated nested snapshots
 // are replayed and rejected, never trusted from an old object identity.
 const verified=new WeakMap();
 const mark=s=>{verified.set(s,JSON.stringify(s));return s;};
+const careFresh=()=>({choice:null,trials:[],compared:false});
 export function fresh(){
  return mark({version:VERSION,mode:'noncanonical_paper',stage:'upstream',
-  upstream:Up.fresh(),shortcut:Short.fresh(),history:[],
+  upstream:Up.fresh(),shortcut:Short.fresh(),care:careFresh(),careCheckedInE07:false,history:[],
   canonicalEvents:[],unlocks:[],historicalClaims:[],rights:[]});
 }
 function clean(raw){
@@ -19,6 +20,12 @@ function clean(raw){
  let a=null;
  if(raw.scene==='nav'&&['to-shortcut','to-upstream','restart-shortcut','restart-all'].includes(raw.type))
   a={scene:'nav',type:raw.type};
+ if(raw.scene==='care'&&raw.type==='choose'&&['heavy','gentle'].includes(raw.value))
+  a={scene:'care',type:'choose',value:raw.value};
+ if(raw.scene==='care'&&['test','compare'].includes(raw.type))
+  a={scene:'care',type:raw.type};
+ if(raw.scene==='care-callback'&&raw.type==='observe')
+  a={scene:'care-callback',type:'observe'};
  if(['upstream','shortcut'].includes(raw.scene)&&raw.action&&
     typeof raw.action==='object'&&!Array.isArray(raw.action))
   a={scene:raw.scene,action:raw.action};
@@ -30,10 +37,30 @@ function apply(s,a){
      s.upstream.stage==='garden'&&s.upstream.garden.phase==='finished')
    return {...s,stage:'shortcut'};
   if(a.type==='to-upstream'&&s.stage==='shortcut')return {...s,stage:'upstream'};
-  if(a.type==='restart-shortcut'&&s.stage==='shortcut')return {...s,shortcut:Short.fresh()};
+  if(a.type==='restart-shortcut'&&s.stage==='shortcut')return {...s,shortcut:Short.fresh(),careCheckedInE07:false};
   if(a.type==='restart-all')return {...s,stage:'upstream',
-    upstream:Up.fresh(),shortcut:Short.fresh()};
+    upstream:Up.fresh(),shortcut:Short.fresh(),care:careFresh(),careCheckedInE07:false};
   return null;
+ }
+ if(a.scene==='care'){
+  if(s.stage!=='upstream'||s.upstream.stage!=='garden'||s.upstream.garden.phase!=='finished')return null;
+  const c=s.care,last=c.trials.at(-1);
+  if(a.type==='choose')return c.choice===a.value?null:{...s,care:{...c,choice:a.value,compared:false},careCheckedInE07:false};
+  if(a.type==='test'){
+   if(!c.choice||last?.choice===c.choice)return null;
+   const result=c.choice==='heavy'?'paper-soggy':'paper-seed';
+   return {...s,care:{...c,trials:[...c.trials,{choice:c.choice,result}],compared:false},careCheckedInE07:false};
+  }
+  if(a.type==='compare'){
+   if(c.compared||last?.choice!=='gentle'||!['heavy','gentle'].every(x=>c.trials.some(t=>t.choice===x)))return null;
+   return {...s,care:{...c,compared:true},careCheckedInE07:false};
+  }
+  return null;
+ }
+ if(a.scene==='care-callback'){
+  if(s.stage!=='shortcut'||!s.care.compared||s.careCheckedInE07||
+    !Short.view(s.shortcut).observed.includes('channel'))return null;
+  return {...s,careCheckedInE07:true};
  }
  if(a.scene==='upstream'&&s.stage==='upstream'){
   const next=Up.dispatch(s.upstream,a.action);
@@ -41,7 +68,9 @@ function apply(s,a){
   const reset=a.action.scene==='nav'&&['restart-garden','restart-arc1'].includes(a.action.type)||
    a.action.scene==='arc1'&&a.action.action?.scene==='nav'&&a.action.action.type==='restart-e04';
   const lostPocket=s.upstream.garden.phase==='finished'&&next.garden.phase!=='finished';
-  return {...s,upstream:next,shortcut:reset||lostPocket?Short.fresh():s.shortcut};
+  return {...s,upstream:next,shortcut:reset||lostPocket?Short.fresh():s.shortcut,
+   care:reset||lostPocket?careFresh():s.care,
+   careCheckedInE07:reset||lostPocket?false:s.careCheckedInE07};
  }
  if(a.scene==='shortcut'&&s.stage==='shortcut'&&s.upstream.garden.phase==='finished'){
   const next=Short.dispatch(s.shortcut,a.action);
@@ -90,10 +119,15 @@ export function view(snapshot){
   stationMapRoomPaper:u.stationMapRoomPaper,currentGardenHealthy:true,
   currentGardenCompared:u.currentGardenCompared,lowerGardenVisited:u.lowerGardenVisited,
   lowerPocketPaper:u.lowerPocketPaper,connectorPaperRevised:t.previewComplete,
+  care:{choice:s.care.choice,trials:s.care.trials.map(x=>({...x})),compared:s.care.compared,
+   stage:s.care.compared?'paper-sprout':s.care.trials.at(-1)?.result||'paper-marker'},
+  lowerPaperGrowthVisible:s.care.compared,careCheckedInE07:s.careCheckedInE07,
   shortcutAvailable:u.stage==='garden'&&u.lowerPocketPaper,
-  paperNote:t.previewComplete?
+  paperNote:(t.previewComplete?
    'PAPER FIRST/NOW: Finn revised a removable connector for Milo, another traveler and water. The upper garden remains healthy; the lower pocket is only a model. Real route, planting, land rights, history and construction UNKNOWN.':
-   'PAPER ONLY: E06 Lower Garden may lead to Finn’s E07 model test. No actual planting, construction, Chronicle or unlock.',
+   'PAPER ONLY: E06 Lower Garden may lead to Finn’s E07 model test. No actual planting, construction, Chronicle or unlock.')+
+   (s.care.compared?' E06 BEFORE/NOW: a hypothetical PAPER sprout after too much then gentle model water. No real growth.':'')+
+   (s.careCheckedInE07?' E07 Milo checked the PAPER care result against Finn’s model water channel; this does not verify real drainage.':''),
   sourceDates:'UNKNOWN',historicalCause:'UNKNOWN',plantingPermission:'UNKNOWN',
   connectorPermission:'UNKNOWN',northHillClosed:true,lanternLightsOff:true,
   commonRevealed:false,seasonFinished:false,canonicalEvents:[],unlocks:[],
