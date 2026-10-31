@@ -1,7 +1,12 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {decodeTransfer,encodeTransfer} from '../authoring-labs/e06-e07-scene-transfer.mjs';
-const incoming=decodeTransfer(location.hash);
-let state=incoming?.e07||fresh(),linkedE06=incoming?.e06||null;const $=id=>document.getElementById(id);
+import {fresh as freshE08,view as viewE08} from '../e08-scene/scene-model.mjs';
+import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
+const stepsIncoming=decodeStepsTransfer(location.hash);
+const gardenIncoming=stepsIncoming?null:decodeTransfer(location.hash);
+let state=stepsIncoming?.e07||gardenIncoming?.e07||fresh(),
+ linkedE06=stepsIncoming?.e06||gardenIncoming?.e06||null,
+ linkedE08=stepsIncoming?.e08||freshE08();const $=id=>document.getElementById(id);
 const a=(type,value)=>({scene:'story',action:value===undefined?{type}:{type,value}});
 const n=type=>({scene:'nav',type});
 const w=(type,value)=>({scene:'walkthrough',type,...(value===undefined?{}:{value})});
@@ -42,7 +47,9 @@ const groups={'walkthrough-controls':walkRows,'walk-controls':rows.slice(0,7),'t
  'piece-controls':rows.slice(10,15),'compare-controls':rows.slice(15,17),'nav-controls':rows.slice(17)};
 for(const [host,items] of Object.entries(groups))for(const [key,label,action] of items){
  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
- b.addEventListener('click',()=>{state=dispatch(state,action);render();});$(host).append(b);
+ b.addEventListener('click',()=>{state=dispatch(state,action);
+ if(action.scene==='nav'&&action.type==='restart')linkedE08=freshE08();
+ render();});$(host).append(b);
 }
 const names={milo:'Milo',resident:'Traveler',water:'Water'};
 const results=t=>['milo','resident','water'].map(k=>names[k]+': '+(t[k]?(t[k].pass?'PASS':'BLOCKED'):'NOT TESTED')).join(' · ');
@@ -77,6 +84,12 @@ function render(){
    'E06 hypothetical PAPER sprout revisited after Milo checked E07 MODEL water: PASS. No real drainage, planting or growth proven.':
    'E06 hypothetical PAPER sprout carried from the other playable model. E07 MODEL water still needs a child-checked route walk.'):
   'No E06 PAPER care record in this independent visit; the lower pocket remains unbuilt.';
+ const stepsFragment=encodeStepsTransfer(state,linkedE08,linkedE06);
+ const stepsLink=$('e08-transfer');stepsLink.hidden=!stepsFragment;
+ if(stepsFragment)stepsLink.href='../e08-scene/'+stepsFragment;
+ $('e08-paper-callback').textContent=viewE08(linkedE08).story.previewComplete?
+  'E08 PAPER callback: Milo compared two lower-model viewpoints. The real Steps remain unlit and the hill CLOSED.':
+  'E08 PAPER comparison not yet made. Real Steps lights OFF; no official E08 unlock.';
  const back=$('e06-return'),fragment=linkedE06&&encodeTransfer(linkedE06,state);
  back.hidden=!fragment;
  if(fragment)back.href='../e06-scene/'+fragment;

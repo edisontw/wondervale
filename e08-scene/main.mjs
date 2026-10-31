@@ -1,6 +1,9 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {MARKERS,VIEWPOINTS} from '../engine/s01e08-authoring-prototype.mjs';
-let state=fresh();const $=id=>document.getElementById(id);
+import {view as viewE07} from '../e07-scene/scene-model.mjs';
+import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
+const incoming=decodeStepsTransfer(location.hash);
+let state=incoming?.e08||fresh(),linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;const $=id=>document.getElementById(id);
 const a=(type,key,value)=>({scene:'story',action:key?{type,[key]:value}:{type}});
 const n=type=>({scene:'nav',type});
 const rows=[
@@ -91,7 +94,13 @@ function render(){
  $('parent').textContent='Optional parent cue: '+(s.parentCue||'What do you notice before making a guess?');
  $('steps-world').dataset.done=String(v.lowerLightsPaperOn);
  $('steps-world-note').textContent=v.lowerLightsPaperOn?'BEFORE: lower PAPER model unlit. NOW: two model lamps ON; two safe views compared. The marks stayed fixed; real lights NOT restored. Upper hill CLOSED.':'BEFORE: lower PAPER model unlit. Upper hill CLOSED; no real repair.';
- $('connector-trace').textContent=v.lowerLightsPaperOn?'Milo kept two PAPER viewpoints of the same fixed marks. Finn\'s connector is still a proposal; no path or lights were built.':'No E08 PAPER viewpoint record yet.';
+ $('connector-trace').textContent=(linkedE07&&viewE07(linkedE07).walkthrough.reviewed?
+  'E07 PAPER callback: Milo checked the model crossing and water edge; real connector NOT built. ':
+  'No verified E07 PAPER route walk in this independent visit. ')+
+  (v.lowerLightsPaperOn?'Milo kept two PAPER viewpoints of the same fixed marks; no real lights were restored.':
+   'No E08 PAPER viewpoint record yet.');
+ const back=$('e07-return'),fragment=linkedE07&&encodeStepsTransfer(linkedE07,state,linkedE06);
+ back.hidden=!fragment;if(fragment)back.href='../e07-scene/'+fragment;
  if(s.previewComplete){drawTrace(s,v.reviewMode);
   $('trace-detail').textContent=v.reviewMode==='first'?'FROM HERE: '+spread(s.firstView):
    v.reviewMode==='second'?'FROM THERE: '+spread(s.secondView):

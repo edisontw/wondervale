@@ -17,3 +17,7 @@ EFL: “Can they pass?”, “Water needs a way”, “The hill is closed”, �
 ## Independent E06 ↔ E07 PAPER revisit
 
 A child who tested the E06 hypothetical sprout may follow a URL-fragment-only link into this independent connector scene. The read-only Lower Garden note changes only after the E07 **MODEL** water trial passes and Milo checks the revised crossing and water edge on the synthetic route. The child can return to E06 and revisit E07 without losing either in-link PAPER rehearsal; a direct E07 visit never invents an E06 result. The fragment is a replay-validated authoring model, not cryptographic evidence of who played, real drainage, planting, construction, production Chronicle, rights or unlock. Restart resets E07 only; E06 restart clears the transferred rehearsal. No storage or production packaging.
+
+## E07 ↔ E08 independent PAPER visit (2026-11-01)
+
+Only after Milo has revised Finn's three-user connector, inspected the shared crossing and water edge, and reviewed the walk to the **unlit** Steps BASE does a URL-fragment link open the separate E08 PAPER model. E08 begins with both *model* lamps OFF, no actual lighting or canonical unlock. The child can test two safe viewpoints, return to E07, and revisit E08 with replayed PAPER history. E08 restart clears E08 only; E07 restart clears E07 and linked E08. Optional E06 hypothetical care remains an isolated callback. No storage, actual access or production packaging; editable URL fragments are not proof of identity or real-world permission.
