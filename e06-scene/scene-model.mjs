@@ -75,12 +75,15 @@ export function restore(snapshot){
 }
 export function can(snapshot,action){
   const s=restore(snapshot),a=clean(action);
-  return !!(s&&a&&same(a,action)&&s.history.length<MAX_ACTIONS&&apply(s,a));
+  return !!(s&&a&&same(a,action)&&
+    (a.scene==='nav'&&a.type==='restart'||s.history.length<MAX_ACTIONS&&apply(s,a)));
 }
 export function dispatch(snapshot,action){
   const s=restore(snapshot);if(!s)return fresh();
   const a=clean(action);
-  if(!a||!same(a,action)||s.history.length>=MAX_ACTIONS)return s;
+  if(!a||!same(a,action))return s;
+  if(a.scene==='nav'&&a.type==='restart')return fresh();
+  if(s.history.length>=MAX_ACTIONS)return s;
   const next=apply(s,a);
   return next?mark({...next,history:[...s.history,a]}):s;
 }
