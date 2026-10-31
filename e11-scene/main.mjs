@@ -1,13 +1,14 @@
 // E11 independent PAPER scene. Reuses the strict fictional reducer; never unlocks production.
 import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
   fresh,dispatch,projection} from '../engine/s01e11-authoring-prototype.mjs';
+import {paperRevisit} from './revisit-model.mjs';
 const $=id=>document.getElementById(id);
 const titles={quiet:'Quiet seat',activity:'Activity area',access:'Access strip',
  quiet_reader:'Quiet reader',activity_group:'Activity group',
  e03_delivery:'E03 delivery',e06_drainage:'E06 water',e07_user_impact:'E07 shared use',
  e09_closure:'E09 closed hill',e10_needs:'E10 needs'};
 const toolNames={walk:'Walk Milo',quiet:'Place quiet seat',activity:'Place activity area'};
-let state=fresh(),tool='walk',begun=false,screen='trial';
+let state=fresh(),tool='walk',begun=false,screen='trial',revisitFocus='quiet_reader';
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
 function act(action){state=dispatch(state,action);render();}
@@ -119,6 +120,47 @@ function review(){
  $('hook').textContent=state.reviewed?
   'Milo: "We changed it because both people matter." What real evidence and permissions are still missing? The unnamed place is NOT OPEN; Season 1 is NOT COMPLETE.':'';
 }
+
+function miniBoard(host,trial,focus,stage){
+ host.replaceChildren();
+ host.setAttribute('aria-label',stage+' fictional paper board for '+titles[focus]);
+ for(let r=0;r<3;r++)for(let c=0;c<4;c++){
+  const cell=r+','+c,quiet=trial.layout.quiet.includes(cell),
+   activity=trial.layout.activity.includes(cell),
+   access=trial.layout.access.includes(cell),closed=BOUNDARY.includes(cell);
+  const mark=document.createElement('span');mark.className='mini-cell';
+  if(closed)mark.classList.add('mini-closed');
+  if(access)mark.classList.add('mini-access');
+  if(quiet)mark.classList.add('mini-quiet');
+  if(activity)mark.classList.add('mini-activity');
+  if((focus==='quiet_reader'&&quiet)||(focus==='activity_group'&&activity))
+   mark.classList.add('mini-focus');
+  mark.textContent=closed?'CLOSED':quiet?'Quiet':activity?'Activity':access?'Way':'·';
+  mark.setAttribute('aria-label',cell+': '+(closed?'closed boundary':quiet?'quiet seat':
+   activity?'activity area':access?'access strip':'empty paper cell'));
+  host.append(mark);
+ }
+}
+function worldRevisit(){
+ const model=paperRevisit(state,revisitFocus);
+ $('revisit').hidden=!model;
+ if(!model)return;
+ const choices=$('revisit-focus');choices.replaceChildren();
+ for(const [id,name] of [['quiet_reader','Trace quiet reader'],['activity_group','Trace activity group']])
+  button(choices,name,()=>{revisitFocus=id;worldRevisit();},false,revisitFocus===id);
+ miniBoard($('revisit-first'),model.first,revisitFocus,'FIRST');
+ miniBoard($('revisit-now'),model.now,revisitFocus,'NOW');
+ $('revisit-first-result').textContent='FIRST '+titles[revisitFocus]+': '+
+  (model.firstPass?'PASS':'RETRY')+' — '+model.first.tests[revisitFocus].reason;
+ $('revisit-now-result').textContent='NOW '+titles[revisitFocus]+': '+
+  (model.nowPass?'PASS':'RETRY')+' — '+model.now.tests[revisitFocus].reason;
+ $('revisit-world').textContent=model.reviewed?
+  'PAPER revisit: '+model.links.join(' | ')+
+  '. Recalled synthetic label: '+(titles[model.recalled]||'none')+
+  '. North Hill CLOSED; unnamed place NOT OPEN; no actual access, Chronicle or season completion.':
+  'Both boards come from Milo\'s saved model trials. The new loop is not yet reviewed; no real place is open.';
+}
+
 function render(){
  $('begin').hidden=begun;
  $('e11-work').hidden=!begun||screen==='callback';
@@ -130,7 +172,7 @@ function render(){
   (Object.values(state.tests).some(t=>!t.passed)?
    'Milo stops at a conflict. Finn: "Who needs this way?" Try moving a piece.':
    'Two simulated needs share one small model. Milo can test, move, compare and try again.');
- controls();board();tests();comparison();map();review();
+ controls();board();tests();comparison();map();review();worldRevisit();
 }
 $('access').addEventListener('click',()=>act({type:'place',tokenId:'access',cells:['1,1','1,2']}));
 $('lift-quiet').addEventListener('click',()=>act({type:'lift',tokenId:'quiet'}));
@@ -139,5 +181,5 @@ $('check-loop').addEventListener('click',()=>act({type:'check-loop'}));
 $('begin').addEventListener('click',()=>{begun=true;render();});
 $('e10-callback').addEventListener('click',()=>{if(state.reviewed){screen='callback';render();}});
 $('e11-back').addEventListener('click',()=>{screen='trial';render();});
-$('restart').addEventListener('click',()=>{tool='walk';begun=false;screen='trial';act({type:'reset'});});
+$('restart').addEventListener('click',()=>{tool='walk';begun=false;screen='trial';revisitFocus='quiet_reader';act({type:'reset'});});
 render();
