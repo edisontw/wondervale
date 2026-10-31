@@ -18,12 +18,16 @@ const rows=[
  ['observe','Observe from here',a('observe-view')],
  ['compare','Compare two viewpoints',a('compare-views')],
  ['finish','Keep PAPER observation',a('confirm-preview')],
+ ['trace-first','Trace FROM HERE',n('trace-first')],
+ ['trace-second','Trace FROM THERE',n('trace-second')],
+ ['trace-both','Overlay both PAPER views',n('trace-both')],
  ['connector','Review Finn\'s PAPER connector',n('connector')],
  ['steps','Return to lower Steps',n('steps')],
  ['restart','Restart E08 PAPER model',n('restart')]
 ];
 const groups={'walk-controls':rows.slice(0,4),'inspect-controls':rows.slice(4,9),
- 'lamp-controls':rows.slice(9,11),'observe-controls':rows.slice(11,14),'nav-controls':rows.slice(14)};
+ 'lamp-controls':rows.slice(9,11),'observe-controls':rows.slice(11,14),
+ 'trace-controls':rows.slice(14,17),'nav-controls':rows.slice(17)};
 for(const [host,items] of Object.entries(groups))for(const [key,label,action] of items){
  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
  b.addEventListener('click',()=>{state=dispatch(state,action);render();});$(host).append(b);
@@ -40,9 +44,40 @@ function draw(v){
  root.setAttribute('aria-label','Synthetic fixed markers A B C, Milo at '+v.milo.replaceAll('-',' ')+
   ', lower lamp A '+(v.lights['lower-a']?'on':'off')+', lower lamp B '+(v.lights['lower-b']?'on':'off'));
 }
+
+function drawTrace(s,mode){
+ const root=$('trace-map');root.replaceChildren();root.dataset.mode=mode;
+ const ns='http://www.w3.org/2000/svg',point=p=>({x:28+p.x*34,y:20+p.y*34});
+ const make=(tag,attrs,text)=>{const el=document.createElementNS(ns,tag);
+  for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));
+  if(text!==undefined)el.textContent=text;root.append(el);return el;};
+ const sources=mode==='both'?[['first',s.firstView],['second',s.secondView]]:
+  [[mode,mode==='first'?s.firstView:s.secondView]];
+ for(const [kind,observation] of sources){
+  const start=point(VIEWPOINTS[observation.viewpoint]);
+  for(const mark of MARKERS){const end=point(mark);
+   make('line',{class:'ray','data-view':kind,x1:start.x,y1:start.y,x2:end.x,y2:end.y,
+    stroke:kind==='first'?'#4b7290':'#9a5e38','stroke-width':2,'stroke-dasharray':kind==='second'?'5 3':'none'});
+  }
+ }
+ for(const [i,mark] of MARKERS.entries()){
+  const p=point(mark);make('circle',{'data-fixed-marker':'ABC'[i],cx:p.x,cy:p.y,r:9,fill:'#b5d3db',stroke:'#314c58'});
+  make('text',{x:p.x,y:p.y+4,'text-anchor':'middle','font-size':12,fill:'#203b45'},'ABC'[i]);
+ }
+ for(const [kind,observation] of sources){
+  const p=point(VIEWPOINTS[observation.viewpoint]);
+  make('circle',{'data-viewpoint':kind,cx:p.x,cy:p.y,r:10,fill:kind==='first'?'#4b7290':'#9a5e38'});
+  make('text',{x:p.x,y:p.y+4,'text-anchor':'middle','font-size':12,fill:'white'},kind==='first'?'1':'2');
+ }
+ root.setAttribute('aria-label','Synthetic PAPER tracing of fixed markers A B C from '+
+  (mode==='both'?'both safe viewpoints':mode==='first'?'first safe viewpoint':'second safe viewpoint')+
+  '. No real lights or hill access.');
+}
+
 function render(){
  const v=view(state),s=v.story;
  $('step-scene').hidden=v.screen!=='steps';$('connector-revisit').hidden=v.screen!=='connector';
+ $('trace-panel').hidden=!(s.previewComplete&&v.screen==='steps');
  $('stage').textContent='E08 '+s.stage+' · '+v.screen+' · production LOCKED';
  $('speaker').textContent=s.speaker;$('line').textContent=s.line;
  $('milo').textContent='Milo at '+s.milo.replaceAll('-',' ')+'. Upper hill CLOSED.';
@@ -55,7 +90,13 @@ function render(){
  $('comparison').textContent=s.comparison?'Same fixed marks; apparent spacing changed by '+s.comparison.spreadDifferenceDegrees.toFixed(1)+'°. Viewpoint, not the marks, moved.':'Compare two different safe viewpoints, not one guess.';
  $('parent').textContent='Optional parent cue: '+(s.parentCue||'What do you notice before making a guess?');
  $('steps-world').dataset.done=String(v.lowerLightsPaperOn);
- $('steps-world-note').textContent=v.lowerLightsPaperOn?'Lower model lamps ON; real lights NOT restored. Upper hill CLOSED.':'Lower model lamps are not a real repair. Upper hill CLOSED.';
+ $('steps-world-note').textContent=v.lowerLightsPaperOn?'BEFORE: lower PAPER model unlit. NOW: two model lamps ON; two safe views compared. The marks stayed fixed; real lights NOT restored. Upper hill CLOSED.':'BEFORE: lower PAPER model unlit. Upper hill CLOSED; no real repair.';
+ $('connector-trace').textContent=v.lowerLightsPaperOn?'Milo kept two PAPER viewpoints of the same fixed marks. Finn\'s connector is still a proposal; no path or lights were built.':'No E08 PAPER viewpoint record yet.';
+ if(s.previewComplete){drawTrace(s,v.reviewMode);
+  $('trace-detail').textContent=v.reviewMode==='first'?'FROM HERE: '+spread(s.firstView):
+   v.reviewMode==='second'?'FROM THERE: '+spread(s.secondView):
+   'FIRST: '+spread(s.firstView)+' | SECOND: '+spread(s.secondView)+'. A/B/C never moved; Milo changed viewpoint.';
+ }else{$('trace-map').replaceChildren();$('trace-detail').textContent='Finish the PAPER comparison to trace both views.';}
  $('note').textContent=s.paperNote;
  $('hook').textContent=v.lowerLightsPaperOn?'Next question: survey North Hill from a safe place. E09 NOT UNLOCKED.':'The service plate date and source are UNKNOWN. No E09 unlock.';
  draw(s);
