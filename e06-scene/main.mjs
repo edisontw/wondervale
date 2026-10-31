@@ -5,11 +5,14 @@ import {fresh as freshE07} from '../e07-scene/scene-model.mjs';
 import {decodeTransfer,encodeTransfer} from '../authoring-labs/e06-e07-scene-transfer.mjs';
 import {decodeMemoryStationGardenTransfer,encodeMemoryStationGardenTransfer}
  from '../authoring-labs/e04-e06-scene-transfer.mjs';
-const arcIncoming=decodeMemoryStationGardenTransfer(location.hash);
+import {decodeMemoryGardenShortcut,encodeMemoryGardenShortcut}
+ from '../authoring-labs/e04-e07-scene-transfer.mjs';
+const extended=decodeMemoryGardenShortcut(location.hash);
+const arcIncoming=extended||decodeMemoryStationGardenTransfer(location.hash);
 const incoming=decodeTransfer(location.hash);
 const stationIncoming=decodeStationGardenTransfer(location.hash);
 let state=arcIncoming?.e06||stationIncoming?.e06||incoming?.e06||fresh(),
- linkedE07=incoming?.e07||freshE07();
+ linkedE07=extended?.e07||incoming?.e07||freshE07();
 const linkedE05=arcIncoming?.e05||stationIncoming?.e05||null;
 const linkedE04=arcIncoming?.e04||null;
 const $=id=>document.getElementById(id);
@@ -111,7 +114,8 @@ function render(){
   $('note').textContent=v.paperChronicle;
   $('parent').textContent='Optional parent question: '+v.parentCue;
   const stationFragment=linkedE05&&(linkedE04?
-   encodeMemoryStationGardenTransfer(linkedE04,linkedE05,state):
+   (extended?encodeMemoryGardenShortcut(linkedE04,linkedE05,state,linkedE07):
+    encodeMemoryStationGardenTransfer(linkedE04,linkedE05,state)):
    encodeStationGardenTransfer(linkedE05,state));
   const memoryContext=$('e04-context');
   memoryContext.hidden=!stationFragment||!linkedE04;
@@ -125,7 +129,9 @@ function render(){
     const paper=E05.view(linkedE05);
     stationNote.textContent='E05 PAPER revisit: Milo tested a removable station copy, checked two MOCK sources (maker/date/original UNKNOWN), kept the walkway clear and overlaid two fictional garden marks. His question travels; no real site, date, access or E06 unlock is proved. E06 actions remain yours to perform.';
   }
-  const fragment=encodeTransfer(state,linkedE07),link=$('e07-transfer');
+  const earnedE07=encodeTransfer(state,linkedE07);
+  const fragment=linkedE04?(earnedE07&&encodeMemoryGardenShortcut(linkedE04,linkedE05,state,linkedE07)):earnedE07,
+   link=$('e07-transfer');
   link.hidden=!fragment;
   if(fragment)link.href='../e07-scene/'+fragment;
   buttons('current-actions',current);
