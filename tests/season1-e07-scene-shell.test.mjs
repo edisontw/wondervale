@@ -67,8 +67,10 @@ test('Milo checks both uses on revised PAPER route and safely stops at CLOSED bo
  assert.equal(view(s).walkthrough.stopped,true);
  assert.equal(can(s,w('try-closed')),false);
  s=go(s,w('inspect','crossing'));s=go(s,w('move','water-edge'));
+ assert.match(view(s).walkthrough.feedback,/Water needs a way/);
  assert.equal(can(s,w('move','steps-base')),false);
  s=go(s,w('inspect','water-edge'));s=go(s,w('move','steps-base'));
+ assert.match(view(s).walkthrough.feedback,/Steps BASE/);
  s=go(s,w('review'));
  const v=view(s);
  assert.equal(v.walkthrough.reviewed,true);

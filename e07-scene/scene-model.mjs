@@ -65,7 +65,8 @@ export function view(snapshot){const s=restore(snapshot);if(!s)return null;const
  const positionNames={bench:'model bench',crossing:'shared crossing','water-edge':'water edge','steps-base':'Lantern Steps BASE'};
  const walkFeedback=w.phase==='idle'?'First test and revise the connector for all three uses.':
   w.phase==='reviewed'?'PAPER route walk reviewed: people can pass, water stays open, Steps lights OFF.':
-  w.stopped?'CLOSED North Hill route: Milo stops at the boundary and stays on the model crossing.':
+  s.history.at(-1)?.scene==='walkthrough'&&s.history.at(-1)?.type==='try-closed'?
+   'CLOSED North Hill route: Milo stops at the boundary and stays on the model crossing.':
   w.position==='crossing'?'Can the other traveler pass? Look before moving.':
   w.position==='water-edge'?'Water needs a way. Look before moving.':
   w.position==='steps-base'?'At the MODEL Steps BASE. The lights are OFF. Review what you checked.':

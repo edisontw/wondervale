@@ -31,8 +31,11 @@ try{
    await hit('walk-closed');
    assert.match(await page.locator('#route-feedback').innerText(),/CLOSED/);
    await hit('walk-check-crossing');await hit('walk-water');
+   assert.match(await page.locator('#route-feedback').innerText(),/Water needs a way/);
    assert.equal(await b('walk-base').isDisabled(),true);
-   await hit('walk-check-water');await hit('walk-base');await hit('walk-review');
+   await hit('walk-check-water');await hit('walk-base');
+   assert.match(await page.locator('#route-feedback').innerText(),/Steps BASE/);
+   await hit('walk-review');
    assert.match(await page.locator('#route-feedback').innerText(),/PAPER route walk reviewed/);
    assert.match(await page.locator('#route-position').innerText(),/Steps BASE/);
    assert.match(await page.locator('#connector-world-note').innerText(),/walked and checked/);
