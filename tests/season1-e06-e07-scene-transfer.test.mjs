@@ -26,7 +26,7 @@ test('child-tested E06 PAPER care moves to independent E07 and back without a pr
  const first=decodeTransfer(fragment);
  assert.deepEqual(first.e06,e06);assert.deepEqual(first.e07,e07);
  assert.equal(E06.view(first.e06).lowerGrowthVisible,true);
- assert.equal(E07.view(first.e07).story.stage,'exploring');
+ assert.equal(E07.view(first.e07).story.stage,'explore');
  const e07Next=E07.dispatch(first.e07,{scene:'story',action:{type:'walk',value:'shared-path'}});
  const returned=decodeTransfer(encodeTransfer(first.e06,e07Next));
  assert.deepEqual(returned.e06,e06);assert.deepEqual(returned.e07,e07Next);
