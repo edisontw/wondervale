@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fresh,dispatch,restore,projection} from '../engine/s01e11-authoring-prototype.mjs';
+import {paperRevisit} from '../e11-scene/revisit-model.mjs';
 
 test('independent E11 scene imports only fictional reducer and has an honest closed gate',()=>{
  const html=readFileSync(new URL('../e11-scene/index.html',import.meta.url),'utf8');
@@ -24,4 +25,53 @@ test('forged production rights never survive the strict E11 replay',()=>{
  assert.deepEqual(view.canonicalEvents,[]);
  assert.deepEqual(view.unlocks,[]);
  assert.equal(view.finished,false);
+});
+
+test('FIRST/NOW world boards require strictly replayed child trials, and never promote rights',()=>{
+ let s=fresh();
+ const act=a=>{s=dispatch(s,a);};
+ assert.equal(paperRevisit(s),null);
+ act({type:'place',tokenId:'access',cells:['1,1','1,2']});
+ act({type:'place',tokenId:'quiet',cells:['0,1']});
+ act({type:'place',tokenId:'activity',cells:['0,2']});
+ act({type:'test-user',userId:'quiet_reader'});
+ act({type:'test-user',userId:'activity_group'});
+ act({type:'snapshot-trial'});
+ act({type:'place',tokenId:'activity',cells:['2,1']});
+ act({type:'test-user',userId:'quiet_reader'});
+ act({type:'test-user',userId:'activity_group'});
+ act({type:'snapshot-trial'});
+ assert.equal(paperRevisit(s),null,'no comparison before the child compares');
+ act({type:'compare-trials',first:'trial-1',second:'trial-2'});
+ const quiet=paperRevisit(s);
+ assert.equal(quiet.firstPass,false);
+ assert.equal(quiet.nowPass,true);
+ assert.deepEqual(quiet.first.layout.activity,['0,2']);
+ assert.deepEqual(quiet.now.layout.activity,['2,1']);
+ assert.equal(quiet.reviewed,false);
+ assert.deepEqual(quiet.links,[]);
+ assert.equal(quiet.placeOpen,false);
+ assert.equal(quiet.seasonComplete,false);
+ const group=paperRevisit(s,'activity_group');
+ assert.equal(group.firstPass,true);
+ assert.equal(group.nowPass,true);
+ assert.equal(paperRevisit(s,'forged_need'),null);
+ assert.equal(paperRevisit({...s,rights:['approved']}),null);
+ act({type:'cite-earlier',discoveryId:'e09_closure'});
+ for(const edgeId of ['square-market','market-common','common-square'])
+  act({type:'add-loop-edge',edgeId});
+ act({type:'check-loop'});
+ act({type:'review-preview'});
+ const reviewed=paperRevisit(s);
+ assert.equal(reviewed.reviewed,true);
+ assert.equal(reviewed.recalled,'e09_closure');
+ assert.equal(reviewed.links.length,3);
+ assert.match(reviewed.links.join(' '),/unnamed place/);
+ assert.doesNotMatch(reviewed.links.join(' '),/\\bcommon\\b/i);
+ assert.equal(reviewed.realAccess,false);
+ assert.equal(reviewed.historyApproved,false);
+ act({type:'place',tokenId:'activity',cells:['2,2']});
+ assert.equal(paperRevisit(s),null,'upstream layout change withdraws stale comparison');
+ act({type:'reset'});
+ assert.equal(paperRevisit(s),null);
 });
