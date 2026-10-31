@@ -48,10 +48,7 @@ try{
    for(const k of ['shortcut-start','shortcut-walk-shared-path','shortcut-inspect-shared-path',
     'shortcut-walk-channel','shortcut-inspect-channel','shortcut-walk-workbench',
     'shortcut-trial-milo','shortcut-trial-resident','shortcut-trial-water'])await hit(k);
-   assert.equal(await b('observe-care').isDisabled(),false);
-   await hit('observe-care');
-   assert.match(await page.locator('#care-bridge-result').innerText(),/BEFORE.*NOW/);
-   assert.match(await page.locator('#care-bridge-result').innerText(),/NOT CHECKED/);
+   assert.equal(await b('observe-care').isDisabled(),true);
    assert.match(await page.locator('#lower-state').innerText(),/hypothetical sprout/);
    assert.match(await page.locator('#shortcut-first').innerText(),/resident: BLOCKED/);
    assert.ok(await page.locator('#shortcut-board [data-conflict="true"]').count()>0);
@@ -62,6 +59,11 @@ try{
    for(const k of ['shortcut-trial-water','shortcut-trial-milo','shortcut-trial-resident'])await hit(k);
    assert.equal(await page.locator('#shortcut-board [data-conflict="true"]').count(),0);
    await hit('shortcut-compare');await hit('shortcut-finish');
+   assert.equal(await b('observe-care').isDisabled(),false);
+   await hit('observe-care');
+   assert.match(await page.locator('#care-bridge-result').innerText(),/BEFORE.*NOW/);
+   assert.match(await page.locator('#care-bridge-result').innerText(),/MODEL water trial PASSED/);
+   assert.match(await page.locator('#care-bridge-result').innerText(),/NOT CHECKED/);
    assert.match(await page.locator('#connector-state').innerText(),/revised/);
    await hit('to-upstream');
    assert.match(await page.locator('#connector-state').innerText(),/revised/);
