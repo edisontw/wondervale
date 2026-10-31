@@ -1,0 +1,58 @@
+name: Wondervale E10-E11 independent PAPER scene transfer
+on:
+  pull_request:
+    paths:
+      - 'authoring-labs/e10-e11-scene-transfer.mjs'
+      - 'e10-scene/**'
+      - 'e11-scene/**'
+      - 'tests/season1-e10-e11-scene-transfer*'
+      - '.github/workflows/wondervale-e10-e11-scene-transfer.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'authoring-labs/e10-e11-scene-transfer.mjs'
+      - 'e10-scene/**'
+      - 'e11-scene/**'
+      - 'tests/season1-e10-e11-scene-transfer*'
+permissions:
+  contents: read
+jobs:
+  paper-cross-scene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Node replay and source boundary
+        run: |
+          set -euo pipefail
+          node --check authoring-labs/e10-e11-scene-transfer.mjs
+          node --check e11-scene/main.mjs
+          node --check tests/season1-e10-e11-scene-transfer-browser.mjs
+          node --test tests/season1-e10-e11-scene-transfer.test.mjs tests/season1-e09-e10-scene-transfer.test.mjs tests/season1-e11-scene-shell.test.mjs
+      - name: Keep PAPER outside production packages
+        run: |
+          if grep -n -E 'e10-e11-scene-transfer|e10-scene|e11-scene' scripts/package_static.py scripts/package_e02.py scripts/package_e03.py scripts/compile_episode.py; then
+            echo 'ERROR: noncanonical E10-E11 included in release packaging' >&2
+            exit 1
+          fi
+      - name: Install Playwright Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Child-earned round-trip and reset at three viewports
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory . >/tmp/e10-e11-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:4173/e10-scene/ >/dev/null; then ready=1; break; fi
+            if ! kill -0 "$pid" 2>/dev/null; then break; fi
+            sleep 0.25
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/e10-e11-server.log >&2; exit 1; fi
+          node tests/season1-e10-e11-scene-transfer-browser.mjs
