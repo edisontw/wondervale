@@ -1,6 +1,9 @@
 // E05 isolated future scene shell: reuses strict station and mock-source reducers.
 import {fresh,dispatch,can,view} from './scene-model.mjs';
-let state=fresh();
+import {fresh as freshE06} from '../e06-scene/scene-model.mjs';
+import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
+const incoming=decodeStationGardenTransfer(location.hash);
+let state=incoming?.e05||fresh(),linkedE06=incoming?.e06||freshE06();
 const $=id=>document.getElementById(id);
 const actionOf=b=>{
   if(b.dataset.scene==='nav')return {scene:'nav',type:b.dataset.type};
@@ -42,6 +45,9 @@ function render(){
     (g.overlay?'Two marks shown together; no date or cause known.':'Inspect both PAPER sheets before overlay.')+
     (g.question?' E06 question recorded on PAPER only.':'');
   garden.append(grid,legend);
+  const fragment=encodeStationGardenTransfer(state,linkedE06),link=$('e06-paper');
+  link.hidden=!fragment;
+  if(fragment)link.href='../e06-scene/'+fragment;
   $('parent').textContent=v.parentCue?'Optional parent cue: '+v.parentCue:'Parent: allow Milo to observe and try first.';
   $('guard').textContent='Production E05 LOCKED · E04 canonical completion absent · access/source approval absent · E06 NOT UNLOCKED';
   for(const b of document.querySelectorAll('button[data-scene]')){
@@ -55,6 +61,9 @@ function render(){
   }
 }
 document.querySelectorAll('button[data-scene]').forEach(b=>b.addEventListener('click',()=>{
-  state=dispatch(state,actionOf(b));render();
+  const action=actionOf(b);
+  state=dispatch(state,action);
+  if(action.scene==='nav'&&action.type==='restart')linkedE06=freshE06();
+  render();
 }));
 render();
