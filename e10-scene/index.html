@@ -20,6 +20,13 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 .paper{background:#f3f5ed;border:1px dashed #98ad9b;border-radius:.4rem;padding:.6rem;margin:.5rem 0;line-height:1.5;overflow-wrap:anywhere}
 .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem}
 .cards .paper{margin:.15rem 0}
+.compare-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem}
+.compare-slot{min-width:0;border:2px solid #9eb8a6;background:#f4f8f0;border-radius:.4rem;padding:.55rem;overflow-wrap:anywhere;min-height:5.5rem}
+.compare-slot strong{display:block;margin-bottom:.4rem}
+.compare-slot[data-occupied=true]{background:#e0ece1}
+.compare-slot[data-conflict=true]{background:#ffdfcb;border-color:#9b4d32}
+.compare-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+.compare-evidence .paper{margin:.2rem 0}
 [hidden]{display:none!important}
 @media(max-width:700px){.columns,.cards{grid-template-columns:1fr}.panel{padding:.55rem}}
 </style></head><body><main>
@@ -73,11 +80,21 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <button id="restart">Restart story</button></div>
 <p id="hook" class="paper" role="status"></p>
 </section></div>
+<section id="paper-comparison" class="panel" hidden>
+<h2>6. See what Milo changed — FIRST / NOW</h2>
+<p>FIRST is the shared-slot PAPER test Milo actually tried, not the historical past. NOW is his revised model. No real layout is approved.</p>
+<div class="controls"><button id="compare-first" type="button" aria-pressed="false">FIRST: test the overlap</button>
+<button id="compare-now" type="button" aria-pressed="true">NOW: revised cards</button></div>
+<div id="comparison-board" class="compare-board" aria-label="Three fictional paper board slots"></div>
+<p id="comparison-summary" class="paper" role="status"></p>
+<div id="comparison-evidence" class="compare-evidence" aria-label="Milo's observed traces and tentative ideas"></div>
+<p class="paper">Nia: “I see two marks. Does that tell us their old use?” Finn: “We can change the plan, not the facts.” The name, dates and access remain UNKNOWN.</p>
+</section>
 <p><small>Useful English: “I see…” · “It could be…” · “They need…” · “Can both fit?” · “We don't know yet.” Use Tab and Enter/Space, or touch/click. No score, account, timer, speech or storage.</small></p>
 <script type="module">
 import {fresh,dispatch,can,view} from '../authoring-labs/unnamed-story-model.mjs';
 import {TRACES,USE_TAGS,NEEDS,SLOTS} from '../engine/s01e10-authoring-prototype.mjs';
-let state=fresh(),screen='courtyard';const $=id=>document.getElementById(id);
+let state=fresh(),screen='courtyard',comparisonLayer='now';const $=id=>document.getElementById(id);
 const names={entry:'entry',stone_edge:'stone edge',notice_wall:'notice wall',quiet_corner:'quiet corner',meeting_edge:'meeting edge'};
 function action(b){
  const type=b.dataset.action,value=b.dataset.value;
@@ -96,6 +113,35 @@ function action(b){
 function add(host,type,value,label){
  const b=document.createElement('button');b.type='button';b.dataset.action=type;
  if(value!==null)b.dataset.value=value;b.textContent=label;host.append(b);
+}
+function drawComparison(v){
+ const c=v.comparison,shown=!!c&&screen==='courtyard';
+ $('paper-comparison').hidden=!shown;
+ if(!c)return;
+ $('compare-first').setAttribute('aria-pressed',String(comparisonLayer==='first'));
+ $('compare-now').setAttribute('aria-pressed',String(comparisonLayer==='now'));
+ const board=comparisonLayer==='first'?c.first:c.now;
+ const host=$('comparison-board');host.replaceChildren();
+ for(const [slot,title] of [['left','Left'],['shared','Shared'],['right','Right']]){
+  const cards=Object.entries(board).filter(([,place])=>place===slot).map(([id])=>
+   id==='quiet'?'Quiet reader':'Activity group');
+  const tile=document.createElement('div');tile.className='compare-slot';
+  tile.dataset.slot=slot;tile.dataset.occupied=String(cards.length>0);
+  tile.dataset.conflict=String(cards.length>1);
+  const label=document.createElement('strong');label.textContent=title+' PAPER slot';
+  const body=document.createElement('span');body.textContent=cards.join(' + ')||'Empty';
+  tile.append(label,body);host.append(tile);
+ }
+ $('comparison-summary').textContent=comparisonLayer==='first'?
+  'FIRST: Milo tested both simulated needs in one shared spot. They overlap. He can move a card and try again.':
+  'NOW: Milo moved the quiet and activity cards apart. This is a reversible PAPER layout, not a real construction plan.';
+ const evidence=$('comparison-evidence');evidence.replaceChildren();
+ for(const item of c.seen){
+  const tile=document.createElement('div');tile.className='paper';tile.dataset.trace=item.id;
+  const tags=c.maybe.filter(x=>x.id===item.id).map(x=>x.tag).join(', ')||'none';
+  tile.textContent='SEEN at '+item.at.replaceAll('_',' ')+': '+item.text+' MAYBE: '+tags+'. Past use UNKNOWN.';
+  evidence.append(tile);
+ }
 }
 function render(){
  const v=view(state);
@@ -129,6 +175,7 @@ function render(){
  $('feedback').textContent=v.feedback+' · One-slot test: '+(v.testedOneSlot?'tried':'not yet')+
   ' · Revision: '+(v.changedAfterTest?'tried':'not yet');
  $('hook').textContent=v.paperNote;
+ drawComparison(v);
  for(const b of document.querySelectorAll('button[data-action]'))b.disabled=!can(state,action(b));
 }
 document.addEventListener('click',e=>{
@@ -137,6 +184,8 @@ document.addEventListener('click',e=>{
 });
 $('e09-callback').addEventListener('click',()=>{if(view(state).finishedPaper){screen='survey';render();}});
 $('e10-back').addEventListener('click',()=>{screen='courtyard';render();});
-$('restart').addEventListener('click',()=>{state=fresh();screen='courtyard';render();});
+$('compare-first').addEventListener('click',()=>{if(view(state).comparison){comparisonLayer='first';render();}});
+$('compare-now').addEventListener('click',()=>{if(view(state).comparison){comparisonLayer='now';render();}});
+$('restart').addEventListener('click',()=>{state=fresh();screen='courtyard';comparisonLayer='now';render();});
 render();
 </script></main></body></html>

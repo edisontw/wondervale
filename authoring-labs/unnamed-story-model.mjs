@@ -90,9 +90,21 @@ export function view(snapshot){
  if(last?.type==='review-tradeoff'){speaker='Finn';line='We kept both needs visible. No real plan is chosen.';}
  if(last?.type==='review'){speaker='Nia';line='We saw clues. We have ideas. We still have questions.';}
  if(last?.type==='finish-paper'){speaker='Milo';line='Our paper notes are ready. We cannot open the place yet.';}
+ // FIRST is the child's actual one-slot trial, never a claim about historical use.
+ const firstTestIndex=s.history.findIndex(a=>a.type==='test-one-slot');
+ const firstTest=s.finishedPaper&&firstTestIndex>=0?
+  replay(s.history.slice(0,firstTestIndex+1)):null;
+ const comparison=firstTest?{
+  first:{quiet:firstTest.e10.board.quiet,activity:firstTest.e10.board.activity},
+  now:{quiet:n.board.quiet,activity:n.board.activity},
+  seen:n.inspected.map(id=>({id,at:E10.TRACES[id].at,text:E10.TRACES[id].seen})),
+  maybe:Object.entries(n.hypotheses).flatMap(([id,tags])=>
+   tags.map(tag=>({id,tag,qualifier:'MAYBE'}))),
+  historicalBefore:false,realAccessApproved:false,e11Unlocked:false
+ }:null;
  const stage=!s.started?'opening':s.finishedPaper?'finished':n.reviewed?'reviewed':
   s.testedOneSlot?'revise':n.heard.length===2?'needs':n.inspected.length===2?'infer':'explore';
- return {stage,speaker,line,position:n.position,inspected:[...n.inspected],
+ return {stage,speaker,line,comparison,position:n.position,inspected:[...n.inspected],
   observations:p.cards.seen,hypotheses:p.cards.maybe,needs:p.cards.needs,
   unknown:p.cards.unknown,board:{...n.board},heard:[...n.heard],
   feedback:last?.type==='test-one-slot'?'PAPER TEST: one shared spot at the same time may not suit both needs. Move a card and compare.':
