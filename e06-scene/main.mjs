@@ -3,6 +3,7 @@ let state=fresh();
 const $=id=>document.getElementById(id);
 const garden=(type,value)=>({scene:'garden',action:value===undefined?{type}:{type,value}});
 const nav=type=>({scene:'nav',type});
+const care=(type,value)=>value===undefined?{scene:'care',type}:{scene:'care',type,value};
 const current=[
   ['start','Begin garden story',garden('start')],
   ['bed','Inspect healthy bed',garden('inspect','present-bed')],
@@ -34,6 +35,12 @@ const lower=[
   ['unsure','I need more evidence',garden('think','need-more')],
   ['finish','Keep small PAPER pocket plan',garden('finish')]
 ];
+const careActions=[
+  ['heavy-care','Try LOTS of MODEL water',care('choose','heavy')],
+  ['gentle-care','Try a LITTLE MODEL water',care('choose','gentle')],
+  ['test-care','Test the PAPER seed',care('test')],
+  ['compare-care','Compare BEFORE / NOW',care('compare')]
+];
 const navigation=[
   ['to-current','Revisit healthy Current Garden',nav('to-current')],
   ['to-lower','Return to Lower Garden model',nav('to-lower')],
@@ -57,13 +64,26 @@ function render(){
   $('lower-world').dataset.done=String(v.lowerPaperStarted);
   $('current-world-note').textContent='Healthy present beds remain. '+(v.currentCompared?
     'MODEL water comparison completed.':'MODEL water comparison open.');
-  $('lower-world-note').textContent=v.lowerPaperStarted?
-    'A removable PAPER pocket plan remains. No real plants or growth.':
+  $('lower-world-note').textContent=v.lowerGrowthVisible?
+    'PAPER pocket: a hypothetical sprout appears after two water tests. No actual growth.':
+    v.care.stage==='paper-soggy'?'PAPER pocket: too much MODEL water. A retry is possible.':
+    v.lowerPaperStarted?'A removable PAPER pocket plan remains. No real plants or growth.':
     v.lowerVisited?'Lower garden MODEL inspected; no approved planting.':'Not visited yet.';
+  $('care-panel').hidden=!(v.screen==='lower'&&v.lowerPaperStarted);
+  $('upper-bed-tile').dataset.stage='healthy';
+  $('lower-growth-tile').dataset.stage=v.care.stage;
+  $('lower-growth-tile').textContent=v.care.stage==='paper-sprout'?
+    'PAPER sprout (possible) · NOT a real plant':
+    v.care.stage==='paper-soggy'?'PAPER seed is soggy · try less MODEL water':
+    v.care.stage==='paper-seed'?'PAPER seed looks ready · compare tests':
+    'Future growth · NOT APPROVED';
+  $('care-feedback').textContent='PAPER water tests: '+v.care.trials.map(t=>
+    t.choice.toUpperCase()+' → '+(t.result==='paper-soggy'?'soggy seed':'possible sprout')).join('; ')+
+    (v.care.compared?' · BEFORE / NOW compared.':' · comparison open.');
   $('stage').textContent='Viewing '+(v.screen==='current'?'Current Garden':'Lower Garden')+
     ' · model phase '+g.phase+' · production entry LOCKED';
-  $('speaker').textContent=g.speaker;
-  $('line').textContent=g.line;
+  $('speaker').textContent=v.speaker;
+  $('line').textContent=v.line;
   $('milo').textContent='Milo at '+g.milo;
   $('tray').textContent='PAPER tray: '+g.runs.length+' run(s). Weather '+g.weather+
     '; channel '+g.channel+'; compared '+g.modelCompared+'. A model is not historical proof.';
@@ -76,6 +96,7 @@ function render(){
   $('parent').textContent='Optional parent question: '+v.parentCue;
   buttons('current-actions',current);
   buttons('lower-actions',lower);
+  buttons('care-actions',careActions);
   buttons('nav-actions',navigation);
 }
 render();
