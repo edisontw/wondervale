@@ -15,3 +15,9 @@ Verify: `node --test tests/season1-e09-scene-shell.test.mjs tests/season1-hill-s
 ## E08 ↔ E09 independent PAPER visit (2026-11-01)
 
 A child-earned E08 two-view comparison may be carried here as strictly replayed PAPER evidence, displaying the different apparent spreads of the same fixed markers. Milo still has to walk, inspect the CLOSED boundary, try the closed edge safely, mark the alternate surveyed route and distinguish SEEN/THINK/UNKNOWN. E09's progress survives a round trip to E08; E09 restart does not erase E08. A direct E09 authoring visit has no linked E08 proof. No real hill access, lighting, source date, official unlock or MN4 deployment is implied.
+
+## E09 → E10 independent PAPER transfer (2026-11-01)
+
+After an E08 two-view PAPER model is strictly replayed and Milo personally finishes the E09 safe survey, the E09 page offers a **separate** E10 fictional courtyard link. The URL fragment carries bounded replayed E08/E09/E10 histories (and optional valid E07/E06 context), never a claimed canonical completion. North Hill remains CLOSED; E10 is not an actual accessible route, verified source or official unlock. Return from E10 restores the E09 field sketch; E10 restart clears E10 only, E09 restart invalidates the downstream transfer. Direct scene visits still work as independent authoring models without claiming upstream completion.
+
+Checks: `node --test tests/season1-e09-e10-scene-transfer.test.mjs` and `node tests/season1-e09-e10-scene-transfer-browser.mjs` with the repository-root server on port 4173.

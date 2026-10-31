@@ -32,7 +32,9 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 </style></head><body><main>
 <header><h1>E10 — The Place with No Name</h1><div>Scene 11 of 12 · independent child-controlled courtyard · EFL PAPER scene</div></header>
 <p class="notice"><strong>AUTHORING ONLY — FICTIONAL COURTYARD.</strong> All traces, routes and voices are simulated. Name, dates, safe access and source rights UNKNOWN. North Hill CLOSED. No approved art, Chronicle, E11 unlock, MN4 release or family acceptance. No E09 completion is imported. The historical name is intentionally not revealed.</p>
-<div class="dialogue" aria-live="polite"><strong id="speaker">Milo</strong>: <span id="line"></span><div id="stage"></div></div><div class="controls"><button id="e09-callback" disabled>Review E09 PAPER field notes</button><button id="e10-back" hidden>Return to E10 courtyard</button></div><section id="e09-notes" class="panel" hidden><h2>Looking back at the hill</h2><p>The upper hill remains CLOSED. An unidentified mark was observed in a fictional lower survey. It does not prove a real safe entrance, a date, or a place name. No E09 completion is imported.</p></section>
+<p id="hill-context" class="paper" role="status">No E09 PAPER survey linked. Direct E10 authoring does not prove hill completion.</p>
+<p><a id="e09-return" hidden href="../e09-scene/">Return to E09 PAPER survey (not a real hill route)</a></p>
+<div class="dialogue" aria-live="polite"><strong id="speaker">Milo</strong>: <span id="line"></span><div id="stage"></div></div><div class="controls"><button id="e09-callback" disabled>Review E09 PAPER field notes</button><button id="e10-back" hidden>Return to E10 courtyard</button></div><section id="e09-notes" class="panel" hidden><h2>Looking back at the hill</h2><p id="e09-observation" class="paper">No linked field observations.</p><p>The upper hill remains CLOSED. An unidentified mark was observed in a fictional lower survey. It does not prove a real safe entrance, a date, or a place name. No E09 completion is imported.</p></section>
 <div class="controls"><button data-action="start">Begin Milo's investigation</button></div>
 <div class="columns" id="e10-work">
 <section class="panel"><h2>1. Walk Milo and look</h2>
@@ -94,7 +96,13 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <script type="module">
 import {fresh,dispatch,can,view} from '../authoring-labs/unnamed-story-model.mjs';
 import {TRACES,USE_TAGS,NEEDS,SLOTS} from '../engine/s01e10-authoring-prototype.mjs';
-let state=fresh(),screen='courtyard',comparisonLayer='now';const $=id=>document.getElementById(id);
+import {view as viewE09} from '../e09-scene/scene-model.mjs';
+import {decodeUnnamedTransfer,encodeUnnamedTransfer} from '../authoring-labs/e09-e10-scene-transfer.mjs';
+const incoming=decodeUnnamedTransfer(location.hash);
+let state=incoming?.e10||fresh(),screen='courtyard',comparisonLayer='now';
+const linkedE09=incoming?.e09||null,linkedE08=incoming?.e08||null;
+const linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
+const $=id=>document.getElementById(id);
 const names={entry:'entry',stone_edge:'stone edge',notice_wall:'notice wall',quiet_corner:'quiet corner',meeting_edge:'meeting edge'};
 function action(b){
  const type=b.dataset.action,value=b.dataset.value;
@@ -145,6 +153,18 @@ function drawComparison(v){
 }
 function render(){
  const v=view(state);
+ const hill=linkedE09&&viewE09(linkedE09).story;
+ $('hill-context').textContent=hill?.previewComplete?
+  'E09 PAPER survey carried forward: Milo inspected '+hill.inspected.length+
+  ' fictional clues, marked '+hill.markedEdges.length+' walked edges and compared the distant mark shape. The hill is CLOSED; no real entrance, name, date or rights are proved.':
+  'No E09 PAPER survey linked. Direct E10 authoring does not prove hill completion.';
+ $('e09-observation').textContent=hill?.previewComplete?
+  'I SEE: '+hill.observations.map(x=>x.text).join(' / ')+
+  '. I THINK: model ideas only. UNKNOWN: actual safe access, dates and place identity.':
+  'No linked field observations. The upper hill stays CLOSED.';
+ const returnFragment=linkedE08&&encodeUnnamedTransfer(linkedE08,linkedE09,state,linkedE07,linkedE06);
+ $('e09-return').hidden=!returnFragment;
+ if(returnFragment)$('e09-return').href='../e09-scene/'+returnFragment;
  $('e09-callback').disabled=!v.finishedPaper||screen==='survey';
  $('e10-back').hidden=screen!=='survey';
  $('e09-notes').hidden=screen!=='survey';

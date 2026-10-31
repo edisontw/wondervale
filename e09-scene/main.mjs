@@ -3,6 +3,8 @@ import {NODES,SAFE_EDGES,CLOSED_NODE,CLOSED_EDGE,CLUES,HYPOTHESES} from '../engi
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {view as viewE08} from '../e08-scene/scene-model.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
+import {fresh as freshE10} from '../authoring-labs/unnamed-story-model.mjs';
+import {decodeUnnamedTransfer,encodeUnnamedTransfer} from '../authoring-labs/e09-e10-scene-transfer.mjs';
 
 const $=id=>document.getElementById(id);
 const names={steps_base:'Steps base',signpost:'Signpost',fence_view:'Fence lookout',
@@ -13,9 +15,10 @@ const edgeNames={'steps_base:signpost':'Steps–Signpost','signpost:fence_view':
   'signpost:lower_bend':'Signpost–Bend','lower_bend:overlook':'Bend–Overlook'};
 const coords={steps_base:[13,56],signpost:[36,46],fence_view:[64,32],
   lower_bend:[57,76],overlook:[86,70],upper_closed:[80,16]};
-const incoming=decodeHillTransfer(location.hash);
+const incoming=decodeUnnamedTransfer(location.hash)||decodeHillTransfer(location.hash);
 let state=incoming?.e09||fresh();
 const linkedE08=incoming?.e08||null,linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
+let linkedE10=incoming?.e10||null;
 const story=()=>view(state).story;
 const wrap=action=>({scene:'story',action});
 const nav=type=>({scene:'nav',type});
@@ -27,7 +30,7 @@ actor.className='milo';actor.textContent='Milo';actor.setAttribute('aria-hidden'
 const adjacent=(a,b)=>SAFE_EDGES.some(e=>(e.a===a&&e.b===b)||(e.b===a&&e.a===b));
 const required=['boundary_sign','disturbed_ground','runoff_marks','distant_symbol'];
 function act(action){state=dispatch(state,wrap(action));render();}
-function navigate(type){state=dispatch(state,nav(type));render();}
+function navigate(type){state=dispatch(state,nav(type));if(type==='restart')linkedE10=null;render();}
 function button(host,label,action,disabled=false,pressed=false){
   const b=document.createElement('button');b.type='button';b.textContent=label;
   b.disabled=disabled||!can(state,wrap(action));
@@ -191,6 +194,9 @@ function render(){
   'No E08 PAPER viewpoint record linked. This direct authoring visit cannot claim E08 completion.';
  const returnLink=$('e08-return'),fragment=linkedE08&&encodeHillTransfer(linkedE08,state,linkedE07,linkedE06);
  returnLink.hidden=!fragment;if(fragment)returnLink.href='../e08-scene/'+fragment;
+ const e10Fragment=linkedE08&&encodeUnnamedTransfer(linkedE08,state,linkedE10||freshE10(),linkedE07,linkedE06);
+ const e10Link=$('e10-paper');e10Link.hidden=!e10Fragment;
+ if(e10Fragment)e10Link.href='../e10-scene/'+e10Fragment;
  world();movement();inspect();sketch();thoughts();notebook();survey();
 }
 $('start').addEventListener('click',()=>act({type:'start'}));

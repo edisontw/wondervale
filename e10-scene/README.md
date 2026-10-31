@@ -11,3 +11,9 @@ Node: node --test tests/season1-unnamed-story.test.mjs tests/s01e10-authoring-pr
 After Milo tests both simulated need cards in the shared slot, moves them apart, inspects both fictional traces and finishes the four-column PAPER notes, a visible FIRST/NOW board becomes available. FIRST is reconstructed from his actual strict-replayed one-slot test, **not** the site's historical past. NOW displays his revised reversible layout; the two observed traces and MAYBE tags remain separate from UNKNOWN history. The board survives the read-only E09 callback, resets with E10 and never grants E11 access or official Chronicle.
 
 Regression: `node --test tests/season1-unnamed-story.test.mjs` and `node tests/season1-e10-scene-shell-browser.mjs` with the repository-root HTTP server at port 4173.
+
+## E09 → E10 separate-scene visit (PAPER only)
+
+A child-earned E09 safe survey plus E08 two-view observation may link to this independent E10 scene through a bounded, strictly replayed URL fragment. E10 displays read-only E09 observations and the CLOSED hill warning. Milo still has to investigate the fictional courtyard, test and revise the simulated needs board himself; no history, name or real entrance is inferred from the transferred sketch. The E09 return link preserves both scenes' PAPER progress. E10 restart clears only E10; restarting E09 invalidates its linked downstream visit. No storage writes, official Chronicle, E10/E11 unlock or deployment.
+
+Tests: `node --test tests/season1-e09-e10-scene-transfer.test.mjs` and `node tests/season1-e09-e10-scene-transfer-browser.mjs` with the repository-root server on port 4173.
