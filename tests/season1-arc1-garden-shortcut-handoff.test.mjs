@@ -146,7 +146,7 @@ test('strict replay rejects tampered nested evidence, permissions and direct E07
  assert.equal(C.replay(Array(C.MAX_ACTIONS+1).fill({scene:'nav',type:'restart-all'})),null);
 });
 
-test('child-tested E06 care appears in E07 only after Milo inspects Finn’s MODEL channel',()=>{
+test('child-tested E06 care reaches E07 only after revised MODEL water passes',()=>{
  const care=(type,value)=>value===undefined?{scene:'care',type}:{scene:'care',type,value};
  const callback={scene:'care-callback',type:'observe'};
  assert.equal(C.can(C.fresh(),care('choose','heavy')),false);
@@ -171,6 +171,15 @@ test('child-tested E06 care appears in E07 only after Milo inspects Finn’s MOD
   s=act(s,'shortcut',action);
  assert.equal(C.can(s,callback),false);
  s=act(s,'shortcut',{type:'inspect',value:'channel'});
+ assert.equal(C.can(s,callback),false); // FIRST layout still blocks water
+ for(const action of [{type:'walk',value:'workbench'},
+  ...['milo','resident','water'].map(value=>({type:'trial',value})),
+  {type:'place',value:'path-clear-water-blocked'},
+  ...['milo','resident','water'].map(value=>({type:'trial',value})),
+  {type:'place',value:'side-offset'},
+  ...['water','milo','resident'].map(value=>({type:'trial',value})),
+  {type:'compare'},{type:'finish'}])s=act(s,'shortcut',action);
+ assert.equal(C.view(s).shortcut.revisedTrials.water.pass,true);
  assert.equal(C.can(s,callback),true);
  s=C.dispatch(s,callback);
  assert.equal(C.view(s).careCheckedInE07,true);
