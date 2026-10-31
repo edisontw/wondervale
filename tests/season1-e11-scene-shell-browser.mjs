@@ -79,6 +79,15 @@ async function journey(page,label,shots){
  await press(page,'Compare FIRST and NOW');
  assert.match(await page.locator('#comparison').innerText(),/trial-1 → NOW trial-2/);
  assert.match(await page.locator('#comparison').innerText(),/not real access/);
+ assert.equal(await page.locator('#revisit').isVisible(),true);
+ assert.match(await page.locator('#revisit-first-result').innerText(),/FIRST Quiet reader: RETRY/);
+ assert.match(await page.locator('#revisit-now-result').innerText(),/NOW Quiet reader: PASS/);
+ assert.equal(await page.locator('#revisit-first .mini-cell').count(),12);
+ assert.equal(await page.locator('#revisit-now .mini-cell').count(),12);
+ assert.match(await page.locator('#revisit-first').getAttribute('aria-label'),/FIRST fictional paper board/);
+ await press(page,'Trace activity group');
+ assert.match(await page.locator('#revisit-first-result').innerText(),/FIRST Activity group: PASS/);
+ assert.match(await page.locator('#revisit-now-result').innerText(),/NOW Activity group: PASS/);
  await press(page,'Recall E09 closed hill');
  assert.match(await page.locator('#citation').innerText(),/SYNTHETIC/);
  await press(page,'Add link: square ↔ market');
@@ -97,6 +106,9 @@ async function journey(page,label,shots){
  await press(page,'Review NONCANONICAL finale');
  assert.match(await page.locator('#hook').innerText(),/unnamed place is NOT OPEN/);
  assert.match(await page.locator('#hook').innerText(),/Season 1 is NOT COMPLETE/);
+ assert.match(await page.locator('#revisit-world').innerText(),/unnamed place/);
+ assert.match(await page.locator('#revisit-world').innerText(),/North Hill CLOSED/);
+ assert.doesNotMatch(await page.locator('#revisit-world').innerText(),/\\bCommon\\b/);
  await invariant(page,label+' reviewed');
  assert.equal(await btn(page,'Review E10 PAPER needs').isEnabled(),true);
  await press(page,'Review E10 PAPER needs');
@@ -106,10 +118,13 @@ async function journey(page,label,shots){
  await press(page,'Return to E11 trial');
  assert.equal(await page.locator('#e11-work').isVisible(),true);
  assert.match(await page.locator('#chronicle').innerText(),/model review recorded/);
+ assert.match(await page.locator('#revisit-first-result').innerText(),/FIRST Activity group: PASS/);
+ assert.match(await page.locator('#revisit-world').innerText(),/PAPER revisit/);
  await geometry(page,label+' reviewed');
  if(shots){
   await page.locator('#grid').screenshot({path:'test-results/e11-scene-'+label+'-grid.png'});
   await page.locator('#trials').screenshot({path:'test-results/e11-scene-'+label+'-trials.png'});
+  await page.locator('#revisit').screenshot({path:'test-results/e11-scene-'+label+'-world-revisit.png'});
  }
  await press(page,'Restart fictional lab');
  assert.equal(await btn(page,'Begin the PAPER trial').isVisible(),true);
@@ -117,6 +132,7 @@ async function journey(page,label,shots){
  assert.match(await page.locator('#position').innerText(),/Milo at 1,0/);
  assert.equal(await btn(page,'Place access strip (two middle cells)').isEnabled(),true);
  assert.equal(await btn(page,'Review NONCANONICAL finale').isDisabled(),true);
+ assert.equal(await page.locator('#revisit').isVisible(),false);
  await invariant(page,label+' reset');
  await page.reload();await press(page,'Begin the PAPER trial');await btn(page,'Cell 0,1').waitFor();
  assert.match(await page.locator('#position').innerText(),/Milo at 1,0/);
