@@ -9,7 +9,7 @@ const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
 // are replayed and rejected, never trusted from an old object identity.
 const verified=new WeakMap();
 const mark=s=>{verified.set(s,JSON.stringify(s));return s;};
-const careFresh=()=>({choice:null,trials:[],compared:false});
+const careFresh=()=>({choice:null,trials:[],compared:false,pending:false});
 export function fresh(){
  return mark({version:VERSION,mode:'noncanonical_paper',stage:'upstream',
   upstream:Up.fresh(),shortcut:Short.fresh(),care:careFresh(),careCheckedInE07:false,history:[],
@@ -45,14 +45,15 @@ function apply(s,a){
  if(a.scene==='care'){
   if(s.stage!=='upstream'||s.upstream.stage!=='garden'||s.upstream.garden.phase!=='finished')return null;
   const c=s.care,last=c.trials.at(-1);
-  if(a.type==='choose')return c.choice===a.value?null:{...s,care:{...c,choice:a.value,compared:false},careCheckedInE07:false};
+  if(a.type==='choose')return c.choice===a.value?null:{...s,care:{...c,choice:a.value,compared:false,pending:true},careCheckedInE07:false};
   if(a.type==='test'){
-   if(!c.choice||last?.choice===c.choice)return null;
+   if(!c.choice||!c.pending||last?.choice===c.choice)return null;
    const result=c.choice==='heavy'?'paper-soggy':'paper-seed';
-   return {...s,care:{...c,trials:[...c.trials,{choice:c.choice,result}],compared:false},careCheckedInE07:false};
+   return {...s,care:{...c,trials:[...c.trials,{choice:c.choice,result}],compared:false,pending:false},careCheckedInE07:false};
   }
   if(a.type==='compare'){
-   if(c.compared||last?.choice!=='gentle'||!['heavy','gentle'].every(x=>c.trials.some(t=>t.choice===x)))return null;
+   if(c.compared||c.pending||c.choice!=='gentle'||last?.choice!=='gentle'||
+      !['heavy','gentle'].every(x=>c.trials.some(t=>t.choice===x)))return null;
    return {...s,care:{...c,compared:true},careCheckedInE07:false};
   }
   return null;
