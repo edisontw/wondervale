@@ -12,3 +12,9 @@ After Milo saves two tested layouts and compares them, the scene shows **two sep
 Node and four-viewport/keyboard Chromium tests cover the evidence-derived boards, two focus modes, callback retention, closed boundary, anti-forgery and reset. Run these tests and check the exact PR-head and merged-main Actions before claiming PASS.
 
 **Blocked-design:** one Owner batch for genuine E04 source chronology and E10/E11 identity, attributed needs, site geometry/access/rights and painterly art. A green PAPER test is not Gate 4 deployment or family approval.
+
+## Simulated role conversation (child action)
+
+After earning FIRST/NOW, Milo can select the quiet-reader or activity-group role, inspect a specific cell on the FIRST paper board, safely retry an unrelated cell, and uncover how the two recorded trials affect that simulated need. Finn admits the first model did not test everyone; Nia distinguishes the successful paper revision from real consultation. A child-controlled question about actual needs, access and permission remains open. These are **simulated role cards**, not quotations or testimony from residents. The comparison and role response survive the read-only E10 callback within this session, but a changed layout invalidates the derived conversation; restart/reload clears it. No new canon, rights, real access, production Chronicle, unlock, audio or image is introduced.
+
+`role-inspection.mjs` reconstructs role evidence only from strict replayed snapshots. Node tests cover wrong-cell retry, both roles, forged rights and stale comparison. Chromium tests cover touch-sized FIRST-cell buttons, keyboard, four viewports and E10 callback. Verify exact PR-head and merged-main Actions before recording PASS.

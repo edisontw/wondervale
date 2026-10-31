@@ -2,13 +2,14 @@
 import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
   fresh,dispatch,projection} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperRevisit} from './revisit-model.mjs';
+import {inspectPaperRole} from './role-inspection.mjs';
 const $=id=>document.getElementById(id);
 const titles={quiet:'Quiet seat',activity:'Activity area',access:'Access strip',
  quiet_reader:'Quiet reader',activity_group:'Activity group',
  e03_delivery:'E03 delivery',e06_drainage:'E06 water',e07_user_impact:'E07 shared use',
  e09_closure:'E09 closed hill',e10_needs:'E10 needs'};
 const toolNames={walk:'Walk Milo',quiet:'Place quiet seat',activity:'Place activity area'};
-let state=fresh(),tool='walk',begun=false,screen='trial',revisitFocus='quiet_reader';
+let state=fresh(),tool='walk',begun=false,screen='trial',revisitFocus='quiet_reader',roleCell=null;
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
 function act(action){state=dispatch(state,action);render();}
@@ -128,7 +129,16 @@ function miniBoard(host,trial,focus,stage){
   const cell=r+','+c,quiet=trial.layout.quiet.includes(cell),
    activity=trial.layout.activity.includes(cell),
    access=trial.layout.access.includes(cell),closed=BOUNDARY.includes(cell);
-  const mark=document.createElement('span');mark.className='mini-cell';
+  const mark=document.createElement(stage==='FIRST'?'button':'span');mark.className='mini-cell';
+  if(stage==='FIRST'){
+   mark.type='button';mark.dataset.cell=cell;
+   mark.setAttribute('aria-label','Inspect FIRST cell '+cell);
+   mark.addEventListener('click',()=>{
+    roleCell=cell;worldRevisit();
+    const next=[...$('revisit-first').querySelectorAll('button')].find(b=>b.dataset.cell===cell);
+    next?.focus();
+   });
+  }
   if(closed)mark.classList.add('mini-closed');
   if(access)mark.classList.add('mini-access');
   if(quiet)mark.classList.add('mini-quiet');
@@ -136,7 +146,8 @@ function miniBoard(host,trial,focus,stage){
   if((focus==='quiet_reader'&&quiet)||(focus==='activity_group'&&activity))
    mark.classList.add('mini-focus');
   mark.textContent=closed?'CLOSED':quiet?'Quiet':activity?'Activity':access?'Way':'·';
-  mark.setAttribute('aria-label',cell+': '+(closed?'closed boundary':quiet?'quiet seat':
+  mark.setAttribute('aria-label',stage==='FIRST'?'Inspect FIRST cell '+cell:
+   cell+': '+(closed?'closed boundary':quiet?'quiet seat':
    activity?'activity area':access?'access strip':'empty paper cell'));
   host.append(mark);
  }
@@ -144,16 +155,21 @@ function miniBoard(host,trial,focus,stage){
 function worldRevisit(){
  const model=paperRevisit(state,revisitFocus);
  $('revisit').hidden=!model;
- if(!model)return;
+ if(!model){roleCell=null;return;}
  const choices=$('revisit-focus');choices.replaceChildren();
  for(const [id,name] of [['quiet_reader','Trace quiet reader'],['activity_group','Trace activity group']])
-  button(choices,name,()=>{revisitFocus=id;worldRevisit();},false,revisitFocus===id);
+  button(choices,name,()=>{revisitFocus=id;roleCell=null;worldRevisit();},false,revisitFocus===id);
  miniBoard($('revisit-first'),model.first,revisitFocus,'FIRST');
  miniBoard($('revisit-now'),model.now,revisitFocus,'NOW');
  $('revisit-first-result').textContent='FIRST '+titles[revisitFocus]+': '+
   (model.firstPass?'PASS':'RETRY')+' — '+model.first.tests[revisitFocus].reason;
  $('revisit-now-result').textContent='NOW '+titles[revisitFocus]+': '+
   (model.nowPass?'PASS':'RETRY')+' — '+model.now.tests[revisitFocus].reason;
+ const inspected=roleCell?inspectPaperRole(state,revisitFocus,roleCell):null;
+ $('role-response').textContent=inspected?.response||'Milo: "Choose a FIRST piece to inspect."';
+ $('role-dialogue').textContent=inspected?.found?inspected.finn+' '+inspected.nia:'';
+ $('role-next').textContent=inspected?.found?inspected.nextQuestion:
+  'The model is not a real consultation. We can try again.';
  $('revisit-world').textContent=model.reviewed?
   'PAPER revisit: '+model.links.join(' | ')+
   '. Recalled synthetic label: '+(titles[model.recalled]||'none')+
@@ -181,5 +197,5 @@ $('check-loop').addEventListener('click',()=>act({type:'check-loop'}));
 $('begin').addEventListener('click',()=>{begun=true;render();});
 $('e10-callback').addEventListener('click',()=>{if(state.reviewed){screen='callback';render();}});
 $('e11-back').addEventListener('click',()=>{screen='trial';render();});
-$('restart').addEventListener('click',()=>{tool='walk';begun=false;screen='trial';revisitFocus='quiet_reader';act({type:'reset'});});
+$('restart').addEventListener('click',()=>{tool='walk';begun=false;screen='trial';revisitFocus='quiet_reader';roleCell=null;act({type:'reset'});});
 render();
