@@ -101,3 +101,17 @@ test('child revises a soggy PAPER seed and sees hypothetical growth on both revi
  assert.equal(view(s).care.stage,'paper-marker');
  assert.equal(view(s).lowerGrowthVisible,false);
 });
+
+test('E06 restart stays available at strict PAPER history cap',()=>{
+ let s=complete(),i=0;
+ while(s.history.length<MAX_ACTIONS){
+  const choice=i++%2?'gentle':'heavy';
+  s=doIt(s,c('choose',choice));
+  if(s.history.length===MAX_ACTIONS)break;
+  s=doIt(s,c('test'));
+ }
+ assert.equal(s.history.length,MAX_ACTIONS);
+ assert.equal(can(s,c('compare')),false);
+ assert.equal(can(s,n('restart')),true);
+ assert.deepEqual(dispatch(s,n('restart')),fresh());
+});
