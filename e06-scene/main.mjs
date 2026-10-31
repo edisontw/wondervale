@@ -1,5 +1,8 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
-let state=fresh();
+import {fresh as freshE07} from '../e07-scene/scene-model.mjs';
+import {decodeTransfer,encodeTransfer} from '../authoring-labs/e06-e07-scene-transfer.mjs';
+const incoming=decodeTransfer(location.hash);
+let state=incoming?.e06||fresh(),linkedE07=incoming?.e07||freshE07();
 const $=id=>document.getElementById(id);
 const garden=(type,value)=>({scene:'garden',action:value===undefined?{type}:{type,value}});
 const nav=type=>({scene:'nav',type});
@@ -52,7 +55,11 @@ function buttons(id,rows){
     const b=document.createElement('button');
     b.type='button';b.dataset.key=key;b.textContent=label;
     b.disabled=!can(state,action);
-    b.addEventListener('click',()=>{state=dispatch(state,action);render();});
+    b.addEventListener('click',()=>{
+      state=dispatch(state,action);
+      if(action.scene==='nav'&&action.type==='restart')linkedE07=freshE07();
+      render();
+    });
     root.append(b);
   }
 }
@@ -94,6 +101,9 @@ function render(){
     (last?' · last check: '+(last.wet?'WET in model':last.blocksPath?'BLOCKS path':'model path and water clear'):' · not checked');
   $('note').textContent=v.paperChronicle;
   $('parent').textContent='Optional parent question: '+v.parentCue;
+  const fragment=encodeTransfer(state,linkedE07),link=$('e07-transfer');
+  link.hidden=!fragment;
+  if(fragment)link.href='../e07-scene/'+fragment;
   buttons('current-actions',current);
   buttons('lower-actions',lower);
   buttons('care-actions',careActions);
