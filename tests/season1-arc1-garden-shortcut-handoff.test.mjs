@@ -211,3 +211,25 @@ test('PAPER growth and E07 callback cannot be forged as real rights or history',
  assert.equal(C.view(s).connectorPermission,'UNKNOWN');
  assert.deepEqual(C.view(s).historicalClaims,[]);
 });
+
+test('changing PAPER care choice cannot re-compare without a new gentle trial',()=>{
+ const c=(type,value)=>value===undefined?{scene:'care',type}:{scene:'care',type,value};
+ let s=gardenReady();
+ for(const a of [c('choose','heavy'),c('test'),c('choose','gentle'),c('test'),c('compare')])
+  s=C.dispatch(s,a);
+ assert.equal(C.view(s).lowerPaperGrowthVisible,true);
+ s=C.dispatch(s,c('choose','heavy'));
+ assert.equal(C.view(s).lowerPaperGrowthVisible,false);
+ assert.equal(C.can(s,c('compare')),false);
+ s=C.dispatch(s,c('choose','gentle'));
+ assert.equal(C.can(s,c('compare')),false);
+ assert.equal(C.can(s,c('test')),false);
+ s=C.dispatch(s,c('choose','heavy'));
+ s=C.dispatch(s,c('test'));
+ s=C.dispatch(s,c('choose','gentle'));
+ s=C.dispatch(s,c('test'));
+ assert.equal(C.can(s,c('compare')),true);
+ s=C.dispatch(s,c('compare'));
+ assert.equal(C.view(s).lowerPaperGrowthVisible,true);
+ assert.deepEqual(C.replay(s.history),s);
+});
