@@ -5,4 +5,10 @@ All grid cells, user needs, town links and earlier labels are **fictional fixtur
 
 Run `node --test tests/s01e11-authoring-prototype.test.mjs tests/season1-e11-scene-shell.test.mjs`. With the repository served on port 4173 and Playwright Chromium installed, run `node tests/season1-e11-scene-shell-browser.mjs`. Four viewports, keyboard, failed/revised user trial, loop retry, read-only E10 callback, reset/reload, storage and geometry are covered by the dedicated workflow.
 
+## Child-earned FIRST/NOW world revisit
+
+After Milo saves two tested layouts and compares them, the scene shows **two separate 3×4 paper boards** reconstructed from strict replay: FIRST's conflicting placement and NOW's revised placement. The child can trace the quiet reader or activity group and see each simulated user's recorded RETRY/PASS outcome. The selected focus survives a read-only E10 PAPER callback; reset/reload clears it. Only after the child reviews the fictional model does the revisit list the checked contemporary model loop and synthetic earlier-clue label. A changed layout invalidates the comparison; forged snapshots cannot supply a world change. North Hill and the unnamed place remain closed, with no rights, canonical Chronicle or production unlock.
+
+Node and four-viewport/keyboard Chromium tests cover the evidence-derived boards, two focus modes, callback retention, closed boundary, anti-forgery and reset. Run these tests and check the exact PR-head and merged-main Actions before claiming PASS.
+
 **Blocked-design:** one Owner batch for genuine E04 source chronology and E10/E11 identity, attributed needs, site geometry/access/rights and painterly art. A green PAPER test is not Gate 4 deployment or family approval.
