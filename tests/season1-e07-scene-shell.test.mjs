@@ -1,6 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {fresh,dispatch,can,replay,restore,view,MAX_ACTIONS} from '../e07-scene/scene-model.mjs';
 const a=(type,value)=>({scene:'story',action:value===undefined?{type}:{type,value}}),n=type=>({scene:'nav',type});
+const w=(type,value)=>({scene:'walkthrough',type,...(value===undefined?{}:{value})});
 const go=(s,x)=>{assert.equal(can(s,x),true,JSON.stringify(x));return dispatch(s,x);};
 function complete(){let s=fresh();for(const x of [
  a('start'),a('walk','shared-path'),a('inspect','shared-path'),a('walk','channel'),a('inspect','channel'),a('walk','workbench'),
@@ -53,4 +54,35 @@ test('restart always resets action budget, including at the cap and after repeat
  assert.equal(replay([n('restart')]),null);
  const bad=structuredClone(s);bad.history.push(n('restart'));
  assert.equal(restore(bad),null);
+});
+
+test('Milo checks both uses on revised PAPER route and safely stops at CLOSED boundary',()=>{
+ let s=complete();assert.equal(can(s,w('move','crossing')),false);
+ assert.equal(can(s,w('review')),false);
+ s=go(s,w('start'));s=go(s,w('move','crossing'));
+ assert.equal(can(s,w('move','water-edge')),false);
+ assert.equal(can(s,w('move','steps-base')),false);
+ s=go(s,w('try-closed'));
+ assert.equal(view(s).walkthrough.position,'crossing');
+ assert.equal(view(s).walkthrough.stopped,true);
+ assert.equal(can(s,w('try-closed')),false);
+ s=go(s,w('inspect','crossing'));s=go(s,w('move','water-edge'));
+ assert.equal(can(s,w('move','steps-base')),false);
+ s=go(s,w('inspect','water-edge'));s=go(s,w('move','steps-base'));
+ s=go(s,w('review'));
+ const v=view(s);
+ assert.equal(v.walkthrough.reviewed,true);
+ assert.deepEqual(v.walkthrough.checked,['crossing','water-edge']);
+ assert.equal(v.walkthrough.position,'steps-base');
+ assert.equal(v.lightsOff,true);assert.equal(v.e08Unlocked,false);
+ assert.equal(v.northHillClosed,true);assert.deepEqual(v.rights,[]);
+ assert.deepEqual(replay(s.history),s);assert.deepEqual(restore(structuredClone(s)),s);
+ let clone=structuredClone(s);clone.walkthrough.position='north-hill';assert.equal(restore(clone),null);
+ clone=structuredClone(s);clone.walkthrough.checked.push('approved');assert.equal(restore(clone),null);
+ clone=structuredClone(s);clone.unlocks.push('e08');assert.equal(restore(clone),null);
+ s=go(s,n('garden'));assert.equal(view(s).walkthrough.reviewed,true);
+ assert.equal(can(s,w('start')),false);
+ s=go(s,n('connector'));assert.equal(view(s).walkthrough.reviewed,true);
+ s=go(s,n('restart'));assert.equal(view(s).walkthrough.phase,'idle');
+ assert.equal(can(s,w('start')),false);
 });
