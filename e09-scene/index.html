@@ -22,6 +22,7 @@ button[aria-pressed=true]{background:#dceedd;border-color:#37684c}
 .scene:before{content:"";position:absolute;inset:45% 0 0;background:repeating-linear-gradient(135deg,#c3b59c 0 18px,#d5c6ac 18px 36px);opacity:.55}
 .edge{position:absolute;height:6px;z-index:1;transform-origin:left center;background:#9b9e91;border-radius:4px;pointer-events:none}
 .edge.surveyed{background:#537c69}.edge.marked{height:9px;background:#235b48}
+.evidence-pin{position:absolute;z-index:2;transform:translate(-50%,-50%);padding:.1rem .2rem;border:2px solid #1f574a;border-radius:.35rem;background:#d7f0d5;color:#194c3c;font-size:clamp(.5rem,1vw,.7rem);font-weight:800;pointer-events:none}
 .edge.closed{height:5px;background:repeating-linear-gradient(90deg,#8d3838 0 10px,transparent 10px 16px)}
 .anchor{position:absolute;z-index:3;transform:translate(-50%,-50%);max-width:30%;font-size:clamp(.69rem,1.6vw,.9rem);padding:.25rem .4rem;background:#fff9eb}
 .anchor.active{background:#ffdfa0;border-color:#8c5c17}
@@ -45,6 +46,12 @@ small{color:#485f55}
 <header><h1>E09 — The Closed Hill</h1><div>Milo surveys a boundary and revises a route sketch · independent child-controlled PAPER scene · Scene 10 of 12</div></header>
 <div class="notice" role="note"><strong>AUTHORING ONLY — FICTIONAL MODEL, NOT A REAL HILL ROUTE.</strong> All paths, terrain clues, viewpoints and symbol positions are synthetic. The upper hill remains closed. No verified E08 completion, real hill geometry/access/safety, history claim, approved art, production Chronicle, save, E10 unlock or MN4 release.</div>
 <section class="panel"><div class="controls"><button id="start" data-key="start">Begin safe hill PAPER survey</button><button id="revisit" data-key="revisit" disabled>Review Lantern Steps PAPER observation</button><button id="back" data-key="back" disabled>Return to hill survey</button></div><p id="stage" class="status" role="status"></p><p id="dialogue" class="status" aria-live="polite"></p></section><section id="lantern-revisit" class="panel" hidden><h2>Look back at Lantern Steps</h2><p>Two lower model lamps and two safe viewpoints helped us question appearances. No real wiring, real access or E08 completion was approved. The upper hill stays CLOSED.</p></section><div id="scene" class="scene" role="group" aria-label="Fictional five-anchor safe survey graph; closed upper hill cannot be entered" data-phase="survey"></div>
+<section id="survey-compare" class="panel" hidden aria-label="Milo's field survey model comparison">
+<h2>Revisit Milo's survey — BEFORE / NOW</h2>
+<p>Compare the blank PAPER sketch with the observations Milo earned. BEFORE is an unmarked model, <strong>not a historical claim</strong>. Neither view grants real hill access.</p>
+<div class="controls"><button id="blank-board" data-key="blank-board" aria-pressed="false">BEFORE: blank model</button><button id="notes-board" data-key="notes-board" aria-pressed="false">NOW: Milo's field notes</button></div>
+<p id="survey-summary" class="status" aria-live="polite"></p>
+</section>
 <section class="panel">
 <h2>1. Walk and look from safe ground</h2>
 <p>Nia: "What can we learn without crossing?" Move Milo one connected model edge at a time.</p>
