@@ -26,6 +26,16 @@ button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
 .map button{font-size:.86rem;overflow-wrap:anywhere}
 .map button[aria-pressed=true]{background:#cde9d7}
 .trials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+.mini-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.22rem;margin:.35rem 0}
+.mini-cell{display:flex;align-items:center;justify-content:center;min-height:48px;
+ border:1px solid #9ba9a0;border-radius:.25rem;background:#f1f3ed;
+ font-size:.73rem;text-align:center;overflow-wrap:anywhere;padding:.12rem}
+.mini-cell.mini-closed{background:#676b68;color:white}
+.mini-cell.mini-access{background:#dceee2}
+.mini-cell.mini-quiet{background:#cce2f1}
+.mini-cell.mini-activity{background:#f4dfc9}
+.mini-cell.mini-focus{outline:3px solid #8c571d;outline-offset:-3px}
+.revisit-panel{border:1px solid #b8c8bf;border-radius:.5rem;padding:.5rem;min-width:0}
 .trial{border:1px dashed #8a9d92;border-radius:.4rem;padding:.45rem;overflow-wrap:anywhere}
 ul{padding-left:1.3rem;line-height:1.45}
 small{color:#50655e}
@@ -61,6 +71,19 @@ small{color:#50655e}
 <p id="comparison" class="status"></p>
 <div id="citation-controls" class="controls"></div><p id="citation" class="status"></p>
 </section></div>
+<section id="revisit" class="panel" hidden>
+<h2>Child-earned world revisit — FIRST / NOW</h2>
+<p>Milo: "Look. We moved it!" Choose whose need to trace. These are two recorded PAPER trials, not historical maps or a real opened place.</p>
+<div id="revisit-focus" class="controls" aria-label="Trace one simulated person's need"></div>
+<div class="columns">
+<div class="revisit-panel"><h2>FIRST · tested layout</h2><div id="revisit-first" class="mini-board" role="img" aria-label="FIRST fictional board"></div>
+<p id="revisit-first-result" class="status" aria-live="polite"></p></div>
+<div class="revisit-panel"><h2>NOW · revised layout</h2><div id="revisit-now" class="mini-board" role="img" aria-label="NOW fictional board"></div>
+<p id="revisit-now-result" class="status" aria-live="polite"></p></div>
+</div>
+<p id="revisit-world" class="status" aria-live="polite"></p>
+<p><small>Both model boards are reconstructed from strict child actions. No source, rights, real construction, official Chronicle, Common reveal or season completion.</small></p>
+</section>
 <section class="panel"><h2>Earlier changes remain visible (PAPER callbacks)</h2>
 <p class="status">Market deliveries and two sincere undated memories; a station Map Room trial; Current Garden and Lower Garden models; Finn's revised shared path; lower Lantern Steps viewpoints; the CLOSED Hill; and E10 simulated needs. These are authoring callbacks, not claims that later locations have opened in the released game.</p></section>
 <section class="panel"><h2>4. Trace a NEW model loop, not the old hill</h2>
