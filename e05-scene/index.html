@@ -13,6 +13,9 @@ h1{font-size:1.35rem;margin:.2rem 0}h2{font-size:1.08rem;margin:.2rem 0 .5rem}
 button{font:inherit;min-height:44px;padding:.45rem .65rem;border:2px solid #456e63;border-radius:.4rem;background:white;color:#213b3a;cursor:pointer}
 button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px solid #b87a24;outline-offset:2px}
 button[aria-pressed=true]{background:#d4e9dc;font-weight:700}
+.trace-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.3rem;margin:.5rem 0}
+.trace-cell{border:1px solid #76968b;border-radius:.35rem;padding:.4rem;min-height:3rem;text-align:center;background:#f8faf6}
+.trace-cell strong{display:block}.trace-cell small{display:block;font-size:.75rem}
 .paper{border:2px dashed #91a69a;border-radius:.45rem;padding:.65rem;background:#eaf0e8;line-height:1.5;min-height:3rem}
 .dialogue{background:#dcece5;padding:.7rem;border-radius:.5rem;line-height:1.5}
 [hidden]{display:none!important}
@@ -76,7 +79,16 @@ button[aria-pressed=true]{background:#d4e9dc;font-weight:700}
 <button data-scene="nav" data-type="back-to-records">Review source limits</button>
 <button data-scene="nav" data-type="to-review">See paper Chronicle note</button>
 </div></section>
-<section class="panel" id="review" hidden><h2>4. Paper Chronicle rehearsal</h2><p id="paper-note" class="paper" role="status"></p></section>
+<section class="panel" id="review" hidden><h2>4. Paper Chronicle rehearsal</h2><p id="paper-note" class="paper" role="status"></p>
+<h2>Two garden marks — PAPER tracing experiment</h2>
+<p>These are invented sketch sheets, not historical maps. Milo can inspect each sheet, then lay them together to see a question for E06. Neither sheet proves a real site, date or reason for a move.</p>
+<div id="garden-map" class="paper" role="status" aria-live="polite"></div>
+<div class="controls">
+<button data-scene="garden" data-type="inspect" data-value="older">Look at PAPER lower mark</button>
+<button data-scene="garden" data-type="inspect" data-value="present">Look at PAPER upper mark</button>
+<button data-scene="garden" data-type="overlay">Lay the two sheets together</button>
+<button data-scene="garden" data-type="ask-why">Milo: Why are they apart?</button>
+</div></section>
 <p id="parent" class="dialogue"></p><p id="guard" class="notice" role="status"></p>
 <button data-scene="nav" data-type="restart">Restart E05 paper scene</button>
 <p><small>Keyboard and tap controls are equivalent; no drag, voice or timer required. No data is stored. Formal production entry remains fail-closed in engine/s01e05-production-entry.mjs.</small></p>

@@ -44,6 +44,15 @@ try{
    await hit('station','place-table',{value:'near-wall'});await hit('station','confirm');
    await hit('station','reflect');await hit('nav','to-review');
    assert.match(await page.locator('#paper-note').innerText(),/UNKNOWN/);
+   assert.equal(await page.locator('[data-scene="garden"][data-type="overlay"]').isDisabled(),true);
+   await hit('garden','inspect',{value:'older'});
+   assert.equal(await page.locator('[data-scene="garden"][data-type="overlay"]').isDisabled(),true);
+   await hit('garden','inspect',{value:'present'});
+   await hit('garden','overlay');
+   assert.match(await page.locator('#garden-map').innerText(),/LOWER PAPER mark/);
+   assert.match(await page.locator('#garden-map').innerText(),/UPPER PAPER mark/);
+   await hit('garden','ask-why');
+   assert.match(await page.locator('#paper-note').innerText(),/cause remain UNKNOWN/);
    assert.match(await page.locator('#guard').innerText(),/E06 NOT UNLOCKED/);
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['sentinel']);
    const size=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
@@ -52,6 +61,8 @@ try{
    await hit('nav','restart');
    assert.equal(await page.locator('#foyer').isVisible(),true);
    assert.match(await page.locator('#foyer-map').innerText(),/not tried/);
+   await hit('station','start');
+   assert.equal(await page.locator('[data-scene="garden"][data-type="overlay"]').isDisabled(),true);
   }finally{await context.close();}
  }
  const context=await browser.newContext({viewport:{width:568,height:320}});
