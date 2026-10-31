@@ -85,7 +85,19 @@ async function journey(page,label,shots){
  assert.equal(await page.locator('#revisit-first .mini-cell').count(),12);
  assert.equal(await page.locator('#revisit-now .mini-cell').count(),12);
  assert.match(await page.locator('#revisit-first').getAttribute('aria-label'),/FIRST fictional paper board/);
+ await press(page,'Inspect FIRST cell 0,0');
+ assert.match(await page.locator('#role-response').innerText(),/look again/);
+ await btn(page,'Inspect FIRST cell 0,1').focus();
+ await page.keyboard.press('Enter');
+ assert.match(await page.locator('#role-response').innerText(),/FIRST quiet reader: RETRY/);
+ assert.match(await page.locator('#role-response').innerText(),/NOW: PASS/);
+ assert.match(await page.locator('#role-dialogue').innerText(),/Finn:.*Nia:/);
+ assert.match(await page.locator('#role-next').innerText(),/safe access and permission/);
+ assert.doesNotMatch(await page.locator('#role-dialogue').innerText(),/\bCommon\b/);
  await press(page,'Trace activity group');
+ assert.match(await page.locator('#role-response').innerText(),/Choose a FIRST piece/);
+ await press(page,'Inspect FIRST cell 0,2');
+ assert.match(await page.locator('#role-response').innerText(),/FIRST activity group: PASS/);
  assert.match(await page.locator('#revisit-first-result').innerText(),/FIRST Activity group: PASS/);
  assert.match(await page.locator('#revisit-now-result').innerText(),/NOW Activity group: PASS/);
  await press(page,'Recall E09 closed hill');
@@ -120,6 +132,7 @@ async function journey(page,label,shots){
  assert.match(await page.locator('#chronicle').innerText(),/model review recorded/);
  assert.match(await page.locator('#revisit-first-result').innerText(),/FIRST Activity group: PASS/);
  assert.match(await page.locator('#revisit-world').innerText(),/PAPER revisit/);
+ assert.match(await page.locator('#role-response').innerText(),/FIRST activity group: PASS/);
  await geometry(page,label+' reviewed');
  if(shots){
   await page.locator('#grid').screenshot({path:'test-results/e11-scene-'+label+'-grid.png'});
