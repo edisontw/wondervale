@@ -55,10 +55,12 @@ try{
    assert.equal(await page.locator('#paper-comparison').isVisible(),true);
    await page.locator('#e09-return').click();
    assert.match(page.url(),/\/e09-scene\/#paper-unnamed=/);
+   await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    assert.match(await page.locator('#stage').innerText(),/finished/);
    assert.equal(await page.locator('#scene .evidence-pin').count(),4);
    assert.match(await page.locator('#scene .closed-label').innerText(),/CLOSED/);
    await page.locator('#e10-paper').click();
+   await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    assert.match(await page.locator('#stage').innerText(),/finished/);
    assert.equal(await page.locator('#paper-comparison').isVisible(),true);
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['paper-transfer-sentinel']);
