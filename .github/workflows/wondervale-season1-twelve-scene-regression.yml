@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
+      - 'tests/season1-e10-e11-scene-transfer*'
       - '.github/workflows/wondervale-season1-twelve-scene-regression.yml'
       - 'e02/**'
       - 'e03/**'
@@ -15,6 +16,7 @@ on:
     branches: [main]
     paths:
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
+      - 'tests/season1-e10-e11-scene-transfer*'
       - '.github/workflows/wondervale-season1-twelve-scene-regression.yml'
       - 'e*-scene/**'
       - 'authoring-labs/arc1-hill-unnamed-loop-handoff*'
