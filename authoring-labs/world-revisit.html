@@ -67,13 +67,14 @@ footer{line-height:1.5;font-size:.85rem}
 <button id="restart" type="button">Restart paper revisit</button>
 </section>
 <section class="panel"><h2>Paper notes — changes Milo can revisit</h2>
-<p>These are <strong>MODEL</strong> notes, not the production Chronicle. They are earned only by actions inside this separate preview.</p>
+<p>These are <strong>MODEL</strong> notes, not the production Chronicle. Each tested change shows what Milo did, what remains UNKNOWN, and a child-controlled revisit. Upstream revision withdraws downstream notes.</p>
 <div id="paper-notes" aria-live="polite"></div>
 </section>
 <footer>Short English, deeper thinking: “It fits.” “What if it rains?” “Who else?” “Let's test.” “I changed it because…” Use Tab + Enter/Space; no drag-only action. No recorded voice or music.</footer>
 <script type="module">
 import {fresh,dispatch,project,LABELS,PLACES} from './world-revisit.mjs';
 import {visualTiles} from './paper-world-visual.mjs';
+import {paperChronicle} from './paper-chronicle.mjs';
 let state=fresh();const $=id=>document.getElementById(id);
 const action=(type,value)=>value===undefined?{type}:{type,value};
 function add(host,label,type,value){
@@ -169,11 +170,18 @@ function render(){
  if(!p.paperNotes.length){
   const d=document.createElement('p');d.textContent='No model changes yet. Milo can test and revise the station first.';notes.append(d);
  }
- for(const n of p.paperNotes){
+ for(const n of paperChronicle(state)){
   const d=document.createElement('div');d.className='note';
   const strong=document.createElement('strong');strong.textContent=LABELS[n.place]+' · PAPER MODEL';
   const detail=document.createElement('div');detail.textContent=n.text;
-  d.append(strong,detail);notes.append(d);
+  const tested=document.createElement('div');tested.textContent='Tested on paper: '+n.tested;
+  const unknown=document.createElement('div');unknown.textContent='Still UNKNOWN: '+n.unknown;
+  const jump=document.createElement('button');jump.type='button';
+  jump.textContent='Revisit this PAPER place';jump.dataset.revisit=n.place;
+  jump.disabled=n.place===place;
+  jump.addEventListener('click',()=>{state=dispatch(state,{type:'visit',value:n.place});render();});
+  d.dataset.chroniclePlace=n.place;
+  d.append(strong,detail,tested,unknown,jump);notes.append(d);
  }
 }
 $('restart').addEventListener('click',()=>{state=fresh();render();});
