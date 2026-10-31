@@ -28,8 +28,22 @@ try{
    await hit('compare-symbol');await hit('review');await hit('finish-preview');
    assert.match(await page.locator('#chronicle').innerText(),/NOT UNLOCKED/);
    assert.match(await page.locator('#hook').innerText(),/NOT UNLOCKED/);
+   assert.equal(await page.locator('#survey-compare').isVisible(),true);
+   assert.equal(await page.locator('#scene .edge.marked').count(),3);
+   assert.equal(await page.locator('#scene .evidence-pin').count(),4);
+   assert.match(await page.locator('#survey-summary').innerText(),/Milo walked 4 model edges/);
+   await hit('blank-board');
+   assert.equal(await page.locator('#scene .edge.marked').count(),0);
+   assert.equal(await page.locator('#scene .evidence-pin').count(),0);
+   assert.match(await page.locator('#survey-summary').innerText(),/blank fictional sketch/);
+   assert.match(await page.locator('#scene .closed-label').innerText(),/CLOSED/);
+   await hit('notes-board');
+   assert.equal(await page.locator('#scene .edge.marked').count(),3);
+   assert.equal(await page.locator('#scene .evidence-pin').count(),4);
    await hit('revisit');assert.equal(await page.locator('#lantern-revisit').isVisible(),true);
    await hit('back');assert.match(await page.locator('#stage').innerText(),/finished/);
+   assert.equal(await page.locator('#scene .edge.marked').count(),3);
+   assert.equal(await page.locator('#scene .evidence-pin').count(),4);
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['e09-sentinel']);
    const sz=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(sz.scroll<=sz.w+1,JSON.stringify({viewport,sz}));assert.deepEqual(errors,[]);
@@ -43,5 +57,5 @@ try{
   await p.locator('[data-key="walk-signpost"]').focus();await p.keyboard.press('Space');
   assert.match(await p.locator('#inspections').innerText(),/Signpost/);
  }finally{await ctx.close();}
- console.log('E09 isolated scene Chromium PASS: four viewports, keyboard, closed stop, gap revision, callback, restart');
+ console.log('E09 isolated scene Chromium PASS: four viewports, keyboard, closed stop, gap revision, before/now survey, callback, restart');
 }finally{await browser.close();}
