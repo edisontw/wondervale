@@ -18,7 +18,7 @@ try{
     'blocked','run','compare','enter'])await hit(k);
    assert.equal(await page.locator('#lower-scene').isVisible(),true);
    assert.match(await page.locator('#current-world-note').innerText(),/completed/);
-   for(const k of ['trace','path-walk','path','channel-walk','channel-place','check'])await hit(k);
+   for(const k of ['trace','lower-path-walk','lower-path','channel-walk','channel-place','check'])await hit(k);
    assert.match(await page.locator('#marker').innerText(),/WET/);
    await hit('pocket-walk');await hit('pocket-place');await hit('check');
    assert.match(await page.locator('#marker').innerText(),/clear/);
