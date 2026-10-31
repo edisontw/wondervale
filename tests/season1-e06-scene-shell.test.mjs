@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {fresh,dispatch,can,replay,restore,view,MAX_ACTIONS} from '../e06-scene/scene-model.mjs';
 const g=(type,value)=>({scene:'garden',action:value===undefined?{type}:{type,value}});
 const n=type=>({scene:'nav',type});
+const c=(type,value)=>value===undefined?{scene:'care',type}:{scene:'care',type,value};
 const doIt=(s,a)=>{assert.equal(can(s,a),true,JSON.stringify(a));return dispatch(s,a);};
 function complete(){
  let s=fresh();
@@ -56,4 +57,47 @@ test('forged rights, canonical history, bypass and modified nested state fail cl
   {scene:'nav',type:'to-current',approved:true}])
   assert.deepEqual(dispatch(fresh(),action),fresh());
  assert.equal(replay(Array(MAX_ACTIONS+1).fill(g('start'))),null);
+});
+
+test('child revises a soggy PAPER seed and sees hypothetical growth on both revisits',()=>{
+ let s=fresh();
+ assert.equal(can(s,c('choose','heavy')),false);
+ s=complete();
+ assert.equal(view(s).care.stage,'paper-marker');
+ assert.equal(can(s,c('compare')),false);
+ s=doIt(s,c('choose','heavy'));
+ s=doIt(s,c('test'));
+ assert.equal(view(s).care.stage,'paper-soggy');
+ assert.equal(view(s).lowerGrowthVisible,false);
+ assert.equal(can(s,c('compare')),false);
+ s=doIt(s,c('choose','gentle'));
+ s=doIt(s,c('test'));
+ assert.equal(view(s).care.stage,'paper-seed');
+ s=doIt(s,c('compare'));
+ assert.equal(view(s).care.stage,'paper-sprout');
+ assert.equal(view(s).lowerGrowthVisible,true);
+ assert.match(view(s).paperChronicle,/BEFORE.*NOW/);
+ assert.match(view(s).paperChronicle,/Actual growth.*UNKNOWN/);
+ assert.deepEqual(view(s).canonicalEvents,[]);
+ assert.deepEqual(view(s).unlocks,[]);
+ s=doIt(s,n('to-current'));
+ assert.equal(view(s).currentHealthy,true);
+ assert.equal(view(s).lowerGrowthVisible,true);
+ assert.equal(can(s,c('choose','heavy')),false);
+ s=doIt(s,n('to-lower'));
+ assert.equal(view(s).care.stage,'paper-sprout');
+ assert.deepEqual(replay(s.history),s);
+ assert.deepEqual(restore(structuredClone(s)),s);
+ for(const edit of [
+  x=>x.care.compared=false,
+  x=>x.care.trials.push({choice:'heavy',result:'real-plant'}),
+  x=>x.history.at(-1).type='to-common',
+  x=>x.rights.push('planting-approved')
+ ]){
+  const forged=structuredClone(s);edit(forged);
+  assert.equal(restore(forged),null);
+ }
+ s=doIt(s,n('restart'));
+ assert.equal(view(s).care.stage,'paper-marker');
+ assert.equal(view(s).lowerGrowthVisible,false);
 });
