@@ -1,8 +1,12 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
+import * as E05 from '../e05-scene/scene-model.mjs';
+import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
 import {fresh as freshE07} from '../e07-scene/scene-model.mjs';
 import {decodeTransfer,encodeTransfer} from '../authoring-labs/e06-e07-scene-transfer.mjs';
 const incoming=decodeTransfer(location.hash);
-let state=incoming?.e06||fresh(),linkedE07=incoming?.e07||freshE07();
+const stationIncoming=decodeStationGardenTransfer(location.hash);
+let state=stationIncoming?.e06||incoming?.e06||fresh(),linkedE07=incoming?.e07||freshE07();
+const linkedE05=stationIncoming?.e05||null;
 const $=id=>document.getElementById(id);
 const garden=(type,value)=>({scene:'garden',action:value===undefined?{type}:{type,value}});
 const nav=type=>({scene:'nav',type});
@@ -101,6 +105,15 @@ function render(){
     (last?' · last check: '+(last.wet?'WET in model':last.blocksPath?'BLOCKS path':'model path and water clear'):' · not checked');
   $('note').textContent=v.paperChronicle;
   $('parent').textContent='Optional parent question: '+v.parentCue;
+  const stationFragment=linkedE05&&encodeStationGardenTransfer(linkedE05,state);
+  const stationLink=$('e05-return'),stationNote=$('e05-context');
+  stationLink.hidden=!stationFragment;
+  stationNote.hidden=!stationFragment;
+  if(stationFragment){
+    stationLink.href='../e05-scene/'+stationFragment;
+    const paper=E05.view(linkedE05);
+    stationNote.textContent='E05 PAPER revisit: Milo tested a removable station copy, checked two MOCK sources (maker/date/original UNKNOWN), kept the walkway clear and overlaid two fictional garden marks. His question travels; no real site, date, access or E06 unlock is proved. E06 actions remain yours to perform.';
+  }
   const fragment=encodeTransfer(state,linkedE07),link=$('e07-transfer');
   link.hidden=!fragment;
   if(fragment)link.href='../e07-scene/'+fragment;
