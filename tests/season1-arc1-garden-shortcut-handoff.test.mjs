@@ -145,3 +145,69 @@ test('strict replay rejects tampered nested evidence, permissions and direct E07
  ])assert.deepEqual(C.dispatch(s,a),s);
  assert.equal(C.replay(Array(C.MAX_ACTIONS+1).fill({scene:'nav',type:'restart-all'})),null);
 });
+
+test('child-tested E06 care appears in E07 only after Milo inspects Finn’s MODEL channel',()=>{
+ const care=(type,value)=>value===undefined?{scene:'care',type}:{scene:'care',type,value};
+ const callback={scene:'care-callback',type:'observe'};
+ assert.equal(C.can(C.fresh(),care('choose','heavy')),false);
+ let s=gardenReady();
+ assert.equal(C.can(s,callback),false);
+ s=C.dispatch(s,care('choose','heavy'));
+ s=C.dispatch(s,care('test'));
+ assert.equal(C.view(s).care.stage,'paper-soggy');
+ assert.equal(C.view(s).lowerPaperGrowthVisible,false);
+ assert.equal(C.can(s,care('compare')),false);
+ s=C.dispatch(s,care('choose','gentle'));
+ s=C.dispatch(s,care('test'));
+ s=C.dispatch(s,care('compare'));
+ assert.equal(C.view(s).care.stage,'paper-sprout');
+ assert.equal(C.view(s).lowerPaperGrowthVisible,true);
+ assert.equal(C.view(s).currentGardenHealthy,true);
+ assert.deepEqual(C.view(s).unlocks,[]);
+ s=navC(s,'to-shortcut');
+ assert.equal(C.can(s,callback),false);
+ for(const action of [{type:'start'},{type:'walk',value:'shared-path'},
+  {type:'inspect',value:'shared-path'},{type:'walk',value:'channel'}])
+  s=act(s,'shortcut',action);
+ assert.equal(C.can(s,callback),false);
+ s=act(s,'shortcut',{type:'inspect',value:'channel'});
+ assert.equal(C.can(s,callback),true);
+ s=C.dispatch(s,callback);
+ assert.equal(C.view(s).careCheckedInE07,true);
+ assert.match(C.view(s).paperNote,/E07 Milo checked/);
+ assert.deepEqual(C.replay(s.history),s);
+ assert.deepEqual(C.restore(structuredClone(s)),s);
+ s=navC(s,'to-upstream');
+ assert.equal(C.view(s).lowerPaperGrowthVisible,true);
+ assert.equal(C.view(s).careCheckedInE07,true);
+ s=navC(s,'to-shortcut');
+ s=navC(s,'restart-shortcut');
+ assert.equal(C.view(s).lowerPaperGrowthVisible,true);
+ assert.equal(C.view(s).careCheckedInE07,false);
+ s=navC(s,'to-upstream');
+ s=act(s,'upstream',{scene:'nav',type:'restart-garden'});
+ assert.equal(C.view(s).lowerPaperGrowthVisible,false);
+ assert.equal(C.view(s).care.trials.length,0);
+ assert.equal(C.can(s,callback),false);
+});
+test('PAPER growth and E07 callback cannot be forged as real rights or history',()=>{
+ const care=(type,value)=>value===undefined?{scene:'care',type}:{scene:'care',type,value};
+ let s=gardenReady();
+ for(const a of [care('choose','heavy'),care('test'),care('choose','gentle'),care('test'),care('compare')])
+  s=C.dispatch(s,a);
+ for(const edit of [
+  x=>x.care.compared=false,
+  x=>x.care.trials.push({choice:'heavy',result:'real-plant'}),
+  x=>x.careCheckedInE07=true,
+  x=>x.rights.push('planting-permission'),
+  x=>x.canonicalEvents.push('garden-grown')
+ ]){const bad=structuredClone(s);edit(bad);assert.equal(C.restore(bad),null);}
+ for(const a of [
+  {scene:'care-callback',type:'observe',approved:true},
+  {scene:'care',type:'choose',value:'real-plant'},
+  {scene:'care',type:'compare',permission:true}
+ ])assert.deepEqual(C.dispatch(s,a),s);
+ assert.equal(C.view(s).plantingPermission,'UNKNOWN');
+ assert.equal(C.view(s).connectorPermission,'UNKNOWN');
+ assert.deepEqual(C.view(s).historicalClaims,[]);
+});
