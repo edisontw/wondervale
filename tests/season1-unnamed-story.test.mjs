@@ -119,3 +119,21 @@ test('paper review can be restarted without persistence',()=>{
  const s=complete();assert.deepEqual(dispatch(s,{type:'reset'}),fresh());
  assert.equal(can(fresh(),{type:'finish-paper'}),false);
 });
+
+test('E10 earned FIRST/NOW board comes from replayed child test, not historical claims',()=>{
+ const partial=explored();
+ assert.equal(view(partial).comparison,null);
+ const finished=complete(),v=view(finished),c=v.comparison;
+ assert.ok(c);
+ assert.deepEqual(c.first,{quiet:'shared',activity:'shared'});
+ assert.deepEqual(c.now,{quiet:'left',activity:'right'});
+ assert.deepEqual(c.seen.map(x=>x.id).sort(),['holes','surface']);
+ assert.ok(c.maybe.some(x=>x.id==='surface'&&x.tag==='resting'));
+ assert.equal(c.historicalBefore,false);
+ assert.equal(c.realAccessApproved,false);assert.equal(c.e11Unlocked,false);
+ assert.equal(v.actualName,null);
+ const forged=structuredClone(finished);
+ forged.e10.board.quiet='shared';
+ assert.equal(view(forged),null);
+ assert.equal(view(dispatch(finished,{type:'reset'})).comparison,null);
+});
