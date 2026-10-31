@@ -27,8 +27,8 @@ try{
    await page.locator('#e11-paper').click();
    assert.match(page.url(),/\/e11-scene\/#paper-loop=/);
    assert.match(await page.locator('#e10-linked-context').innerText(),/observed 2 fictional traces/);
-   assert.match(await page.locator('#e10-linked-notes').innerText(),/SIMULATED NEEDS/);
-   assert.match(await page.locator('#e10-linked-notes').innerText(),/UNKNOWN/);
+   assert.match(await page.locator('#e10-linked-notes').textContent(),/SIMULATED NEEDS/);
+   assert.match(await page.locator('#e10-linked-notes').textContent(),/UNKNOWN/);
    assert.equal(await page.locator('#grid .quiet').count(),0,'E10 cannot pre-place E11 pieces');
    const press=async name=>page.getByRole('button',{name,exact:true}).click();
    await press('Begin the PAPER trial');
@@ -49,7 +49,7 @@ try{
    await page.locator('#e11-paper').click();
    assert.match(await page.locator('#comparison').innerText(),/trial-1 → NOW trial-2/);
    assert.equal(await page.locator('#revisit').isVisible(),true);
-   assert.match(await page.locator('#e10-linked-notes').innerText(),/SEEN/);
+   assert.match(await page.locator('#e10-linked-notes').textContent(),/SEEN/);
    assert.match(await page.locator('.notice').innerText(),/North Hill/);
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['e10-e11-sentinel']);
