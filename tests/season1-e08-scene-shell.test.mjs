@@ -37,6 +37,24 @@ test('completion is PAPER only, no rights, chronology, access or E09 unlock',()=
  assert.match(v.story.paperNote,/UNKNOWN/);assert.match(v.story.paperNote,/NOT UNLOCKED/);
  assert.deepEqual(replay(s.history),s);assert.deepEqual(restore(structuredClone(s)),s);
 });
+test('child revisits both fixed-marker viewpoints without moving evidence or unlocking anything',()=>{
+ let s=complete();
+ assert.equal(view(s).reviewMode,'both');
+ for(const mode of ['first','second','both']){
+  s=go(s,n('trace-'+mode));
+  assert.equal(view(s).reviewMode,mode);
+  assert.equal(view(s).story.firstView.viewpoint,'base');
+  assert.equal(view(s).story.secondView.viewpoint,'side');
+  assert.equal(view(s).upperHillClosed,true);
+  assert.deepEqual(view(s).canonicalEvents,[]);
+ }
+ assert.deepEqual(replay(s.history),s);
+ assert.deepEqual(restore(structuredClone(s)),s);
+ s=go(s,n('connector'));s=go(s,n('steps'));
+ assert.equal(view(s).reviewMode,'both');
+ assert.deepEqual(go(s,n('restart')),fresh());
+ assert.equal(can(fresh(),n('trace-first')),false);
+});
 test('read-only connector callback and E08-only restart',()=>{
  let s=go(complete(),n('connector'));assert.equal(view(s).screen,'connector');
  assert.equal(can(s,a('walk','anchor','base')),false);
@@ -48,13 +66,15 @@ test('closed hill, forged dates, rights, snapshots and injected action keys fail
  const s=complete();
  for(const x of [a('walk','anchor','upper-closed'),a('walk','anchor','north-hill'),
   {scene:'story',action:{type:'confirm-preview',year:1901}},
-  {scene:'nav',type:'connector',approved:true}])
+  {scene:'nav',type:'connector',approved:true},
+  {scene:'nav',type:'trace-first',approved:true}])
   assert.equal(can(fresh(),x),false);
  for(const edit of [x=>x.unlocks.push('e09'),x=>x.rights.push('wire'),
   x=>x.historicalClaims.push('1910'),x=>x.canonicalEvents.push('e08_complete'),
   x=>x.story.steps.observations[0].spreadDegrees=999,
   x=>x.story.steps.lights['lower-a']=false,
-  x=>x.history[1].action.feature='service-plate',x=>x.screen='connector']){
+  x=>x.history[1].action.feature='service-plate',x=>x.screen='connector',
+  x=>x.reviewMode='official']){
   const bad=structuredClone(s);edit(bad);assert.equal(restore(bad),null);
   assert.deepEqual(dispatch(bad,n('connector')),fresh());
  }
