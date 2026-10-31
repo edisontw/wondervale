@@ -4,13 +4,18 @@ import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
 import {paperRevisit} from './revisit-model.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
+import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
+import {encodeLoopTransfer,decodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
 const $=id=>document.getElementById(id);
 const titles={quiet:'Quiet seat',activity:'Activity area',access:'Access strip',
  quiet_reader:'Quiet reader',activity_group:'Activity group',
  e03_delivery:'E03 delivery',e06_drainage:'E06 water',e07_user_impact:'E07 shared use',
  e09_closure:'E09 closed hill',e10_needs:'E10 needs'};
 const toolNames={walk:'Walk Milo',quiet:'Place quiet seat',activity:'Place activity area'};
-let state=fresh(),tool='walk',begun=false,screen='trial',revisitFocus='quiet_reader',roleCell=null;
+const incoming=decodeLoopTransfer(location.hash);
+const linkedE10=incoming?.e10||null,upstream=incoming?.upstream||null;
+let state=incoming?.e11||fresh(),tool='walk',begun=!!incoming?.e11?.history.length,
+ screen='trial',revisitFocus='quiet_reader',roleCell=null;
 let selectedUnknown=null,draftChecks={},planFeedback='';
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
@@ -213,6 +218,20 @@ function worldRevisit(){
 }
 
 function render(){
+ const linked=linkedE10&&viewE10(linkedE10);
+ const fragment=linkedE10&&encodeLoopTransfer(linkedE10,state,upstream);
+ $('e10-return').hidden=!fragment;
+ if(fragment)$('e10-return').href='../e10-scene/'+fragment;
+ $('e10-linked-context').textContent=linked?.finishedPaper?
+  'E10 PAPER notes earned: Milo observed '+linked.observations.length+
+  ' fictional traces and compared two SIMULATED needs. The place name, real access and history remain UNKNOWN. E11 is a separate model, NOT UNLOCKED.':
+  'No E10 PAPER investigation linked. Direct E11 authoring proves no prior completion.';
+ $('e10-linked-notes').textContent=linked?.finishedPaper?
+  'SEEN: '+linked.observations.map(x=>x.text).join(' / ')+
+  '. MAYBE: '+linked.hypotheses.map(x=>x.traceId+' '+x.useTag).join(' / ')+
+  '. SIMULATED NEEDS: '+linked.needs.map(x=>x.role+' '+x.want).join(' / ')+
+  '. UNKNOWN: actual use, name, consent and safe entry. These are not real witnesses or canonical completion.':
+  'No linked E10 field notes. The model is not testimony.';
  $('begin').hidden=begun;
  $('e11-work').hidden=!begun||screen==='callback';
  $('e10-notes').hidden=screen!=='callback';
