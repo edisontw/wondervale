@@ -43,6 +43,25 @@ test('read-only Lantern callback preserves PAPER result, scoped restart clears i
  s=go(s,n('restart'));assert.deepEqual(s,fresh());
  assert.equal(can(s,n('lantern')),false);
 });
+test('child compares blank model and earned survey; replay and E08 callback preserve it',()=>{
+ let s=complete();const first=view(s);
+ assert.equal(first.surveyLayer,'notes');
+ assert.equal(first.surveyBoard.kind,'fictional_model_only');
+ assert.equal(first.surveyBoard.walkedEdges,4);
+ assert.equal(first.surveyBoard.markedEdges,3);
+ assert.equal(first.surveyBoard.inspectedClues,5);
+ assert.equal(can(s,n('notes')),false);
+ s=go(s,n('blank'));assert.equal(view(s).surveyLayer,'blank');
+ s=go(s,n('lantern'));assert.equal(view(s).surveyLayer,'blank');
+ assert.equal(can(s,n('notes')),false);
+ s=go(s,n('hill'));s=go(s,n('notes'));
+ assert.equal(view(s).surveyLayer,'notes');
+ assert.deepEqual(replay(s.history),s);
+ assert.deepEqual(restore(structuredClone(s)),s);
+ assert.equal(view(s).upperHillClosed,true);
+ assert.equal(view(s).e10Unlocked,false);
+ assert.deepEqual(view(s).canonicalEvents,[]);
+});
 test('forged date, access, source, route and extra action keys fail closed',()=>{
  const s=complete();
  for(const x of [a('walk','to','secret_bridge'),
@@ -51,7 +70,7 @@ test('forged date, access, source, route and extra action keys fail closed',()=>
   assert.equal(can(fresh(),x),false);
  for(const edit of [x=>x.unlocks.push('e10'),x=>x.rights.push('access'),
   x=>x.historicalClaims.push('1910'),x=>x.canonicalEvents.push('e09_complete'),
-  x=>x.story.hill.position='upper_closed',x=>x.story.hill.routeResult.complete=false,
+  x=>x.story.hill.position='upper_closed',x=>x.surveyLayer='blank',x=>x.story.hill.routeResult.complete=false,
   x=>x.story.hill.markedEdges.push('fence_view:upper_closed'),
   x=>x.history[1].action.clueId='distant_symbol',x=>x.screen='lantern']){
   const bad=structuredClone(s);edit(bad);assert.equal(restore(bad),null);
@@ -59,6 +78,9 @@ test('forged date, access, source, route and extra action keys fail closed',()=>
  }
  assert.equal(replay(Array(MAX_ACTIONS+1).fill(a('start'))),null);
  assert.equal(replay([n('restart')]),null);
+ assert.equal(can(fresh(),n('blank')),false);
+ assert.equal(can(complete(),{scene:'nav',type:'blank',sourceApproved:true}),false);
+ assert.equal(replay([n('blank')]),null);
 });
 test('restart remains possible at action cap',()=>{
  let s=complete();

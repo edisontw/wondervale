@@ -4,11 +4,11 @@ import * as E09 from '../authoring-labs/hill-story-model.mjs';
 export const VERSION='e09-isolated-paper-v1',MAX_ACTIONS=110;
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b),verified=new WeakMap();
 const mark=s=>(verified.set(s,JSON.stringify(s)),s);
-export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',screen:'hill',
+export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',screen:'hill',surveyLayer:'notes',
  story:E09.fresh(),history:[],canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]});}
 function clean(raw){
  if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
- if(raw.scene==='nav'&&['hill','lantern','restart'].includes(raw.type)){
+ if(raw.scene==='nav'&&['hill','lantern','restart','blank','notes'].includes(raw.type)){
   const a={scene:'nav',type:raw.type};return same(a,raw)?a:null;
  }
  if(raw.scene!=='story'||!raw.action||typeof raw.action!=='object'||Array.isArray(raw.action))return null;
@@ -24,6 +24,7 @@ function clean(raw){
 function apply(s,a){
  if(a.scene==='nav'){
   if(a.type==='restart')return fresh();
+  if(['blank','notes'].includes(a.type)&&s.screen==='hill'&&E09.view(s.story).previewComplete&&s.surveyLayer!==a.type)return {...s,surveyLayer:a.type};
   if(a.type==='lantern'&&s.screen==='hill'&&E09.view(s.story).previewComplete)return {...s,screen:'lantern'};
   if(a.type==='hill'&&s.screen==='lantern')return {...s,screen:'hill'};
   return null;
@@ -60,7 +61,11 @@ export function dispatch(snapshot,action){
 export function view(snapshot){
  const s=restore(snapshot);if(!s)return null;
  const story=E09.view(s.story);
- return {screen:s.screen,story,upperHillClosed:true,e08Verified:false,
+ return {screen:s.screen,story,surveyLayer:s.surveyLayer,
+  surveyBoard:{kind:'fictional_model_only',walkedEdges:story.surveyedEdges.length,
+   markedEdges:story.markedEdges.length,inspectedClues:story.inspected.length,
+   closedBoundary:true,realAccessApproved:false},
+  upperHillClosed:true,e08Verified:false,
   e10Unlocked:false,realAccessApproved:false,productionEntryReady:false,
   canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]};
 }

@@ -41,19 +41,31 @@ function edgeLine(host,a,b,classes){
   line.style.transform='rotate('+Math.atan2(y2-y1,x2-x1)+'rad)';
   host.append(line);
 }
-function world(){const s=story();
+function world(){const s=story(),v=view(state);
+  const notes=s.previewComplete&&v.surveyLayer==='notes';
   const host=$('scene');host.replaceChildren();
   const label=document.createElement('span');label.className='world-label';
-  label.textContent='SYNTHETIC SURVEY';host.append(label);
+  label.textContent=s.previewComplete?(notes?'MODEL NOW — MILO\'S NOTES':'MODEL BEFORE — BLANK SKETCH'):'SYNTHETIC SURVEY';host.append(label);
   const closed=document.createElement('span');closed.className='closed-label';
   closed.textContent='UPPER HILL CLOSED — NO ENTRY';host.append(closed);
   for(const e of SAFE_EDGES){
-    edgeLine(host,e.a,e.b,(s.surveyedEdges.includes(e.id)?'surveyed ':'')+
-      (s.markedEdges.includes(e.id)?'marked':''));
+    edgeLine(host,e.a,e.b,(notes||!s.previewComplete)&&s.surveyedEdges.includes(e.id)?
+      'surveyed '+((notes||!s.previewComplete)&&s.markedEdges.includes(e.id)?'marked':''):'');
   }
   edgeLine(host,'fence_view',CLOSED_NODE,'closed');
   const closedNode=document.createElement('span');closedNode.className='closed-node';
   closedNode.textContent='CLOSED';host.append(closedNode);
+  if(notes){
+    const pins=[['boundary_sign','signpost','SIGN'],['disturbed_ground','fence_view','GROUND'],
+      ['runoff_marks','lower_bend','WATER'],['distant_symbol','overlook','MARK']];
+    for(const [id,at,word] of pins){
+      if(!s.inspected.includes(id))continue;
+      const pin=document.createElement('span');pin.className='evidence-pin';
+      pin.textContent=word;pin.setAttribute('aria-label','Milo observed '+clueNames[id]);
+      pin.style.left=Math.min(94,coords[at][0]+5)+'%';
+      pin.style.top=Math.max(5,coords[at][1]-13)+'%';host.append(pin);
+    }
+  }
   for(const id of NODES){
     const b=document.createElement('button');b.type='button';
     b.className='anchor'+(s.position===id?' active':'');
@@ -147,6 +159,18 @@ function notebook(){const s=story();
   $('hook').textContent=s.previewComplete?
     'Model complete. E10 remains NOT UNLOCKED. What is the place beyond the mark? The old hill way stays closed.':'';
 }
+function survey(){const v=view(state),s=v.story,done=s.previewComplete;
+ $('survey-compare').hidden=!done;
+ $('blank-board').disabled=!can(state,nav('blank'));
+ $('notes-board').disabled=!can(state,nav('notes'));
+ $('blank-board').setAttribute('aria-pressed',String(done&&v.surveyLayer==='blank'));
+ $('notes-board').setAttribute('aria-pressed',String(done&&v.surveyLayer==='notes'));
+ $('survey-summary').textContent=!done?'':v.surveyLayer==='blank'?
+  'BEFORE: A blank fictional sketch. No walked evidence is shown. The upper hill stays CLOSED.':
+  'NOW: Milo walked '+v.surveyBoard.walkedEdges+' model edges, marked '+v.surveyBoard.markedEdges+
+  ' on his sketch, and observed '+v.surveyBoard.inspectedClues+
+  ' clues. The lower route is a PAPER model only. The upper hill stays CLOSED.';
+}
 function render(){
  const v=view(state),s=v.story;
  $('stage').textContent='E09 '+s.stage+' · '+v.screen+' · production LOCKED';
@@ -155,11 +179,13 @@ function render(){
  $('start').disabled=!can(state,wrap({type:'start'}));
  $('revisit').disabled=!can(state,nav('lantern'));
  $('back').disabled=!can(state,nav('hill'));
- world();movement();inspect();sketch();thoughts();notebook();
+ world();movement();inspect();sketch();thoughts();notebook();survey();
 }
 $('start').addEventListener('click',()=>act({type:'start'}));
 $('revisit').addEventListener('click',()=>navigate('lantern'));
 $('back').addEventListener('click',()=>navigate('hill'));
 $('restart').addEventListener('click',()=>navigate('restart'));
+$('blank-board').addEventListener('click',()=>navigate('blank'));
+$('notes-board').addEventListener('click',()=>navigate('notes'));
 window.addEventListener('resize',world);
 render();
