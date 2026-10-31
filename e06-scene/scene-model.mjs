@@ -3,21 +3,44 @@ import * as Garden from '../authoring-labs/lower-garden-story-model.mjs';
 export const VERSION='e06-two-garden-isolated-paper-v1';
 export const MAX_ACTIONS=90;
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const careFresh=()=>({choice:null,trials:[],compared:false});
+const careChoices=['heavy','gentle'];
 const verified=new WeakMap();
 const mark=s=>(verified.set(s,JSON.stringify(s)),s);
 export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',
-  screen:'current',garden:Garden.fresh(),history:[],
+  screen:'current',garden:Garden.fresh(),care:careFresh(),history:[],
   canonicalEvents:[],unlocks:[],historicalClaims:[],rights:[]});}
 function clean(raw){
   if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
   if(raw.scene==='nav'&&['to-current','to-lower','restart'].includes(raw.type))
     return {scene:'nav',type:raw.type};
+  if(raw.scene==='care'&&raw.type==='choose'&&careChoices.includes(raw.value))
+    return {scene:'care',type:'choose',value:raw.value};
+  if(raw.scene==='care'&&['test','compare'].includes(raw.type))
+    return {scene:'care',type:raw.type};
   if(raw.scene==='garden'&&raw.action&&typeof raw.action==='object'&&!Array.isArray(raw.action))
     return {scene:'garden',action:raw.action};
   return null;
 }
 function apply(s,a){
   const g=Garden.view(s.garden);
+  if(a.scene==='care'){
+    if(s.screen!=='lower'||g.phase!=='finished')return null;
+    const c=s.care,last=c.trials.at(-1);
+    if(a.type==='choose')return c.choice===a.value?null:
+      {...s,care:{...c,choice:a.value,compared:false}};
+    if(a.type==='test'){
+      if(!c.choice||last?.choice===c.choice)return null;
+      const result=c.choice==='heavy'?'paper-soggy':'paper-seed';
+      return {...s,care:{...c,trials:[...c.trials,{choice:c.choice,result}],compared:false}};
+    }
+    if(a.type==='compare'){
+      if(c.compared||last?.choice!=='gentle'||
+        !careChoices.every(choice=>c.trials.some(t=>t.choice===choice)))return null;
+      return {...s,care:{...c,compared:true}};
+    }
+    return null;
+  }
   if(a.scene==='nav'){
     if(a.type==='restart')return {...fresh(),history:s.history};
     if(a.type==='to-current'&&s.screen==='lower')return {...s,screen:'current'};
@@ -52,23 +75,43 @@ export function restore(snapshot){
 }
 export function can(snapshot,action){
   const s=restore(snapshot),a=clean(action);
-  return !!(s&&a&&same(a,action)&&s.history.length<MAX_ACTIONS&&apply(s,a));
+  return !!(s&&a&&same(a,action)&&
+    (a.scene==='nav'&&a.type==='restart'||s.history.length<MAX_ACTIONS&&apply(s,a)));
 }
 export function dispatch(snapshot,action){
   const s=restore(snapshot);if(!s)return fresh();
   const a=clean(action);
-  if(!a||!same(a,action)||s.history.length>=MAX_ACTIONS)return s;
+  if(!a||!same(a,action))return s;
+  if(a.scene==='nav'&&a.type==='restart')return fresh();
+  if(s.history.length>=MAX_ACTIONS)return s;
   const next=apply(s,a);
   return next?mark({...next,history:[...s.history,a]}):s;
 }
 export function view(snapshot){
   const s=restore(snapshot);if(!s)return null;
-  const g=Garden.view(s.garden);
-  return {screen:s.screen,garden:g,
+  const g=Garden.view(s.garden),last=s.care.trials.at(-1),recent=s.history.at(-1);
+  const careStage=s.care.compared?'paper-sprout':last?.result||'paper-marker';
+  let speaker=g.speaker,line=g.line;
+  if(recent?.scene==='care'){
+    if(recent.type==='choose'){speaker='Milo';line=recent.value==='heavy'?
+      'I will try lots of MODEL water. What might happen?':
+      'I will try a little MODEL water. Let us test.';}
+    if(recent.type==='test'){speaker=last?.choice==='heavy'?'Finn':'Nia';line=last?.choice==='heavy'?
+      'The PAPER seed is too wet. We can try again.':
+      'A PAPER sprout might grow. Is this real evidence?';}
+    if(recent.type==='compare'){speaker='Milo';line=
+      'Our PAPER model changed. Real plants need care and permission.';}
+  }
+  return {screen:s.screen,garden:g,speaker,line,
+    care:{choice:s.care.choice,trials:s.care.trials.map(t=>({...t})),
+      compared:s.care.compared,stage:careStage},
+    lowerGrowthVisible:s.care.compared,
     currentHealthy:true,lowerPaperStarted:g.phase==='finished',
     currentCompared:g.modelCompared,lowerVisited:g.lowerVisited,
-    paperChronicle:g.paperNote||'PAPER ONLY: compare two garden places. History and permission UNKNOWN.',
-    parentCue:g.parentCue||'What do you see? What would you test before deciding?',
+    paperChronicle:(g.paperNote||'PAPER ONLY: compare two garden places. History and permission UNKNOWN.')+
+      (s.care.compared?' PAPER CARE MODEL: BEFORE the water trial, only a removable seed marker; NOW a hypothetical PAPER sprout after comparing heavy and gentle water. Actual growth, access, care and planting permission remain UNKNOWN.':''),
+    parentCue:s.care.compared?'What else must we learn before growing anything in a real garden?':
+      g.parentCue||'What do you see? What would you test before deciding?',
     historicalCause:'UNKNOWN',realAccessApproved:false,plantingPermission:false,
     northHillClosed:true,commonRevealed:false,productionEntryReady:false,
     e07Unlocked:false,canonicalEvents:[],unlocks:[],historicalClaims:[],rights:[]};

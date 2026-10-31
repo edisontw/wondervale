@@ -23,13 +23,25 @@ try{
    await hit('pocket-walk');await hit('pocket-place');await hit('check');
    assert.match(await page.locator('#marker').innerText(),/clear/);
    await hit('think');await hit('finish');
-   assert.match(await page.locator('#note').innerText(),/UNKNOWN/);
+   assert.equal(await page.locator('#care-panel').isVisible(),true);
+   await hit('heavy-care');await hit('test-care');
+   assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-soggy');
+   assert.match(await page.locator('#lower-world-note').innerText(),/retry/);
+   await hit('gentle-care');await hit('test-care');await hit('compare-care');
+   assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-sprout');
+   assert.match(await page.locator('#care-feedback').innerText(),/BEFORE \/ NOW compared/);
+   assert.match(await page.locator('#note').innerText(),/PAPER CARE MODEL/);
+   assert.match(await page.locator('#note').innerText(),/Actual growth.*UNKNOWN/);
    assert.match(await page.locator('#lower-world-note').innerText(),/PAPER pocket/);
    await hit('to-current');
    assert.equal(await page.locator('#current-scene').isVisible(),true);
    assert.equal(await b('run').isDisabled(),true);
    assert.match(await page.locator('#tray').innerText(),/3 run/);
+   assert.equal(await page.locator('#upper-bed-tile').getAttribute('data-stage'),'healthy');
+   assert.match(await page.locator('#lower-world-note').innerText(),/hypothetical sprout/);
+   assert.equal(await page.locator('#care-panel').isVisible(),false);
    await hit('to-lower');
+   assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-sprout');
    assert.match(await page.locator('#lower-world-note').innerText(),/PAPER pocket/);
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['e06-sentinel']);
    const size=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
@@ -38,6 +50,8 @@ try{
    await hit('restart');
    assert.equal(await page.locator('#current-scene').isVisible(),true);
    assert.equal(await b('enter').isDisabled(),true);
+   assert.equal(await page.locator('#care-panel').isVisible(),false);
+   assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-marker');
   }finally{await context.close();}
  }
  const context=await browser.newContext({viewport:{width:568,height:320}});
@@ -49,5 +63,5 @@ try{
   await page.keyboard.press('Enter');
   assert.match(await page.locator('#stage').innerText(),/model phase current/);
  }finally{await context.close();}
- console.log('E06 isolated two-scene Chromium PASS: three viewports, wrong-first, revisit, restart, keyboard');
+ console.log('E06 isolated two-scene Chromium PASS: three viewports, wrong-first care, hypothetical sprout revisit, restart, keyboard');
 }finally{await browser.close();}
