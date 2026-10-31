@@ -1,0 +1,63 @@
+name: Wondervale E04-E05-E06 independent PAPER memory-to-garden transfer
+on:
+  pull_request:
+    paths:
+      - 'authoring-labs/e04-e06-scene-transfer.mjs'
+      - 'authoring-labs/arc1-memory-station-handoff.html'
+      - 'e05-scene/**'
+      - 'e06-scene/**'
+      - 'tests/season1-e04-e06-scene-transfer*'
+      - '.github/workflows/wondervale-e04-e06-scene-transfer.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'authoring-labs/e04-e06-scene-transfer.mjs'
+      - 'authoring-labs/arc1-memory-station-handoff.html'
+      - 'e05-scene/**'
+      - 'e06-scene/**'
+      - 'tests/season1-e04-e06-scene-transfer*'
+permissions:
+  contents: read
+jobs:
+  memory-station-garden:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Strict PAPER replay, reset and canonical boundary
+        run: |
+          set -euo pipefail
+          node --check authoring-labs/e04-e06-scene-transfer.mjs
+          node --check e05-scene/main.mjs
+          node --check e06-scene/main.mjs
+          node --check tests/season1-e04-e06-scene-transfer-browser.mjs
+          node --test tests/season1-e04-e06-scene-transfer.test.mjs tests/season1-arc1-memory-station-handoff.test.mjs tests/season1-e05-e06-scene-transfer.test.mjs tests/season1-e05-scene-shell.test.mjs tests/season1-e06-scene-shell.test.mjs
+      - name: Keep synthetic scenes outside canonical packages
+        run: |
+          if grep -n -E 'e04-e06-scene-transfer|e05-e06-scene-transfer|e05-scene|e06-scene' scripts/package_static.py scripts/package_e02.py scripts/package_e03.py scripts/compile_episode.py; then
+            echo 'ERROR: noncanonical PAPER content entered production packaging' >&2
+            exit 1
+          fi
+      - name: Install Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Three-viewport E04 E05 E06 child journey and existing regressions
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory . >/tmp/e04-e06-paper-server.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:4173/authoring-labs/arc1-memory-station-handoff.html >/dev/null; then ready=1; break; fi
+            if ! kill -0 "$pid" 2>/dev/null; then break; fi
+            sleep 0.25
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/e04-e06-paper-server.log >&2; exit 1; fi
+          node tests/season1-e04-e06-scene-transfer-browser.mjs
+          node tests/season1-arc1-memory-station-handoff-browser.mjs
+          node tests/season1-e05-e06-scene-transfer-browser.mjs
