@@ -4,10 +4,10 @@ import * as E08 from '../authoring-labs/lantern-story-model.mjs';
 export const VERSION='e08-isolated-paper-v1',MAX_ACTIONS=90;
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b),verified=new WeakMap();
 const mark=s=>(verified.set(s,JSON.stringify(s)),s);
-export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',screen:'steps',story:E08.fresh(),history:[],canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]});}
+export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',screen:'steps',reviewMode:'both',story:E08.fresh(),history:[],canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]});}
 function clean(raw){
  if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
- if(raw.scene==='nav'&&['connector','steps','restart'].includes(raw.type)){
+ if(raw.scene==='nav'&&['connector','steps','restart','trace-first','trace-second','trace-both'].includes(raw.type)){
   const a={scene:'nav',type:raw.type};return same(a,raw)?a:null;
  }
  if(raw.scene!=='story'||!raw.action||typeof raw.action!=='object'||Array.isArray(raw.action))return null;
@@ -23,6 +23,8 @@ function apply(s,a){
   if(a.type==='restart')return fresh();
   if(a.type==='connector'&&s.screen==='steps'&&E08.view(s.story).previewComplete)return {...s,screen:'connector'};
   if(a.type==='steps'&&s.screen==='connector')return {...s,screen:'steps'};
+  if(a.type.startsWith('trace-')&&s.screen==='steps'&&E08.view(s.story).previewComplete)
+   return {...s,reviewMode:a.type.slice('trace-'.length)};
   return null;
  }
  if(s.screen!=='steps'||!E08.can(s.story,a.action))return null;
@@ -57,7 +59,8 @@ export function dispatch(snapshot,action){
 export function view(snapshot){
  const s=restore(snapshot);if(!s)return null;
  const story=E08.view(s.story);
- return {screen:s.screen,story,lowerLightsPaperOn:story.previewComplete,
+ return {screen:s.screen,story,reviewMode:story.previewComplete?s.reviewMode:null,
+  lowerLightsPaperOn:story.previewComplete,
   e07Verified:false,e09Unlocked:false,upperHillClosed:true,realLightingApproved:false,
   serviceDateApproved:false,productionEntryReady:false,
   canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]};
