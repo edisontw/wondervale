@@ -60,6 +60,8 @@ function apply(s,a){
  }
  if(a.scene==='care-callback'){
   if(s.stage!=='shortcut'||!s.care.compared||s.careCheckedInE07||
+    Short.view(s.shortcut).stage!=='finished'||
+    Short.view(s.shortcut).revisedTrials.water?.pass!==true||
     !Short.view(s.shortcut).observed.includes('channel'))return null;
   return {...s,careCheckedInE07:true};
  }
@@ -128,7 +130,7 @@ export function view(snapshot){
    'PAPER FIRST/NOW: Finn revised a removable connector for Milo, another traveler and water. The upper garden remains healthy; the lower pocket is only a model. Real route, planting, land rights, history and construction UNKNOWN.':
    'PAPER ONLY: E06 Lower Garden may lead to Finn’s E07 model test. No actual planting, construction, Chronicle or unlock.')+
    (s.care.compared?' E06 BEFORE/NOW: a hypothetical PAPER sprout after too much then gentle model water. No real growth.':'')+
-   (s.careCheckedInE07?' E07 Milo checked the PAPER care result against Finn’s model water channel; this does not verify real drainage.':''),
+   (s.careCheckedInE07?' E07 Milo checked the PAPER care result after Finn’s revised MODEL water trial passed; this does not verify real drainage.':''),
   sourceDates:'UNKNOWN',historicalCause:'UNKNOWN',plantingPermission:'UNKNOWN',
   connectorPermission:'UNKNOWN',northHillClosed:true,lanternLightsOff:true,
   commonRevealed:false,seasonFinished:false,canonicalEvents:[],unlocks:[],
