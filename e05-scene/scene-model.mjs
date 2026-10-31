@@ -11,12 +11,17 @@ const verified=new WeakMap();
 const mark=s=>(verified.set(s,JSON.stringify(s)),s);
 const navTypes=['to-records','to-layout','to-review','back-to-records','restart'];
 export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',stage:'foyer',
-  station:Story.fresh(),sources:Sources.fresh(),history:[],canonicalEvents:[],
+  station:Story.fresh(),sources:Sources.fresh(),garden:{inspected:[],overlay:false,question:false},history:[],canonicalEvents:[],
   unlocks:[],historicalClaims:[],rights:[]});}
 function clean(raw){
   if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
   let a=null;
   if(raw.scene==='nav'&&navTypes.includes(raw.type))a={scene:'nav',type:raw.type};
+  if(raw.scene==='garden'&&raw.action&&typeof raw.action==='object'&&!Array.isArray(raw.action)){
+    const g=raw.action;
+    if(g.type==='inspect'&&['older','present'].includes(g.value))a={scene:'garden',action:{type:'inspect',value:g.value}};
+    if(['overlay','ask-why'].includes(g.type))a={scene:'garden',action:{type:g.type}};
+  }
   if(['station','sources'].includes(raw.scene)&&raw.action&&
      typeof raw.action==='object'&&!Array.isArray(raw.action))
     a={scene:raw.scene,action:raw.action};
@@ -34,6 +39,16 @@ function apply(s,a){
     if(a.type==='to-review'&&s.stage==='layout'&&
        Story.view(s.station)?.reflection&&Sources.view(s.sources)?.phase==='finished')
       return {...s,stage:'review'};
+    return null;
+  }
+  if(a.scene==='garden'&&s.stage==='review'){
+    const g=s.garden,act=a.action;
+    if(act.type==='inspect'&&!g.inspected.includes(act.value))
+      return {...s,garden:{...g,inspected:[...g.inspected,act.value]}};
+    if(act.type==='overlay'&&g.inspected.length===2&&!g.overlay)
+      return {...s,garden:{...g,overlay:true}};
+    if(act.type==='ask-why'&&g.overlay&&!g.question)
+      return {...s,garden:{...g,question:true}};
     return null;
   }
   if(a.scene==='station'&&['foyer','layout'].includes(s.stage)){
@@ -84,15 +99,21 @@ export function view(snapshot){
     records:'Nia: These are MOCK drawings, not real station records. Who made them?',
     layout:'Finn: We can make a paper Map Room. Keep the public way clear.',
     review:'Milo: The paper room is ready. Why are there two garden places?'};
-  return {stage:s.stage,station,sources,speaker:s.stage==='foyer'?station.speaker:
-    s.stage==='records'?sources.speaker:s.stage==='layout'?station.speaker:'Milo',
-    line:s.stage==='review'?stageText.review:s.stage==='records'?sources.line:
+  const garden=s.garden;
+  const reviewLine=garden.question?'Milo: The two PAPER garden marks differ. Why? We still need real evidence.':
+    garden.overlay?'Nia: The model marks are apart. That does not tell us when or why.':
+      'Finn: Look at both PAPER garden sheets. Then lay them together.';
+  return {stage:s.stage,station,sources,gardenMap:{...garden,inspected:[...garden.inspected]},speaker:s.stage==='foyer'?station.speaker:
+    s.stage==='records'?sources.speaker:s.stage==='layout'?station.speaker:garden.question?'Milo':garden.overlay?'Nia':'Finn',
+    line:s.stage==='review'?reviewLine:s.stage==='records'?sources.line:
       s.stage==='foyer'?station.line:station.line,
     stageText:stageText[s.stage],
-    parentCue:s.stage==='records'?sources.parentCue:station.parentCue,
+    parentCue:s.stage==='review'?'What do the two PAPER marks show? What can they not explain?':
+      s.stage==='records'?sources.parentCue:station.parentCue,
     mapRoomPaperVisible:station.mapRoom&&sources.phase==='finished',
     paperChronicle:s.stage==='review'?
-      'PAPER ONLY: the removable copy fit two drawn marks; both MOCK records have maker/date/original UNKNOWN; the trial Map Room keeps a path clear. The old train service and North Hill stay CLOSED. The garden-location question remains OPEN.':null,
+      'PAPER ONLY: the removable copy fit two drawn marks; both MOCK records have maker/date/original UNKNOWN; the trial Map Room keeps a path clear. The old train service and North Hill stay CLOSED. The garden-location question remains OPEN.'+
+      (garden.question?' Milo overlaid two fictional garden marks; their difference is visible, but date, location provenance and cause remain UNKNOWN.':''):null,
     e04CanonicalComplete:false,productionEntryReady:false,foyerAccessApproved:false,
     stationRecordsApproved:false,e06Unlocked:false,northHillClosed:true,commonRevealed:false,
     canonicalEvents:[],unlocks:[],historicalClaims:[],rights:[]};

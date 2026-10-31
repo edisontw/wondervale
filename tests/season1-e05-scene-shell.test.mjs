@@ -99,3 +99,33 @@ test('review is read-only, restart clears only isolated PAPER rehearsal',()=>{
  assert.deepEqual(s.unlocks,[]);
  assert.deepEqual(replay(s.history),s);
 });
+
+test('child overlays two PAPER garden sketches only after inspection; no history or E06 unlock',()=>{
+ let s=finish();
+ const g=(type,value)=>({scene:'garden',action:value?{type,value}:{type}});
+ assert.equal(can(s,g('overlay')),false);
+ assert.equal(can(s,g('ask-why')),false);
+ s=dispatch(s,g('inspect','older'));
+ assert.equal(can(s,g('overlay')),false);
+ s=dispatch(s,g('inspect','present'));
+ assert.equal(can(s,g('overlay')),true);
+ s=dispatch(s,g('overlay'));
+ assert.equal(view(s).gardenMap.overlay,true);
+ assert.equal(can(s,g('ask-why')),true);
+ s=dispatch(s,g('ask-why'));
+ const v=view(s);
+ assert.equal(v.gardenMap.question,true);
+ assert.match(v.paperChronicle,/two fictional garden marks/);
+ assert.match(v.paperChronicle,/cause remain UNKNOWN/);
+ assert.equal(v.e06Unlocked,false);
+ assert.deepEqual(v.canonicalEvents,[]);
+ assert.deepEqual(v.historicalClaims,[]);
+ assert.deepEqual(replay(s.history),s);
+ assert.deepEqual(restore(structuredClone(s)),s);
+ for(const mutate of [x=>x.garden.question=false,x=>x.garden.inspected=[],x=>x.garden.overlay=false]){
+   const forged=structuredClone(s);mutate(forged);assert.equal(restore(forged),null);
+ }
+ assert.deepEqual(dispatch(s,g('inspect','older')),s);
+ const reset=dispatch(s,{scene:'nav',type:'restart'});
+ assert.deepEqual(view(reset).gardenMap,{inspected:[],overlay:false,question:false});
+});
