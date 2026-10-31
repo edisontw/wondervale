@@ -65,7 +65,7 @@ test('forged dates, source/rights, incomplete views, unknown keys and malformed 
   {...packet,e08:[...e08.history,{scene:'nav',type:'grant-access'}]},
   {...packet,e07:[]},{...packet,e06:[]}
  ])assert.equal(decodeHillTransfer('#paper-hill='+encodeURIComponent(JSON.stringify(bad))),null);
- const forged=structuredClone(e08);forged.story.lantern.lights['lower-a']=false;
+ const forged=structuredClone(e08);forged.story.steps.lights['lower-a']=false;
  assert.equal(encodeHillTransfer(forged,e09),null);
  const restartE08=E08.dispatch(e08,n('restart'));
  assert.equal(encodeHillTransfer(restartE08,e09),null);
