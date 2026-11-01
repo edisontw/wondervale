@@ -6,6 +6,7 @@ import * as E06 from '../e06-scene/scene-model.mjs';
 import {paperReturnRoute,PAPER_WALK} from '../e11-scene/return-route.mjs';
 import {paperReturnReflection} from '../e11-scene/return-reflection.mjs';
 import {paperReflectionWorld} from '../e11-scene/reflection-world.mjs';
+import {paperReflectionFollowUp} from '../e11-scene/reflection-follow-up.mjs';
 
 function reviewed(){
  let s=E11.fresh();
@@ -162,4 +163,38 @@ test('FIRST/NOW diary appears only after correctly sorted child return, and undo
  assert.equal(paperReflectionWorld({...s,rights:['approved']},steps,null,correct),null);
  assert.equal(paperReflectionWorld(E11.dispatch(s,{type:'reset'}),steps,null,correct),null);
  assert.equal(paperReflectionWorld(s,['garden','map_room','garden'],null,correct),null);
+});
+
+test('Milo chooses one unverified PAPER question and safe future action, without claiming a check',()=>{
+ const s=reviewed(),steps=['garden','map_room','garden','square'];
+ const sorted={station:'check',garden:'check',planting:'check',route:'check'};
+ assert.equal(paperReflectionFollowUp(s,steps.slice(0,-1),null,sorted),null);
+ assert.equal(paperReflectionFollowUp(s,steps,null,{...sorted,route:'paper'}),null);
+ const start=paperReflectionFollowUp(s,steps,null,sorted);
+ assert.deepEqual(start.unknowns.map(q=>q.id),['station','garden','planting','route']);
+ assert.equal(start.diaryLine,null);
+ assert.equal(start.realWorldFactsVerified,0);
+ assert.deepEqual(start.canonicalEvents,[]);
+ assert.deepEqual(start.unlocks,[]);
+ const mismatch=paperReflectionFollowUp(s,steps,null,sorted,'route','permission');
+ assert.equal(mismatch.matched,false);
+ assert.equal(mismatch.diaryLine,null);
+ assert.match(mismatch.feedback,/Try a check/);
+ for(const [id,action] of [['station','ask'],['garden','ask'],['planting','permission'],['route','survey']]){
+  const plan=paperReflectionFollowUp(s,steps,null,sorted,id,action);
+  assert.equal(plan.matched,true);
+  assert.match(plan.diaryLine,/PAPER NEXT STEP — NOT DONE/);
+  assert.equal(plan.actualCheckPerformed,false);
+  assert.equal(plan.permissionApproved,false);
+  assert.equal(plan.realRouteOpen,false);
+  assert.equal(plan.seasonComplete,false);
+  assert.deepEqual(plan.canonicalEvents,[]);
+  assert.deepEqual(plan.unlocks,[]);
+ }
+ assert.equal(paperReflectionFollowUp(s,steps,null,sorted,'unknown','survey'),null);
+ assert.equal(paperReflectionFollowUp(s,steps,null,sorted,'route','unknown'),null);
+ assert.equal(paperReflectionFollowUp(s,steps,null,sorted,null,'survey'),null);
+ assert.equal(paperReflectionFollowUp({...s,rights:['approved']},steps,null,sorted,'route','survey'),null);
+ assert.equal(paperReflectionFollowUp(E11.dispatch(s,{type:'reset'}),steps,null,sorted,'route','survey'),null);
+ assert.equal(paperReflectionFollowUp(s,steps.slice(0,-1),null,sorted,'route','survey'),null);
 });
