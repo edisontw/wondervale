@@ -5,6 +5,8 @@ on:
       - 'authoring-labs/e10-e11-scene-transfer.mjs'
       - 'authoring-labs/e04-e10-scene-transfer.mjs'
       - 'tests/season1-e04-e11-scene-transfer*'
+      - 'tests/season1-e03-e11-paper-chronicle*'
+      - 'authoring-labs/e03-e11-paper-chronicle.mjs'
       - 'e10-scene/**'
       - 'e11-scene/**'
       - 'tests/season1-e10-e11-scene-transfer*'
@@ -15,6 +17,8 @@ on:
       - 'authoring-labs/e10-e11-scene-transfer.mjs'
       - 'authoring-labs/e04-e10-scene-transfer.mjs'
       - 'tests/season1-e04-e11-scene-transfer*'
+      - 'tests/season1-e03-e11-paper-chronicle*'
+      - 'authoring-labs/e03-e11-paper-chronicle.mjs'
       - 'e10-scene/**'
       - 'e11-scene/**'
       - 'tests/season1-e10-e11-scene-transfer*'
@@ -36,7 +40,7 @@ jobs:
           node --check tests/season1-e04-e11-scene-transfer-browser.mjs
           node --check e11-scene/main.mjs
           node --check tests/season1-e10-e11-scene-transfer-browser.mjs
-          node --test tests/season1-e04-e11-scene-transfer.test.mjs tests/season1-e10-e11-scene-transfer.test.mjs tests/season1-e09-e10-scene-transfer.test.mjs tests/season1-e11-scene-shell.test.mjs
+          node --test tests/season1-e03-e11-paper-chronicle.test.mjs tests/season1-e04-e11-scene-transfer.test.mjs tests/season1-e10-e11-scene-transfer.test.mjs tests/season1-e09-e10-scene-transfer.test.mjs tests/season1-e11-scene-shell.test.mjs
       - name: Keep PAPER outside production packages
         run: |
           if grep -n -E 'e10-e11-scene-transfer|e10-scene|e11-scene' scripts/package_static.py scripts/package_e02.py scripts/package_e03.py scripts/compile_episode.py; then
@@ -62,3 +66,4 @@ jobs:
           if [ "$ready" -ne 1 ]; then cat /tmp/e10-e11-server.log >&2; exit 1; fi
           node tests/season1-e10-e11-scene-transfer-browser.mjs
           node tests/season1-e04-e11-scene-transfer-browser.mjs
+          node tests/season1-e03-e11-paper-chronicle-browser.mjs

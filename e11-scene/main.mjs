@@ -6,6 +6,7 @@ import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
 import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
 import {encodeLoopTransfer,decodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
+import {paperChronicle} from '../authoring-labs/e03-e11-paper-chronicle.mjs';
 const $=id=>document.getElementById(id);
 const titles={quiet:'Quiet seat',activity:'Activity area',access:'Access strip',
  quiet_reader:'Quiet reader',activity_group:'Activity group',
@@ -227,6 +228,17 @@ function render(){
  $('e04-e05-context').textContent=fullMemory?
   'E04 PAPER: two sincere but undated memories; earlier/later order UNKNOWN. E05 PAPER: two MOCK station drawings; maker, date and original UNKNOWN. These are strictly replayed child actions, NOT verified historical sources, rights or official Chronicle.':
   'No E04/E05 PAPER provenance linked. This is not historical proof.';
+ const continuity=paperChronicle(null,null,fragment);
+ $('e03-paper-source').textContent=continuity.e03Ready?
+  'E03 canonical source gate verified: both attributed memory event IDs exist. E04-E11 are still PAPER ONLY; no official unlock.':
+  'E03 canonical source gate NOT verified. PAPER actions do not establish earlier canonical completion.';
+ const list=$('paper-chronicle');list.replaceChildren();
+ for(const entry of continuity.entries){
+  const item=document.createElement('li');item.textContent=entry.scene+': '+entry.text;list.append(item);
+ }
+ if(!continuity.entries.length){
+  const item=document.createElement('li');item.textContent='No complete replayed E04-E11 PAPER chain. Direct authoring does not claim earlier progress.';list.append(item);
+ }
  $('e10-linked-context').textContent=linked?.finishedPaper?
   'E10 PAPER notes earned: Milo observed '+linked.observations.length+
   ' fictional traces and compared two SIMULATED needs. The place name, real access and history remain UNKNOWN. E11 is a separate model, NOT UNLOCKED.':
