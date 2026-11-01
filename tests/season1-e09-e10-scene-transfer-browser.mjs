@@ -38,6 +38,7 @@ try{
    assert.match(await page.locator('#hook').innerText(),/E10 remains NOT UNLOCKED/);
    await page.locator('#e10-paper').click();
    assert.match(page.url(),/\/e10-scene\/#paper-unnamed=/);
+   await page.waitForFunction(()=>document.querySelector('#hill-context')?.textContent?.includes('Milo inspected 5 fictional clues'));
    assert.match(await page.locator('#hill-context').innerText(),/Milo inspected 5 fictional clues/);
    assert.match(await page.locator('#hill-context').innerText(),/CLOSED/);
    assert.equal(await page.locator('#e09-return').isVisible(),true);

@@ -26,6 +26,7 @@ try{
    assert.match(await page.locator('#hook').innerText(),/E11 NOT UNLOCKED/);
    await page.locator('#e11-paper').click();
    assert.match(page.url(),/\/e11-scene\/#paper-loop=/);
+   await page.waitForFunction(()=>document.querySelector('#e10-linked-context')?.textContent?.includes('observed 2 fictional traces'));
    assert.match(await page.locator('#e10-linked-context').innerText(),/observed 2 fictional traces/);
    assert.match(await page.locator('#e10-linked-notes').textContent(),/SIMULATED NEEDS/);
    assert.match(await page.locator('#e10-linked-notes').textContent(),/UNKNOWN/);
