@@ -39,10 +39,23 @@ button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
 .mini-cell.mini-activity{background:#f4dfc9}
 .mini-cell.mini-focus{outline:3px solid #8c571d;outline-offset:-3px}
 .revisit-panel{border:1px solid #b8c8bf;border-radius:.5rem;padding:.5rem;min-width:0}
+.garden-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin:.5rem 0}
+.garden-card{border:2px dashed #9caaa0;border-radius:.5rem;background:#f3f1e6;padding:.55rem;min-width:0}
+.garden-card[data-stage=healthy]{border-style:solid;background:#e0eee0}
+.garden-card[data-stage=paper-sprout]{border-style:solid;background:#e1efdf}
+.garden-card[data-stage=paper-soggy]{background:#e2ecf3}
+.garden-card[data-stage=not-visited]{opacity:.7}
+.garden-mark{display:block;position:relative;width:36px;height:40px;margin:.25rem auto;border-bottom:4px solid #987d55}
+.garden-card[data-stage=healthy] .garden-mark::before,
+.garden-card[data-stage=paper-sprout] .garden-mark::before{content:'';position:absolute;left:17px;top:10px;width:3px;height:25px;background:#4c815b}
+.garden-card[data-stage=healthy] .garden-mark::after,
+.garden-card[data-stage=paper-sprout] .garden-mark::after{content:'';position:absolute;left:5px;top:9px;width:26px;height:14px;border-radius:80% 10% 80% 10%;background:#74a87b;transform:rotate(-18deg)}
+.garden-card p{font-size:.87rem;line-height:1.4;overflow-wrap:anywhere}
+
 .trial{border:1px dashed #8a9d92;border-radius:.4rem;padding:.45rem;overflow-wrap:anywhere}
 ul{padding-left:1.3rem;line-height:1.45}
 small{color:#50655e}
-@media(max-width:700px){.columns{grid-template-columns:1fr}.cell{min-height:56px;font-size:.75rem}.grid{gap:.25rem;padding:.25rem}.map{grid-template-columns:1fr}.trials{grid-template-columns:1fr}}
+@media(max-width:700px){.garden-cards{grid-template-columns:1fr}.columns{grid-template-columns:1fr}.cell{min-height:56px;font-size:.75rem}.grid{gap:.25rem;padding:.25rem}.map{grid-template-columns:1fr}.trials{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style></head><body><main>
 <header><h1>E11 — A New Line on the Map</h1><div>Scene 12 of 12 · child-controlled reversible shared-space and loop PAPER rehearsal</div></header>
@@ -111,7 +124,17 @@ small{color:#50655e}
 <p><small>Both model boards are reconstructed from strict child actions. No source, rights, real construction, official Chronicle, hidden-place identity reveal or season completion.</small></p>
 </section>
 <section class="panel"><h2>Earlier changes remain visible (PAPER callbacks)</h2>
-<p class="status">Market deliveries and two sincere undated memories; a station Map Room trial; Current Garden and Lower Garden models; Finn's revised shared path; lower Lantern Steps viewpoints; the CLOSED Hill; and E10 simulated needs. These are authoring callbacks, not claims that later locations have opened in the released game.</p></section>
+<p class="status">Market deliveries and two sincere undated memories; a station Map Room trial; Current Garden and Lower Garden models; Finn's revised shared path; lower Lantern Steps viewpoints; the CLOSED Hill; and E10 simulated needs. These are authoring callbacks, not claims that later locations have opened in the released game.</p>
+<section id="garden-revisit" hidden aria-label="E06 child-earned PAPER garden changes">
+<h2>E06 Garden revisit · FIRST / NOW (PAPER only)</h2>
+<p>These two gardens stay different. Milo's earlier water tests change only the lower PAPER pocket, not the healthy present garden.</p>
+<div class="garden-cards">
+<div id="garden-current" class="garden-card" data-stage="healthy"><strong>Current Garden · NOW</strong><span class="garden-mark" aria-hidden="true"></span><p id="garden-current-note"></p></div>
+<div id="garden-lower-first" class="garden-card" data-stage="paper-marker"><strong>Lower Garden · FIRST</strong><span class="garden-mark" aria-hidden="true"></span><p id="garden-lower-first-note"></p></div>
+<div id="garden-lower-now" class="garden-card" data-stage="not-visited"><strong>Lower Garden · NOW</strong><span class="garden-mark" aria-hidden="true"></span><p id="garden-lower-now-note"></p></div>
+</div>
+<p id="garden-trials" class="status"></p>
+</section></section>
 <section class="panel"><h2>4. Trace a NEW model loop, not the old hill</h2>
 <p>Try links, check if one connected cycle returns to its start, and erase any extra link. These are role labels, not walkable public routes.</p>
 <div id="map" class="map" role="group" aria-label="Fictional contemporary map links"></div>
