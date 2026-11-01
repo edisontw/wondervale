@@ -72,7 +72,7 @@ try{
    for(const key of ['start','bed','slope-walk','slope','tray-walk','run','rain','run','blocked','run','compare','enter'])await garden(key);
    assert.equal(await page.locator('#lower-scene').isVisible(),true);
    // Milo must finish the second distinct garden and actually test/revise PAPER care.
-   for(const key of ['lower-path-walk','lower-path','channel-walk','channel-place','check',
+   for(const key of ['trace','lower-path-walk','lower-path','channel-walk','channel-place','check',
      'pocket-walk','pocket-place','check','think','finish','heavy-care','test-care',
      'gentle-care','test-care','compare-care'])await garden(key);
    assert.match(await page.locator('#lower-world-note').innerText(),/hypothetical sprout/);
