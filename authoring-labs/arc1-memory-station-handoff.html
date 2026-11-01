@@ -49,13 +49,17 @@ import {fresh,dispatch,can,view} from './arc1-memory-station-handoff-model.mjs';
 import {fresh as freshE05} from '../e05-scene/scene-model.mjs';
 import {fresh as freshE06} from '../e06-scene/scene-model.mjs';
 import {fresh as freshE07} from '../e07-scene/scene-model.mjs';
+import {fresh as freshE08} from '../e08-scene/scene-model.mjs';
+import {decodeMemoryLantern,encodeMemoryLantern} from './e04-e08-scene-transfer.mjs';
 import {decodeMemoryGardenShortcut,encodeMemoryGardenShortcut} from './e04-e07-scene-transfer.mjs';
 import {decodeMemoryStationGardenTransfer,encodeMemoryStationGardenTransfer}
  from './e04-e06-scene-transfer.mjs';
-const extended=decodeMemoryGardenShortcut(location.hash);
+const lantern=decodeMemoryLantern(location.hash);
+const extended=lantern||decodeMemoryGardenShortcut(location.hash);
 const incoming=extended||decodeMemoryStationGardenTransfer(location.hash);
 let state=incoming?.e04||fresh(),linkedE05=incoming?.e05||freshE05(),
- linkedE06=incoming?.e06||freshE06(),linkedE07=extended?.e07||freshE07();
+ linkedE06=incoming?.e06||freshE06(),linkedE07=extended?.e07||freshE07(),
+ linkedE08=lantern?.e08||freshE08();
 const $=id=>document.getElementById(id);
 const e04=(type,x={})=>({scene:'e04',action:{type,...x}});
 const e05=(type,value)=>({scene:'e05',action:value===undefined?{type}:{type,value}});
@@ -65,7 +69,7 @@ function add(host,key,label,action){
  b.disabled=!can(state,action);b.addEventListener('click',()=>{
   state=dispatch(state,action);
   if(action.scene==='nav'&&action.type==='restart-e04'){
-    linkedE05=freshE05();linkedE06=freshE06();linkedE07=freshE07();
+    linkedE05=freshE05();linkedE06=freshE06();linkedE07=freshE07();linkedE08=freshE08();
   }
   render();
  });
@@ -75,8 +79,10 @@ function group(id,rows){const host=$(id);host.replaceChildren();
  for(const [key,label,action] of rows)add(host,key,label,action);}
 function render(){
  const v=view(state),t=v.timeline,s=v.station;
- const fragment=extended?
-  encodeMemoryGardenShortcut(state,linkedE05,linkedE06,linkedE07):
+ const fragment=lantern?
+  (encodeMemoryLantern(state,linkedE05,linkedE06,linkedE07,linkedE08)||
+   encodeMemoryGardenShortcut(state,linkedE05,linkedE06,linkedE07)):
+  extended?encodeMemoryGardenShortcut(state,linkedE05,linkedE06,linkedE07):
   encodeMemoryStationGardenTransfer(state,linkedE05,linkedE06);
  const link=$('e05-independent');link.hidden=!fragment;
  if(fragment)link.href='../e05-scene/'+fragment;
