@@ -19,12 +19,14 @@ h1{font-size:1.35rem;margin:.2rem 0}h2{font-size:1.1rem;margin:.25rem 0}
 .tile[data-stage="paper-soggy"]{background:#dbeaf2;border-color:#6a9bb3}
 .tile[data-stage="paper-seed"]{background:#f2eed8;border-color:#9d9a70}
 .tile[data-stage="paper-sprout"]{background:#d7e9d1;border-color:#517a57;border-style:solid}
+.station-map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem}
+.station-cell{min-height:68px;padding:.55rem;border:2px dashed #8fa997;border-radius:.45rem;background:#eaf1e7;overflow-wrap:anywhere}
 .controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
 button{font:inherit;min-height:44px;max-width:100%;padding:.5rem .7rem;border:2px solid #49725c;border-radius:.45rem;background:white;color:#214734;cursor:pointer;overflow-wrap:anywhere}
 button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
 .paper{background:#edf2e9;border:1px dashed #9aaf9f;border-radius:.4rem;padding:.65rem;line-height:1.5;margin:.4rem 0;overflow-wrap:anywhere}
 [hidden]{display:none!important}
-@media(max-width:650px){.world{grid-template-columns:1fr}.diagram{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:.55rem}}
+@media(max-width:650px){.station-map{grid-template-columns:1fr}.world{grid-template-columns:1fr}.diagram{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:.55rem}}
 </style></head><body><main>
 <header><h1>E06 — The Garden That Moved</h1><div>Two distinct child-controlled PAPER scenes · Current Garden / Lower Garden</div></header>
 <p class="notice"><strong>AUTHORING ONLY — NOT THE PRODUCTION GAME.</strong> Both floor plans, water flow and planting markers are synthetic. No approved site access, source chronology, planting/care permission, real growth, canonical Chronicle, E07 unlock, saved progress, or MN4 release. The healthy present garden stays. North Hill remains CLOSED.</p>
@@ -43,7 +45,14 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <div class="tile" id="upper-bed-tile" data-stage="healthy">Healthy bed<br>NOW · unchanged</div><div class="tile">Slope<br>Higher / lower</div><div class="tile path">Shared path<br>Keep clear</div>
 <div class="tile water">MODEL tray<br>DRY / RAIN</div><div class="tile water">Channel<br>OPEN / BLOCKED</div><div class="tile">Garden stays<br>No transplant</div></div>
 <p id="upper-observations" class="paper"></p><p id="tray" class="paper"></p>
-<div id="current-actions" class="controls"></div></section>
+<div id="current-actions" class="controls"></div><section id="e05-world" class="panel" hidden aria-label="E05 station PAPER world callback" data-view="now">
+<h2>E05 station memory · FIRST / NOW</h2>
+<p>Milo's PAPER Map Room changes what we can remember here. This is a station MODEL, not the Current Garden's real ground plan or a historical record.</p>
+<div class="controls"><button id="e05-world-first" type="button" aria-pressed="false">FIRST · before the paper table</button>
+<button id="e05-world-now" type="button" aria-pressed="true">NOW · Milo's paper Map Room</button></div>
+<div class="station-map" aria-label="Three paper station features"><div class="station-cell" id="station-map-board"></div>
+<div class="station-cell" id="station-map-table"></div><div class="station-cell" id="station-map-path"></div></div>
+<p id="station-map-feedback" class="paper" role="status" aria-live="polite"></p></section></section>
 <section id="lower-scene" class="panel" hidden><h2>Scene 07 · Lower Garden Pocket</h2>
 <p>This is a DIFFERENT paper place. Walk Milo to inspect water and public access. Try a marker, see what fails, move it, and keep only a small provisional plan.</p>
 <div class="diagram" aria-label="Synthetic Lower Garden model">
