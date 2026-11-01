@@ -18,6 +18,14 @@ A child-earned E09 safe survey plus E08 two-view observation may link to this in
 
 Tests: `node --test tests/season1-e09-e10-scene-transfer.test.mjs` and `node tests/season1-e09-e10-scene-transfer-browser.mjs` with the repository-root server on port 4173.
 
+## E08 → E10 child-operated clue tracing (PAPER only, 2026-11-01)
+
+When both E08's completed two-view observation and E09's completed CLOSED-hill survey pass strict action replay, an additional E10 workbench appears. Milo switches between the **actual two earned synthetic viewpoints**, traces the same fixed A/B/C model marks in each, and compares the apparent spacing. The child can test too early, receive a specific missing-traces prompt, remove/retrace any pin, or clear the workbench without penalty. Only tracing all six view/mark combinations produces a provisional PAPER note; the fixed marks never move. Nia's optional parent cue asks what changed in the view and what stayed fixed.
+
+This independent in-memory tracing does **not** enter E10's URL-fragment history or official Chronicle. E10 restart, a fresh page visit, or returning from E09 clears the tracing; E08/E09 histories remain replay-verified and intact. Direct E10 entry, incomplete/reset upstream actions or tampered snapshots cannot display the panel. E09's distant symbol is a **shape observation**, not proof that it is any of the E08 marks, a date or a place name. The upper hill stays CLOSED, model lights are not real lighting, and no rights, E11 unlock or production packaging are granted.
+
+Node: `node --test tests/season1-e08-e10-clue-transfer.test.mjs`. Browser: `node tests/season1-e09-e10-scene-transfer-browser.mjs` after starting the repository-root server at port 4173. The dedicated E09–E10 and twelve-scene PAPER workflows cover these checks.
+
 ## E10 ↔ E11 independent child-earned PAPER visit
 
 After Milo finishes the actual E10 four-column PAPER investigation and FIRST/NOW simulated-needs trial, a separate E11 authoring-only link appears. E11 receives read-only SEEN/MAYBE/NEEDS/UNKNOWN notes, but Milo must build, test and revise E11's independent board and model loop. The E11→E10 return retains strict replayed histories; E11 restart clears only E11, while E10 restart invalidates linked E11. Optional E08/E09/E07/E06 PAPER history is revalidated, not treated as permission or canon. No Common reveal, real access, historical date, official unlock, release, storage or family PASS. Test with `tests/season1-e10-e11-scene-transfer.test.mjs` and `tests/season1-e10-e11-scene-transfer-browser.mjs`.
