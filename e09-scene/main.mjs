@@ -4,6 +4,7 @@ import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {view as viewE08} from '../e08-scene/scene-model.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
 import {decodeMemoryHill,encodeMemoryHill} from '../authoring-labs/e04-e09-scene-transfer.mjs';
+import {decodeMemoryCourtyard,encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
 import {fresh as freshE10} from '../authoring-labs/unnamed-story-model.mjs';
 import {decodeUnnamedTransfer,encodeUnnamedTransfer} from '../authoring-labs/e09-e10-scene-transfer.mjs';
 
@@ -16,7 +17,7 @@ const edgeNames={'steps_base:signpost':'Steps–Signpost','signpost:fence_view':
   'signpost:lower_bend':'Signpost–Bend','lower_bend:overlook':'Bend–Overlook'};
 const coords={steps_base:[13,56],signpost:[36,46],fence_view:[64,32],
   lower_bend:[57,76],overlook:[86,70],upper_closed:[80,16]};
-const incoming=decodeMemoryHill(location.hash)||decodeUnnamedTransfer(location.hash)||decodeHillTransfer(location.hash);
+const incoming=decodeMemoryCourtyard(location.hash)||decodeMemoryHill(location.hash)||decodeUnnamedTransfer(location.hash)||decodeHillTransfer(location.hash);
 let state=incoming?.e09||fresh();
 const linkedE08=incoming?.e08||null,linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
 const linkedE04=incoming?.e04||null,linkedE05=incoming?.e05||null;
@@ -199,10 +200,12 @@ function render(){
   linkedE04?encodeMemoryHill(linkedE04,linkedE05,linkedE06,linkedE07,linkedE08,state):
   encodeHillTransfer(linkedE08,state,linkedE07,linkedE06));
  returnLink.hidden=!fragment;if(fragment)returnLink.href='../e08-scene/'+fragment;
- const e10Fragment=linkedE08&&encodeUnnamedTransfer(linkedE08,state,linkedE10||freshE10(),linkedE07,linkedE06);
+ const e10Fragment=linkedE08&&(linkedE04?
+  encodeMemoryCourtyard(linkedE04,linkedE05,linkedE06,linkedE07,linkedE08,state,linkedE10||freshE10()):
+  encodeUnnamedTransfer(linkedE08,state,linkedE10||freshE10(),linkedE07,linkedE06));
  const e10Link=$('e10-paper');e10Link.hidden=!e10Fragment;
  if(e10Fragment)e10Link.href='../e10-scene/'+e10Fragment;
- if(linkedE04)e10Link.textContent='Visit independent E10 PAPER scene (E04/E05 provenance does not transfer yet; no official unlock)';
+ if(linkedE04)e10Link.textContent='Visit independent E10 PAPER scene (E04 UNKNOWN memories and E05 MOCK sources travel as PAPER notes; no official unlock)';
  world();movement();inspect();sketch();thoughts();notebook();survey();
 }
 $('start').addEventListener('click',()=>act({type:'start'}));
