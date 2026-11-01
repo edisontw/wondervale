@@ -4,6 +4,9 @@ import assert from 'node:assert/strict';
 import {paperChronicle} from '../authoring-labs/e03-e11-paper-chronicle.mjs';
 import {canonicalCheckpoints} from './fixtures/season1-e03-canonical.mjs';
 import {paperLoopFixture} from './fixtures/season1-e03-e11-paper.mjs';
+import * as E06 from '../e06-scene/scene-model.mjs';
+import {sevenSceneUpstream} from './fixtures/season1-e04-e09-paper.mjs';
+import {paperGardenRevisit} from '../e11-scene/garden-revisit.mjs';
 test('genuine E02/E03 and replayed E04-E11 yield only child-earned PAPER Chronicle',()=>{
  const {e02,e03}=canonicalCheckpoints(),fragment=paperLoopFixture();
  const result=paperChronicle(e02,e03,fragment);
@@ -48,4 +51,29 @@ test('tampered E04/E05/E11 or partial URL cannot mint Chronicle or rights',()=>{
   assert.deepEqual(v.canonicalEvents,[]);
  }
  assert.equal(paperChronicle(e02,e03,'#bad').status,'no-valid-paper-chain');
+});
+
+test('E11 garden revisit visibly derives FIRST/NOW from child-earned E06 water tests',()=>{
+ const e06=sevenSceneUpstream().e06;
+ const v=paperGardenRevisit(e06);
+ assert.equal(v.current.stage,'healthy');
+ assert.equal(v.current.compared,true);
+ assert.equal(v.lower.firstStage,'paper-marker');
+ assert.equal(v.lower.nowStage,'paper-sprout');
+ assert.equal(v.lower.trialCount,2);
+ assert.equal(v.lower.compared,true);
+ assert.match(v.lower.note,/PAPER sprout/);
+ for(const field of ['canonicalEvents','unlocks'])assert.deepEqual(v[field],[]);
+ for(const field of ['historyApproved','realGrowth','plantingPermission','actualSiteAccess'])
+  assert.equal(v[field],false);
+ const first=paperGardenRevisit(E06.fresh());
+ assert.equal(first.current.stage,'healthy');
+ assert.equal(first.lower.nowStage,'not-visited');
+ const reset=E06.dispatch(e06,{scene:'nav',type:'restart'});
+ assert.equal(paperGardenRevisit(reset).lower.nowStage,'not-visited');
+ const forged=structuredClone(e06);forged.rights.push('planting-approved');
+ assert.equal(paperGardenRevisit(forged),null);
+ const forgedGrowth=structuredClone(e06);forgedGrowth.care.trials=[];
+ assert.equal(paperGardenRevisit(forgedGrowth),null);
+ assert.equal(paperGardenRevisit(null),null);
 });
