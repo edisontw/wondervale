@@ -1,6 +1,7 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {MARKERS,VIEWPOINTS} from '../engine/s01e08-authoring-prototype.mjs';
 import {view as viewE07} from '../e07-scene/scene-model.mjs';
+import {connectorWorld} from './connector-world.mjs';
 import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
 import {decodeMemoryLantern,encodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
@@ -87,6 +88,26 @@ function drawTrace(s,mode){
   '. No real lights or hill access.');
 }
 
+function drawConnectorCallback(){
+ const paper=connectorWorld(linkedE07);
+ $('connector-world-panel').hidden=!paper;
+ for(const [id,layout] of [['connector-first-grid',paper?.first],['connector-now-grid',paper?.now]]){
+  const root=$(id);root.replaceChildren();if(!layout)continue;
+  for(const cell of layout.cells){
+   const el=document.createElement('div');el.className='cell';el.textContent=cell.label;
+   el.dataset.conflict=String(cell.conflict);el.dataset.connector=String(cell.connector);
+   root.append(el);
+  }
+  root.setAttribute('aria-label',layout.layout+' synthetic connector, '+layout.conflicts+
+   ' overlap cells. C connector, P traveler, W water, X overlap.');
+ }
+ $('connector-world-result').textContent=paper?
+  'FIRST: '+paper.first.conflicts+' MODEL overlaps. NOW: '+paper.now.conflicts+
+  ' after Milo tested Finn\'s longer detour for Milo, another traveler and water. '+
+  'The route is PAPER only; real passage, drainage and lighting are NOT approved.':
+  'No child-checked E07 PAPER connector is linked to this independent E08 visit.';
+}
+
 function render(){
  const v=view(state),s=v.story;
  $('step-scene').hidden=v.screen!=='steps';$('connector-revisit').hidden=v.screen!=='connector';
@@ -128,7 +149,7 @@ function render(){
  }else{$('trace-map').replaceChildren();$('trace-detail').textContent='Finish the PAPER comparison to trace both views.';}
  $('note').textContent=s.paperNote;
  $('hook').textContent=v.lowerLightsPaperOn?'Next question: survey North Hill from a safe place. E09 NOT UNLOCKED.':'The service plate date and source are UNKNOWN. No E09 unlock.';
- draw(s);
+ draw(s);drawConnectorCallback();
  for(const [key,,action] of rows)document.querySelector('[data-key="'+key+'"]').disabled=!can(state,action);
  for(const el of document.querySelectorAll('[data-anchor]'))el.dataset.here=String(el.dataset.anchor===s.milo);
 }
