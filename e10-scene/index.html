@@ -99,14 +99,16 @@ import {fresh,dispatch,can,view} from '../authoring-labs/unnamed-story-model.mjs
 import {TRACES,USE_TAGS,NEEDS,SLOTS} from '../engine/s01e10-authoring-prototype.mjs';
 import {view as viewE09} from '../e09-scene/scene-model.mjs';
 import {decodeUnnamedTransfer,encodeUnnamedTransfer} from '../authoring-labs/e09-e10-scene-transfer.mjs';
+import {decodeMemoryCourtyard,encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
 import {decodeLoopTransfer,encodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
 import {fresh as freshE11} from '../engine/s01e11-authoring-prototype.mjs';
 const loop=decodeLoopTransfer(location.hash);
-const incoming=loop||decodeUnnamedTransfer(location.hash);
+const incoming=loop||decodeMemoryCourtyard(location.hash)||decodeUnnamedTransfer(location.hash);
 let state=incoming?.e10||fresh(),screen='courtyard',comparisonLayer='now';
 const upstream=loop?.upstream||incoming;
 const linkedE09=upstream?.e09||null,linkedE08=upstream?.e08||null;
 const linkedE07=upstream?.e07||null,linkedE06=upstream?.e06||null;
+const linkedE04=upstream?.e04||null,linkedE05=upstream?.e05||null;
 let linkedE11=loop?.e11||null;
 const $=id=>document.getElementById(id);
 const names={entry:'entry',stone_edge:'stone edge',notice_wall:'notice wall',quiet_corner:'quiet corner',meeting_edge:'meeting edge'};
@@ -162,19 +164,23 @@ function render(){
  const hill=linkedE09&&viewE09(linkedE09).story;
  $('hill-context').textContent=hill?.previewComplete?
   'E09 PAPER survey carried forward: Milo inspected '+hill.inspected.length+
-  ' fictional clues, marked '+hill.markedEdges.length+' walked edges and compared the distant mark shape. The hill is CLOSED; no real entrance, name, date or rights are proved.':
+  ' fictional clues, marked '+hill.markedEdges.length+' walked edges and compared the distant mark shape. The hill is CLOSED; no real entrance, name, date or rights are proved.'+
+  (linkedE04?' E04: two sincere memories, order UNKNOWN. E05: MOCK station sources; maker/date/original UNKNOWN. Neither is verified history.':''):
   'No E09 PAPER survey linked. Direct E10 authoring does not prove hill completion.';
  $('e09-observation').textContent=hill?.previewComplete?
   'I SEE: '+hill.observations.map(x=>x.text).join(' / ')+
   '. I THINK: model ideas only. UNKNOWN: actual safe access, dates and place identity.':
   'No linked field observations. The upper hill stays CLOSED.';
- const returnFragment=linkedE08&&encodeUnnamedTransfer(linkedE08,linkedE09,state,linkedE07,linkedE06);
+ const returnFragment=linkedE08&&(linkedE04?
+  encodeMemoryCourtyard(linkedE04,linkedE05,linkedE06,linkedE07,linkedE08,linkedE09,state):
+  encodeUnnamedTransfer(linkedE08,linkedE09,state,linkedE07,linkedE06));
  $('e09-return').hidden=!returnFragment;
  if(returnFragment)$('e09-return').href='../e09-scene/'+returnFragment;
  const loopFragment=encodeLoopTransfer(state,linkedE11||freshE11(),
   linkedE08?{e08:linkedE08,e09:linkedE09,e07:linkedE07,e06:linkedE06}:null);
  $('e11-paper').hidden=!loopFragment;
  if(loopFragment)$('e11-paper').href='../e11-scene/'+loopFragment;
+ if(linkedE04)$('e11-paper').textContent='Visit E11 PAPER (E04/E05 source notes do not transfer beyond E10; no official unlock)';
  $('e09-callback').disabled=!v.finishedPaper||screen==='survey';
  $('e10-back').hidden=screen!=='survey';
  $('e09-notes').hidden=screen!=='survey';

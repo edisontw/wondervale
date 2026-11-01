@@ -8,6 +8,8 @@ import * as E07 from '../e07-scene/scene-model.mjs';
 import * as E08 from '../e08-scene/scene-model.mjs';
 import * as E09 from '../e09-scene/scene-model.mjs';
 import {encodeMemoryHill,decodeMemoryHill} from '../authoring-labs/e04-e09-scene-transfer.mjs';
+import * as E10 from '../authoring-labs/unnamed-story-model.mjs';
+import {encodeMemoryCourtyard,decodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
 import {encodeMemoryLantern,decodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {encodeMemoryGardenShortcut as encode,decodeMemoryGardenShortcut as decode}
  from '../authoring-labs/e04-e07-scene-transfer.mjs';
@@ -183,6 +185,54 @@ test('E04-E08 PAPER histories survive five independent scenes, resets and forger
  assert.equal(E09.view(six.e09).e10Unlocked,false);
  for(const st of Object.values(six))
   for(const k of ['canonicalEvents','unlocks','rights','historicalClaims'])assert.deepEqual(st[k],[]);
+ // E10 remains an independent child-controlled PAPER scene. Seven histories are
+ // transferred only after the child completes the safe E09 survey.
+ let e10=E10.fresh();
+ const e10Actions=[
+  ['start',{}],['compare-symbol',{}],['walk',{to:'stone_edge'}],
+  ['inspect',{traceId:'surface'}],['suggest',{traceId:'surface',useTag:'passing'}],
+  ['revise',{traceId:'surface',oldTag:'passing',newTag:'resting'}],
+  ['walk',{to:'quiet_corner'}],['hear',{needId:'quiet'}],
+  ['place',{needId:'quiet',slot:'shared'}],['walk',{to:'meeting_edge'}],
+  ['hear',{needId:'activity'}],['place',{needId:'activity',slot:'shared'}],
+  ['test-one-slot',{}],['place',{needId:'quiet',slot:'left'}],
+  ['place',{needId:'activity',slot:'right'}],['walk',{to:'notice_wall'}],
+  ['inspect',{traceId:'holes'}],['suggest',{traceId:'holes',useTag:'display'}],
+  ['check-source',{}],['review-tradeoff',{}],['review',{}],['finish-paper',{}]
+ ];
+ for(const [type,extra] of e10Actions){
+  assert.equal(E10.can(e10,{type,...extra}),true,type);
+  e10=E10.dispatch(e10,{type,...extra});
+ }
+ const sevenFragment=encodeMemoryCourtyard(e04,e05,e06,e07,e08,e09,e10);
+ assert.match(sevenFragment,/^#paper-memory-station-garden-shortcut-steps-hill-courtyard=/);
+ const seven=decodeMemoryCourtyard(sevenFragment);
+ assert.deepEqual(seven,{e04,e05,e06,e07,e08,e09,e10});
+ assert.equal(E04.view(seven.e04).sourceDates,'UNKNOWN');
+ assert.equal(E09.view(seven.e09).upperHillClosed,true);
+ assert.equal(E10.view(seven.e10).finishedPaper,true);
+ assert.equal(E10.view(seven.e10).actualName,null);
+ assert.equal(E10.view(seven.e10).e11Unlocked,false);
+ for(const st of Object.values(seven))
+  for(const k of ['canonicalEvents','unlocks','rights','historicalClaims'])assert.deepEqual(st[k],[]);
+ const resetE10=E10.dispatch(e10,{type:'reset'});
+ assert.equal(E10.view(decodeMemoryCourtyard(
+  encodeMemoryCourtyard(e04,e05,e06,e07,e08,e09,resetE10)).e10).stage,'opening');
+ assert.equal(encodeMemoryCourtyard(e04,e05,e06,e07,e08,E09.fresh(),e10),null);
+ assert.equal(encodeMemoryCourtyard(e04,e05,e06,e07,E08.fresh(),e09,e10),null);
+ assert.equal(encodeMemoryCourtyard(e04,e05,e06,E07.fresh(),e08,e09,e10),null);
+ assert.equal(encodeMemoryCourtyard(e04,e05,E06.fresh(),e07,e08,e09,e10),null);
+ assert.equal(encodeMemoryCourtyard(e04,E05.fresh(),e06,e07,e08,e09,e10),null);
+ assert.equal(encodeMemoryCourtyard(E04.fresh(),e05,e06,e07,e08,e09,e10),null);
+ assert.equal(encodeMemoryCourtyard(e04,e05,e06,e07,e08,e09,{...e10,rights:['courtyard']}),null);
+ const sevenPacket={v:1,...Object.fromEntries(Object.entries(seven).map(([k,st])=>[k,st.history]))};
+ const packSeven=x=>'#paper-memory-station-garden-shortcut-steps-hill-courtyard='+encodeURIComponent(JSON.stringify(x));
+ for(const bad of [{...sevenPacket,v:2},{...sevenPacket,year:1901},{...sevenPacket,rights:['open']},
+  {...sevenPacket,e04:[]},{...sevenPacket,e09:[]},{...sevenPacket,e10:[{type:'finish-paper'}]},
+  {...sevenPacket,e10:[...e10.history,{type:'grant-unlock'}]}])
+  assert.equal(decodeMemoryCourtyard(packSeven(bad)),null);
+ assert.equal(decodeMemoryCourtyard('#paper-memory-station-garden-shortcut-steps-hill-courtyard=%broken'),null);
+ assert.equal(decodeMemoryCourtyard('#paper-memory-station-garden-shortcut-steps-hill-courtyard='+'x'.repeat(180001)),null);
  const resetE09=E09.dispatch(e09,nav('restart'));
  const restarted=decodeMemoryHill(encodeMemoryHill(e04,e05,e06,e07,e08,resetE09));
  assert.equal(E09.view(restarted.e09).story.stage,'opening');

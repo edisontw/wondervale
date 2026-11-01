@@ -3,6 +3,10 @@ on:
   pull_request:
     paths:
       - 'authoring-labs/e09-e10-scene-transfer.mjs'
+      - 'authoring-labs/e04-e10-scene-transfer.mjs'
+      - 'tests/season1-e04-e07-scene-transfer.test.mjs'
+      - 'tests/season1-e04-e10-scene-transfer-browser.mjs'
+      - 'tests/fixtures/season1-e04-e09-paper.mjs'
       - 'e09-scene/**'
       - 'e10-scene/**'
       - 'tests/season1-e09-e10-scene-transfer*'
@@ -11,6 +15,10 @@ on:
     branches: [main]
     paths:
       - 'authoring-labs/e09-e10-scene-transfer.mjs'
+      - 'authoring-labs/e04-e10-scene-transfer.mjs'
+      - 'tests/season1-e04-e07-scene-transfer.test.mjs'
+      - 'tests/season1-e04-e10-scene-transfer-browser.mjs'
+      - 'tests/fixtures/season1-e04-e09-paper.mjs'
       - 'e09-scene/**'
       - 'e10-scene/**'
       - 'tests/season1-e09-e10-scene-transfer*'
@@ -29,9 +37,11 @@ jobs:
       - name: Node strict replay and upstream regressions
         run: |
           node --check authoring-labs/e09-e10-scene-transfer.mjs
+          node --check authoring-labs/e04-e10-scene-transfer.mjs
+          node --check tests/season1-e04-e10-scene-transfer-browser.mjs
           node --check e09-scene/main.mjs
           node --check tests/season1-e09-e10-scene-transfer-browser.mjs
-          node --test tests/season1-e09-e10-scene-transfer.test.mjs tests/season1-e08-e09-scene-transfer.test.mjs tests/season1-unnamed-story.test.mjs tests/season1-e09-scene-shell.test.mjs
+          node --test tests/season1-e09-e10-scene-transfer.test.mjs tests/season1-e04-e07-scene-transfer.test.mjs tests/season1-e08-e09-scene-transfer.test.mjs tests/season1-unnamed-story.test.mjs tests/season1-e09-scene-shell.test.mjs
       - name: PAPER code stays out of production packages
         run: |
           if grep -R -n 'e09-e10-scene-transfer' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then
@@ -55,5 +65,6 @@ jobs:
           done
           if [ "$ready" -ne 1 ]; then cat /tmp/e09-e10-server.log >&2; exit 1; fi
           node tests/season1-e09-e10-scene-transfer-browser.mjs
+          node tests/season1-e04-e10-scene-transfer-browser.mjs
           node tests/season1-e09-scene-shell-browser.mjs
           node tests/season1-e10-scene-shell-browser.mjs
