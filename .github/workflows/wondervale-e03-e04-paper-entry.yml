@@ -6,6 +6,7 @@ on:
       - 'authoring-labs/e03-e04-paper-source-entry.*'
       - 'authoring-labs/index.html'
       - 'tests/season1-e03-e04-paper-source-entry*'
+      - 'tests/season1-e03-e11-source-journey-browser.mjs'
       - '.github/workflows/wondervale-e03-e04-paper-entry.yml'
   push:
     branches: [main]
@@ -13,6 +14,7 @@ on:
       - 'authoring-labs/e03-e04-paper-source-entry.*'
       - 'authoring-labs/index.html'
       - 'tests/season1-e03-e04-paper-source-entry*'
+      - 'tests/season1-e03-e11-source-journey-browser.mjs'
       - '.github/workflows/wondervale-e03-e04-paper-entry.yml'
 permissions:
   contents: read
@@ -30,6 +32,7 @@ jobs:
           set -euo pipefail
           node --check authoring-labs/e03-e04-paper-source-entry.mjs
           node --check tests/season1-e03-e04-paper-source-entry-browser.mjs
+          node --check tests/season1-e03-e11-source-journey-browser.mjs
           node --test \
             tests/s01e03.test.mjs \
             tests/s01e03-e04-handoff.test.mjs \
@@ -55,6 +58,7 @@ jobs:
           done
           if [ "$ready" -ne 1 ]; then cat /tmp/e03-e04-entry-server.log; exit 1; fi
           node tests/season1-e03-e04-paper-source-entry-browser.mjs
+          node tests/season1-e03-e11-source-journey-browser.mjs
           node tests/season1-arc1-memory-station-handoff-browser.mjs
           node tests/s01e03-browser.mjs
       - name: Upload scoped browser evidence
