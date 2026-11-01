@@ -1,0 +1,118 @@
+// Strict, replay-derived E04-E07 independent PAPER chain; no official unlock.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import * as E04 from '../authoring-labs/arc1-memory-station-handoff-model.mjs';
+import * as E05 from '../e05-scene/scene-model.mjs';
+import * as E06 from '../e06-scene/scene-model.mjs';
+import * as E07 from '../e07-scene/scene-model.mjs';
+import {encodeMemoryGardenShortcut as encode,decodeMemoryGardenShortcut as decode}
+ from '../authoring-labs/e04-e07-scene-transfer.mjs';
+const a=(scene,type,extra={})=>({scene,action:{type,...extra}});
+const nav=type=>({scene:'nav',type});
+const g=(type,value)=>({scene:'garden',action:value===undefined?{type}:{type,value}});
+const c=(type,value)=>value===undefined?{scene:'care',type}:{scene:'care',type,value};
+function step(model,s,action){
+ assert.equal(model.can(s,action),true,JSON.stringify(action));
+ return model.dispatch(s,action);
+}
+function memories(){
+ let s=E04.fresh();
+ for(const action of [
+  a('e04','inspect',{which:'station'}),a('e04','inspect',{which:'garden'}),
+  a('e04','place',{which:'station',slot:'earlier'}),
+  a('e04','place',{which:'garden',slot:'later'}),
+  a('e04','place',{which:'station',slot:'unknown'}),
+  a('e04','place',{which:'garden',slot:'unknown'}),
+  a('e04','compare'),a('e04','finish-paper')
+ ])s=step(E04,s,action);
+ return s;
+}
+function station(){
+ let s=E05.fresh();
+ for(const action of [
+  a('station','start'),a('station','walk',{value:'board'}),
+  a('station','inspect',{value:'peg-pair'}),a('station','inspect',{value:'worn-edge'}),
+  a('station','guess',{value:'unsure'}),a('station','try-copy',{value:'side-b'}),
+  a('station','check'),a('station','try-copy',{value:'side-a'}),a('station','check'),
+  a('station','qualify'),nav('to-records'),a('sources','start'),
+  ...['a','b'].flatMap(card=>[
+   a('sources','walk',{value:'desk-'+card}),a('sources','inspect',{card}),
+   a('sources','source-check',{card})]),
+  a('sources','walk',{value:'compare'}),
+  a('sources','place',{card:'a',slot:'earlier'}),a('sources','test',{card:'a'}),
+  ...['a','b'].flatMap(card=>[
+   a('sources','place',{card,slot:'unknown'}),a('sources','test',{card})]),
+  a('sources','compare'),a('sources','finish'),nav('to-layout'),
+  a('station','walk',{value:'table'}),a('station','place-table',{value:'across-walkway'}),
+  a('station','place-table',{value:'near-wall'}),a('station','confirm'),
+  a('station','reflect'),nav('to-review'),
+  a('garden','inspect',{value:'older'}),a('garden','inspect',{value:'present'}),
+  a('garden','overlay'),a('garden','ask-why')
+ ])s=step(E05,s,action);
+ return s;
+}
+
+function completedGarden(){
+ let s=E06.fresh();
+ for(const a of [g('start'),g('inspect','present-bed'),g('walk','slope'),g('inspect','slope'),
+  g('walk','model-tray'),g('run'),g('weather','rain'),g('run'),g('channel','blocked'),
+  g('run'),g('compare'),g('enter'),g('inspect','runoff-trace'),
+  g('walk','public-path'),g('inspect','public-path'),g('walk','runoff-channel'),
+  g('place','runoff-channel'),g('check'),g('walk','raised-pocket'),
+  g('place','raised-pocket'),g('check'),g('think','keep-path'),g('finish'),
+  c('choose','heavy'),c('test'),c('choose','gentle'),c('test'),c('compare')]){
+  assert.equal(E06.can(s,a),true,JSON.stringify(a));s=E06.dispatch(s,a);
+ }
+ return s;
+}
+
+test('E04 undated memories to E07 child action survive all four independent visits',()=>{
+ const e04=memories(),e05=station(),e06=completedGarden();
+ let e07=step(E07,E07.fresh(),a('story','start'));
+ e07=step(E07,e07,a('story','walk',{value:'shared-path'}));
+ e07=step(E07,e07,a('story','inspect',{value:'shared-path'}));
+ const packet=decode(encode(e04,e05,e06,e07));
+ assert.deepEqual(packet,{e04,e05,e06,e07});
+ assert.equal(E04.view(packet.e04).sourceDates,'UNKNOWN');
+ assert.equal(E05.view(packet.e05).e06Unlocked,false);
+ assert.equal(E06.view(packet.e06).lowerGrowthVisible,true);
+ assert.equal(E07.view(packet.e07).story.stage,'explore');
+ assert.ok(E07.view(packet.e07).story.observed.includes('shared-path'));
+ for(const s of Object.values(packet)){
+  assert.deepEqual(s.canonicalEvents,[]);
+  assert.deepEqual(s.unlocks,[]);
+  assert.deepEqual(s.rights,[]);
+  assert.deepEqual(s.historicalClaims,[]);
+ }
+ const e07Reset=E07.dispatch(e07,nav('restart'));
+ assert.deepEqual(decode(encode(e04,e05,e06,e07Reset)).e07,E07.fresh());
+ assert.equal(encode(e04,e05,E06.fresh(),e07),null,'E06 restart revokes E07');
+ assert.equal(encode(e04,E05.fresh(),e06,e07),null,'E05 restart revokes E06/E07');
+ assert.equal(encode(E04.dispatch(e04,nav('restart-e04')),e05,e06,e07),null);
+});
+test('E07 cannot be fabricated before E06 child care; rights, dates and malformed fragments fail closed',()=>{
+ const e04=memories(),e05=station(),e06=completedGarden();
+ const e07=step(E07,E07.fresh(),a('story','start'));
+ assert.equal(encode(e04,e05,E06.fresh(),e07),null);
+ assert.equal(encode(e04,e05,E06.fresh(),E07.fresh())!==null,true,
+  'unstarted downstream may be carried but not credited');
+ for(const bad of [
+  {...e04,rights:['station']},{...e05,unlocks:['E06']},
+  {...e06,rights:['planting']},{...e07,unlocks:['E08']},
+  {...e07,history:[...e07.history,{scene:'nav',type:'grant-access'}]}
+ ])assert.equal(encode(
+  bad.version===e04.version?bad:e04,
+  bad.version===e05.version?bad:e05,
+  bad.version===e06.version?bad:e06,
+  bad.version===e07.version?bad:e07),null);
+ const fragment=p=>'#paper-memory-station-garden-shortcut='+encodeURIComponent(JSON.stringify(p));
+ const packet={v:1,e04:e04.history,e05:e05.history,e06:e06.history,e07:e07.history};
+ for(const bad of [
+  {...packet,year:1920},{...packet,rights:['approved']},{...packet,v:2},
+  {...packet,e04:[]},{...packet,e06:[]},
+  {...packet,e07:[{scene:'story',action:{type:'finish'}}]}
+ ])assert.equal(decode(fragment(bad)),null);
+ assert.equal(decode(''),null);
+ assert.equal(decode('#paper-memory-station-garden-shortcut=%bad'),null);
+ assert.equal(decode('#paper-memory-station-garden-shortcut='+'x'.repeat(85001)),null);
+});
