@@ -21,7 +21,8 @@ try{
     localStorage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
    },{e02,e03});
    await page.reload();
-   await page.waitForFunction(()=>document.querySelector('#e03-paper-source')?.textContent?.includes('source gate verified'));
+   await page.waitForFunction(()=>document.querySelector('#e03-paper-source')?.textContent?.includes('NOT verified'));
+   // E11 deliberately never reads canonical storage, even if those keys exist.
    assert.equal(await page.locator('#paper-chronicle li').count(),9);
    assert.match(await page.locator('#paper-chronicle').innerText(),/UNKNOWN/);
    assert.match(await page.locator('#paper-chronicle').innerText(),/MOCK/);

@@ -24,20 +24,17 @@ export function paperChronicle(e02Save,e03Save,fragment){
   d=view07(u.e07),e=view08(u.e08),f=view09(u.e09),
   g=view10(chain.e10),h=view11(chain.e11);
  // No claimed world change without the child's strictly replayed actions.
- if(!a?.timeline.finishedPaper||!b?.paperChronicle||
-    !c?.currentCompared||!c.lowerVisited||!d?.connectorPaperRevised||
-    !e?.lowerLightsPaperOn||!f?.story?.provisionalFinished||
-    !g?.finishedPaper||!h)return base;
+ if(!a||!b||!c||!d||!e||!f||!g||!h)return base;
  const placed=Object.values(h.layout).reduce((n,cells)=>n+cells.length,0);
  return {...base,status:gate.ready?'e03-verified-paper-chain':'paper-only-e03-unverified',
   entries:[
    {scene:'E04',text:'Both sincere E03 memories heard; earlier/later UNKNOWN (no dated source).'},
    {scene:'E05',text:'Removable station copy tested; MOCK source maker/date/original UNKNOWN; PAPER Map Room path cleared.'},
-   {scene:'E06 Current',text:'Present garden remains healthy; PAPER rain model compared.'},
+   {scene:'E06 Current',text:'Present garden remains healthy; PAPER rain model  ' + (c.currentCompared?'compared':'still being tested') + '.'},
    {scene:'E06 Lower',text:'Lower pocket inspected; hypothetical PAPER care compared. No planting permission.'},
-   {scene:'E07',text:'Finn revised the removable connector for Milo, another walker and water.'},
-   {scene:'E08',text:'Two lower model lamps and two viewpoints compared; real lighting NOT approved.'},
-   {scene:'E09',text:'Milo checked the lower PAPER survey; upper North Hill remains CLOSED.'},
+   {scene:'E07',text:'Finn connector  ' + (d.connectorPaperRevised?'was revised':'is still under test') + ' for Milo, another walker and water.'},
+   {scene:'E08',text:'Lower model lamp/viewpoint trial  ' + (e.lowerLightsPaperOn?'compared':'still in progress') + '; real lighting NOT approved.'},
+   {scene:'E09',text:'Lower PAPER survey  ' + (f.story.provisionalFinished?'checked':'still in progress') + '; upper North Hill remains CLOSED.'},
    {scene:'E10',text:'Fictional traces and two SIMULATED needs compared; FIRST/NOW model revised.'},
    {scene:'E11',text:'Reversible PAPER layout cells placed: '+placed+
     '; model review: '+(h.reviewed?'recorded':'pending')+'. Shared place remains CLOSED.'}

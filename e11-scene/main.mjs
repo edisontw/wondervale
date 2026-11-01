@@ -7,9 +7,7 @@ import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verificatio
 import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
 import {encodeLoopTransfer,decodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
 import {paperChronicle} from '../authoring-labs/e03-e11-paper-chronicle.mjs';
-import {E02_KEY,E03_KEY} from '../engine/s01e04-handoff.mjs';
 const $=id=>document.getElementById(id);
-const readSaved=key=>{try{return JSON.parse(localStorage.getItem(key));}catch{return null;}};
 const titles={quiet:'Quiet seat',activity:'Activity area',access:'Access strip',
  quiet_reader:'Quiet reader',activity_group:'Activity group',
  e03_delivery:'E03 delivery',e06_drainage:'E06 water',e07_user_impact:'E07 shared use',
@@ -230,7 +228,7 @@ function render(){
  $('e04-e05-context').textContent=fullMemory?
   'E04 PAPER: two sincere but undated memories; earlier/later order UNKNOWN. E05 PAPER: two MOCK station drawings; maker, date and original UNKNOWN. These are strictly replayed child actions, NOT verified historical sources, rights or official Chronicle.':
   'No E04/E05 PAPER provenance linked. This is not historical proof.';
- const continuity=paperChronicle(readSaved(E02_KEY),readSaved(E03_KEY),fragment);
+ const continuity=paperChronicle(null,null,fragment);
  $('e03-paper-source').textContent=continuity.e03Ready?
   'E03 canonical source gate verified: both attributed memory event IDs exist. E04-E11 are still PAPER ONLY; no official unlock.':
   'E03 canonical source gate NOT verified. PAPER actions do not establish earlier canonical completion.';
