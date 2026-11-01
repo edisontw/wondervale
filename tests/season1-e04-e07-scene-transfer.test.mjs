@@ -6,6 +6,8 @@ import * as E05 from '../e05-scene/scene-model.mjs';
 import * as E06 from '../e06-scene/scene-model.mjs';
 import * as E07 from '../e07-scene/scene-model.mjs';
 import * as E08 from '../e08-scene/scene-model.mjs';
+import * as E09 from '../e09-scene/scene-model.mjs';
+import {encodeMemoryHill,decodeMemoryHill} from '../authoring-labs/e04-e09-scene-transfer.mjs';
 import {encodeMemoryLantern,decodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {encodeMemoryGardenShortcut as encode,decodeMemoryGardenShortcut as decode}
  from '../authoring-labs/e04-e07-scene-transfer.mjs';
@@ -157,6 +159,51 @@ test('E04-E08 PAPER histories survive five independent scenes, resets and forger
  assert.equal(E08.view(p.e08).upperHillClosed,true);
  for(const s of Object.values(p))
   for(const k of ['canonicalEvents','unlocks','rights','historicalClaims'])assert.deepEqual(s[k],[]);
+ // The E09 model remains an independent child survey, with the full undated
+ // E04/E05 context available as read-only evidence and no new canonical rights.
+ let e09=E09.fresh();
+ for(const x of [
+  l('start'),l('inspect','clueId','entry_note'),l('walk','to','signpost'),
+  l('inspect','clueId','boundary_sign'),l('walk','to','fence_view'),
+  l('inspect','clueId','disturbed_ground'),l('walk','to','upper_closed'),
+  l('walk','to','signpost'),l('walk','to','lower_bend'),
+  l('inspect','clueId','runoff_marks'),l('walk','to','overlook'),
+  l('inspect','clueId','distant_symbol'),
+  l('mark','edgeId','steps_base:signpost'),l('mark','edgeId','signpost:lower_bend'),
+  l('mark','edgeId','lower_bend:overlook'),l('check-route'),
+  l('compare-symbol'),l('review'),l('finish-preview')
+ ])e09=step(E09,e09,x);
+ const hillFragment=encodeMemoryHill(e04,e05,e06,e07,e08,e09);
+ assert.match(hillFragment,/^#paper-memory-station-garden-shortcut-steps-hill=/);
+ const six=decodeMemoryHill(hillFragment);
+ assert.deepEqual(six,{e04,e05,e06,e07,e08,e09});
+ assert.equal(E04.view(six.e04).sourceDates,'UNKNOWN');
+ assert.equal(E09.view(six.e09).story.previewComplete,true);
+ assert.equal(E09.view(six.e09).upperHillClosed,true);
+ assert.equal(E09.view(six.e09).e10Unlocked,false);
+ for(const st of Object.values(six))
+  for(const k of ['canonicalEvents','unlocks','rights','historicalClaims'])assert.deepEqual(st[k],[]);
+ const resetE09=E09.dispatch(e09,nav('restart'));
+ const restarted=decodeMemoryHill(encodeMemoryHill(e04,e05,e06,e07,e08,resetE09));
+ assert.equal(E09.view(restarted.e09).story.stage,'opening');
+ assert.equal(E08.view(restarted.e08).story.previewComplete,true);
+ assert.equal(encodeMemoryHill(e04,e05,e06,e07,E08.fresh(),e09),null);
+ assert.equal(encodeMemoryHill(e04,e05,e06,E07.fresh(),e08,e09),null);
+ assert.equal(encodeMemoryHill(e04,e05,E06.fresh(),e07,e08,e09),null);
+ assert.equal(encodeMemoryHill(e04,E05.fresh(),e06,e07,e08,e09),null);
+ assert.equal(encodeMemoryHill(E04.fresh(),e05,e06,e07,e08,e09),null);
+ assert.equal(encodeMemoryHill(e04,e05,e06,e07,e08,{...e09,rights:['hill']}),null);
+ const hillPacket={v:1,e04:e04.history,e05:e05.history,e06:e06.history,
+  e07:e07.history,e08:e08.history,e09:e09.history};
+ const packHill=x=>'#paper-memory-station-garden-shortcut-steps-hill='+encodeURIComponent(JSON.stringify(x));
+ for(const bad of [{...hillPacket,year:1920},{...hillPacket,v:2},
+  {...hillPacket,e04:[]},{...hillPacket,e08:[]},
+  {...hillPacket,e09:[{scene:'story',action:{type:'finish-preview'}}]},
+  {...hillPacket,rights:['real-hill']},
+  {...hillPacket,e09:[...e09.history,{scene:'nav',type:'grant-access'}]}])
+  assert.equal(decodeMemoryHill(packHill(bad)),null);
+ assert.equal(decodeMemoryHill('#paper-memory-station-garden-shortcut-steps-hill=%broken'),null);
+ assert.equal(decodeMemoryHill('#paper-memory-station-garden-shortcut-steps-hill='+'x'.repeat(150001)),null);
  const reset=E08.dispatch(e08,nav('restart'));
  assert.equal(E08.view(decodeMemoryLantern(encodeMemoryLantern(e04,e05,e06,e07,reset)).e08).story.stage,'opening');
  assert.equal(encodeMemoryLantern(e04,e05,e06,E07.fresh(),e08),null);
