@@ -28,8 +28,9 @@ jobs:
         run: |
           node --check e11-scene/main.mjs
           node --check e11-scene/loop-visual.mjs
+          node --check e11-scene/return-route.mjs
           node --check tests/season1-e11-scene-shell-browser.mjs
-          node --test tests/s01e11-authoring-prototype.test.mjs tests/season1-e11-scene-shell.test.mjs
+          node --test tests/s01e11-authoring-prototype.test.mjs tests/season1-e11-scene-shell.test.mjs tests/season1-e11-return-route.test.mjs
       - name: Guard noncanonical production packaging
         run: |
           if grep -R -n 'e11-scene' scripts/compile_episode.py scripts/package_static.py scripts/package_e02.py scripts/package_e03.py; then
