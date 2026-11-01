@@ -1,5 +1,6 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import * as E05 from '../e05-scene/scene-model.mjs';
+import {stationWorld} from './station-world.mjs';
 import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
 import {fresh as freshE07} from '../e07-scene/scene-model.mjs';
 import {fresh as freshE08} from '../e08-scene/scene-model.mjs';
@@ -19,6 +20,7 @@ let state=arcIncoming?.e06||stationIncoming?.e06||incoming?.e06||fresh(),
  linkedE08=lantern?.e08||freshE08();
 const linkedE05=arcIncoming?.e05||stationIncoming?.e05||null;
 const linkedE04=arcIncoming?.e04||null;
+let stationMapView='now';
 const $=id=>document.getElementById(id);
 const garden=(type,value)=>({scene:'garden',action:value===undefined?{type}:{type,value}});
 const nav=type=>({scene:'nav',type});
@@ -78,6 +80,23 @@ function buttons(id,rows){
     });
     root.append(b);
   }
+}
+function renderStationMap(){
+ const paper=stationWorld(linkedE05),panel=$('e05-world');
+ panel.hidden=!paper;
+ if(!paper)return;
+ panel.dataset.view=stationMapView;
+ for(const key of ['first','now'])
+   $('e05-world-'+key).setAttribute('aria-pressed',String(stationMapView===key));
+ const tiles=paper[stationMapView];
+ $('station-map-board').textContent=tiles.board;
+ $('station-map-table').textContent=tiles.table;
+ $('station-map-path').textContent=tiles.path;
+ $('station-map-feedback').textContent=stationMapView==='first'?
+   'FIRST: no removable table yet. The old station board stays untouched.':
+   'NOW: Milo aligned two marks on a COPY and placed the PAPER table by the wall. '+
+   (paper.triedWalkway?'He tried the walkway first, then moved the table. ':'')+
+   'The garden question remains open; maker, dates, site access and cause are UNKNOWN.';
 }
 function render(){
   const v=view(state),g=v.garden;
@@ -143,9 +162,14 @@ function render(){
    link=$('e07-transfer');
   link.hidden=!fragment;
   if(fragment)link.href='../e07-scene/'+fragment;
+  renderStationMap();
   buttons('current-actions',current);
   buttons('lower-actions',lower);
   buttons('care-actions',careActions);
   buttons('nav-actions',navigation);
 }
+for(const key of ['first','now'])$('e05-world-'+key).addEventListener('click',()=>{
+ stationMapView=key;
+ render();
+});
 render();

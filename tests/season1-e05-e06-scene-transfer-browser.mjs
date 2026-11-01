@@ -55,6 +55,16 @@ try{
    await page.waitForFunction(()=>document.querySelector('#e05-context')?.textContent?.includes('two fictional garden marks'));
    assert.match(await page.locator('#e05-context').innerText(),/maker\/date\/original UNKNOWN/);
    assert.equal(await page.locator('#e05-return').isVisible(),true);
+   assert.equal(await page.locator('#e05-world').isVisible(),true);
+   assert.equal(await page.locator('#e05-world').getAttribute('data-view'),'now');
+   assert.match(await page.locator('#station-map-table').innerText(),/by wall/);
+   assert.match(await page.locator('#station-map-feedback').innerText(),/tried the walkway first/);
+   await page.locator('#e05-world-first').click();
+   assert.match(await page.locator('#station-map-table').innerText(),/No PAPER table/);
+   assert.equal(await page.locator('#e05-world-first').getAttribute('aria-pressed'),'true');
+   await page.locator('#e05-world-now').click();
+   assert.match(await page.locator('#station-map-board').innerText(),/COPY/);
+   assert.equal(await page.locator('#e05-world-now').getAttribute('aria-pressed'),'true');
    const b=key=>page.locator('[data-key="'+key+'"]');
    const go=async key=>{assert.equal(await b(key).isDisabled(),false,key);await b(key).click();};
    for(const k of ['start','bed','slope-walk','slope','tray-walk','run','rain','run','blocked','run','compare','enter'])await go(k);
@@ -75,6 +85,7 @@ try{
    await go('restart');
    assert.equal(await page.locator('#current-scene').isVisible(),true);
    assert.equal(await page.locator('#e05-return').isVisible(),true,'E06 reset preserves E05 question');
+   assert.equal(await page.locator('#e05-world').isVisible(),true,'E06 reset retains earned E05 station world');
    await page.locator('#e05-return').click();
    await page.waitForFunction(()=>document.querySelector('#e06-paper')?.hidden===false);
    await page.locator('[data-scene="nav"][data-type="restart"]').click();

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as E05 from '../e05-scene/scene-model.mjs';
 import * as E06 from '../e06-scene/scene-model.mjs';
 import {encodeStationGardenTransfer,decodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
+import {stationWorld} from '../e06-scene/station-world.mjs';
 const a=(scene,type,extra={})=>({scene,action:{type,...extra}});
 const nav=type=>({scene:'nav',type});
 const step=(model,s,action)=>{assert.equal(model.can(s,action),true,JSON.stringify(action));return model.dispatch(s,action);};
@@ -74,4 +75,28 @@ test('no early entry, forged rights or invented dates can pass strict cross-scen
   {...p,e05:[...p.e05,{scene:'grant-access',type:'approve'}]},
   {...p,e06:[{scene:'garden',action:{type:'enter'}}]}
  ])assert.equal(decodeStationGardenTransfer('#paper-station-garden='+encodeURIComponent(JSON.stringify(bad))),null);
+});
+
+test('E05 child-tested Map Room changes independent E06 FIRST/NOW PAPER world',()=>{
+ const e05=station(),p=stationWorld(e05);
+ assert.ok(p);
+ assert.equal(p.first.table,'No PAPER table');
+ assert.equal(p.now.table,'PAPER table by wall');
+ assert.equal(p.first.board,'Old marks · untouched');
+ assert.equal(p.now.board,'Two marks aligned on COPY');
+ assert.equal(p.first.path,p.now.path);
+ assert.equal(p.triedWalkway,true);
+ assert.deepEqual(p.observedMarks,['lower PAPER mark','upper PAPER mark']);
+ assert.equal(p.stationRealAccessApproved,false);
+ assert.equal(p.historyKnown,false);
+ assert.equal(p.e06Unlocked,false);
+ assert.deepEqual(p.canonicalEvents,[]);
+ assert.deepEqual(stationWorld(E05.replay(e05.history)),p);
+ assert.equal(stationWorld(E05.fresh()),null);
+ assert.equal(stationWorld(E05.replay(e05.history.slice(0,-1))),null);
+ assert.equal(stationWorld(E05.dispatch(e05,nav('restart'))),null);
+ const forged=structuredClone(e05);forged.rights.push('station-access');
+ assert.equal(stationWorld(forged),null);
+ const tampered=structuredClone(e05);tampered.station.replica.table='across-walkway';
+ assert.equal(stationWorld(tampered),null);
 });
