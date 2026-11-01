@@ -1,0 +1,69 @@
+name: Wondervale E03 to E04 PAPER source entry (NOT release)
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'authoring-labs/e03-e04-paper-source-entry.*'
+      - 'authoring-labs/index.html'
+      - 'tests/season1-e03-e04-paper-source-entry*'
+      - '.github/workflows/wondervale-e03-e04-paper-entry.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'authoring-labs/e03-e04-paper-source-entry.*'
+      - 'authoring-labs/index.html'
+      - 'tests/season1-e03-e04-paper-source-entry*'
+      - '.github/workflows/wondervale-e03-e04-paper-entry.yml'
+permissions:
+  contents: read
+jobs:
+  source-and-child-journey:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check read-only source gate and E03/E04 canonical boundaries
+        run: |
+          set -euo pipefail
+          node --check authoring-labs/e03-e04-paper-source-entry.mjs
+          node --check tests/season1-e03-e04-paper-source-entry-browser.mjs
+          node --test \
+            tests/s01e03.test.mjs \
+            tests/s01e03-e04-handoff.test.mjs \
+            tests/s01e04-chronology.test.mjs \
+            tests/season1-e03-e04-paper-source-entry.test.mjs \
+            tests/season1-e03-e11-paper-chronicle.test.mjs \
+            tests/season1-twelve-scene-acceptance.test.mjs
+      - name: Install pinned Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Serve isolated sources and verify E03/E04 child journeys
+        run: |
+          set -euo pipefail
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory . >/tmp/e03-e04-entry-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:4173/authoring-labs/e03-e04-paper-source-entry.html >/dev/null 2>&1; then ready=1; break; fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then break; fi
+            sleep 0.25
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/e03-e04-entry-server.log; exit 1; fi
+          node tests/season1-e03-e04-paper-source-entry-browser.mjs
+          node tests/season1-arc1-memory-station-handoff-browser.mjs
+          node tests/s01e03-browser.mjs
+      - name: Upload scoped browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e03-e04-paper-entry-browser-evidence
+          path: |
+            test-results/e03-*
+            test-results/season1-twelve-scene-evidence.json
+          if-no-files-found: ignore
+          retention-days: 7
