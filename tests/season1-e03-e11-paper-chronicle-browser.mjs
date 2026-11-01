@@ -16,6 +16,7 @@ try{
    assert.equal(response?.status(),200);
    await page.waitForFunction(()=>document.querySelector('#paper-chronicle')?.textContent?.includes('E06 Lower'));
    await page.waitForFunction(()=>document.querySelector('#garden-lower-now')?.dataset.stage==='paper-sprout');
+   await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
    assert.equal(await page.locator('#garden-revisit').isVisible(),true);
    assert.equal(await page.locator('#garden-current').getAttribute('data-stage'),'healthy');
    assert.equal(await page.locator('#garden-lower-first').getAttribute('data-stage'),'paper-marker');
@@ -37,7 +38,6 @@ try{
    assert.match(await page.locator('#paper-chronicle').innerText(),/CLOSED/);
    assert.match(await page.locator('#paper-chronicle').innerText(),/placed: 0/);
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
-   await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
    await page.getByRole('button',{name:'Place access strip (two middle cells)'}).click();
    assert.match(await page.locator('#paper-chronicle').innerText(),/placed: 2/);
    await page.getByRole('button',{name:'Restart fictional lab'}).click();
