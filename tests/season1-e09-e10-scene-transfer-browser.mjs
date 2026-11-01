@@ -42,6 +42,18 @@ try{
    assert.match(await page.locator('#hill-context').innerText(),/Milo inspected 5 fictional clues/);
    assert.match(await page.locator('#hill-context').innerText(),/CLOSED/);
    assert.equal(await page.locator('#e09-return').isVisible(),true);
+   assert.equal(await page.locator('#hill-world-panel').isVisible(),true);
+   assert.equal(await page.locator('#hill-world-map [data-edge]').count(),4);
+   assert.equal(await page.locator('#hill-world-map [data-marked="true"]').count(),3);
+   assert.equal(await page.locator('#hill-world-map [data-clue]').count(),5);
+   assert.equal(await page.locator('#hill-world-map [data-closed="true"]').count(),1);
+   assert.match(await page.locator('#hill-world-result').innerText(),/NOW.*CLOSED.*NOT approved/);
+   await page.locator('#hill-first').click();
+   assert.equal(await page.locator('#hill-world-map [data-marked="true"]').count(),0);
+   assert.equal(await page.locator('#hill-world-map [data-clue]').count(),0);
+   assert.equal(await page.locator('#hill-world-map [data-closed="true"]').count(),1);
+   await page.locator('#hill-now').click();
+   assert.equal(await page.locator('#hill-world-map [data-marked="true"]').count(),3);
    const b=(type,value)=>page.locator('[data-action="'+type+'"]'+(value?'[data-value="'+value+'"]':''));
    const e10=async(type,value)=>b(type,value).click();
    await e10('start');await e10('compare-symbol');await e10('walk','stone_edge');
@@ -64,6 +76,7 @@ try{
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    assert.match(await page.locator('#stage').innerText(),/finished/);
    assert.equal(await page.locator('#paper-comparison').isVisible(),true);
+   assert.equal(await page.locator('#hill-world-map [data-marked="true"]').count(),3);
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['paper-transfer-sentinel']);
    const widths=await page.evaluate(()=>({screen:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(widths.scroll<=widths.screen+1,JSON.stringify({viewport,widths}));
@@ -71,11 +84,20 @@ try{
    await page.locator('#restart').click();
    assert.match(await page.locator('#stage').innerText(),/opening/);
    assert.equal(await page.locator('#paper-comparison').isVisible(),false);
+   assert.equal(await page.locator('#hill-world-panel').isVisible(),true);
+   assert.equal(await page.locator('#hill-world-map [data-marked="true"]').count(),3);
    assert.equal(await page.locator('#e09-return').isVisible(),true);
    await page.locator('#e09-return').click();
    await page.locator('#restart').click();
    assert.equal(await page.locator('#e10-paper').isVisible(),false);
   }finally{await ctx.close();}
  }
+ const direct=await browser.newContext();
+ try{
+  const page=await direct.newPage();
+  await page.goto(base+'/e10-scene/');
+  assert.equal(await page.locator('#hill-world-panel').isVisible(),false);
+  assert.equal(await page.locator('#e09-return').isVisible(),false);
+ }finally{await direct.close();}
  console.log('E09-E10 independent PAPER transfer Chromium PASS: earned links, closed hill, 3 viewports, reversible E10, reset and no storage writes');
 }finally{await browser.close();}
