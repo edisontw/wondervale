@@ -22,6 +22,7 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 .map{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:2px;background:#c3d0d2;padding:.25rem;border-radius:.4rem}
 .cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;background:#f7faf8;font-size:clamp(.7rem,1.8vw,.95rem);font-weight:700}
 .cell[data-here=true]{background:#f3d99d}.cell[data-marker=true]{background:#b5d3db}.cell[data-dark=true]{background:#d8dedf}
+.connector-grid{grid-template-columns:repeat(8,minmax(0,1fr))}.connector-grid .cell[data-connector=true]{background:#d8e9df}.connector-grid .cell[data-conflict=true]{background:#efc9b9}
 [hidden]{display:none!important}@media(max-width:700px){.columns,.world{grid-template-columns:1fr}.panel{padding:.55rem}.anchors{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head><body><main>
 <header><h1>E08 — When the Steps Light Up</h1><div>Scene 09 of 12 · independent child-controlled PAPER model</div></header>
@@ -46,6 +47,11 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <p id="trace-detail" class="paper" role="status"></p></section>
 <section id="connector-revisit" class="panel" hidden><h2>Look back at Finn's PAPER connector</h2>
 <p>Finn revised a model to consider Milo, another traveler and water. The Current Garden remains healthy. Nothing was built or unlocked. This is a read-only callback, not verified E07 progress.</p><p id="connector-trace" class="paper"></p></section>
+<section id="connector-world-panel" class="panel" hidden><h2>Finn's connector: PAPER FIRST / NOW</h2>
+<p>These two synthetic grids show what Milo changed before arriving at the lower Steps. C = connector, P = traveler, W = water, X = overlap. No real path or waterway was built.</p>
+<div class="columns"><div><h2>FIRST — short crossing</h2><div id="connector-first-grid" class="map connector-grid" role="img" aria-label="E07 FIRST model"></div></div>
+<div><h2>NOW — tested detour</h2><div id="connector-now-grid" class="map connector-grid" role="img" aria-label="E07 NOW model"></div></div></div>
+<p id="connector-world-result" class="paper" role="status"></p></section>
 <section class="panel"><h2>Revisit or restart</h2><div id="nav-controls" class="controls"></div>
 <p><a id="e07-return" hidden href="../e07-scene/">Return to Finn's independent E07 PAPER connector (not a production unlock)</a></p>
 <p><a id="e09-transfer" hidden href="../e09-scene/">Visit E09 independent CLOSED Hill PAPER survey — no official E09 unlock</a></p>

@@ -28,6 +28,10 @@ try{
    assert.match(await page.locator('#lamp-state').innerText(),/Lower A: OFF.*Lower B: OFF/);
    assert.equal(await page.locator('#e07-return').isVisible(),true);
    assert.match(await page.locator('#connector-trace').innerText(),/checked the model crossing/);
+   assert.equal(await page.locator('#connector-world-panel').isVisible(),true);
+   assert.equal(await page.locator('#connector-first-grid [data-conflict="true"]').count(),2);
+   assert.equal(await page.locator('#connector-now-grid [data-conflict="true"]').count(),0);
+   assert.match(await page.locator('#connector-world-result').innerText(),/real passage, drainage and lighting are NOT approved/);
    for(const k of ['start','inspect-brackets','inspect-boundary','inspect-a','lamp-a',
     'walk-landing','inspect-b','lamp-b','walk-base','observe','walk-landing',
     'walk-side','observe','compare','inspect-plate','finish'])await hit(k);
@@ -40,6 +44,8 @@ try{
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
    assert.match(await page.locator('#trace-detail').innerText(),/never moved/);
    await hit('restart');
+   assert.equal(await page.locator('#connector-world-panel').isVisible(),true);
+   assert.equal(await page.locator('#connector-now-grid [data-conflict="true"]').count(),0);
    assert.match(await page.locator('#lamp-state').innerText(),/Lower A: OFF.*Lower B: OFF/);
    await page.locator('#e07-return').click();
    await page.waitForFunction(()=>document.querySelector('#route-feedback')?.textContent.includes('reviewed'));
@@ -49,6 +55,8 @@ try{
    const size=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(size.scroll<=size.w+1,JSON.stringify({viewport,size}));
    await hit('restart');assert.equal(await page.locator('#e08-transfer').isVisible(),false);
+   assert.equal((await page.goto(base+'/e08-scene/'))?.status(),200);
+   assert.equal(await page.locator('#connector-world-panel').isVisible(),false);
   }finally{await context.close();}
  }
  console.log('E07/E08 independent PAPER transfer Chromium PASS: 3 viewports, earned link, OFF boundary, return, restart');
