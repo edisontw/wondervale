@@ -4,6 +4,7 @@ import * as E11 from '../engine/s01e11-authoring-prototype.mjs';
 import * as E05 from '../e05-scene/scene-model.mjs';
 import * as E06 from '../e06-scene/scene-model.mjs';
 import {paperReturnRoute,PAPER_WALK} from '../e11-scene/return-route.mjs';
+import {paperReturnReflection} from '../e11-scene/return-reflection.mjs';
 
 function reviewed(){
  let s=E11.fresh();
@@ -91,5 +92,38 @@ test('strict E06 child-tested lower PAPER sprout appears at Garden stop, not as 
  assert.match(atGarden.gardenNote,/possible PAPER sprout/);
  assert.equal(atGarden.stationNote,null,'no fabricated Map Room visit');
  assert.equal(atGarden.siteAccessApproved,false);
+ const completed=['garden','map_room','garden','square'];
+ const reflection=paperReturnReflection(s,completed,{e06},{
+  station:'check',garden:'paper',planting:'check',route:'check'
+ });
+ assert.equal(reflection.complete,true);
+ assert.equal(reflection.observedPaperCount,1);
+ assert.equal(reflection.cards.find(c=>c.id==='garden').correct,true);
+ assert.equal(reflection.realWorldFactsVerified,0);
  assert.equal(paperReturnRoute(s,['garden'],{e06:E06.dispatch(e06,{scene:'nav',type:'restart'})}).gardenEarned,false);
+});
+
+test('child sorts PAPER evidence only after return; incorrect shelf can be revised',()=>{
+ const s=reviewed(),steps=['market','square','garden','map_room','garden','square'];
+ assert.equal(paperReturnReflection(s,steps.slice(0,-1)),null);
+ const first=paperReturnReflection(s,steps);
+ assert.equal(first.complete,false);
+ assert.equal(first.observedPaperCount,0,'direct authoring must not invent E05/E06');
+ assert.equal(first.cards.length,4);
+ const mistaken=paperReturnReflection(s,steps,null,{station:'paper'});
+ assert.equal(mistaken.cards[0].correct,false);
+ assert.match(mistaken.cards[0].explanation,/No verified E05/);
+ const corrected=paperReturnReflection(s,steps,null,{
+  station:'check',garden:'check',planting:'check',route:'check'
+ });
+ assert.equal(corrected.complete,true);
+ assert.equal(corrected.sortedCount,4);
+ assert.equal(corrected.realWorldFactsVerified,0);
+ assert.deepEqual(corrected.canonicalEvents,[]);
+ assert.deepEqual(corrected.unlocks,[]);
+ assert.equal(corrected.realRouteOpen,false);
+ assert.equal(paperReturnReflection(s,steps,null,{station:'real'}),null);
+ assert.equal(paperReturnReflection(s,steps,null,{secret:'paper'}),null);
+ assert.equal(paperReturnReflection({...s,rights:['approved']},steps),null);
+ assert.equal(paperReturnReflection(E11.dispatch(s,{type:'reset'}),steps),null);
 });

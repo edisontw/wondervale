@@ -29,6 +29,7 @@ jobs:
           node --check e11-scene/main.mjs
           node --check e11-scene/loop-visual.mjs
           node --check e11-scene/return-route.mjs
+          node --check e11-scene/return-reflection.mjs
           node --check tests/season1-e11-scene-shell-browser.mjs
           node --test tests/s01e11-authoring-prototype.test.mjs tests/season1-e11-scene-shell.test.mjs tests/season1-e11-return-route.test.mjs
       - name: Guard noncanonical production packaging

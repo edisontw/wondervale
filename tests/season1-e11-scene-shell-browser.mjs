@@ -166,12 +166,26 @@ async function journey(page,label,shots){
  await press(page,'Return to Garden PAPER stop');
  await press(page,'Return to Square PAPER start');
  assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
+ assert.equal(await page.locator('#return-reflection').isVisible(),true);
+ await press(page,'Choose E05 wall-side PAPER table · not sorted');
+ await press(page,'Place under SEEN IN PAPER');
+ assert.match(await page.locator('#reflection-feedback').innerText(),/Look again/);
+ await press(page,'Place under NEEDS REAL CHECK');
+ for(const name of ['E06 possible PAPER sprout','Real seeds were planted','The public route is safe']){
+  await press(page,'Choose '+name+' · not sorted');
+  await press(page,'Place under NEEDS REAL CHECK');
+ }
+ assert.match(await page.locator('#reflection-result').innerText(),/Four notes sorted/);
+ assert.match(await page.locator('#reflection-result').innerText(),/No real planting/);
+ assert.doesNotMatch(await page.locator('#reflection-result').innerText(),/\bCommon\b/);
  assert.doesNotMatch(await page.locator('#return-route-trail').innerText(),/North Hill|Common/);
  assert.equal(await page.locator('#return-route-map [data-visited="true"]').count(),2);
  await press(page,'Undo last PAPER step');
  assert.match(await page.locator('#return-route-result').innerText(),/Not complete/);
+ assert.equal(await page.locator('#return-reflection').isVisible(),false);
  await press(page,'Return to Square PAPER start');
  assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
+ assert.match(await page.locator('#reflection-result').innerText(),/0 of 4 notes/);
  await invariant(page,label+' reviewed');
  assert.equal(await btn(page,'Review E10 PAPER needs').isEnabled(),true);
  await press(page,'Review E10 PAPER needs');
@@ -187,6 +201,7 @@ async function journey(page,label,shots){
  assert.match(await page.locator('#revisit-first-result').innerText(),/FIRST Activity group: PASS/);
  assert.match(await page.locator('#revisit-world').innerText(),/PAPER revisit/);
  assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
+ assert.equal(await page.locator('#return-reflection').isVisible(),true);
  assert.match(await page.locator('#role-response').innerText(),/FIRST activity group: PASS/);
  assert.match(await page.locator('#draft-checks').innerText(),/NOT CHECKED/);
  await geometry(page,label+' reviewed');
@@ -204,6 +219,7 @@ async function journey(page,label,shots){
  assert.equal(await btn(page,'Review NONCANONICAL finale').isDisabled(),true);
  assert.equal(await page.locator('#revisit').isVisible(),false);
  assert.equal(await page.locator('#return-route').isVisible(),false);
+ assert.equal(await page.locator('#return-reflection').isVisible(),false);
  assert.equal(await page.locator('#verification-plan').isVisible(),false);
  await invariant(page,label+' reset');
  await page.reload();await press(page,'Begin the PAPER trial');await btn(page,'Cell 0,1').waitFor();
