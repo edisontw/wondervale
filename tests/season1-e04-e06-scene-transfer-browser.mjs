@@ -124,6 +124,36 @@ try{
     'walk-landing','inspect-b','lamp-b','walk-base','observe','walk-landing',
     'walk-side','observe','compare','inspect-plate','finish'])await e08(key);
    assert.match(await page.locator('#steps-world-note').innerText(),/real lights NOT restored/);
+   // E08 now carries E04/E05 undated/MOCK provenance into the independent
+   // E09 safe survey; the hill is still CLOSED and never officially unlocked.
+   assert.equal(await page.locator('#e09-transfer').isVisible(),true);
+   await page.locator('#e09-transfer').click();
+   await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E09 opening'));
+   assert.match(page.url(),/paper-memory-station-garden-shortcut-steps-hill=/);
+   assert.match(await page.locator('#lantern-context').innerText(),/E04 memories: UNKNOWN dates/);
+   assert.match(await page.locator('#lantern-context').innerText(),/E05 station evidence: MOCK/);
+   const e09=async key=>{
+    const target=page.locator('[data-key="'+key+'"]');
+    assert.equal(await target.isDisabled(),false,key);await target.click();
+   };
+   for(const key of ['start','inspect-entry_note','walk-signpost','inspect-boundary_sign',
+    'walk-fence_view','walk-upper_closed','inspect-disturbed_ground','walk-signpost',
+    'walk-lower_bend','inspect-runoff_marks','walk-overlook','inspect-distant_symbol',
+    'mark-steps_base:signpost','mark-signpost:lower_bend','mark-lower_bend:overlook',
+    'check-route','compare-symbol','review','finish-preview'])await e09(key);
+   assert.match(await page.locator('#chronicle').innerText(),/E10 NOT UNLOCKED/);
+   await page.locator('#e08-return').click();
+   await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
+   assert.match(await page.locator('#e09-callback').innerText(),/E09 PAPER return/);
+   assert.match(page.url(),/paper-memory-station-garden-shortcut-steps-hill=/);
+   await page.locator('#e09-transfer').click();
+   await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E09 finished'));
+   assert.match(await page.locator('#survey-summary').innerText(),/Milo walked 4 model edges/);
+   await page.locator('#restart').click();
+   assert.match(await page.locator('#stage').innerText(),/E09 opening/);
+   await page.locator('#e08-return').click();
+   await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
+   assert.match(await page.locator('#e09-callback').innerText(),/0 recorded model steps/);
    await page.locator('#e07-return').click();
    await page.waitForFunction(()=>document.querySelector('#route-feedback')?.textContent.includes('reviewed'));
    assert.match(await page.locator('#e08-paper-callback').innerText(),/two lower-model viewpoints/);
@@ -144,6 +174,9 @@ try{
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
    assert.match(await page.locator('#trace-detail').innerText(),/never moved/,
     'E08 two views survive E08→E07→E06→E05→E04→E05→E06→E07→E08');
+   await e08('restart');
+   assert.equal(await page.locator('#e09-transfer').isVisible(),false,
+    'E08 restart withdraws the downstream E09 link');
    await page.locator('#e07-return').click();
    await page.waitForFunction(()=>document.querySelector('#route-feedback')?.textContent.includes('reviewed'));
    await e07('restart');

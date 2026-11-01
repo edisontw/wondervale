@@ -20,3 +20,7 @@ Only after Milo completes both lower-lamp model views and compares the fixed mar
 ## E04–E08 provenance-preserving PAPER visit (2026-11-01)
 
 A child-earned E07 route check may now carry E04's two undated attributed memories, E05's MOCK station question, E06's two-garden model and E07's revised connector into this separate E08 scene. Both lamps begin OFF until Milo tests them; the two safe-view observations remain a child action. The E08→E07→E06→E05→E04→E05→E06→E07→E08 return preserves strictly replayed PAPER histories. E08 restart clears E08 only; upstream restart withdraws dependent progress. This is a bounded, editable URL-fragment rehearsal without saved Chronicle, verified history, real lighting/access, identity proof, rights, MN4 deployment or official E08 unlock. E08→E09 does not yet carry the E04/E05 provenance.
+
+## E04–E09 undated provenance in independent hill survey (2026-11-01)
+
+After Milo completes E08's two-view PAPER model on a strictly replayed E04→E07 journey, the separate E09 CLOSED-hill survey now receives E04's **UNKNOWN** memory dates and E05's **MOCK** source status as read-only context. The six independent action histories travel E08→E09→E08→E09 in bounded, validated URL fragments; E09 restart clears only E09, while E08 or any earlier scene restart invalidates the downstream chain. Returning further upstream through E07 retains E04–E08 but does not yet preserve E09's separate survey history. No real hill access, history verification, Common reveal, production unlock, saved Chronicle, MN4 release or family PASS is claimed.
