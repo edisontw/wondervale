@@ -65,9 +65,15 @@ button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
 .route-stop[data-visited=true]{background:#e1f0e3;border-style:solid}
 .route-stop[data-here=true]{background:#ffdfa2;border-color:#8b5b20;border-style:solid;font-weight:700}
 .trial{border:1px dashed #8a9d92;border-radius:.4rem;padding:.45rem;overflow-wrap:anywhere}
+.reflection-world-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+.reflection-notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem}
+.reflection-note{border:2px dashed #9aafa4;border-radius:.4rem;padding:.4rem;min-width:0;background:#f4f4ec;overflow-wrap:anywhere}
+.reflection-note strong,.reflection-note span{display:block;font-size:.81rem;line-height:1.35}
+.reflection-note[data-shelf=paper]{border-style:solid;border-color:#46745c;background:#e0f0e2}
+.reflection-note[data-shelf=check]{border-style:solid;border-color:#94764c;background:#f7edda}
 ul{padding-left:1.3rem;line-height:1.45}
 small{color:#50655e}
-@media(max-width:700px){.needs-boards{grid-template-columns:1fr}.route-stops{grid-template-columns:repeat(2,minmax(0,1fr))}.garden-cards{grid-template-columns:1fr}.columns{grid-template-columns:1fr}.cell{min-height:56px;font-size:.75rem}.grid{gap:.25rem;padding:.25rem}.map{grid-template-columns:1fr}.trials{grid-template-columns:1fr}}
+@media(max-width:700px){.reflection-world-board,.reflection-notes{grid-template-columns:1fr}.needs-boards{grid-template-columns:1fr}.route-stops{grid-template-columns:repeat(2,minmax(0,1fr))}.garden-cards{grid-template-columns:1fr}.columns{grid-template-columns:1fr}.cell{min-height:56px;font-size:.75rem}.grid{gap:.25rem;padding:.25rem}.map{grid-template-columns:1fr}.trials{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style></head><body><main>
 <header><h1>E11 — A New Line on the Map</h1><div>Scene 12 of 12 · child-controlled reversible shared-space and loop PAPER rehearsal</div></header>
@@ -196,7 +202,20 @@ small{color:#50655e}
 <p id="reflection-result" class="status" aria-live="polite"></p>
 <small>SEEN IN PAPER requires strictly replayed E05/E06 child tests. Otherwise it belongs under NEEDS REAL CHECK. No actual planting, verified public route, new canon, Common reveal or production unlock.</small>
 </section>
-<section class="panel"><h2>7. Chronicle PREVIEW — nothing has opened</h2>
+<section id="reflection-world" class="panel" hidden aria-label="Child-earned reversible PAPER notebook world change">
+<h2>7. Milo's PAPER notebook changes · FIRST / NOW</h2>
+<p>Finn: "We can move our notes!" Nia: "A paper change is not proof about the real town." This page appears only after Milo walks back and sorts all four notes using evidence. Undo the route or move a note to the wrong shelf to revise it.</p>
+<div class="reflection-world-board">
+<div class="revisit-panel"><h2>FIRST · before sorting</h2>
+<div id="reflection-world-first" class="reflection-notes" role="img" aria-label="Four unsorted PAPER evidence notes"></div></div>
+<div class="revisit-panel"><h2>NOW · Milo's checked sorting</h2>
+<div id="reflection-world-now" class="reflection-notes" role="img" aria-label="Child-earned PAPER notes and still unknown real-world questions"></div></div>
+</div>
+<p id="reflection-world-summary" class="status" aria-live="polite"></p>
+<p id="reflection-chronicle-preview" class="status" aria-live="polite"></p>
+<small>Provisional diary only. No real testimony, source date, site permission, canonical Chronicle, hidden-place reveal, unlock or saved season completion.</small>
+</section>
+<section class="panel"><h2>8. Chronicle PREVIEW — nothing has opened</h2>
 <div id="review-controls" class="controls"></div>
 <p id="chronicle" class="status" aria-live="polite"></p><p id="hook" class="status" hidden></p>
 <div class="controls"><button id="restart" type="button">Restart fictional lab</button></div>
