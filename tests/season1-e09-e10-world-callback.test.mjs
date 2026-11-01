@@ -45,7 +45,7 @@ test('unearned, reset, forged, or partial E09 never draws E10 route outcome',()=
  assert.equal(hillWorld(E09.dispatch(s,{scene:'nav',type:'restart'})),null);
  const forged=structuredClone(s);forged.rights.push('hill-access');
  assert.equal(hillWorld(forged),null);
- const tampered=structuredClone(s);tampered.story.markedEdges.push('fence_view:upper_closed');
+ const tampered=structuredClone(s);tampered.story.hill.markedEdges.push('fence_view:upper_closed');
  assert.equal(hillWorld(tampered),null);
  const invented=structuredClone(s);invented.unlocks.push('E10');
  assert.equal(hillWorld(invented),null);
