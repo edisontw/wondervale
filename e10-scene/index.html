@@ -47,6 +47,25 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <svg id="hill-world-map" class="hill-world-svg" viewBox="0 0 480 260" role="img" aria-label="PAPER model: upper hill closed"></svg>
 <p id="hill-world-result" class="paper" role="status"></p>
 </section>
+<section id="clue-panel" class="panel" hidden>
+<h2>E08 → E10: Trace the same PAPER marks</h2>
+<p>Milo saw three fixed model marks from two safe E08 viewpoints. E09 found only a tentative distant shape. Move the tracing viewpoint, pin A/B/C in BOTH views, then compare. An early comparison is safe to retry. No real lights, history, route or hill access is established.</p>
+<div class="controls">
+<button id="clue-first" type="button" aria-pressed="true">Look FROM HERE</button>
+<button id="clue-second" type="button" aria-pressed="false">Look FROM THERE</button>
+</div>
+<svg id="clue-map" class="hill-world-svg" viewBox="0 0 340 220" role="img" aria-label="Fixed PAPER marks A B C"></svg>
+<div class="controls">
+<button data-clue-pin="mark-a" type="button">Trace A</button>
+<button data-clue-pin="mark-b" type="button">Trace B</button>
+<button data-clue-pin="mark-c" type="button">Trace C</button>
+<button id="clue-compare" type="button">Compare both tracings</button>
+<button id="clue-reset" type="button">Clear tracing</button>
+</div>
+<p id="clue-feedback" class="paper" role="status"></p>
+<p id="clue-parent" class="paper"></p>
+<p id="clue-chronicle" class="paper" role="status"></p>
+</section>
 <p><a id="e09-return" hidden href="../e09-scene/">Return to E09 PAPER survey (not a real hill route)</a></p>
 <p><a id="e11-paper" hidden href="../e11-scene/">Visit E11 independent shared-space PAPER trial — not an official unlock</a></p>
 <div class="dialogue" aria-live="polite"><strong id="speaker">Milo</strong>: <span id="line"></span><div id="stage"></div></div><div class="controls"><button id="e09-callback" disabled>Review E09 PAPER field notes</button><button id="e10-back" hidden>Return to E10 courtyard</button></div><section id="e09-notes" class="panel" hidden><h2>Looking back at the hill</h2><p id="e09-observation" class="paper">No linked field observations.</p><p>The upper hill remains CLOSED. An unidentified mark was observed in a fictional lower survey. It does not prove a real safe entrance, a date, or a place name. No E09 completion is imported.</p></section>
@@ -113,6 +132,7 @@ import {fresh,dispatch,can,view} from '../authoring-labs/unnamed-story-model.mjs
 import {TRACES,USE_TAGS,NEEDS,SLOTS} from '../engine/s01e10-authoring-prototype.mjs';
 import {view as viewE09} from '../e09-scene/scene-model.mjs';
 import {hillWorld} from './hill-world.mjs';
+import {clueSource,freshTrial,dispatchTrial,viewTrial} from './clue-transfer.mjs';
 import {decodeUnnamedTransfer,encodeUnnamedTransfer} from '../authoring-labs/e09-e10-scene-transfer.mjs';
 import {decodeMemoryCourtyard,encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
 import {decodeLoopTransfer,encodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
@@ -126,6 +146,8 @@ const linkedE07=upstream?.e07||null,linkedE06=upstream?.e06||null;
 const linkedE04=upstream?.e04||null,linkedE05=upstream?.e05||null;
 let linkedE11=loop?.e11||null;
 const linkedHillWorld=hillWorld(linkedE09);
+const linkedClueSource=clueSource(linkedE08,linkedE09);
+let clueTrial=freshTrial();
 let hillLayer='now';
 const $=id=>document.getElementById(id);
 const names={entry:'entry',stone_edge:'stone edge',notice_wall:'notice wall',quiet_corner:'quiet corner',meeting_edge:'meeting edge'};
@@ -230,6 +252,45 @@ function renderHillWorld(){
   ' clues. The upper hill stays CLOSED. Real access NOT approved.':
   'FIRST: Blank PAPER sketch, no child-marked route or clues yet. Upper hill CLOSED.';
 }
+function renderClue(){
+ const panel=$('clue-panel');panel.hidden=!linkedClueSource;
+ if(!linkedClueSource)return;
+ const v=viewTrial(clueTrial),source=linkedClueSource;
+ $('clue-first').setAttribute('aria-pressed',String(v.viewMode==='first'));
+ $('clue-second').setAttribute('aria-pressed',String(v.viewMode==='second'));
+ const current=v.viewMode==='first'?source.first:source.second;
+ const root=$('clue-map');root.replaceChildren();root.dataset.view=v.viewMode;
+ root.dataset.compared=String(v.compared);
+ const ns='http://www.w3.org/2000/svg';
+ const put=(tag,attrs,label)=>{
+  const el=document.createElementNS(ns,tag);
+  for(const [k,value] of Object.entries(attrs))el.setAttribute(k,String(value));
+  if(label!==undefined)el.textContent=label;
+  root.append(el);
+ };
+ const pt=p=>({x:35+p.x*34,y:20+p.y*34});
+ const positions={base:{x:1,y:1},'lower-landing':{x:2,y:1},side:{x:1,y:4}};
+ const from=pt(positions[current.viewpoint]);
+ for(const mark of source.markers){
+  const to=pt(mark),pinned=v.pins.includes(mark.id);
+  if(pinned)put('line',{'data-ray':mark.id,x1:from.x,y1:from.y,x2:to.x,y2:to.y,
+   stroke:'#2d6d7c','stroke-width':3});
+  put('circle',{'data-fixed':mark.id,cx:to.x,cy:to.y,r:12,
+   fill:pinned?'#f4d58b':'#e0ece1',stroke:'#375e57','stroke-width':2});
+  put('text',{x:to.x,y:to.y+4,'text-anchor':'middle'},mark.id.slice(-1).toUpperCase());
+  const button=document.querySelector('[data-clue-pin="'+mark.id+'"]');
+  button.textContent=(pinned?'Remove ':'Trace ')+mark.id.slice(-1).toUpperCase();
+  button.setAttribute('aria-pressed',String(pinned));
+ }
+ put('circle',{'data-viewpoint':v.viewMode,cx:from.x,cy:from.y,r:11,fill:'#9a5e38'});
+ put('text',{x:from.x,y:from.y+4,'text-anchor':'middle',fill:'white'},'M');
+ root.setAttribute('aria-label','PAPER '+v.viewMode+' viewpoint; fixed A B C; '+
+  v.pins.length+' of 3 traced here; upper hill CLOSED.');
+ $('clue-feedback').textContent=v.feedback+' FROM HERE '+v.firstCount+'/3; FROM THERE '+
+  v.secondCount+'/3. E08 model apparent spread '+current.spreadDegrees.toFixed(1)+'°.';
+ $('clue-parent').textContent='Optional parent cue: '+v.parentCue;
+ $('clue-chronicle').textContent=v.paperNote;
+}
 function render(){
  const v=view(state);
  const hill=linkedE09&&viewE09(linkedE09).story;
@@ -286,6 +347,7 @@ function render(){
  $('hook').textContent=v.paperNote;
  drawComparison(v);
  renderHillWorld();
+ renderClue();
  for(const b of document.querySelectorAll('button[data-action]'))b.disabled=!can(state,action(b));
 }
 document.addEventListener('click',e=>{
@@ -298,6 +360,20 @@ $('compare-first').addEventListener('click',()=>{if(view(state).comparison){comp
 $('compare-now').addEventListener('click',()=>{if(view(state).comparison){comparisonLayer='now';render();}});
 $('hill-first').addEventListener('click',()=>{hillLayer='first';renderHillWorld();});
 $('hill-now').addEventListener('click',()=>{hillLayer='now';renderHillWorld();});
-$('restart').addEventListener('click',()=>{state=fresh();linkedE11=null;screen='courtyard';comparisonLayer='now';render();});
+$('clue-first').addEventListener('click',()=>{
+ clueTrial=dispatchTrial(clueTrial,{type:'switch',to:'first'});renderClue();
+});
+$('clue-second').addEventListener('click',()=>{
+ clueTrial=dispatchTrial(clueTrial,{type:'switch',to:'second'});renderClue();
+});
+for(const b of document.querySelectorAll('[data-clue-pin]'))b.addEventListener('click',()=>{
+ const markerId=b.dataset.cluePin,pinned=viewTrial(clueTrial).pins.includes(markerId);
+ clueTrial=dispatchTrial(clueTrial,{type:pinned?'unpin':'pin',markerId});renderClue();
+});
+$('clue-compare').addEventListener('click',()=>{
+ clueTrial=dispatchTrial(clueTrial,{type:'compare'});renderClue();
+});
+$('clue-reset').addEventListener('click',()=>{clueTrial=freshTrial();renderClue();});
+$('restart').addEventListener('click',()=>{state=fresh();linkedE11=null;clueTrial=freshTrial();screen='courtyard';comparisonLayer='now';render();});
 render();
 </script></main></body></html>
