@@ -51,11 +51,18 @@ button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
 .garden-card[data-stage=healthy] .garden-mark::after,
 .garden-card[data-stage=paper-sprout] .garden-mark::after{content:'';position:absolute;left:5px;top:9px;width:26px;height:14px;border-radius:80% 10% 80% 10%;background:#74a87b;transform:rotate(-18deg)}
 .garden-card p{font-size:.87rem;line-height:1.4;overflow-wrap:anywhere}
+.needs-boards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+.needs-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.25rem;margin:.45rem 0}
+.needs-slot{min-width:0;min-height:72px;padding:.35rem .15rem;border:2px solid #9aafa4;border-radius:.4rem;background:#f3f6ef;text-align:center;font-size:.82rem;overflow-wrap:anywhere}
+.needs-slot[data-occupied=true]{background:#e0ede1}
+.needs-slot[data-conflict=true]{background:#ffe0cd;border-color:#a25b3a}
+.needs-slot strong{display:block;font-size:.78rem}
+
 
 .trial{border:1px dashed #8a9d92;border-radius:.4rem;padding:.45rem;overflow-wrap:anywhere}
 ul{padding-left:1.3rem;line-height:1.45}
 small{color:#50655e}
-@media(max-width:700px){.garden-cards{grid-template-columns:1fr}.columns{grid-template-columns:1fr}.cell{min-height:56px;font-size:.75rem}.grid{gap:.25rem;padding:.25rem}.map{grid-template-columns:1fr}.trials{grid-template-columns:1fr}}
+@media(max-width:700px){.needs-boards{grid-template-columns:1fr}.garden-cards{grid-template-columns:1fr}.columns{grid-template-columns:1fr}.cell{min-height:56px;font-size:.75rem}.grid{gap:.25rem;padding:.25rem}.map{grid-template-columns:1fr}.trials{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style></head><body><main>
 <header><h1>E11 — A New Line on the Map</h1><div>Scene 12 of 12 · child-controlled reversible shared-space and loop PAPER rehearsal</div></header>
@@ -134,6 +141,17 @@ small{color:#50655e}
 <div id="garden-lower-now" class="garden-card" data-stage="not-visited"><strong>Lower Garden · NOW</strong><span class="garden-mark" aria-hidden="true"></span><p id="garden-lower-now-note"></p></div>
 </div>
 <p id="garden-trials" class="status"></p>
+</section>
+<section id="e10-needs-world" hidden aria-label="E10 child-earned PAPER needs world change">
+<h2>E10 needs revisit · FIRST / NOW (PAPER only)</h2>
+<p>FIRST is Milo's own one-spot experiment, not a historical picture. NOW shows his revised needs cards. Neither board represents real residents or permission to use this place.</p>
+<div class="needs-boards">
+<div class="revisit-panel"><h2>FIRST · two needs overlap</h2>
+<div id="e10-needs-first" class="needs-board" role="img" aria-label="E10 FIRST PAPER needs: unverified"></div></div>
+<div class="revisit-panel"><h2>NOW · Milo moved the cards</h2>
+<div id="e10-needs-now" class="needs-board" role="img" aria-label="E10 NOW PAPER needs: unverified"></div></div>
+</div>
+<p id="e10-needs-result" class="status" role="status"></p>
 </section></section>
 <section class="panel"><h2>4. Trace a NEW model loop, not the old hill</h2>
 <p>Try links, check if one connected cycle returns to its start, and erase any extra link. These are role labels, not walkable public routes.</p>
