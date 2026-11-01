@@ -2,11 +2,15 @@ import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {decodeTransfer,encodeTransfer} from '../authoring-labs/e06-e07-scene-transfer.mjs';
 import {fresh as freshE08,view as viewE08} from '../e08-scene/scene-model.mjs';
 import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
-const stepsIncoming=decodeStepsTransfer(location.hash);
-const gardenIncoming=stepsIncoming?null:decodeTransfer(location.hash);
-let state=stepsIncoming?.e07||gardenIncoming?.e07||fresh(),
- linkedE06=stepsIncoming?.e06||gardenIncoming?.e06||null,
- linkedE08=stepsIncoming?.e08||freshE08();const $=id=>document.getElementById(id);
+import {decodeMemoryGardenShortcut,encodeMemoryGardenShortcut}
+ from '../authoring-labs/e04-e07-scene-transfer.mjs';
+const extended=decodeMemoryGardenShortcut(location.hash);
+const stepsIncoming=extended?null:decodeStepsTransfer(location.hash);
+const gardenIncoming=extended||stepsIncoming?null:decodeTransfer(location.hash);
+let state=extended?.e07||stepsIncoming?.e07||gardenIncoming?.e07||fresh(),
+ linkedE06=extended?.e06||stepsIncoming?.e06||gardenIncoming?.e06||null,
+ linkedE08=stepsIncoming?.e08||freshE08();
+const linkedE04=extended?.e04||null,linkedE05=extended?.e05||null;const $=id=>document.getElementById(id);
 const a=(type,value)=>({scene:'story',action:value===undefined?{type}:{type,value}});
 const n=type=>({scene:'nav',type});
 const w=(type,value)=>({scene:'walkthrough',type,...(value===undefined?{}:{value})});
@@ -90,7 +94,12 @@ function render(){
  $('e08-paper-callback').textContent=viewE08(linkedE08).story.previewComplete?
   'E08 PAPER callback: Milo compared two lower-model viewpoints. The real Steps remain unlit and the hill CLOSED.':
   'E08 PAPER comparison not yet made. Real Steps lights OFF; no official E08 unlock.';
- const back=$('e06-return'),fragment=linkedE06&&encodeTransfer(linkedE06,state);
+ const back=$('e06-return'),fragment=linkedE06&&(linkedE04?
+  encodeMemoryGardenShortcut(linkedE04,linkedE05,linkedE06,state):
+  encodeTransfer(linkedE06,state));
+ $('e04-e05-context').hidden=!linkedE04;
+ if(linkedE04)$('e04-e05-context').textContent=
+  'E04 two sincere memories: UNKNOWN dates. E05 MOCK station question retained. Milo must test E07 himself; no canonical source, access, Chronicle or E08 unlock.';
  back.hidden=!fragment;
  if(fragment)back.href='../e06-scene/'+fragment;
  $('connector-world-note').textContent=v.walkthrough.reviewed?

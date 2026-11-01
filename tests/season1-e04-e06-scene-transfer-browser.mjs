@@ -71,6 +71,24 @@ try{
    };
    for(const key of ['start','bed','slope-walk','slope','tray-walk','run','rain','run','blocked','run','compare','enter'])await garden(key);
    assert.equal(await page.locator('#lower-scene').isVisible(),true);
+   // Milo must finish the second distinct garden and actually test/revise PAPER care.
+   for(const key of ['trace','lower-path-walk','lower-path','channel-walk','channel-place','check',
+     'pocket-walk','pocket-place','check','think','finish','heavy-care','test-care',
+     'gentle-care','test-care','compare-care'])await garden(key);
+   assert.match(await page.locator('#lower-world-note').innerText(),/hypothetical sprout/);
+   assert.equal(await page.locator('#e07-transfer').isVisible(),true);
+   await page.locator('#e07-transfer').click();
+   assert.match(page.url(),/\/e07-scene\/#paper-memory-station-garden-shortcut=/);
+   await page.waitForFunction(()=>document.querySelector('#e04-e05-context')?.hidden===false);
+   assert.match(await page.locator('#e04-e05-context').innerText(),/UNKNOWN dates/);
+   const e07=async key=>{
+    const target=page.locator('[data-key="'+key+'"]');
+    assert.equal(await target.isDisabled(),false,key);await target.click();
+   };
+   await e07('start');await e07('walk-shared');await e07('inspect-shared');
+   assert.match(await page.locator('#observed').innerText(),/shared-path/);
+   await page.locator('#e06-return').click();
+   await page.waitForFunction(()=>document.querySelector('#e05-return')?.hidden===false);
    await page.locator('#e05-return').click();
    await page.waitForFunction(()=>document.querySelector('#e04-return')?.hidden===false);
    assert.match(await page.locator('#paper-note').innerText(),/cause remain UNKNOWN/);
@@ -82,6 +100,17 @@ try{
    await page.locator('#e06-paper').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('Lower Garden'));
    assert.equal(await page.locator('#lower-scene').isVisible(),true);
+   assert.equal(await page.locator('#e07-transfer').isVisible(),true);
+   await page.locator('#e07-transfer').click();
+   await page.waitForFunction(()=>document.querySelector('#e04-e05-context')?.hidden===false);
+   assert.match(await page.locator('#observed').innerText(),/shared-path/,
+     'E07 child action persists through E06→E05→E04→E05→E06');
+   await e07('restart');
+   assert.match(await page.locator('#stage').innerText(),/opening/);
+   await page.locator('#e06-return').click();
+   await page.waitForFunction(()=>document.querySelector('#lower-scene')?.hidden===false);
+   assert.match(await page.locator('#lower-world-note').innerText(),/hypothetical sprout/,
+     'E07 restart preserves E06');
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['arc1-e06-sentinel']);
    assert.equal(await page.locator('#upper-bed-tile').getAttribute('data-stage'),'healthy');
    const size=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
@@ -99,5 +128,5 @@ try{
    assert.equal(await page.locator('#e05-independent').isVisible(),false);
   }finally{await ctx.close();}
  }
- console.log('E04-E05-E06 independent PAPER Chromium PASS: three viewports, wrong-first revision, two gardens, returns, resets, no save');
+ console.log('E04-E07 independent PAPER Chromium PASS: three viewports, two gardens, child-tested E07, four-scene returns, resets, no save');
 }finally{await browser.close();}

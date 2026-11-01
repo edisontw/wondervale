@@ -1,13 +1,17 @@
 // E05 isolated future scene shell: reuses strict station and mock-source reducers.
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {fresh as freshE06} from '../e06-scene/scene-model.mjs';
+import {fresh as freshE07} from '../e07-scene/scene-model.mjs';
+import {decodeMemoryGardenShortcut,encodeMemoryGardenShortcut} from '../authoring-labs/e04-e07-scene-transfer.mjs';
 import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
 import {decodeMemoryStationGardenTransfer,encodeMemoryStationGardenTransfer}
  from '../authoring-labs/e04-e06-scene-transfer.mjs';
-const arcIncoming=decodeMemoryStationGardenTransfer(location.hash);
+const extended=decodeMemoryGardenShortcut(location.hash);
+const arcIncoming=extended||decodeMemoryStationGardenTransfer(location.hash);
 const incoming=decodeStationGardenTransfer(location.hash);
 let state=arcIncoming?.e05||incoming?.e05||fresh(),
- linkedE06=arcIncoming?.e06||incoming?.e06||freshE06();
+ linkedE06=arcIncoming?.e06||incoming?.e06||freshE06(),
+ linkedE07=extended?.e07||freshE07();
 const linkedE04=arcIncoming?.e04||null;
 const $=id=>document.getElementById(id);
 const actionOf=b=>{
@@ -50,7 +54,9 @@ function render(){
     (g.overlay?'Two marks shown together; no date or cause known.':'Inspect both PAPER sheets before overlay.')+
     (g.question?' E06 question recorded on PAPER only.':'');
   garden.append(grid,legend);
-  const memoryFragment=linkedE04&&encodeMemoryStationGardenTransfer(linkedE04,state,linkedE06);
+  const memoryFragment=linkedE04&&(extended?
+  encodeMemoryGardenShortcut(linkedE04,state,linkedE06,linkedE07):
+  encodeMemoryStationGardenTransfer(linkedE04,state,linkedE06));
  const memoryLink=$('e04-return'),memoryContext=$('e04-context');
  memoryLink.hidden=!memoryFragment;memoryContext.hidden=!memoryFragment;
  if(memoryFragment){
@@ -76,7 +82,9 @@ function render(){
 document.querySelectorAll('button[data-scene]').forEach(b=>b.addEventListener('click',()=>{
   const action=actionOf(b);
   state=dispatch(state,action);
-  if(action.scene==='nav'&&action.type==='restart')linkedE06=freshE06();
+  if(action.scene==='nav'&&action.type==='restart'){
+    linkedE06=freshE06();linkedE07=freshE07();
+  }
   render();
 }));
 render();
