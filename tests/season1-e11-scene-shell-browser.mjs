@@ -177,7 +177,7 @@ async function journey(page,label,shots){
  }
  assert.match(await page.locator('#reflection-result').innerText(),/Four notes sorted/);
  assert.match(await page.locator('#reflection-result').innerText(),/No real planting/);
- assert.doesNotMatch(await page.locator('#reflection-result').innerText(),/\\bCommon\\b/);
+ assert.doesNotMatch(await page.locator('#reflection-result').innerText(),/\bCommon\b/);
  assert.doesNotMatch(await page.locator('#return-route-trail').innerText(),/North Hill|Common/);
  assert.equal(await page.locator('#return-route-map [data-visited="true"]').count(),2);
  await press(page,'Undo last PAPER step');
