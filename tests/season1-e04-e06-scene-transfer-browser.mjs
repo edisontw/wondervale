@@ -149,7 +149,7 @@ try{
    await page.locator('#e09-transfer').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E09 finished'));
    assert.match(await page.locator('#survey-summary').innerText(),/Milo walked 4 model edges/);
-   await e09('restart');
+   await page.locator('#restart').click();
    assert.match(await page.locator('#stage').innerText(),/E09 opening/);
    await page.locator('#e08-return').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
