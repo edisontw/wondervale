@@ -19,6 +19,7 @@ button:focus-visible{outline:3px solid #b4751d;outline-offset:2px}
 button[aria-pressed=true]{background:#dceedd;border-color:#37684c}
 .status{background:#ebf1ec;border-radius:.4rem;padding:.55rem;line-height:1.5;margin:.45rem 0}
 .scene{position:relative;isolation:isolate;overflow:hidden;aspect-ratio:16/7;min-height:240px;border:3px solid #55726d;border-radius:.7rem;background:linear-gradient(165deg,#c5d4ce 0%,#c7d3b3 47%,#d9caa9 48%,#c6b89c 100%)}
+.lantern-map{display:block;width:min(100%,360px);height:auto;background:#f4f7f5;border:1px solid #a5b7b2;border-radius:.45rem;margin:.5rem 0}
 .scene:before{content:"";position:absolute;inset:45% 0 0;background:repeating-linear-gradient(135deg,#c3b59c 0 18px,#d5c6ac 18px 36px);opacity:.55}
 .edge{position:absolute;height:6px;z-index:1;transform-origin:left center;background:#9b9e91;border-radius:4px;pointer-events:none}
 .edge.surveyed{background:#537c69}.edge.marked{height:9px;background:#235b48}
@@ -48,7 +49,13 @@ small{color:#485f55}
 <section class="panel"><p id="lantern-context" class="status" role="status">No E08 PAPER viewpoint record linked.</p>
 <p><a id="e08-return" hidden href="../e08-scene/">Return to E08 PAPER two-view model (not a production unlock)</a></p>
 <p><a id="e10-paper" hidden href="../e10-scene/">Visit E10 independent FICTIONAL courtyard PAPER scene — not a real entrance or official unlock</a></p>
-<div class="controls"><button id="start" data-key="start">Begin safe hill PAPER survey</button><button id="revisit" data-key="revisit" disabled>Review Lantern Steps PAPER observation</button><button id="back" data-key="back" disabled>Return to hill survey</button></div><p id="stage" class="status" role="status"></p><p id="dialogue" class="status" aria-live="polite"></p></section><section id="lantern-revisit" class="panel" hidden><h2>Look back at Lantern Steps</h2><p>Two lower model lamps and two safe viewpoints helped us question appearances. No real wiring, real access or E08 completion was approved. The upper hill stays CLOSED.</p></section><div id="scene" class="scene" role="group" aria-label="Fictional five-anchor safe survey graph; closed upper hill cannot be entered" data-phase="survey"></div>
+<div class="controls"><button id="start" data-key="start">Begin safe hill PAPER survey</button><button id="revisit" data-key="revisit" disabled>Review Lantern Steps PAPER observation</button><button id="back" data-key="back" disabled>Return to hill survey</button></div><p id="stage" class="status" role="status"></p><p id="dialogue" class="status" aria-live="polite"></p></section><section id="lantern-revisit" class="panel" hidden><h2>Look back at Lantern Steps</h2><p>Two lower model lamps and two safe viewpoints helped us question appearances. No real wiring, real access or E08 completion was approved. The upper hill stays CLOSED.</p></section><section id="lantern-world-panel" class="panel" hidden aria-label="E08 PAPER lighting world callback">
+<h2>Lower Steps remembered at the safe overlook — PAPER FIRST / NOW</h2>
+<p>These fixed model marks did not move. Milo tried two LOWER PAPER lamps, then checked from two safe viewpoints. The upper hill remains CLOSED; no real lamps were restored.</p>
+<div class="controls"><button id="lantern-first" aria-pressed="false">FIRST — lamps OFF</button><button id="lantern-now" aria-pressed="true">NOW — two lamps and two views</button></div>
+<svg id="lantern-world-map" class="lantern-map" viewBox="0 0 360 240" role="img" aria-label="Synthetic lower Steps FIRST and NOW viewpoint model"></svg>
+<p id="lantern-world-result" class="status" role="status"></p>
+</section><div id="scene" class="scene" role="group" aria-label="Fictional five-anchor safe survey graph; closed upper hill cannot be entered" data-phase="survey"></div>
 <section id="survey-compare" class="panel" hidden aria-label="Milo's field survey model comparison">
 <h2>Revisit Milo's survey — BEFORE / NOW</h2>
 <p>Compare the blank PAPER sketch with the observations Milo earned. BEFORE is an unmarked model, <strong>not a historical claim</strong>. Neither view grants real hill access.</p>
