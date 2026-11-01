@@ -4,6 +4,8 @@ import {readFileSync} from 'node:fs';
 import {fresh,dispatch,restore,projection} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperRevisit} from '../e11-scene/revisit-model.mjs';
 import {paperLoopVisual} from '../e11-scene/loop-visual.mjs';
+import {paperE10NeedsRevisit} from '../e11-scene/e10-needs-revisit.mjs';
+import * as E10 from '../authoring-labs/unnamed-story-model.mjs';
 import {inspectPaperRole} from '../e11-scene/role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from '../e11-scene/verification-plan.mjs';
 
@@ -163,4 +165,38 @@ test('child drafts future checks only after earned role inspection; no plan beco
  assert.equal(draftPaperVerification(s,'activity_group','0,2','access','survey').matched,true);
  act({type:'place',tokenId:'activity',cells:['2,2']});
  assert.equal(draftPaperVerification(s,'quiet_reader','0,1','people','ask'),null);
+});
+
+test('E10 strictly replay-earned FIRST/NOW needs become visible E11 model slots only',()=>{
+ const actions=[
+  {type:'start'},{type:'compare-symbol'},{type:'walk',to:'stone_edge'},
+  {type:'inspect',traceId:'surface'},{type:'suggest',traceId:'surface',useTag:'passing'},
+  {type:'revise',traceId:'surface',oldTag:'passing',newTag:'resting'},
+  {type:'walk',to:'quiet_corner'},{type:'hear',needId:'quiet'},
+  {type:'place',needId:'quiet',slot:'shared'},{type:'walk',to:'meeting_edge'},
+  {type:'hear',needId:'activity'},{type:'place',needId:'activity',slot:'shared'},
+  {type:'test-one-slot'},{type:'place',needId:'quiet',slot:'left'},
+  {type:'place',needId:'activity',slot:'right'},{type:'walk',to:'notice_wall'},
+  {type:'inspect',traceId:'holes'},{type:'suggest',traceId:'holes',useTag:'display'},
+  {type:'check-source'},{type:'review-tradeoff'},{type:'review'},{type:'finish-paper'}
+ ];
+ assert.equal(paperE10NeedsRevisit(null),null);
+ assert.equal(paperE10NeedsRevisit(E10.fresh()),null);
+ assert.equal(paperE10NeedsRevisit(E10.replay(actions.slice(0,-1))),null);
+ const earned=E10.replay(actions),atlas=paperE10NeedsRevisit(earned);
+ assert.equal(E10.view(earned).finishedPaper,true);
+ assert.ok(atlas);
+ assert.equal(atlas.first.filter(x=>x.conflict).length,1);
+ assert.equal(atlas.first.find(x=>x.id==='shared').quiet,true);
+ assert.equal(atlas.first.find(x=>x.id==='shared').activity,true);
+ assert.equal(atlas.now.filter(x=>x.conflict).length,0);
+ assert.equal(atlas.now.find(x=>x.id==='left').quiet,true);
+ assert.equal(atlas.now.find(x=>x.id==='right').activity,true);
+ assert.equal(atlas.changed,true);
+ assert.equal(atlas.realAccessApproved,false);
+ assert.deepEqual(atlas.canonicalEvents,[]);
+ assert.deepEqual(atlas.unlocks,[]);
+ assert.equal(paperE10NeedsRevisit({...earned,rights:['approved']}),null);
+ assert.equal(paperE10NeedsRevisit({...earned,e10:{...earned.e10,nameRevealed:true}}),null);
+ assert.equal(paperE10NeedsRevisit(E10.dispatch(earned,{type:'reset'})),null);
 });
