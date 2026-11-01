@@ -4,6 +4,7 @@ import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
 import {paperRevisit} from './revisit-model.mjs';
 import {paperLoopVisual} from './loop-visual.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
+import {paperReturnRoute,WALK_LABELS} from './return-route.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
@@ -20,11 +21,11 @@ const incoming=decodeLoopTransfer(location.hash);
 const linkedE10=incoming?.e10||null,upstream=incoming?.upstream||null;
 let state=incoming?.e11||fresh(),tool='walk',begun=!!incoming?.e11?.history.length,
  screen='trial',revisitFocus='quiet_reader',roleCell=null,mapView='now';
-let selectedUnknown=null,draftChecks={},planFeedback='';
+let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[];
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
-function act(action){state=dispatch(state,action);render();}
+function act(action){returnSteps=[];state=dispatch(state,action);render();}
 function button(host,name,handler,disabled=false,pressed=false){
  const b=document.createElement('button');b.type='button';b.textContent=name;b.disabled=disabled;
  if(pressed)b.setAttribute('aria-pressed','true');
@@ -273,6 +274,41 @@ function worldRevisit(){
   'Both boards come from Milo\'s saved model trials. The new loop is not yet reviewed; no real place is open.';
 }
 
+function returnRoute(){
+ const model=paperReturnRoute(state,returnSteps,upstream);
+ const panel=$('return-route');panel.hidden=!model;
+ if(!model)return;
+ $('return-route-position').textContent='Milo at '+WALK_LABELS[model.at]+
+  ' · visited: '+(model.visited.map(id=>WALK_LABELS[id]).join(' + ')||'none')+
+  ' · returned with both stops: '+(model.complete?'YES, PAPER ONLY':'not yet')+'.';
+ $('return-route-trail').textContent='Milo walked: '+model.trail.map(id=>WALK_LABELS[id]).join(' → ')+
+  '. This is a paper sketch, not a verified public path.';
+ $('return-route-feedback').textContent=model.feedback;
+ $('return-route-garden').textContent=model.gardenNote||
+  'Garden stop not visited. No earlier growth is claimed.';
+ $('return-route-station').textContent=model.stationNote||
+  'Map Room stop not visited. No earlier room change is claimed.';
+ const host=$('return-route-controls');host.replaceChildren();
+ const labels={
+  'square:market':'Try Market PAPER detour',
+  'square:garden':'Visit Garden PAPER stop',
+  'market:square':'Return to Square PAPER start',
+  'garden:square':'Return to Square PAPER start',
+  'garden:map_room':'Visit Map Room PAPER stop',
+  'map_room:garden':'Return to Garden PAPER stop'
+ };
+ for(const to of model.choices)
+  button(host,labels[model.at+':'+to],()=>{returnSteps=[...returnSteps,to];returnRoute();},
+   returnSteps.length>=24);
+ button(host,'Undo last PAPER step',()=>{
+  returnSteps=returnSteps.slice(0,-1);returnRoute();
+ },!returnSteps.length);
+ button(host,'Restart PAPER return route',()=>{returnSteps=[];returnRoute();},!returnSteps.length);
+ $('return-route-result').textContent=model.complete?
+  'PAPER route tested: both stops visited and Milo returned. No real route, Common access or official unlock.':
+  'Not complete. Milo must visit both model stops and return to Square; a wrong turn is safe.';
+}
+
 function gardenRevisit(){
  const recall=paperGardenRevisit(upstream?.e06);
  const panel=$('garden-revisit');panel.hidden=!recall;
@@ -352,7 +388,7 @@ function render(){
   (Object.values(state.tests).some(t=>!t.passed)?
    'Milo stops at a conflict. Finn: "Who needs this way?" Try moving a piece.':
    'Two simulated needs share one small model. Milo can test, move, compare and try again.');
- controls();board();tests();comparison();map();drawPaperLoop();review();worldRevisit();
+ controls();board();tests();comparison();map();drawPaperLoop();review();worldRevisit();returnRoute();
 }
 $('access').addEventListener('click',()=>act({type:'place',tokenId:'access',cells:['1,1','1,2']}));
 $('lift-quiet').addEventListener('click',()=>act({type:'lift',tokenId:'quiet'}));
