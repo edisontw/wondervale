@@ -7,6 +7,7 @@ import {paperGardenRevisit} from './garden-revisit.mjs';
 import {paperReturnRoute,WALK_LABELS} from './return-route.mjs';
 import {paperReturnReflection} from './return-reflection.mjs';
 import {paperReflectionWorld} from './reflection-world.mjs';
+import {paperReflectionFollowUp} from './reflection-follow-up.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
@@ -24,9 +25,9 @@ const linkedE10=incoming?.e10||null,upstream=incoming?.upstream||null;
 let state=incoming?.e11||fresh(),tool='walk',begun=!!incoming?.e11?.history.length,
  screen='trial',revisitFocus='quiet_reader',roleCell=null,mapView='now';
 let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[],
- reflectionChoices={},reflectionFocus=null;
+ reflectionChoices={},reflectionFocus=null,followUpQuestion=null,followUpAction=null;
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
-function clearReflection(){reflectionChoices={};reflectionFocus=null;}
+function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
 function act(action){returnSteps=[];clearReflection();state=dispatch(state,action);render();}
@@ -338,6 +339,7 @@ function reflection(){
   button(actions,label,()=>{
    if(!reflectionFocus)return;
    reflectionChoices={...reflectionChoices,[reflectionFocus]:shelf};
+    followUpQuestion=null;followUpAction=null;
    reflection();
   },!reflectionFocus);
  }
@@ -365,7 +367,7 @@ function reflection(){
 function reflectionWorld(){
  const world=paperReflectionWorld(state,returnSteps,upstream,reflectionChoices);
  const panel=$('reflection-world');panel.hidden=!world;
- if(!world)return;
+ if(!world){$('reflection-follow-up').hidden=true;return;}
  for(const stage of ['first','now']){
   const host=$('reflection-world-'+stage);host.replaceChildren();
   for(const card of world[stage]){
@@ -382,6 +384,25 @@ function reflectionWorld(){
   ' verified PAPER model note(s) to SEEN IN PAPER and kept '+world.checkCount+
   ' note(s) for real checks. This is a changed PAPER notebook, not an opened place.';
  $('reflection-chronicle-preview').textContent=world.chroniclePreview;
+ reflectionFollowUp();
+}
+
+function reflectionFollowUp(){
+ const model=paperReflectionFollowUp(state,returnSteps,upstream,reflectionChoices,
+  followUpQuestion,followUpAction);
+ const panel=$('reflection-follow-up');panel.hidden=!model;
+ if(!model)return;
+ const questions=$('follow-up-questions');questions.replaceChildren();
+ for(const q of model.unknowns)button(questions,'Question: '+q.label,()=>{
+  followUpQuestion=q.id;followUpAction=null;reflectionFollowUp();
+ },false,followUpQuestion===q.id);
+ const actions=$('follow-up-actions');actions.replaceChildren();
+ for(const action of model.actions)button(actions,action.label,()=>{
+  followUpAction=action.id;reflectionFollowUp();
+ },!followUpQuestion,followUpAction===action.id);
+ $('follow-up-feedback').textContent=model.feedback;
+ $('follow-up-diary').textContent=model.diaryLine||
+  'PAPER NEXT STEP: none chosen. Real-world facts, permissions and access remain UNKNOWN.';
 }
 
 function gardenRevisit(){
