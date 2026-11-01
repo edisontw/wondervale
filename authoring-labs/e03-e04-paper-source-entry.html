@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wondervale — E03 to E04 PAPER source check</title>
+<style>
+:root{font:16px system-ui,-apple-system,sans-serif;color:#233e36;background:#f1f3ed}
+*{box-sizing:border-box}body{margin:0}main{max-width:820px;margin:auto;padding:clamp(.6rem,2vw,1.2rem)}
+header{background:#294b43;color:white;padding:1rem;border-radius:.65rem}
+h1{font-size:1.45rem;margin:.2rem 0}h2{font-size:1.15rem}
+.notice{background:#fff0cb;border-left:5px solid #956315;padding:.8rem;line-height:1.5;margin:.8rem 0}
+section{background:white;border:1px solid #bccbc1;border-radius:.6rem;padding:clamp(.7rem,2vw,1rem);margin:.8rem 0}
+#gate-status{font-weight:600;line-height:1.5;overflow-wrap:anywhere}
+button,a.action{font:inherit;display:inline-block;min-height:44px;min-width:44px;padding:.6rem .8rem;border:2px solid #477568;border-radius:.4rem;background:#f7fbf5;color:#204237;cursor:pointer;text-decoration:none}
+button:focus-visible,a:focus-visible{outline:3px solid #a56a17;outline-offset:2px}
+li{margin:.6rem 0;line-height:1.5}small{line-height:1.5}a{color:#214f45}
+[hidden]{display:none!important}
+</style></head><body><main>
+<header><h1>Market Lane → E04 memory worktable</h1><div>Read-only chapter source check · PAPER authoring entry</div></header>
+<p class="notice"><strong>AUTHORING ONLY — NOT AN EPISODE UNLOCK.</strong> This page checks actual E02 Riverside and E03 Market Lane event-replayed saves on this device. It never writes or resets those saves. E04 has no approved historical source pack, dated chronology or canonical release. The two attributed memories are sincere but undated.</p>
+<section aria-label="Read-only chapter check">
+<h2>Can Milo carry his Market Lane question forward?</h2>
+<p id="gate-status" role="status" aria-live="polite" data-gate="checking">Checking the earlier chapters…</p>
+<button type="button" id="refresh">Check chapter progress again</button>
+<div id="verified" hidden>
+<h2>What Milo actually heard</h2>
+<p>These are the accepted E03 character lines, not historical source cards. Both dates and relative order are UNKNOWN.</p>
+<ol id="source-list"></ol>
+<p>Nia: “What do we need to know which memory came first?”</p>
+<p><a id="paper-entry" class="action" href="./arc1-memory-station-handoff.html">Open E04 PAPER memory worktable</a></p>
+<small>The next page is a separate unsaved rehearsal. Direct access to it is not a canonical E04 unlock; Milo still has to listen, try and revise the PAPER timeline there.</small>
+</div>
+<div id="blocked" hidden>
+<p id="blocked-help"></p>
+<p>Continue the existing <a href="../e02/">Riverside</a> and <a href="../e03/">Market Lane</a> chapters. Return here and check again. No preview button can substitute for a valid chapter checkpoint.</p>
+</div>
+</section>
+<section aria-label="Production boundary">
+<h2>What remains closed</h2>
+<p id="production-boundary">Canonical E04: CLOSED. Official Chronicle and E05 unlock: NOT issued. No historical date, site permission, new art, deployment or family acceptance is claimed.</p>
+<p><small>The E04 PAPER worktable can also be opened directly as an isolated lab. That does not grant source eligibility. A reset or replacement of E02/E03 progress revokes this page's verified status at the next check or attempted entry.</small></p>
+</section>
+<script type="module">
+import {readPaperSourceGate} from './e03-e04-paper-source-entry.mjs';
+const $=id=>document.getElementById(id);
+const reasons={
+ 'complete-riverside-first':'E02 Riverside has not passed the canonical completion check.',
+ 'complete-market-lane-first':'E02 is complete, but E03 Market Lane has not passed its full delivery, memory and Chronicle check.',
+ 'market-evidence-incomplete':'The E03 attributed memory events are incomplete.',
+ 'checkpoint-unreadable':'An earlier chapter checkpoint is unreadable. No source eligibility is granted.',
+ 'storage-unavailable':'This browser cannot read the chapter checkpoints. No source eligibility is granted.'
+};
+function check(){
+  try{return readPaperSourceGate(window.localStorage);}
+  catch{return {ready:false,reason:'storage-unavailable',sources:[]};}
+}
+function render(){
+  const gate=check();
+  $('gate-status').dataset.gate=gate.ready?'verified':'blocked';
+  $('gate-status').textContent=gate.ready
+    ?'E02 + E03 canonical action replay VERIFIED on this device. Source eligibility only; E04 production remains CLOSED.'
+    :(reasons[gate.reason]||'Earlier chapter progress could not be verified.');
+  $('verified').hidden=!gate.ready;
+  $('blocked').hidden=gate.ready;
+  $('blocked-help').textContent=gate.ready?'':(reasons[gate.reason]||'Finish the earlier chapters first.');
+  $('source-list').replaceChildren();
+  if(gate.ready){
+    for(const source of gate.sources){
+      const item=document.createElement('li');
+      item.textContent=source.speaker+' ['+source.sourceId+']: “'+source.words+'” — date UNKNOWN.';
+      $('source-list').append(item);
+    }
+  }
+}
+$('refresh').addEventListener('click',render);
+$('paper-entry').addEventListener('click',event=>{
+  // Same-tab upstream resets do not fire the storage event. Recheck at click time.
+  if(!check().ready){event.preventDefault();render();}
+});
+window.addEventListener('storage',render);
+window.addEventListener('pageshow',render);
+render();
+</script></main></body></html>
