@@ -222,6 +222,11 @@ function render(){
  const fragment=linkedE10&&encodeLoopTransfer(linkedE10,state,upstream);
  $('e10-return').hidden=!fragment;
  if(fragment)$('e10-return').href='../e10-scene/'+fragment;
+ const fullMemory=!!(linked?.finishedPaper&&upstream?.e04&&upstream?.e05);
+ $('e04-e05-context').hidden=!fullMemory;
+ $('e04-e05-context').textContent=fullMemory?
+  'E04 PAPER: two sincere but undated memories; earlier/later order UNKNOWN. E05 PAPER: two MOCK station drawings; maker, date and original UNKNOWN. These are strictly replayed child actions, NOT verified historical sources, rights or official Chronicle.':
+  'No E04/E05 PAPER provenance linked. This is not historical proof.';
  $('e10-linked-context').textContent=linked?.finishedPaper?
   'E10 PAPER notes earned: Milo observed '+linked.observations.length+
   ' fictional traces and compared two SIMULATED needs. The place name, real access and history remain UNKNOWN. E11 is a separate model, NOT UNLOCKED.':

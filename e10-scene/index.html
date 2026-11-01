@@ -177,10 +177,12 @@ function render(){
  $('e09-return').hidden=!returnFragment;
  if(returnFragment)$('e09-return').href='../e09-scene/'+returnFragment;
  const loopFragment=encodeLoopTransfer(state,linkedE11||freshE11(),
+  linkedE04?{e04:linkedE04,e05:linkedE05,e06:linkedE06,e07:linkedE07,
+   e08:linkedE08,e09:linkedE09}:
   linkedE08?{e08:linkedE08,e09:linkedE09,e07:linkedE07,e06:linkedE06}:null);
  $('e11-paper').hidden=!loopFragment;
  if(loopFragment)$('e11-paper').href='../e11-scene/'+loopFragment;
- if(linkedE04)$('e11-paper').textContent='Visit E11 PAPER (E04/E05 source notes do not transfer beyond E10; no official unlock)';
+ if(linkedE04)$('e11-paper').textContent='Visit E11 PAPER with E04 UNKNOWN memories and E05 MOCK sources (not official unlock)';
  $('e09-callback').disabled=!v.finishedPaper||screen==='survey';
  $('e10-back').hidden=screen!=='survey';
  $('e09-notes').hidden=screen!=='survey';
