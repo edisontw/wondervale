@@ -250,11 +250,33 @@ try{
    const shelves=await page.locator('#reflection-shelves').innerText();
    assert.match(shelves,/SEEN IN PAPER: E05 wall-side PAPER table · E06 possible PAPER sprout/);
    assert.match(shelves,/NEEDS REAL CHECK: Real seeds were planted · The public route is safe/);
+// Two earned PAPER observations must not be offered as real-world unknowns.
+    assert.equal(await page.locator('#reflection-follow-up').isVisible(),true);
+    assert.equal(await page.locator('#follow-up-questions button').count(),2);
+    const eligibleQuestions=await page.locator('#follow-up-questions').innerText();
+    assert.match(eligibleQuestions,/Real seeds were planted/);
+    assert.match(eligibleQuestions,/The public route is safe/);
+    assert.doesNotMatch(eligibleQuestions,/E05 wall-side PAPER table|E06 possible PAPER sprout/);
+    await press('Question: The public route is safe');
+    await press('Request permission before changing anything');
+    assert.match(await page.locator('#follow-up-feedback').innerText(),/Try a check that fits/);
+    assert.match(await page.locator('#follow-up-diary').innerText(),/none chosen/);
+    await press('Arrange an authorized access check later');
+    assert.match(await page.locator('#follow-up-diary').innerText(),/PAPER NEXT STEP — NOT DONE/);
+    assert.match(await page.locator('#follow-up-diary').innerText(),/public route/);
+    await press('Question: Real seeds were planted');
+    assert.match(await page.locator('#follow-up-diary').innerText(),/none chosen/);
+    await press('Request permission before changing anything');
+    assert.match(await page.locator('#follow-up-diary').innerText(),/PAPER NEXT STEP — NOT DONE/);
+    assert.match(await page.locator('#follow-up-diary').innerText(),/site owner/);
+    assert.doesNotMatch(await page.locator('#follow-up-diary').innerText(),/\bCommon\b/);
    assert.doesNotMatch(await page.locator('#reflection-result').innerText(),/real facts verified: [1-9]/i);
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
    assert.match(await page.locator('#return-route-trail').innerText(),/Market PAPER detour/);
    assert.doesNotMatch(await page.locator('#return-route-trail').innerText(),/North Hill|Common/);
    await press('Undo last PAPER step');
+assert.equal(await page.locator('#reflection-follow-up').isVisible(),false,
+     'undo withdraws the future check, not just the sorted notebook');
    assert.equal(await page.locator('#reflection-world').isVisible(),false);
    assert.match(await page.locator('#return-route-result').innerText(),/Not complete/);
    assert.equal(await page.locator('#return-reflection').isVisible(),false,
@@ -274,7 +296,13 @@ try{
     await press('Place under NEEDS REAL CHECK');
    }
    assert.match(await page.locator('#reflection-result').innerText(),/Four notes sorted/);
+assert.equal(await page.locator('#follow-up-questions button').count(),2);
+    await press('Question: The public route is safe');
+    await press('Arrange an authorized access check later');
+    assert.match(await page.locator('#follow-up-diary').innerText(),/PAPER NEXT STEP — NOT DONE/);
    const earnedE11Fragment=new URL(page.url()).hash;
+// The upstream packet is captured only after a newly chosen future plan.
+    // No plan is persisted: a new E11 visit must require a new child choice.
    await page.locator('#e10-return').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    await page.locator('#e11-paper').click();
@@ -283,6 +311,8 @@ try{
    assert.match(await page.locator('#comparison').innerText(),/trial-1 → NOW trial-2/);
    assert.equal(await page.locator('#return-reflection').isVisible(),false,
     'cross-page E10 return starts a new E11 walk, so session-only sorting clears');
+assert.equal(await page.locator('#reflection-follow-up').isVisible(),false,
+     'cross-page E10 return cannot retain an unperformed check as evidence');
    assert.equal(await page.locator('#garden-lower-now').getAttribute('data-stage'),'paper-sprout',
     'new E11 visit retains strictly replayed E06 model evidence, not its old shelf choices');
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
@@ -317,6 +347,8 @@ try{
     assert.equal(await page.locator('#return-route').isVisible(),false,episode+' reset revokes route completion');
     assert.equal(await page.locator('#return-reflection').isVisible(),false,
      episode+' reset must revoke both earned PAPER observation shelves');
+assert.equal(await page.locator('#reflection-follow-up').isVisible(),false,
+     episode+' reset must revoke the child-selected future check');
     assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
    }
   }finally{await ctx.close();}
