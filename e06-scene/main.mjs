@@ -2,17 +2,21 @@ import {fresh,dispatch,can,view} from './scene-model.mjs';
 import * as E05 from '../e05-scene/scene-model.mjs';
 import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
 import {fresh as freshE07} from '../e07-scene/scene-model.mjs';
+import {fresh as freshE08} from '../e08-scene/scene-model.mjs';
+import {decodeMemoryLantern,encodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {decodeTransfer,encodeTransfer} from '../authoring-labs/e06-e07-scene-transfer.mjs';
 import {decodeMemoryStationGardenTransfer,encodeMemoryStationGardenTransfer}
  from '../authoring-labs/e04-e06-scene-transfer.mjs';
 import {decodeMemoryGardenShortcut,encodeMemoryGardenShortcut}
  from '../authoring-labs/e04-e07-scene-transfer.mjs';
-const extended=decodeMemoryGardenShortcut(location.hash);
+const lantern=decodeMemoryLantern(location.hash);
+const extended=lantern||decodeMemoryGardenShortcut(location.hash);
 const arcIncoming=extended||decodeMemoryStationGardenTransfer(location.hash);
 const incoming=decodeTransfer(location.hash);
 const stationIncoming=decodeStationGardenTransfer(location.hash);
 let state=arcIncoming?.e06||stationIncoming?.e06||incoming?.e06||fresh(),
- linkedE07=extended?.e07||incoming?.e07||freshE07();
+ linkedE07=extended?.e07||incoming?.e07||freshE07(),
+ linkedE08=lantern?.e08||freshE08();
 const linkedE05=arcIncoming?.e05||stationIncoming?.e05||null;
 const linkedE04=arcIncoming?.e04||null;
 const $=id=>document.getElementById(id);
@@ -69,7 +73,7 @@ function buttons(id,rows){
     b.disabled=!can(state,action);
     b.addEventListener('click',()=>{
       state=dispatch(state,action);
-      if(action.scene==='nav'&&action.type==='restart')linkedE07=freshE07();
+      if(action.scene==='nav'&&action.type==='restart'){linkedE07=freshE07();linkedE08=freshE08();}
       render();
     });
     root.append(b);
@@ -114,7 +118,9 @@ function render(){
   $('note').textContent=v.paperChronicle;
   $('parent').textContent='Optional parent question: '+v.parentCue;
   const stationFragment=linkedE05&&(linkedE04?
-   (extended?encodeMemoryGardenShortcut(linkedE04,linkedE05,state,linkedE07):
+   (lantern?(encodeMemoryLantern(linkedE04,linkedE05,state,linkedE07,linkedE08)||
+     encodeMemoryGardenShortcut(linkedE04,linkedE05,state,linkedE07)):
+    extended?encodeMemoryGardenShortcut(linkedE04,linkedE05,state,linkedE07):
     encodeMemoryStationGardenTransfer(linkedE04,linkedE05,state)):
    encodeStationGardenTransfer(linkedE05,state));
   const memoryContext=$('e04-context');
@@ -130,7 +136,10 @@ function render(){
     stationNote.textContent='E05 PAPER revisit: Milo tested a removable station copy, checked two MOCK sources (maker/date/original UNKNOWN), kept the walkway clear and overlaid two fictional garden marks. His question travels; no real site, date, access or E06 unlock is proved. E06 actions remain yours to perform.';
   }
   const earnedE07=encodeTransfer(state,linkedE07);
-  const fragment=linkedE04?(earnedE07&&encodeMemoryGardenShortcut(linkedE04,linkedE05,state,linkedE07)):earnedE07,
+  const fragment=linkedE04?(earnedE07&&(lantern?
+    (encodeMemoryLantern(linkedE04,linkedE05,state,linkedE07,linkedE08)||
+     encodeMemoryGardenShortcut(linkedE04,linkedE05,state,linkedE07)):
+    encodeMemoryGardenShortcut(linkedE04,linkedE05,state,linkedE07))):earnedE07,
    link=$('e07-transfer');
   link.hidden=!fragment;
   if(fragment)link.href='../e07-scene/'+fragment;
