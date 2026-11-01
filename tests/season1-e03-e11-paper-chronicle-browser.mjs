@@ -38,6 +38,7 @@ try{
    assert.match(await page.locator('#paper-chronicle').innerText(),/CLOSED/);
    assert.match(await page.locator('#paper-chronicle').innerText(),/placed: 0/);
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
+   await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
    await page.getByRole('button',{name:'Place access strip (two middle cells)'}).click();
    assert.match(await page.locator('#paper-chronicle').innerText(),/placed: 2/);
    await page.getByRole('button',{name:'Restart fictional lab'}).click();
