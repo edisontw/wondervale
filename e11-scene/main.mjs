@@ -4,6 +4,7 @@ import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
 import {paperRevisit} from './revisit-model.mjs';
 import {paperLoopVisual} from './loop-visual.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
+import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
 import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
@@ -285,8 +286,32 @@ function gardenRevisit(){
  $('garden-trials').textContent='Child-tested MODEL water trials: '+recall.lower.trialCount+
   '. Real growth, actual site access, planting/care permission and official unlock: NONE.';
 }
+function e10NeedsWorld(){
+ const atlas=paperE10NeedsRevisit(linkedE10);
+ const panel=$('e10-needs-world');panel.hidden=!atlas;
+ if(!atlas)return;
+ for(const stage of ['first','now']){
+  const board=$('e10-needs-'+stage);board.replaceChildren();
+  board.setAttribute('aria-label','E10 '+stage.toUpperCase()+
+   ' child-tested fictional needs board; no real people, history or access');
+  for(const slot of atlas[stage]){
+   const el=document.createElement('div');el.className='needs-slot';
+   el.dataset.slot=slot.id;el.dataset.occupied=String(slot.quiet||slot.activity);
+   el.dataset.conflict=String(slot.conflict);
+   const name=document.createElement('strong');name.textContent=slot.id.toUpperCase();
+   const roles=document.createElement('span');
+   roles.textContent=[slot.quiet?'Quiet reader':'',slot.activity?'Activity group':'']
+    .filter(Boolean).join(' + ')||'Open PAPER spot';
+   el.append(name,roles);board.append(el);
+  }
+ }
+ $('e10-needs-result').textContent='FIRST: '+(atlas.firstConflict?'1 tested PAPER overlap':'no overlap')+
+  ' → NOW: '+(atlas.nowConflict?'overlap':'0 overlaps after Milo moved a card')+
+  '. The two simulated needs remain visible. Source, consent and real access UNKNOWN; North Hill CLOSED.';
+}
 function render(){
  gardenRevisit();
+ e10NeedsWorld();
  const linked=linkedE10&&viewE10(linkedE10);
  const fragment=linkedE10&&encodeLoopTransfer(linkedE10,state,upstream);
  $('e10-return').hidden=!fragment;
