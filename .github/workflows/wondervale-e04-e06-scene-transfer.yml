@@ -8,6 +8,7 @@ on:
       - 'e06-scene/**'
       - 'e07-scene/**'
       - 'authoring-labs/e04-e07-scene-transfer.mjs'
+      - 'authoring-labs/e04-e08-scene-transfer.mjs'
       - 'tests/season1-e04-e07-scene-transfer.test.mjs'
       - 'tests/season1-e04-e06-scene-transfer*'
       - '.github/workflows/wondervale-e04-e06-scene-transfer.yml'
@@ -20,6 +21,7 @@ on:
       - 'e06-scene/**'
       - 'e07-scene/**'
       - 'authoring-labs/e04-e07-scene-transfer.mjs'
+      - 'authoring-labs/e04-e08-scene-transfer.mjs'
       - 'tests/season1-e04-e07-scene-transfer.test.mjs'
       - 'tests/season1-e04-e06-scene-transfer*'
 permissions:
@@ -38,6 +40,7 @@ jobs:
           set -euo pipefail
           node --check authoring-labs/e04-e06-scene-transfer.mjs
           node --check authoring-labs/e04-e07-scene-transfer.mjs
+          node --check authoring-labs/e04-e08-scene-transfer.mjs
           node --check e05-scene/main.mjs
           node --check e06-scene/main.mjs
           node --check e07-scene/main.mjs
@@ -45,7 +48,7 @@ jobs:
           node --test tests/season1-e04-e07-scene-transfer.test.mjs tests/season1-e04-e06-scene-transfer.test.mjs tests/season1-arc1-memory-station-handoff.test.mjs tests/season1-e05-e06-scene-transfer.test.mjs tests/season1-e05-scene-shell.test.mjs tests/season1-e06-scene-shell.test.mjs
       - name: Keep synthetic scenes outside canonical packages
         run: |
-          if grep -n -E 'e04-e07-scene-transfer|e04-e06-scene-transfer|e05-e06-scene-transfer|e05-scene|e06-scene|e07-scene' scripts/package_static.py scripts/package_e02.py scripts/package_e03.py scripts/compile_episode.py; then
+          if grep -n -E 'e04-e07-scene-transfer|e04-e08-scene-transfer|e04-e06-scene-transfer|e05-e06-scene-transfer|e05-scene|e06-scene|e07-scene' scripts/package_static.py scripts/package_e02.py scripts/package_e03.py scripts/compile_episode.py; then
             echo 'ERROR: noncanonical PAPER content entered production packaging' >&2
             exit 1
           fi

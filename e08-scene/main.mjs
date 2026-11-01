@@ -2,12 +2,16 @@ import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {MARKERS,VIEWPOINTS} from '../engine/s01e08-authoring-prototype.mjs';
 import {view as viewE07} from '../e07-scene/scene-model.mjs';
 import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
+import {decodeMemoryLantern,encodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
 import {fresh as freshE09} from '../e09-scene/scene-model.mjs';
-const hillIncoming=decodeHillTransfer(location.hash);
-const incoming=hillIncoming||decodeStepsTransfer(location.hash);
+const lantern=decodeMemoryLantern(location.hash);
+const hillIncoming=lantern?null:decodeHillTransfer(location.hash);
+const incoming=lantern||hillIncoming||decodeStepsTransfer(location.hash);
 let state=incoming?.e08||fresh(),linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
-let linkedE09=hillIncoming?.e09||null;const $=id=>document.getElementById(id);
+let linkedE09=hillIncoming?.e09||null;
+const linkedE04=lantern?.e04||null,linkedE05=lantern?.e05||null;
+const $=id=>document.getElementById(id);
 const a=(type,key,value)=>({scene:'story',action:key?{type,[key]:value}:{type}});
 const n=type=>({scene:'nav',type});
 const rows=[
@@ -101,9 +105,12 @@ function render(){
  $('connector-trace').textContent=(linkedE07&&viewE07(linkedE07).walkthrough.reviewed?
   'E07 PAPER callback: Milo checked the model crossing and water edge; real connector NOT built. ':
   'No verified E07 PAPER route walk in this independent visit. ')+
+  (linkedE04?'E04 sincere memories remain undated; E05 station sources remain MOCK. ':'')+
   (v.lowerLightsPaperOn?'Milo kept two PAPER viewpoints of the same fixed marks; no real lights were restored.':
    'No E08 PAPER viewpoint record yet.');
- const back=$('e07-return'),fragment=linkedE07&&encodeStepsTransfer(linkedE07,state,linkedE06);
+ const back=$('e07-return'),fragment=linkedE07&&(linkedE04?
+  encodeMemoryLantern(linkedE04,linkedE05,linkedE06,linkedE07,state):
+  encodeStepsTransfer(linkedE07,state,linkedE06));
  back.hidden=!fragment;if(fragment)back.href='../e07-scene/'+fragment;
  const hill=$('e09-transfer'),hillFragment=v.lowerLightsPaperOn&&encodeHillTransfer(state,linkedE09||freshE09(),linkedE07,linkedE06);
  hill.hidden=!hillFragment;if(hillFragment)hill.href='../e09-scene/'+hillFragment;
