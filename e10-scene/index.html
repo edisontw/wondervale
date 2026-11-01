@@ -27,12 +27,26 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 .compare-slot[data-conflict=true]{background:#ffdfcb;border-color:#9b4d32}
 .compare-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
 .compare-evidence .paper{margin:.2rem 0}
+.hill-world-svg{display:block;width:100%;height:auto;max-height:290px;border:1px solid #a6bbb0;border-radius:.4rem;background:#f3f7f2}
+.hill-world-svg text{font:12px system-ui,sans-serif;fill:#21443e}
+.hill-world-svg [data-closed=true]{stroke:#a44838;stroke-width:5;stroke-dasharray:7 5}
+.hill-world-svg [data-edge]{stroke:#a3b3ac;stroke-width:6;stroke-linecap:round}
+.hill-world-svg [data-marked=true]{stroke:#28736a;stroke-width:9}
+.hill-world-svg [data-clue]{fill:#355e76;font-weight:700}
 [hidden]{display:none!important}
 @media(max-width:700px){.columns,.cards{grid-template-columns:1fr}.panel{padding:.55rem}}
 </style></head><body><main>
 <header><h1>E10 — The Place with No Name</h1><div>Scene 11 of 12 · independent child-controlled courtyard · EFL PAPER scene</div></header>
 <p class="notice"><strong>AUTHORING ONLY — FICTIONAL COURTYARD.</strong> All traces, routes and voices are simulated. Name, dates, safe access and source rights UNKNOWN. North Hill CLOSED. No approved art, Chronicle, E11 unlock, MN4 release or family acceptance. No E09 completion is imported. The historical name is intentionally not revealed.</p>
 <p id="hill-context" class="paper" role="status">No E09 PAPER survey linked. Direct E10 authoring does not prove hill completion.</p>
+<section id="hill-world-panel" class="panel" hidden>
+<h2>E09 changed the PAPER map — FIRST / NOW</h2>
+<p>Milo's inspected clues and walked, marked lower model route appear only after his E09 survey. FIRST is a blank model sketch, not the historical past. No real route, name, access or terrain safety is approved.</p>
+<div class="controls"><button id="hill-first" type="button" aria-pressed="false">FIRST: blank sketch</button>
+<button id="hill-now" type="button" aria-pressed="true">NOW: Milo's notes</button></div>
+<svg id="hill-world-map" class="hill-world-svg" viewBox="0 0 480 260" role="img" aria-label="PAPER model: upper hill closed"></svg>
+<p id="hill-world-result" class="paper" role="status"></p>
+</section>
 <p><a id="e09-return" hidden href="../e09-scene/">Return to E09 PAPER survey (not a real hill route)</a></p>
 <p><a id="e11-paper" hidden href="../e11-scene/">Visit E11 independent shared-space PAPER trial — not an official unlock</a></p>
 <div class="dialogue" aria-live="polite"><strong id="speaker">Milo</strong>: <span id="line"></span><div id="stage"></div></div><div class="controls"><button id="e09-callback" disabled>Review E09 PAPER field notes</button><button id="e10-back" hidden>Return to E10 courtyard</button></div><section id="e09-notes" class="panel" hidden><h2>Looking back at the hill</h2><p id="e09-observation" class="paper">No linked field observations.</p><p>The upper hill remains CLOSED. An unidentified mark was observed in a fictional lower survey. It does not prove a real safe entrance, a date, or a place name. No E09 completion is imported.</p></section>
@@ -98,6 +112,7 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 import {fresh,dispatch,can,view} from '../authoring-labs/unnamed-story-model.mjs';
 import {TRACES,USE_TAGS,NEEDS,SLOTS} from '../engine/s01e10-authoring-prototype.mjs';
 import {view as viewE09} from '../e09-scene/scene-model.mjs';
+import {hillWorld} from './hill-world.mjs';
 import {decodeUnnamedTransfer,encodeUnnamedTransfer} from '../authoring-labs/e09-e10-scene-transfer.mjs';
 import {decodeMemoryCourtyard,encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
 import {decodeLoopTransfer,encodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
@@ -110,6 +125,8 @@ const linkedE09=upstream?.e09||null,linkedE08=upstream?.e08||null;
 const linkedE07=upstream?.e07||null,linkedE06=upstream?.e06||null;
 const linkedE04=upstream?.e04||null,linkedE05=upstream?.e05||null;
 let linkedE11=loop?.e11||null;
+const linkedHillWorld=hillWorld(linkedE09);
+let hillLayer='now';
 const $=id=>document.getElementById(id);
 const names={entry:'entry',stone_edge:'stone edge',notice_wall:'notice wall',quiet_corner:'quiet corner',meeting_edge:'meeting edge'};
 function action(b){
@@ -158,6 +175,60 @@ function drawComparison(v){
   tile.textContent='SEEN at '+item.at.replaceAll('_',' ')+': '+item.text+' MAYBE: '+tags+'. Past use UNKNOWN.';
   evidence.append(tile);
  }
+}
+function renderHillWorld(){
+ const panel=$('hill-world-panel');panel.hidden=!linkedHillWorld;
+ if(!linkedHillWorld)return;
+ const now=hillLayer==='now';
+ $('hill-first').setAttribute('aria-pressed',String(!now));
+ $('hill-now').setAttribute('aria-pressed',String(now));
+ const root=$('hill-world-map');root.replaceChildren();
+ const ns='http://www.w3.org/2000/svg';
+ const put=(tag,attrs,label)=>{
+  const el=document.createElementNS(ns,tag);
+  for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));
+  if(label!==undefined)el.textContent=label;
+  root.append(el);return el;
+ };
+ const pts={steps_base:[55,175],signpost:[150,130],fence_view:[265,60],
+  lower_bend:[260,200],overlook:[410,185],upper_closed:[405,40]};
+ const edges=[['steps_base:signpost','steps_base','signpost'],
+  ['signpost:fence_view','signpost','fence_view'],
+  ['signpost:lower_bend','signpost','lower_bend'],
+  ['lower_bend:overlook','lower_bend','overlook']];
+ for(const [id,a,b] of edges){
+  if(!linkedHillWorld.safeEdgeIds.includes(id))continue;
+  const marked=now&&linkedHillWorld.now.markedEdgeIds.includes(id);
+  put('line',{'data-edge':id,'data-marked':marked,
+   x1:pts[a][0],y1:pts[a][1],x2:pts[b][0],y2:pts[b][1]});
+ }
+ put('line',{'data-closed':'true',x1:pts.fence_view[0],y1:pts.fence_view[1],
+  x2:pts.upper_closed[0],y2:pts.upper_closed[1]});
+ const labels={steps_base:'Steps',signpost:'Sign',fence_view:'Fence',
+  lower_bend:'Bend',overlook:'Overlook',upper_closed:'CLOSED'};
+ for(const [id,[x,y]] of Object.entries(pts)){
+  put('circle',{'data-node':id,cx:x,cy:y,r:10,
+   fill:id==='upper_closed'?'#b05a4b':'#f4d58b',stroke:'#39564c','stroke-width':2});
+  put('text',{x,y:y+26,'text-anchor':'middle'},labels[id]);
+ }
+ if(now){
+  const at={entry_note:'steps_base',boundary_sign:'signpost',
+   disturbed_ground:'fence_view',runoff_marks:'lower_bend',distant_symbol:'overlook'};
+  for(const clue of linkedHillWorld.now.clueIds){
+   const point=pts[at[clue]];
+   if(point)put('text',{'data-clue':clue,x:point[0],y:point[1]-15,
+    'text-anchor':'middle'},'SEEN');
+  }
+ }
+ root.setAttribute('aria-label',now?
+  'PAPER NOW: three child-marked lower model edges, five inspected clues, upper hill CLOSED. No real access.':
+  'PAPER FIRST: no child-marked route or clue pins, upper hill CLOSED. No real access.');
+ $('hill-world-result').textContent=now?
+  'NOW: Milo walked '+linkedHillWorld.walkedEdgeIds.length+
+  ' model edges, marked '+linkedHillWorld.now.markedEdgeIds.length+
+  ' safe lower model edges, and inspected '+linkedHillWorld.now.clueIds.length+
+  ' clues. The upper hill stays CLOSED. Real access NOT approved.':
+  'FIRST: Blank PAPER sketch, no child-marked route or clues yet. Upper hill CLOSED.';
 }
 function render(){
  const v=view(state);
@@ -214,6 +285,7 @@ function render(){
   ' · Revision: '+(v.changedAfterTest?'tried':'not yet');
  $('hook').textContent=v.paperNote;
  drawComparison(v);
+ renderHillWorld();
  for(const b of document.querySelectorAll('button[data-action]'))b.disabled=!can(state,action(b));
 }
 document.addEventListener('click',e=>{
@@ -224,6 +296,8 @@ $('e09-callback').addEventListener('click',()=>{if(view(state).finishedPaper){sc
 $('e10-back').addEventListener('click',()=>{screen='courtyard';render();});
 $('compare-first').addEventListener('click',()=>{if(view(state).comparison){comparisonLayer='first';render();}});
 $('compare-now').addEventListener('click',()=>{if(view(state).comparison){comparisonLayer='now';render();}});
+$('hill-first').addEventListener('click',()=>{hillLayer='first';renderHillWorld();});
+$('hill-now').addEventListener('click',()=>{hillLayer='now';renderHillWorld();});
 $('restart').addEventListener('click',()=>{state=fresh();linkedE11=null;screen='courtyard';comparisonLayer='now';render();});
 render();
 </script></main></body></html>
