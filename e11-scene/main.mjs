@@ -3,6 +3,7 @@ import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
   fresh,dispatch,projection} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperRevisit} from './revisit-model.mjs';
 import {paperLoopVisual} from './loop-visual.mjs';
+import {paperGardenRevisit} from './garden-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
 import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
@@ -271,7 +272,21 @@ function worldRevisit(){
   'Both boards come from Milo\'s saved model trials. The new loop is not yet reviewed; no real place is open.';
 }
 
+function gardenRevisit(){
+ const recall=paperGardenRevisit(upstream?.e06);
+ const panel=$('garden-revisit');panel.hidden=!recall;
+ if(!recall)return;
+ $('garden-current').dataset.stage=recall.current.stage;
+ $('garden-lower-first').dataset.stage=recall.lower.firstStage;
+ $('garden-lower-now').dataset.stage=recall.lower.nowStage;
+ $('garden-current-note').textContent=recall.current.note;
+ $('garden-lower-first-note').textContent='FIRST: removable PAPER seed marker; no planting.';
+ $('garden-lower-now-note').textContent=recall.lower.note;
+ $('garden-trials').textContent='Child-tested MODEL water trials: '+recall.lower.trialCount+
+  '. Real growth, actual site access, planting/care permission and official unlock: NONE.';
+}
 function render(){
+ gardenRevisit();
  const linked=linkedE10&&viewE10(linkedE10);
  const fragment=linkedE10&&encodeLoopTransfer(linkedE10,state,upstream);
  $('e10-return').hidden=!fragment;
