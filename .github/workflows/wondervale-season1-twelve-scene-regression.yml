@@ -5,6 +5,7 @@ on:
     paths:
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
       - 'tests/season1-e10-e11-scene-transfer*'
+      - 'tests/season1-e04-e11-scene-transfer*'
       - '.github/workflows/wondervale-season1-twelve-scene-regression.yml'
       - 'e02/**'
       - 'e03/**'
@@ -17,6 +18,7 @@ on:
     paths:
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
       - 'tests/season1-e10-e11-scene-transfer*'
+      - 'tests/season1-e04-e11-scene-transfer*'
       - '.github/workflows/wondervale-season1-twelve-scene-regression.yml'
       - 'e*-scene/**'
       - 'authoring-labs/arc1-hill-unnamed-loop-handoff*'
@@ -130,6 +132,7 @@ jobs:
             tests/season1-e08-e09-scene-transfer.test.mjs \
             tests/season1-e09-e10-scene-transfer.test.mjs \
             tests/season1-e10-e11-scene-transfer.test.mjs \
+            tests/season1-e04-e11-scene-transfer.test.mjs \
             tests/season1-e09-scene-shell.test.mjs \
             tests/season1-e11-scene-shell.test.mjs \
             tests/season1-arc1-hill-unnamed-loop-handoff.test.mjs
@@ -158,6 +161,7 @@ jobs:
           node tests/season1-e08-e09-scene-transfer-browser.mjs
           node tests/season1-e09-e10-scene-transfer-browser.mjs
           node tests/season1-e10-e11-scene-transfer-browser.mjs
+          node tests/season1-e04-e11-scene-transfer-browser.mjs
           node tests/season1-e09-scene-shell-browser.mjs
           node tests/season1-e10-scene-shell-browser.mjs
           node tests/season1-e11-scene-shell-browser.mjs
