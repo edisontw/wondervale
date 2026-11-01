@@ -281,6 +281,14 @@ function returnRoute(){
  $('return-route-position').textContent='Milo at '+WALK_LABELS[model.at]+
   ' · visited: '+(model.visited.map(id=>WALK_LABELS[id]).join(' + ')||'none')+
   ' · returned with both stops: '+(model.complete?'YES, PAPER ONLY':'not yet')+'.';
+ const map=$('return-route-map');map.replaceChildren();
+ for(const id of ['square','market','garden','map_room']){
+  const stop=document.createElement('div');stop.className='route-stop';
+  stop.dataset.place=id;stop.dataset.here=String(model.at===id);
+  stop.dataset.visited=String(model.visited.includes(id));
+  stop.textContent=(model.at===id?'Milo here · ':'')+WALK_LABELS[id];
+  map.append(stop);
+ }
  $('return-route-trail').textContent='Milo walked: '+model.trail.map(id=>WALK_LABELS[id]).join(' → ')+
   '. This is a paper sketch, not a verified public path.';
  $('return-route-feedback').textContent=model.feedback;
