@@ -2,6 +2,7 @@
 import {NODES,SAFE_EDGES,CLOSED_NODE,CLOSED_EDGE,CLUES,HYPOTHESES} from '../engine/s01e09-authoring-prototype.mjs';
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {view as viewE08} from '../e08-scene/scene-model.mjs';
+import {lanternWorld} from './lantern-world.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
 import {decodeMemoryHill,encodeMemoryHill} from '../authoring-labs/e04-e09-scene-transfer.mjs';
 import {decodeMemoryCourtyard,encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
@@ -22,6 +23,8 @@ let state=incoming?.e09||fresh();
 const linkedE08=incoming?.e08||null,linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
 const linkedE04=incoming?.e04||null,linkedE05=incoming?.e05||null;
 let linkedE10=incoming?.e10||null;
+const linkedLampWorld=lanternWorld(linkedE08);
+let lampLayer='now';
 const story=()=>view(state).story;
 const wrap=action=>({scene:'story',action});
 const nav=type=>({scene:'nav',type});
@@ -181,6 +184,58 @@ function survey(){const v=view(state),s=v.story,done=s.previewComplete;
   ' on his sketch, and observed '+v.surveyBoard.inspectedClues+
   ' clues. The lower route is a PAPER model only. The upper hill stays CLOSED.';
 }
+function renderLanternWorld(){
+ const panel=$('lantern-world-panel');
+ panel.hidden=!linkedLampWorld;
+ if(!linkedLampWorld)return;
+ const now=lampLayer==='now';
+ $('lantern-first').setAttribute('aria-pressed',String(!now));
+ $('lantern-now').setAttribute('aria-pressed',String(now));
+ const root=$('lantern-world-map');root.replaceChildren();
+ const ns='http://www.w3.org/2000/svg';
+ const put=(tag,attrs,label)=>{
+  const el=document.createElementNS(ns,tag);
+  for(const [key,value] of Object.entries(attrs))el.setAttribute(key,String(value));
+  if(label!==undefined)el.textContent=label;
+  root.append(el);return el;
+ };
+ const xy=(x,y)=>({x:28+x*34,y:20+y*34});
+ put('rect',{x:0,y:0,width:360,height:240,fill:'#f4f7f5'});
+ if(now)for(const ray of linkedLampWorld.now.rays){
+  const a=xy(ray.x1,ray.y1),b=xy(ray.x2,ray.y2);
+  put('line',{class:'view-ray','data-view':ray.from,
+   x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:ray.from==='here'?'#4b7290':'#9a5e38',
+   'stroke-width':2,'stroke-dasharray':ray.from==='there'?'5 3':'none'});
+ }
+ for(const [i,mark] of linkedLampWorld.markers.entries()){
+  const p=xy(mark.x,mark.y);
+  put('circle',{'data-fixed-marker':'ABC'[i],cx:p.x,cy:p.y,r:10,
+   fill:now?'#b5d3db':'#d4d9d8',stroke:'#314c58'});
+  put('text',{x:p.x,y:p.y+4,'text-anchor':'middle','font-size':12,fill:'#203b45'},'ABC'[i]);
+ }
+ if(now)for(const vp of linkedLampWorld.viewpoints){
+  const p=xy(vp.x,vp.y);
+  put('circle',{'data-viewpoint':vp.id,cx:p.x,cy:p.y,r:10,
+   fill:vp.id==='here'?'#4b7290':'#9a5e38'});
+  put('text',{x:p.x,y:p.y+4,'text-anchor':'middle','font-size':12,fill:'white'},
+   vp.id==='here'?'1':'2');
+ }
+ for(const [i,x] of [78,282].entries()){
+  put('circle',{'data-lamp':i===0?'lower-a':'lower-b','data-on':String(now),
+   cx:x,cy:213,r:9,fill:now?'#f1d17d':'#b7c2c0',stroke:'#596e69'});
+  put('text',{x:x,y:235,'text-anchor':'middle','font-size':10,fill:'#28453f'},
+   'LOWER '+(i===0?'A':'B')+' '+(now?'ON':'OFF'));
+ }
+ root.setAttribute('aria-label',now?
+  'PAPER NOW: two lower lamps ON, six sight lines from two safe viewpoints to three unchanged fixed marks. Upper hill CLOSED.':
+  'PAPER FIRST: two lower lamps OFF, three fixed marks, no sight lines. Upper hill CLOSED.');
+ $('lantern-world-result').textContent=now?
+  'NOW: Two LOWER PAPER lamps ON. FROM HERE '+linkedLampWorld.viewpoints[0].spreadDegrees.toFixed(1)+
+  '°, FROM THERE '+linkedLampWorld.viewpoints[1].spreadDegrees.toFixed(1)+
+  '°. Three fixed marks, six model sight lines; apparent spacing changed by '+
+  linkedLampWorld.differenceDegrees.toFixed(1)+'°. Real lights NOT restored. Upper hill CLOSED.':
+  'FIRST: Both LOWER PAPER lamps OFF. No usable viewpoint rays yet. The same three marks remain. Upper hill CLOSED.';
+}
 function render(){
  const v=view(state),s=v.story;
  $('stage').textContent='E09 '+s.stage+' · '+v.screen+' · production LOCKED';
@@ -206,8 +261,10 @@ function render(){
  const e10Link=$('e10-paper');e10Link.hidden=!e10Fragment;
  if(e10Fragment)e10Link.href='../e10-scene/'+e10Fragment;
  if(linkedE04)e10Link.textContent='Visit independent E10 PAPER scene (E04 UNKNOWN memories and E05 MOCK sources travel as PAPER notes; no official unlock)';
- world();movement();inspect();sketch();thoughts();notebook();survey();
+ world();movement();inspect();sketch();thoughts();notebook();survey();renderLanternWorld();
 }
+$('lantern-first').addEventListener('click',()=>{lampLayer='first';renderLanternWorld();});
+$('lantern-now').addEventListener('click',()=>{lampLayer='now';renderLanternWorld();});
 $('start').addEventListener('click',()=>act({type:'start'}));
 $('revisit').addEventListener('click',()=>navigate('lantern'));
 $('back').addEventListener('click',()=>navigate('hill'));

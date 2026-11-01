@@ -30,10 +30,11 @@ jobs:
         run: |
           node --check e09-scene/scene-model.mjs
           node --check e09-scene/main.mjs
+          node --check e09-scene/lantern-world.mjs
           node --check tests/season1-e09-scene-shell-browser.mjs
           node --check authoring-labs/e08-e09-scene-transfer.mjs
           node --check tests/season1-e08-e09-scene-transfer-browser.mjs
-          node --test tests/season1-e08-e09-scene-transfer.test.mjs tests/season1-e09-scene-shell.test.mjs tests/season1-hill-story.test.mjs tests/s01e09-authoring-prototype.test.mjs
+          node --test tests/season1-e08-e09-scene-transfer.test.mjs tests/season1-e08-e09-world-callback.test.mjs tests/season1-e09-scene-shell.test.mjs tests/season1-hill-story.test.mjs tests/s01e09-authoring-prototype.test.mjs
       - name: Guard production packaging
         run: |
           if grep -R -n 'e09-scene' scripts/compile_episode.py scripts/package_static.py scripts/package_e02.py scripts/package_e03.py; then

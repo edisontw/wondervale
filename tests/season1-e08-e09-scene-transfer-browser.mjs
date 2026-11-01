@@ -24,6 +24,18 @@ try{
    assert.match(await page.locator('#lantern-context').innerText(),/SAME marks looked different/);
    assert.match(await page.locator('#lantern-context').innerText(),/CLOSED hill/);
    assert.equal(await page.locator('#e08-return').isVisible(),true);
+   assert.equal(await page.locator('#lantern-world-panel').isVisible(),true);
+   assert.equal(await page.locator('#lantern-world-map .view-ray').count(),6);
+   assert.equal(await page.locator('#lantern-world-map [data-fixed-marker]').count(),3);
+   assert.equal(await page.locator('#lantern-world-map [data-viewpoint]').count(),2);
+   assert.equal(await page.locator('#lantern-world-map [data-lamp][data-on="true"]').count(),2);
+   assert.match(await page.locator('#lantern-world-result').innerText(),/Real lights NOT restored.*Upper hill CLOSED/);
+   await page.locator('#lantern-first').click();
+   assert.equal(await page.locator('#lantern-world-map .view-ray').count(),0);
+   assert.equal(await page.locator('#lantern-world-map [data-lamp][data-on="false"]').count(),2);
+   assert.match(await page.locator('#lantern-world-result').innerText(),/FIRST.*OFF.*CLOSED/);
+   await page.locator('#lantern-now').click();
+   assert.equal(await page.locator('#lantern-world-map .view-ray').count(),6);
    await hit('start');await hit('inspect-entry_note');await hit('walk-signpost');
    await hit('inspect-boundary_sign');await hit('walk-fence_view');await hit('walk-upper_closed');
    assert.match(await page.locator('#feedback').innerText(),/closed/i);
@@ -39,8 +51,10 @@ try{
    await page.locator('#e09-transfer').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E09 finished'));
    assert.match(await page.locator('#survey-summary').innerText(),/Milo walked 4 model edges/);
+   assert.equal(await page.locator('#lantern-world-map .view-ray').count(),6);
    await page.locator('#restart').click();
    assert.match(await page.locator('#stage').innerText(),/opening/);
+   assert.equal(await page.locator('#lantern-world-map .view-ray').count(),6);
    await page.locator('#e08-return').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
    await hit('restart');
@@ -56,6 +70,7 @@ try{
   const page=await context.newPage();await page.goto(base+'/e09-scene/');
   assert.equal(await page.locator('#e08-return').isVisible(),false);
   assert.match(await page.locator('#lantern-context').innerText(),/No E08 PAPER viewpoint record linked/);
+  assert.equal(await page.locator('#lantern-world-panel').isVisible(),false);
  }finally{await context.close();}
  console.log('E08/E09 PAPER handoff Chromium PASS: 3 viewports, earned two-view clue, CLOSED hill, round trip, scoped resets');
 }finally{await browser.close();}

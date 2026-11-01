@@ -134,6 +134,7 @@ jobs:
             tests/season1-e08-scene-shell.test.mjs \
             tests/season1-e07-e08-scene-transfer.test.mjs \
             tests/season1-e08-e09-scene-transfer.test.mjs \
+            tests/season1-e08-e09-world-callback.test.mjs \
             tests/season1-e09-e10-scene-transfer.test.mjs \
             tests/season1-e10-e11-scene-transfer.test.mjs \
             tests/season1-e04-e11-scene-transfer.test.mjs \
