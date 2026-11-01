@@ -275,8 +275,10 @@ try{
    await page.waitForFunction(()=>document.querySelector('#comparison')?.textContent?.includes('trial-1'));
    assert.equal(await page.locator('#paper-chronicle li').count(),9);
    assert.match(await page.locator('#comparison').innerText(),/trial-1 → NOW trial-2/);
-   assert.match(await page.locator('#reflection-result').innerText(),/Four notes sorted/,
-    'read-only E10 callback must not silently erase earned E11 PAPER sorting');
+   assert.equal(await page.locator('#return-reflection').isVisible(),false,
+    'cross-page E10 return starts a new E11 walk, so session-only sorting clears');
+   assert.equal(await page.locator('#garden-lower-now').getAttribute('data-stage'),'paper-sprout',
+    'new E11 visit retains strictly replayed E06 model evidence, not its old shelf choices');
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
    const geometry=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(geometry.scroll<=geometry.width+1,JSON.stringify({viewport,geometry}));
