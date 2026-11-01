@@ -2,16 +2,19 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {fresh as freshE06} from '../e06-scene/scene-model.mjs';
 import {fresh as freshE07} from '../e07-scene/scene-model.mjs';
+import {fresh as freshE08} from '../e08-scene/scene-model.mjs';
+import {decodeMemoryLantern,encodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {decodeMemoryGardenShortcut,encodeMemoryGardenShortcut} from '../authoring-labs/e04-e07-scene-transfer.mjs';
 import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
 import {decodeMemoryStationGardenTransfer,encodeMemoryStationGardenTransfer}
  from '../authoring-labs/e04-e06-scene-transfer.mjs';
-const extended=decodeMemoryGardenShortcut(location.hash);
+const lantern=decodeMemoryLantern(location.hash);
+const extended=lantern||decodeMemoryGardenShortcut(location.hash);
 const arcIncoming=extended||decodeMemoryStationGardenTransfer(location.hash);
 const incoming=decodeStationGardenTransfer(location.hash);
 let state=arcIncoming?.e05||incoming?.e05||fresh(),
  linkedE06=arcIncoming?.e06||incoming?.e06||freshE06(),
- linkedE07=extended?.e07||freshE07();
+ linkedE07=extended?.e07||freshE07(),linkedE08=lantern?.e08||freshE08();
 const linkedE04=arcIncoming?.e04||null;
 const $=id=>document.getElementById(id);
 const actionOf=b=>{
@@ -54,8 +57,10 @@ function render(){
     (g.overlay?'Two marks shown together; no date or cause known.':'Inspect both PAPER sheets before overlay.')+
     (g.question?' E06 question recorded on PAPER only.':'');
   garden.append(grid,legend);
-  const memoryFragment=linkedE04&&(extended?
-  encodeMemoryGardenShortcut(linkedE04,state,linkedE06,linkedE07):
+  const memoryFragment=linkedE04&&(lantern?
+  (encodeMemoryLantern(linkedE04,state,linkedE06,linkedE07,linkedE08)||
+   encodeMemoryGardenShortcut(linkedE04,state,linkedE06,linkedE07)):
+  extended?encodeMemoryGardenShortcut(linkedE04,state,linkedE06,linkedE07):
   encodeMemoryStationGardenTransfer(linkedE04,state,linkedE06));
  const memoryLink=$('e04-return'),memoryContext=$('e04-context');
  memoryLink.hidden=!memoryFragment;memoryContext.hidden=!memoryFragment;
@@ -83,7 +88,7 @@ document.querySelectorAll('button[data-scene]').forEach(b=>b.addEventListener('c
   const action=actionOf(b);
   state=dispatch(state,action);
   if(action.scene==='nav'&&action.type==='restart'){
-    linkedE06=freshE06();linkedE07=freshE07();
+    linkedE06=freshE06();linkedE07=freshE07();linkedE08=freshE08();
   }
   render();
 }));
