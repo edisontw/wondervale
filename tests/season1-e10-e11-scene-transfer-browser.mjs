@@ -33,6 +33,14 @@ try{
    assert.equal(await page.locator('#grid .quiet').count(),0,'E10 cannot pre-place E11 pieces');
    const press=async name=>page.getByRole('button',{name,exact:true}).click();
    await press('Begin the PAPER trial');
+   assert.equal(await page.locator('#e10-needs-world').isVisible(),true);
+   assert.equal(await page.locator('#e10-needs-first .needs-slot').count(),3);
+   assert.equal(await page.locator('#e10-needs-first .needs-slot[data-conflict="true"]').count(),1);
+   assert.equal(await page.locator('#e10-needs-now .needs-slot[data-conflict="true"]').count(),0);
+   assert.match(await page.locator('#e10-needs-first').innerText(),/Quiet reader \+ Activity group/);
+   assert.match(await page.locator('#e10-needs-now').innerText(),/Quiet reader/);
+   assert.match(await page.locator('#e10-needs-now').innerText(),/Activity group/);
+   assert.match(await page.locator('#e10-needs-result').innerText(),/North Hill CLOSED/);
    await press('Place access strip (two middle cells)');
    await press('Place quiet seat');await press('Cell 0,1');
    await press('Place activity area');await press('Cell 0,2');
@@ -69,6 +77,9 @@ try{
    await page.locator('#e10-return').click();
    await page.locator('#restart').click();
    assert.equal(await page.locator('#e11-paper').isVisible(),false,'E10 reset withdraws E11 link');
+   await page.goto(base+'/e11-scene/');
+   assert.equal(await page.locator('#e10-needs-world').isVisible(),false,
+    'direct E11 must not invent an E10 needs world');
   }finally{await ctx.close();}
  }
  console.log('E10-E11 independent PAPER transfer Chromium PASS: 3 viewports, earned entry, FIRST/NOW, return, resets, closed rights and no storage writes');
