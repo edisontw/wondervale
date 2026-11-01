@@ -203,6 +203,38 @@ try{
    await press('Save tested trial');await press('Compare FIRST and NOW');
    assert.match(await page.locator('#revisit-first-result').innerText(),/RETRY/);
    assert.match(await page.locator('#revisit-now-result').innerText(),/PASS/);
+   // E05 -> E06 -> E11 is one real child-operated Chromium journey, not a
+   // pre-completed fixture. Review E11 before walking the separate PAPER loop.
+   assert.equal(await page.locator('#garden-lower-now').getAttribute('data-stage'),'paper-sprout');
+   await press('Recall E09 closed hill');
+   for(const edge of ['square ↔ market','market ↔ unnamed place','unnamed place ↔ square'])
+    await press('Add link: '+edge);
+   await press('Check the current loop');
+   await press('Review NONCANONICAL finale');
+   assert.equal(await page.locator('#return-route').isVisible(),true);
+   await press('Try Market PAPER detour');
+   assert.match(await page.locator('#return-route-feedback').innerText(),/walk back/);
+   await press('Return to Square PAPER start');
+   await press('Visit Garden PAPER stop');
+   assert.match(await page.locator('#return-route-garden').innerText(),/E06 child-earned PAPER/);
+   assert.match(await page.locator('#return-route-garden').innerText(),/possible PAPER sprout/);
+   assert.doesNotMatch(await page.locator('#return-route-garden').innerText(),/NOT VERIFIED/);
+   await press('Visit Map Room PAPER stop');
+   assert.match(await page.locator('#return-route-station').innerText(),/E05 child-earned PAPER/);
+   assert.match(await page.locator('#return-route-station').innerText(),/PAPER table by wall/);
+   assert.match(await page.locator('#return-route-station').innerText(),/Two marks aligned on COPY/);
+   assert.doesNotMatch(await page.locator('#return-route-station').innerText(),/NOT VERIFIED/);
+   await press('Return to Garden PAPER stop');
+   await press('Return to Square PAPER start');
+   assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
+   assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
+   assert.match(await page.locator('#return-route-trail').innerText(),/Market PAPER detour/);
+   assert.doesNotMatch(await page.locator('#return-route-trail').innerText(),/North Hill|Common/);
+   await press('Undo last PAPER step');
+   assert.match(await page.locator('#return-route-result').innerText(),/Not complete/);
+   await press('Return to Square PAPER start');
+   assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
+   const earnedE11Fragment=new URL(page.url()).hash;
    await page.locator('#e10-return').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    await page.locator('#e11-paper').click();
@@ -229,6 +261,18 @@ try{
    assert.equal(await page.locator('#paper-entry').isVisible(),false);
    assert.deepEqual((await page.evaluate(()=>Object.keys(localStorage))).sort(),
     ['source-journey-sentinel','wondervale-s01e02-progress-v1']);
+   // Resetting either upstream episode must invalidate the copied PAPER chain.
+   // An editable fragment is not authenticated permission or saved progress.
+   for(const episode of ['e05','e06']){
+    const packet=JSON.parse(decodeURIComponent(earnedE11Fragment.slice('#paper-loop='.length)));
+    assert.ok(packet[episode]?.length,episode+' earned history required');
+    packet[episode]=[]; // same empty history as an upstream episode restart
+    await page.goto(base+'/e11-scene/#paper-loop='+encodeURIComponent(JSON.stringify(packet)));
+    await page.reload(); // Fragment-only navigation does not re-run ES modules.
+    assert.equal(await page.locator('#garden-revisit').isVisible(),false,episode+' reset revokes garden callback');
+    assert.equal(await page.locator('#return-route').isVisible(),false,episode+' reset revokes route completion');
+    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
+   }
   }finally{await ctx.close();}
  }
  console.log('E03→E11 child-operated PAPER Chromium PASS: three viewports, 9-space Chronicle, resets, canonical gate closed');
