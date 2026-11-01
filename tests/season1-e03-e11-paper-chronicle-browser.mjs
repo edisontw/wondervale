@@ -15,6 +15,14 @@ try{
    const response=await page.goto(base+'/e11-scene/'+fragment);
    assert.equal(response?.status(),200);
    await page.waitForFunction(()=>document.querySelector('#paper-chronicle')?.textContent?.includes('E06 Lower'));
+   await page.waitForFunction(()=>document.querySelector('#garden-lower-now')?.dataset.stage==='paper-sprout');
+   assert.equal(await page.locator('#garden-revisit').isVisible(),true);
+   assert.equal(await page.locator('#garden-current').getAttribute('data-stage'),'healthy');
+   assert.equal(await page.locator('#garden-lower-first').getAttribute('data-stage'),'paper-marker');
+   assert.equal(await page.locator('#garden-lower-now').getAttribute('data-stage'),'paper-sprout');
+   assert.match(await page.locator('#garden-lower-now-note').innerText(),/possible PAPER sprout/);
+   assert.match(await page.locator('#garden-trials').innerText(),/water trials: 2/);
+   assert.match(await page.locator('#garden-trials').innerText(),/permission and official unlock: NONE/);
    assert.match(await page.locator('#e03-paper-source').innerText(),/NOT verified/);
    await page.evaluate(({e02,e03})=>{
     localStorage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
@@ -34,12 +42,24 @@ try{
    assert.match(await page.locator('#paper-chronicle').innerText(),/placed: 2/);
    await page.getByRole('button',{name:'Restart fictional lab'}).click();
    assert.match(await page.locator('#paper-chronicle').innerText(),/placed: 0/);
+   assert.equal(await page.locator('#garden-lower-now').getAttribute('data-stage'),'paper-sprout',
+    'E11-only restart must preserve strictly replayed E06 care');
    await page.evaluate(()=>localStorage.removeItem('wondervale-s01e03-progress-v1'));
    await page.reload();
    await page.waitForFunction(()=>document.querySelector('#paper-chronicle li')?.textContent?.includes('E04'));
    assert.match(await page.locator('#e03-paper-source').innerText(),/NOT verified/);
    assert.equal(await page.locator('#paper-chronicle li').count(),9);
    assert.match(await page.locator('.notice').innerText(),/North Hill/);
+   const raw=JSON.parse(decodeURIComponent(fragment.slice('#paper-loop='.length)));
+   raw.e06=[];
+   await page.goto(base+'/e11-scene/#paper-loop='+encodeURIComponent(JSON.stringify(raw)));
+   await page.waitForFunction(()=>document.querySelector('#e10-linked-context')?.textContent?.includes('No E10 PAPER investigation'));
+   assert.equal(await page.locator('#garden-revisit').isVisible(),false,
+    'upstream reset cannot preserve a fabricated lower sprout');
+   assert.equal(await page.locator('#paper-chronicle li').count(),1);
+   await page.goto(base+'/e11-scene/');
+   assert.equal(await page.locator('#garden-revisit').isVisible(),false,
+    'direct E11 authoring has no claimed E06 growth');
    const widths=await page.evaluate(()=>({viewport:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(widths.scroll<=widths.viewport+1,JSON.stringify(widths));
    assert.deepEqual(errors,[]);
