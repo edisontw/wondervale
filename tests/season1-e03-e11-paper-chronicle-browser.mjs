@@ -54,11 +54,13 @@ try{
    const raw=JSON.parse(decodeURIComponent(fragment.slice('#paper-loop='.length)));
    raw.e06=[];
    await page.goto(base+'/e11-scene/#paper-loop='+encodeURIComponent(JSON.stringify(raw)));
+   await page.reload(); // A fragment-only navigation does not reinitialize an ES module.
    await page.waitForFunction(()=>document.querySelector('#e10-linked-context')?.textContent?.includes('No E10 PAPER investigation'));
    assert.equal(await page.locator('#garden-revisit').isVisible(),false,
     'upstream reset cannot preserve a fabricated lower sprout');
    assert.equal(await page.locator('#paper-chronicle li').count(),1);
    await page.goto(base+'/e11-scene/');
+   await page.reload();
    assert.equal(await page.locator('#garden-revisit').isVisible(),false,
     'direct E11 authoring has no claimed E06 growth');
    const widths=await page.evaluate(()=>({viewport:innerWidth,scroll:document.documentElement.scrollWidth}));
