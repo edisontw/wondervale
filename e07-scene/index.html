@@ -15,6 +15,12 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 .paper{background:#eef3e9;border:1px dashed #95ab9a;border-radius:.4rem;padding:.65rem;line-height:1.5;margin:.45rem 0;overflow-wrap:anywhere}
 .anchors{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.3rem}
 .anchor{background:#e8eee2;padding:.55rem .25rem;text-align:center;border-radius:.35rem;overflow-wrap:anywhere}.anchor[data-here=true]{outline:3px solid #a47b29}
+.garden-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem;margin:.5rem 0}
+.garden-tile{background:#eef3e9;border:2px solid #afc3b1;border-radius:.4rem;padding:.5rem;min-height:82px;overflow-wrap:anywhere}
+.garden-tile[data-marker=true]{background:#e2efd2;border-color:#567a49}
+.garden-tile[data-risk=true]{background:#f7e6d6;border-color:#ae7453}
+.garden-tile strong,.garden-tile span{display:block}
+#e06-world [aria-pressed=true]{background:#315648;color:white}
 .board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:2px;background:#c2d1c3;padding:.25rem;border-radius:.4rem}
 .cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;background:#f8faf5;font-size:clamp(.6rem,1.6vw,.85rem);font-weight:700}.cell[data-conflict=true]{background:#edb8a4}
 [hidden]{display:none!important}@media(max-width:700px){.columns,.world{grid-template-columns:1fr}.panel{padding:.55rem}.anchors{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -25,6 +31,15 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <div class="place"><strong>Current Garden</strong><p>Healthy NOW; not moved.</p></div>
 <div class="place"><strong>Lower Garden</strong><p>Provisional unbuilt PAPER pocket.</p><p id="e06-transfer-note" role="status">No E06 PAPER care record.</p></div>
 <div class="place" id="connector-world"><strong>Finn’s connector</strong><p id="connector-world-note"></p></div></div>
+<section id="e06-world" class="panel" hidden aria-label="E06 child-tested PAPER garden FIRST NOW world">
+<h2>E06 Lower Garden — your PAPER test changed the model</h2>
+<p>FIRST and NOW compare Milo's tested marker and water choices, not real historical dates or elapsed plant growth. The healthy Current Garden stays unchanged.</p>
+<div class="controls"><button id="e06-world-first" type="button" aria-pressed="false">FIRST · test</button><button id="e06-world-now" type="button" aria-pressed="true">NOW · revise</button></div>
+<div id="e06-garden-tiles" class="garden-tiles" role="img" aria-label="Three synthetic garden sites"></div>
+<p id="e06-garden-water" class="paper" role="status"></p>
+<p id="e06-garden-result" class="paper"></p>
+<p>Only a removable PAPER marker and model water. No actual plant, drainage measurement, planting permission, historical claim, route or official unlock.</p>
+</section>
 <p id="stage" class="paper" role="status"></p><p class="paper" aria-live="polite"><strong id="speaker"></strong>: <span id="line"></span></p>
 <section id="connector-scene" class="panel"><h2>Walk, test and redesign</h2>
 <p>Finn’s FIRST short model works for Milo. Try another traveler and water, then move a removable piece and retest. A mistake is a chance to learn.</p>

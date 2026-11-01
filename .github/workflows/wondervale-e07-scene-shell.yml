@@ -5,6 +5,7 @@ on:
       - 'e07-scene/**'
       - 'tests/season1-e07-scene-shell*'
       - 'tests/season1-e06-e07-scene-transfer.test.mjs'
+      - 'tests/season1-e06-e07-world-callback*'
       - 'authoring-labs/e06-e07-scene-transfer.mjs'
       - 'authoring-labs/e07-e08-scene-transfer.mjs'
       - 'tests/season1-e07-e08-scene-transfer*'
@@ -14,6 +15,7 @@ on:
     paths:
       - 'e07-scene/**'
       - 'tests/season1-e07-scene-shell*'
+      - 'tests/season1-e06-e07-world-callback*'
       - '.github/workflows/wondervale-e07-scene-shell.yml'
 permissions:
   contents: read
@@ -30,11 +32,13 @@ jobs:
         run: |
           node --check e07-scene/scene-model.mjs
           node --check e07-scene/main.mjs
+          node --check e07-scene/garden-world.mjs
+          node --check tests/season1-e06-e07-world-callback-browser.mjs
           node --check authoring-labs/e06-e07-scene-transfer.mjs
           node --check tests/season1-e07-scene-shell-browser.mjs
           node --check authoring-labs/e07-e08-scene-transfer.mjs
           node --check tests/season1-e07-e08-scene-transfer-browser.mjs
-          node --test tests/season1-e07-e08-scene-transfer.test.mjs tests/season1-e07-scene-shell.test.mjs tests/season1-e06-e07-scene-transfer.test.mjs tests/season1-shortcut-story.test.mjs tests/s01e07-authoring-prototype.test.mjs
+          node --test tests/season1-e07-e08-scene-transfer.test.mjs tests/season1-e07-scene-shell.test.mjs tests/season1-e06-e07-scene-transfer.test.mjs tests/season1-e06-e07-world-callback.test.mjs tests/season1-shortcut-story.test.mjs tests/s01e07-authoring-prototype.test.mjs
       - name: Guard production packaging
         run: |
           if grep -R -n 'e07-scene' scripts/compile_episode.py scripts/package_static.py scripts/package_e02.py scripts/package_e03.py; then
@@ -59,3 +63,4 @@ jobs:
           if [ "$ready" -ne 1 ]; then cat /tmp/e07-scene-server.log >&2; exit 1; fi
           node tests/season1-e07-scene-shell-browser.mjs
           node tests/season1-e07-e08-scene-transfer-browser.mjs
+          node tests/season1-e06-e07-world-callback-browser.mjs
