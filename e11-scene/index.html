@@ -59,10 +59,15 @@ button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
 .needs-slot strong{display:block;font-size:.78rem}
 
 
+.route-stops{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.4rem;margin:.5rem 0}
+.route-stop{min-height:64px;padding:.6rem .25rem;display:flex;align-items:center;justify-content:center;
+ text-align:center;border:2px dashed #a0b1a5;border-radius:.5rem;background:#f4f5ed;font-size:.86rem}
+.route-stop[data-visited=true]{background:#e1f0e3;border-style:solid}
+.route-stop[data-here=true]{background:#ffdfa2;border-color:#8b5b20;border-style:solid;font-weight:700}
 .trial{border:1px dashed #8a9d92;border-radius:.4rem;padding:.45rem;overflow-wrap:anywhere}
 ul{padding-left:1.3rem;line-height:1.45}
 small{color:#50655e}
-@media(max-width:700px){.needs-boards{grid-template-columns:1fr}.garden-cards{grid-template-columns:1fr}.columns{grid-template-columns:1fr}.cell{min-height:56px;font-size:.75rem}.grid{gap:.25rem;padding:.25rem}.map{grid-template-columns:1fr}.trials{grid-template-columns:1fr}}
+@media(max-width:700px){.needs-boards{grid-template-columns:1fr}.route-stops{grid-template-columns:repeat(2,minmax(0,1fr))}.garden-cards{grid-template-columns:1fr}.columns{grid-template-columns:1fr}.cell{min-height:56px;font-size:.75rem}.grid{gap:.25rem;padding:.25rem}.map{grid-template-columns:1fr}.trials{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style></head><body><main>
 <header><h1>E11 — A New Line on the Map</h1><div>Scene 12 of 12 · child-controlled reversible shared-space and loop PAPER rehearsal</div></header>
@@ -166,7 +171,22 @@ small{color:#50655e}
 <div class="controls"><button id="check-loop" type="button">Check the current loop</button></div>
 <p id="loop-status" class="status" aria-live="polite"></p>
 </section>
-<section class="panel"><h2>5. Chronicle PREVIEW — nothing has opened</h2>
+<section id="return-route" class="panel" hidden aria-label="Child-operated reversible PAPER return walk">
+<h2>5. Milo walks back to two changed PAPER places</h2>
+<p>Finn: "A short way!" Nia: "Check both places, then come back." Walk from Square to Garden and Map Room. You may try the Market detour, return safely, undo a step or start again. The unnamed place and North Hill cannot be entered.</p>
+<p id="return-route-position" class="status" aria-live="polite"></p>
+<div id="return-route-map" class="route-stops" role="img" aria-label="Milo position and visited fictional PAPER stops"></div>
+<div id="return-route-controls" class="controls" aria-label="Milo's PAPER walking choices"></div>
+<p id="return-route-trail" class="status"></p>
+<p id="return-route-feedback" class="status" aria-live="polite"></p>
+<div class="columns">
+<div class="revisit-panel"><strong>Garden · checked PAPER callback</strong><p id="return-route-garden" class="status"></p></div>
+<div class="revisit-panel"><strong>Map Room · checked PAPER callback</strong><p id="return-route-station" class="status"></p></div>
+</div>
+<p id="return-route-result" class="status" aria-live="polite"></p>
+<small>Earlier changes appear only with strictly replayed E05/E06 child actions. Otherwise these are unverified practice stops. No real public path, site permission, official Chronicle or unlock.</small>
+</section>
+<section class="panel"><h2>6. Chronicle PREVIEW — nothing has opened</h2>
 <div id="review-controls" class="controls"></div>
 <p id="chronicle" class="status" aria-live="polite"></p><p id="hook" class="status" hidden></p>
 <div class="controls"><button id="restart" type="button">Restart fictional lab</button></div>
