@@ -25,6 +25,9 @@ button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
 .map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
 .map button{font-size:.86rem;overflow-wrap:anywhere}
 .map button[aria-pressed=true]{background:#cde9d7}
+#paper-loop-world{margin:.6rem 0;padding:.55rem;border:1px dashed #9baa9d;border-radius:.55rem;background:#f1f5ef}
+#loop-visual{display:block;width:100%;max-width:520px;height:auto;margin:auto;border-radius:.4rem;background:#f8faf6}
+#loop-visual-status{margin:.35rem 0 0;line-height:1.5;overflow-wrap:anywhere}
 .trials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
 .mini-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.22rem;margin:.35rem 0}
 .mini-cell{display:flex;align-items:center;justify-content:center;min-height:48px;
@@ -112,6 +115,12 @@ small{color:#50655e}
 <section class="panel"><h2>4. Trace a NEW model loop, not the old hill</h2>
 <p>Try links, check if one connected cycle returns to its start, and erase any extra link. These are role labels, not walkable public routes.</p>
 <div id="map" class="map" role="group" aria-label="Fictional contemporary map links"></div>
+<figure id="paper-loop-world" aria-label="Reversible FIRST and NOW schematic paper loop">
+<div class="controls"><button id="loop-first" type="button" aria-pressed="false">Show FIRST paper map</button>
+<button id="loop-now" type="button" aria-pressed="true">Show NOW paper map</button></div>
+<svg id="loop-visual" viewBox="0 0 420 240" role="img" aria-label="Fictional paper map; no routes chosen"></svg>
+<figcaption id="loop-visual-status" aria-live="polite">FIRST has no model links. NOW changes only when Milo chooses links.</figcaption>
+</figure>
 <p class="status">North Hill: CLOSED. Old direct route: CLOSED. Neither can be selected.</p>
 <div class="controls"><button id="check-loop" type="button">Check the current loop</button></div>
 <p id="loop-status" class="status" aria-live="polite"></p>
