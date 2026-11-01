@@ -32,14 +32,13 @@ try{
    await page.locator('[data-action="compare-symbol"]').click();
    await page.locator('[data-action="walk"][data-value="stone_edge"]').click();
    await page.locator('[data-action="inspect"][data-value="surface"]').click();
-   assert.match(await page.locator('#seen').innerText(),/surface|stone|edge/i);
+   assert.match(await page.locator('#seen').innerText(),/worn strip; its age and use are unknown/i);
    await page.locator('#e09-return').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    assert.match(page.url(),/\/e09-scene\/#paper-memory-station-garden-shortcut-steps-hill-courtyard=/);
    assert.match(await page.locator('#lantern-context').innerText(),/E04 memories: UNKNOWN dates/);
    await page.locator('#e10-paper').click();
-   await page.waitForFunction(()=>document.querySelector('#seen')?.textContent?.includes('surface')||
-    document.querySelector('#seen')?.textContent?.includes('stone'));
+   await page.waitForFunction(()=>document.querySelector('#seen')?.textContent?.includes('A worn strip'));
    assert.match(await page.locator('#hill-context').innerText(),/E05: MOCK station sources/);
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['e04-e10-sentinel']);
    const sizes=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
