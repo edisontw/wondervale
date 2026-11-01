@@ -227,13 +227,47 @@ try{
    await press('Return to Garden PAPER stop');
    await press('Return to Square PAPER start');
    assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
+   // These two observations must be earned in this same E05→E06→E11 browser
+   // journey, not injected as pre-completed E11 fixture state. A PAPER model
+   // observation is distinct from a claim about actual planting or public access.
+   assert.equal(await page.locator('#return-reflection').isVisible(),true);
+   await press('Choose E05 wall-side PAPER table · not sorted');
+   await press('Place under NEEDS REAL CHECK');
+   assert.match(await page.locator('#reflection-feedback').innerText(),/Look again/);
+   await press('Place under SEEN IN PAPER');
+   await press('Choose E06 possible PAPER sprout · not sorted');
+   await press('Place under SEEN IN PAPER');
+   for(const note of ['Real seeds were planted','The public route is safe']){
+    await press('Choose '+note+' · not sorted');
+    await press('Place under NEEDS REAL CHECK');
+   }
+   assert.match(await page.locator('#reflection-result').innerText(),/Four notes sorted/);
+   const shelves=await page.locator('#reflection-shelves').innerText();
+   assert.match(shelves,/SEEN IN PAPER: E05 wall-side PAPER table · E06 possible PAPER sprout/);
+   assert.match(shelves,/NEEDS REAL CHECK: Real seeds were planted · The public route is safe/);
+   assert.doesNotMatch(await page.locator('#reflection-result').innerText(),/real facts verified: [1-9]/i);
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
    assert.match(await page.locator('#return-route-trail').innerText(),/Market PAPER detour/);
    assert.doesNotMatch(await page.locator('#return-route-trail').innerText(),/North Hill|Common/);
    await press('Undo last PAPER step');
    assert.match(await page.locator('#return-route-result').innerText(),/Not complete/);
+   assert.equal(await page.locator('#return-reflection').isVisible(),false,
+    'undo must withdraw the completed reflection');
    await press('Return to Square PAPER start');
    assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
+   assert.match(await page.locator('#reflection-result').innerText(),/0 of 4 notes/,
+    'route revision must clear both previously earned shelf placements');
+   // Re-earn the two model observations after revising the route; E10 read-only
+   // callback may preserve the reflection within the same E11 session.
+   for(const note of ['E05 wall-side PAPER table','E06 possible PAPER sprout']){
+    await press('Choose '+note+' · not sorted');
+    await press('Place under SEEN IN PAPER');
+   }
+   for(const note of ['Real seeds were planted','The public route is safe']){
+    await press('Choose '+note+' · not sorted');
+    await press('Place under NEEDS REAL CHECK');
+   }
+   assert.match(await page.locator('#reflection-result').innerText(),/Four notes sorted/);
    const earnedE11Fragment=new URL(page.url()).hash;
    await page.locator('#e10-return').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
@@ -241,6 +275,8 @@ try{
    await page.waitForFunction(()=>document.querySelector('#comparison')?.textContent?.includes('trial-1'));
    assert.equal(await page.locator('#paper-chronicle li').count(),9);
    assert.match(await page.locator('#comparison').innerText(),/trial-1 → NOW trial-2/);
+   assert.match(await page.locator('#reflection-result').innerText(),/Four notes sorted/,
+    'read-only E10 callback must not silently erase earned E11 PAPER sorting');
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
    const geometry=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(geometry.scroll<=geometry.width+1,JSON.stringify({viewport,geometry}));
@@ -271,6 +307,8 @@ try{
     await page.reload(); // Fragment-only navigation does not re-run ES modules.
     assert.equal(await page.locator('#garden-revisit').isVisible(),false,episode+' reset revokes garden callback');
     assert.equal(await page.locator('#return-route').isVisible(),false,episode+' reset revokes route completion');
+    assert.equal(await page.locator('#return-reflection').isVisible(),false,
+     episode+' reset must revoke both earned PAPER observation shelves');
     assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
    }
   }finally{await ctx.close();}
