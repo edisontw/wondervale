@@ -2,6 +2,7 @@
 import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
   fresh,dispatch,projection} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperRevisit} from './revisit-model.mjs';
+import {paperLoopVisual} from './loop-visual.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
 import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
@@ -16,7 +17,7 @@ const toolNames={walk:'Walk Milo',quiet:'Place quiet seat',activity:'Place activ
 const incoming=decodeLoopTransfer(location.hash);
 const linkedE10=incoming?.e10||null,upstream=incoming?.upstream||null;
 let state=incoming?.e11||fresh(),tool='walk',begun=!!incoming?.e11?.history.length,
- screen='trial',revisitFocus='quiet_reader',roleCell=null;
+ screen='trial',revisitFocus='quiet_reader',roleCell=null,mapView='now';
 let selectedUnknown=null,draftChecks={},planFeedback='';
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
@@ -116,6 +117,58 @@ function map(){
   '. Connected current cycle: '+(state.loopChecked?'YES — FICTIONAL ONLY':'not established')+
   '. Historic hill remains CLOSED.';
 }
+
+const SVG_NS='http://www.w3.org/2000/svg';
+function svgPart(tag,attributes,text=null){
+ const el=document.createElementNS(SVG_NS,tag);
+ for(const [key,value] of Object.entries(attributes))el.setAttribute(key,String(value));
+ if(text!==null)el.textContent=text;
+ return el;
+}
+function drawPaperLoop(){
+ const model=paperLoopVisual(state),svg=$('loop-visual');
+ svg.replaceChildren();
+ if(!model)return;
+ const now=mapView==='now',shown=now?model.selectedCount:0;
+ svg.dataset.view=mapView;
+ svg.dataset.selectedCount=String(shown);
+ svg.dataset.connected=String(now&&model.loopChecked);
+ svg.dataset.reviewed=String(now&&model.reviewed);
+ svg.setAttribute('aria-label',(now?'NOW':'FIRST')+' fictional PAPER map with '+shown+
+  ' chosen model links. North Hill CLOSED; unnamed place NOT OPEN.');
+ const nodes=Object.fromEntries(model.nodes.map(n=>[n.id,n]));
+ for(const edge of model.edges){
+  const a=nodes[edge.from],b=nodes[edge.to],selected=now&&edge.selected;
+  const line=svgPart('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,
+   stroke:selected?'#246c58':'#b9c7bc','stroke-width':selected?5:2,
+   'stroke-linecap':'round','stroke-dasharray':selected?'none':'4 7',
+   'data-edge':edge.id,'data-selected':selected});
+  svg.append(line);
+ }
+ for(const node of model.nodes){
+  svg.append(svgPart('circle',{cx:node.x,cy:node.y,r:16,
+   fill:'#e6ede6',stroke:'#466d61','stroke-width':2}));
+  const label=node.label==='Unnamed place'?'Unnamed place':node.label;
+  svg.append(svgPart('text',{x:node.x,y:node.y+29,'text-anchor':'middle',
+   'font-size':12,fill:'#253f37'},label));
+ }
+ svg.append(svgPart('rect',{x:326,y:155,width:88,height:68,rx:7,
+  fill:'#eee5df',stroke:'#925b52','stroke-width':2}));
+ svg.append(svgPart('line',{x1:335,y1:164,x2:405,y2:213,stroke:'#925b52','stroke-width':3}));
+ svg.append(svgPart('line',{x1:405,y1:164,x2:335,y2:213,stroke:'#925b52','stroke-width':3}));
+ svg.append(svgPart('text',{x:370,y:180,'text-anchor':'middle',
+  'font-size':11,'font-weight':'bold',fill:'#5b3029'},'North Hill'));
+ svg.append(svgPart('text',{x:370,y:199,'text-anchor':'middle',
+  'font-size':12,'font-weight':'bold',fill:'#5b3029'},'CLOSED'));
+ $('loop-first').setAttribute('aria-pressed',String(!now));
+ $('loop-now').setAttribute('aria-pressed',String(now));
+ $('loop-visual-status').textContent=(now?'NOW: '+shown+' child-chosen PAPER links. ':
+  'FIRST: no child-chosen links yet. ')+
+  (now&&model.loopChecked?'Connected fictional cycle; ':'Cycle not proven in this view; ')+
+  (now&&model.reviewed?'Milo reviewed this model. ':'Milo can revise and check again. ')+
+  'Dashed links are unchosen candidates, not real paths. North Hill CLOSED; unnamed place NOT OPEN.';
+}
+
 function review(){
  const host=$('review-controls');host.replaceChildren();
  button(host,'Review NONCANONICAL finale',()=>act({type:'review-preview'}),
@@ -259,14 +312,16 @@ function render(){
   (Object.values(state.tests).some(t=>!t.passed)?
    'Milo stops at a conflict. Finn: "Who needs this way?" Try moving a piece.':
    'Two simulated needs share one small model. Milo can test, move, compare and try again.');
- controls();board();tests();comparison();map();review();worldRevisit();
+ controls();board();tests();comparison();map();drawPaperLoop();review();worldRevisit();
 }
 $('access').addEventListener('click',()=>act({type:'place',tokenId:'access',cells:['1,1','1,2']}));
 $('lift-quiet').addEventListener('click',()=>act({type:'lift',tokenId:'quiet'}));
 $('lift-activity').addEventListener('click',()=>act({type:'lift',tokenId:'activity'}));
 $('check-loop').addEventListener('click',()=>act({type:'check-loop'}));
+$('loop-first').addEventListener('click',()=>{mapView='first';drawPaperLoop();});
+$('loop-now').addEventListener('click',()=>{mapView='now';drawPaperLoop();});
 $('begin').addEventListener('click',()=>{begun=true;render();});
 $('e10-callback').addEventListener('click',()=>{if(state.reviewed){screen='callback';render();}});
 $('e11-back').addEventListener('click',()=>{screen='trial';render();});
-$('restart').addEventListener('click',()=>{tool='walk';begun=false;screen='trial';revisitFocus='quiet_reader';roleCell=null;clearPlan();act({type:'reset'});});
+$('restart').addEventListener('click',()=>{tool='walk';begun=false;screen='trial';revisitFocus='quiet_reader';roleCell=null;mapView='now';clearPlan();act({type:'reset'});});
 render();

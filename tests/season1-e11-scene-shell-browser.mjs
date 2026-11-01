@@ -54,6 +54,8 @@ async function open(width,height,label,touch){
 }
 async function journey(page,label,shots){
  await geometry(page,label+' initial');
+ assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),0);
+ assert.match(await page.locator('#loop-visual-status').innerText(),/North Hill CLOSED/);
  assert.equal(await btn(page,'Cell 0,3').isDisabled(),true);
  assert.equal(await btn(page,'Review NONCANONICAL finale').isDisabled(),true);
  await press(page,'Place access strip (two middle cells)');
@@ -120,17 +122,27 @@ async function journey(page,label,shots){
  await press(page,'Recall E09 closed hill');
  assert.match(await page.locator('#citation').innerText(),/SYNTHETIC/);
  await press(page,'Add link: square ↔ market');
+ assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),1);
+ await press(page,'Show FIRST paper map');
+ assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),0);
+ assert.equal(await page.locator('#loop-visual').getAttribute('data-view'),'first');
+ await press(page,'Show NOW paper map');
+ assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),1);
  await press(page,'Add link: market ↔ unnamed place');
  await press(page,'Check the current loop');
  assert.match(await page.locator('#loop-status').innerText(),/not established/);
  await press(page,'Add link: unnamed place ↔ square');
+ assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),3);
  await press(page,'Check the current loop');
  assert.match(await page.locator('#loop-status').innerText(),/YES — FICTIONAL ONLY/);
  await press(page,'Add link: square ↔ garden');
+ assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),4);
+ assert.equal(await page.locator('#loop-visual').getAttribute('data-connected'),'false');
  assert.match(await page.locator('#loop-status').innerText(),/not established/);
  await press(page,'Check the current loop');
  assert.match(await page.locator('#loop-status').innerText(),/not established/);
  await press(page,'Remove link: square ↔ garden');
+ assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),3);
  await press(page,'Check the current loop');
  await press(page,'Review NONCANONICAL finale');
  assert.match(await page.locator('#hook').innerText(),/unnamed place is NOT OPEN/);
@@ -145,6 +157,9 @@ async function journey(page,label,shots){
  assert.equal(await page.locator('#e11-work').isVisible(),false);
  assert.match(await page.locator('#e10-notes').innerText(),/No E10 completion/);
  await press(page,'Return to E11 trial');
+ assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),3);
+ assert.equal(await page.locator('#loop-visual').getAttribute('data-reviewed'),'true');
+ assert.match(await page.locator('#loop-visual-status').innerText(),/unnamed place NOT OPEN/);
  assert.equal(await page.locator('#e11-work').isVisible(),true);
  assert.match(await page.locator('#chronicle').innerText(),/model review recorded/);
  assert.match(await page.locator('#revisit-first-result').innerText(),/FIRST Activity group: PASS/);
@@ -160,6 +175,7 @@ async function journey(page,label,shots){
  await press(page,'Restart fictional lab');
  assert.equal(await btn(page,'Begin the PAPER trial').isVisible(),true);
  await press(page,'Begin the PAPER trial');
+ assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),0);
  assert.match(await page.locator('#position').innerText(),/Milo at 1,0/);
  assert.equal(await btn(page,'Place access strip (two middle cells)').isEnabled(),true);
  assert.equal(await btn(page,'Review NONCANONICAL finale').isDisabled(),true);
