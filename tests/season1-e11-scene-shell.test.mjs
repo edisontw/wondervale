@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {fresh,dispatch,restore,projection} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperRevisit} from '../e11-scene/revisit-model.mjs';
+import {paperLoopVisual} from '../e11-scene/loop-visual.mjs';
 import {inspectPaperRole} from '../e11-scene/role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from '../e11-scene/verification-plan.mjs';
 
@@ -92,6 +93,35 @@ test('FIRST/NOW world boards require strictly replayed child trials, and never p
  assert.equal(inspectPaperRole(s,'quiet_reader','0,1'),null,'stale role talk is withdrawn');
  act({type:'reset'});
  assert.equal(paperRevisit(s),null);
+});
+
+test('visible FIRST/NOW loop changes only through strict child replay and can be undone',()=>{
+ let s=fresh();const act=a=>{s=dispatch(s,a);};
+ const before=paperLoopVisual(s);
+ assert.equal(before.selectedCount,0);
+ assert.equal(before.loopChecked,false);
+ assert.equal(before.unnamedPlaceOpen,false);
+ assert.equal(before.historicHillClosed,true);
+ assert.equal(before.edges.length,5);
+ assert.deepEqual(before.canonicalEvents,[]);
+ for(const id of ['square-market','market-common','common-square'])
+  act({type:'add-loop-edge',edgeId:id});
+ assert.equal(paperLoopVisual(s).selectedCount,3);
+ assert.equal(paperLoopVisual(s).loopChecked,false);
+ act({type:'check-loop'});
+ assert.equal(paperLoopVisual(s).loopChecked,true);
+ act({type:'add-loop-edge',edgeId:'square-garden'});
+ assert.equal(paperLoopVisual(s).selectedCount,4);
+ assert.equal(paperLoopVisual(s).loopChecked,false,'revision withdraws previous model check');
+ act({type:'remove-loop-edge',edgeId:'square-garden'});
+ assert.equal(paperLoopVisual(s).selectedCount,3);
+ act({type:'check-loop'});
+ assert.equal(paperLoopVisual(s).loopChecked,true);
+ assert.equal(paperLoopVisual({...s,rights:['approved']}),null);
+ act({type:'add-loop-edge',edgeId:'old_north_hill_direct'});
+ assert.equal(paperLoopVisual(s).selectedCount,3,'closed historic line cannot be drawn');
+ act({type:'reset'});
+ assert.equal(paperLoopVisual(s).selectedCount,0,'restart removes the model world change');
 });
 
 test('child drafts future checks only after earned role inspection; no plan becomes real proof',()=>{
