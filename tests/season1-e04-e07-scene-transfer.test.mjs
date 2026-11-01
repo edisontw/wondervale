@@ -226,11 +226,11 @@ test('E04-E08 PAPER histories survive five independent scenes, resets and forger
  assert.equal(encodeMemoryCourtyard(E04.fresh(),e05,e06,e07,e08,e09,e10),null);
  assert.equal(encodeMemoryCourtyard(e04,e05,e06,e07,e08,e09,{...e10,rights:['courtyard']}),null);
  const sevenPacket={v:1,...Object.fromEntries(Object.entries(seven).map(([k,st])=>[k,st.history]))};
- const pack=x=>'#paper-memory-station-garden-shortcut-steps-hill-courtyard='+encodeURIComponent(JSON.stringify(x));
+ const packSeven=x=>'#paper-memory-station-garden-shortcut-steps-hill-courtyard='+encodeURIComponent(JSON.stringify(x));
  for(const bad of [{...sevenPacket,v:2},{...sevenPacket,year:1901},{...sevenPacket,rights:['open']},
   {...sevenPacket,e04:[]},{...sevenPacket,e09:[]},{...sevenPacket,e10:[{type:'finish-paper'}]},
   {...sevenPacket,e10:[...e10.history,{type:'grant-unlock'}]}])
-  assert.equal(decodeMemoryCourtyard(pack(bad)),null);
+  assert.equal(decodeMemoryCourtyard(packSeven(bad)),null);
  assert.equal(decodeMemoryCourtyard('#paper-memory-station-garden-shortcut-steps-hill-courtyard=%broken'),null);
  assert.equal(decodeMemoryCourtyard('#paper-memory-station-garden-shortcut-steps-hill-courtyard='+'x'.repeat(180001)),null);
  const resetE09=E09.dispatch(e09,nav('restart'));
