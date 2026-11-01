@@ -1,15 +1,17 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {decodeTransfer,encodeTransfer} from '../authoring-labs/e06-e07-scene-transfer.mjs';
 import {fresh as freshE08,view as viewE08} from '../e08-scene/scene-model.mjs';
+import {decodeMemoryLantern,encodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
 import {decodeMemoryGardenShortcut,encodeMemoryGardenShortcut}
  from '../authoring-labs/e04-e07-scene-transfer.mjs';
-const extended=decodeMemoryGardenShortcut(location.hash);
+const lantern=decodeMemoryLantern(location.hash);
+const extended=lantern||decodeMemoryGardenShortcut(location.hash);
 const stepsIncoming=extended?null:decodeStepsTransfer(location.hash);
 const gardenIncoming=extended||stepsIncoming?null:decodeTransfer(location.hash);
 let state=extended?.e07||stepsIncoming?.e07||gardenIncoming?.e07||fresh(),
  linkedE06=extended?.e06||stepsIncoming?.e06||gardenIncoming?.e06||null,
- linkedE08=stepsIncoming?.e08||freshE08();
+ linkedE08=lantern?.e08||stepsIncoming?.e08||freshE08();
 const linkedE04=extended?.e04||null,linkedE05=extended?.e05||null;const $=id=>document.getElementById(id);
 const a=(type,value)=>({scene:'story',action:value===undefined?{type}:{type,value}});
 const n=type=>({scene:'nav',type});
@@ -88,14 +90,18 @@ function render(){
    'E06 hypothetical PAPER sprout revisited after Milo checked E07 MODEL water: PASS. No real drainage, planting or growth proven.':
    'E06 hypothetical PAPER sprout carried from the other playable model. E07 MODEL water still needs a child-checked route walk.'):
   'No E06 PAPER care record in this independent visit; the lower pocket remains unbuilt.';
- const stepsFragment=encodeStepsTransfer(state,linkedE08,linkedE06);
+ const stepsFragment=linkedE04?
+  encodeMemoryLantern(linkedE04,linkedE05,linkedE06,state,linkedE08):
+  encodeStepsTransfer(state,linkedE08,linkedE06);
  const stepsLink=$('e08-transfer');stepsLink.hidden=!stepsFragment;
  if(stepsFragment)stepsLink.href='../e08-scene/'+stepsFragment;
  $('e08-paper-callback').textContent=viewE08(linkedE08).story.previewComplete?
   'E08 PAPER callback: Milo compared two lower-model viewpoints. The real Steps remain unlit and the hill CLOSED.':
   'E08 PAPER comparison not yet made. Real Steps lights OFF; no official E08 unlock.';
  const back=$('e06-return'),fragment=linkedE06&&(linkedE04?
-  encodeMemoryGardenShortcut(linkedE04,linkedE05,linkedE06,state):
+  (lantern?(encodeMemoryLantern(linkedE04,linkedE05,linkedE06,state,linkedE08)||
+   encodeMemoryGardenShortcut(linkedE04,linkedE05,linkedE06,state)):
+   encodeMemoryGardenShortcut(linkedE04,linkedE05,linkedE06,state)):
   encodeTransfer(linkedE06,state));
  $('e04-e05-context').hidden=!linkedE04;
  if(linkedE04)$('e04-e05-context').textContent=
