@@ -105,6 +105,47 @@ try{
    await page.waitForFunction(()=>document.querySelector('#e04-e05-context')?.hidden===false);
    assert.match(await page.locator('#observed').innerText(),/shared-path/,
      'E07 child action persists through E06→E05→E04→E05→E06');
+   // Child earns E08 by revising the connector and walking the checked model route.
+   for(const key of ['walk-channel','inspect-channel','walk-workbench','test-milo',
+    'test-resident','test-water','place-water','test-milo','test-resident','test-water',
+    'place-upper','test-water','test-milo','test-resident','compare','finish',
+    'walk-start','walk-crossing','walk-check-crossing','walk-water','walk-check-water',
+    'walk-base','walk-review'])await e07(key);
+   assert.equal(await page.locator('#e08-transfer').isVisible(),true);
+   await page.locator('#e08-transfer').click();
+   await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 opening'));
+   assert.match(page.url(),/paper-memory-station-garden-shortcut-steps=/);
+   assert.match(await page.locator('#connector-trace').innerText(),/E04 sincere memories remain undated/);
+   const e08=async key=>{
+    const target=page.locator('[data-key="'+key+'"]');
+    assert.equal(await target.isDisabled(),false,key);await target.click();
+   };
+   for(const key of ['start','inspect-brackets','inspect-boundary','inspect-a','lamp-a',
+    'walk-landing','inspect-b','lamp-b','walk-base','observe','walk-landing',
+    'walk-side','observe','compare','inspect-plate','finish'])await e08(key);
+   assert.match(await page.locator('#steps-world-note').innerText(),/real lights NOT restored/);
+   await page.locator('#e07-return').click();
+   await page.waitForFunction(()=>document.querySelector('#route-feedback')?.textContent.includes('reviewed'));
+   assert.match(await page.locator('#e08-paper-callback').innerText(),/two lower-model viewpoints/);
+   await page.locator('#e06-return').click();
+   await page.waitForFunction(()=>document.querySelector('#e05-return')?.hidden===false);
+   await page.locator('#e05-return').click();
+   await page.waitForFunction(()=>document.querySelector('#e04-return')?.hidden===false);
+   await page.locator('#e04-return').click();
+   await page.waitForFunction(()=>document.querySelector('#e05-independent')?.hidden===false);
+   assert.match(await page.locator('#e04-summary').innerText(),/Relative order UNKNOWN/);
+   await page.locator('#e05-independent').click();
+   await page.waitForFunction(()=>document.querySelector('#e06-paper')?.hidden===false);
+   await page.locator('#e06-paper').click();
+   await page.waitForFunction(()=>document.querySelector('#e07-transfer')?.hidden===false);
+   await page.locator('#e07-transfer').click();
+   await page.waitForFunction(()=>document.querySelector('#e08-transfer')?.hidden===false);
+   await page.locator('#e08-transfer').click();
+   await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
+   assert.match(await page.locator('#trace-detail').innerText(),/never moved/,
+    'E08 two views survive E08→E07→E06→E05→E04→E05→E06→E07→E08');
+   await page.locator('#e07-return').click();
+   await page.waitForFunction(()=>document.querySelector('#route-feedback')?.textContent.includes('reviewed'));
    await e07('restart');
    assert.match(await page.locator('#stage').innerText(),/opening/);
    await page.locator('#e06-return').click();
