@@ -4,12 +4,14 @@ import {view as viewE07} from '../e07-scene/scene-model.mjs';
 import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
 import {decodeMemoryLantern,encodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
+import {decodeMemoryHill,encodeMemoryHill} from '../authoring-labs/e04-e09-scene-transfer.mjs';
 import {fresh as freshE09} from '../e09-scene/scene-model.mjs';
-const lantern=decodeMemoryLantern(location.hash);
+const memoryHill=decodeMemoryHill(location.hash);
+const lantern=memoryHill||decodeMemoryLantern(location.hash);
 const hillIncoming=lantern?null:decodeHillTransfer(location.hash);
 const incoming=lantern||hillIncoming||decodeStepsTransfer(location.hash);
 let state=incoming?.e08||fresh(),linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
-let linkedE09=hillIncoming?.e09||null;
+let linkedE09=memoryHill?.e09||hillIncoming?.e09||null;
 const linkedE04=lantern?.e04||null,linkedE05=lantern?.e05||null;
 const $=id=>document.getElementById(id);
 const a=(type,key,value)=>({scene:'story',action:key?{type,[key]:value}:{type}});
@@ -112,7 +114,9 @@ function render(){
   encodeMemoryLantern(linkedE04,linkedE05,linkedE06,linkedE07,state):
   encodeStepsTransfer(linkedE07,state,linkedE06));
  back.hidden=!fragment;if(fragment)back.href='../e07-scene/'+fragment;
- const hill=$('e09-transfer'),hillFragment=v.lowerLightsPaperOn&&encodeHillTransfer(state,linkedE09||freshE09(),linkedE07,linkedE06);
+ const hill=$('e09-transfer'),hillFragment=v.lowerLightsPaperOn&&(
+  linkedE04?encodeMemoryHill(linkedE04,linkedE05,linkedE06,linkedE07,state,linkedE09||freshE09()):
+  encodeHillTransfer(state,linkedE09||freshE09(),linkedE07,linkedE06));
  hill.hidden=!hillFragment;if(hillFragment)hill.href='../e09-scene/'+hillFragment;
  $('e09-callback').textContent=linkedE09&&v.lowerLightsPaperOn?
   'E09 PAPER return: '+linkedE09.history.length+' recorded model steps; upper hill remains CLOSED.':
