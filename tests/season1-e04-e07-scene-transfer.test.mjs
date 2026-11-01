@@ -5,6 +5,8 @@ import * as E04 from '../authoring-labs/arc1-memory-station-handoff-model.mjs';
 import * as E05 from '../e05-scene/scene-model.mjs';
 import * as E06 from '../e06-scene/scene-model.mjs';
 import * as E07 from '../e07-scene/scene-model.mjs';
+import * as E08 from '../e08-scene/scene-model.mjs';
+import {encodeMemoryLantern,decodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {encodeMemoryGardenShortcut as encode,decodeMemoryGardenShortcut as decode}
  from '../authoring-labs/e04-e07-scene-transfer.mjs';
 const a=(scene,type,extra={})=>({scene,action:{type,...extra}});
@@ -115,4 +117,63 @@ test('E07 cannot be fabricated before E06 child care; rights, dates and malforme
  assert.equal(decode(''),null);
  assert.equal(decode('#paper-memory-station-garden-shortcut=%bad'),null);
  assert.equal(decode('#paper-memory-station-garden-shortcut='+'x'.repeat(85001)),null);
+});
+
+// E04 -> E08 is a five-scene child-earned PAPER chain, not an official unlock.
+test('E04-E08 PAPER histories survive five independent scenes, resets and forgery checks',()=>{
+ const e04=memories(),e05=station(),e06=completedGarden();
+ let e07=E07.fresh();
+ const w=(type,value)=>({scene:'walkthrough',type,...(value===undefined?{}:{value})});
+ for(const x of [a('story','start'),a('story','walk',{value:'shared-path'}),
+  a('story','inspect',{value:'shared-path'}),a('story','walk',{value:'channel'}),
+  a('story','inspect',{value:'channel'}),a('story','walk',{value:'workbench'}),
+  ...['milo','resident','water'].map(value=>a('story','trial',{value})),
+  a('story','place',{value:'path-clear-water-blocked'}),
+  ...['milo','resident','water'].map(value=>a('story','trial',{value})),
+  a('story','place',{value:'side-offset'}),
+  ...['water','milo','resident'].map(value=>a('story','trial',{value})),
+  a('story','compare'),a('story','finish'),
+  w('start'),w('move','crossing'),w('inspect','crossing'),
+  w('move','water-edge'),w('inspect','water-edge'),
+  w('move','steps-base'),w('review')
+ ])e07=step(E07,e07,x);
+ let e08=E08.fresh();
+ const l=(type,key,value)=>({scene:'story',action:key?{type,[key]:value}:{type}});
+ for(const x of [l('start'),l('inspect','feature','brackets'),l('inspect','feature','boundary'),
+  l('inspect','feature','lower-a'),l('toggle-lamp','lampId','lower-a'),
+  l('walk','anchor','lower-landing'),l('inspect','feature','lower-b'),
+  l('toggle-lamp','lampId','lower-b'),l('walk','anchor','base'),l('observe-view'),
+  l('walk','anchor','lower-landing'),l('walk','anchor','side'),l('observe-view'),
+  l('compare-views'),l('inspect','feature','service-plate'),l('confirm-preview')
+ ])e08=step(E08,e08,x);
+ const fragment=encodeMemoryLantern(e04,e05,e06,e07,e08);
+ assert.match(fragment,/^#paper-memory-station-garden-shortcut-steps=/);
+ const p=decodeMemoryLantern(fragment);
+ assert.deepEqual(p,{e04,e05,e06,e07,e08});
+ assert.equal(E04.view(p.e04).sourceDates,'UNKNOWN');
+ assert.equal(E05.view(p.e05).e06Unlocked,false);
+ assert.equal(E07.view(p.e07).e08Unlocked,false);
+ assert.equal(E08.view(p.e08).e09Unlocked,false);
+ assert.equal(E08.view(p.e08).upperHillClosed,true);
+ for(const s of Object.values(p))
+  for(const k of ['canonicalEvents','unlocks','rights','historicalClaims'])assert.deepEqual(s[k],[]);
+ const reset=E08.dispatch(e08,nav('restart'));
+ assert.equal(E08.view(decodeMemoryLantern(encodeMemoryLantern(e04,e05,e06,e07,reset)).e08).story.stage,'opening');
+ assert.equal(encodeMemoryLantern(e04,e05,e06,E07.fresh(),e08),null);
+ assert.equal(encodeMemoryLantern(e04,e05,E06.fresh(),e07,e08),null);
+ assert.equal(encodeMemoryLantern(e04,E05.fresh(),e06,e07,e08),null);
+ assert.equal(encodeMemoryLantern(E04.fresh(),e05,e06,e07,e08),null);
+ for(const [which,forged] of [['e04',{...e04,rights:['archive']}],
+  ['e05',{...e05,unlocks:['E06']}],['e06',{...e06,rights:['plant']}],
+  ['e07',{...e07,unlocks:['E08']}],['e08',{...e08,rights:['electricity']}]]){
+  const input={e04,e05,e06,e07,e08,[which]:forged};
+  assert.equal(encodeMemoryLantern(input.e04,input.e05,input.e06,input.e07,input.e08),null);
+ }
+ const packet={v:1,e04:e04.history,e05:e05.history,e06:e06.history,e07:e07.history,e08:e08.history};
+ const pack=x=>'#paper-memory-station-garden-shortcut-steps='+encodeURIComponent(JSON.stringify(x));
+ for(const bad of [{...packet,year:1912},{...packet,e04:[]},{...packet,e07:[]},
+  {...packet,e08:[{scene:'story',action:{type:'confirm-preview'}}]},
+  {...packet,v:2}])assert.equal(decodeMemoryLantern(pack(bad)),null);
+ assert.equal(decodeMemoryLantern('#paper-memory-station-garden-shortcut-steps=%broken'),null);
+ assert.equal(decodeMemoryLantern('#paper-memory-station-garden-shortcut-steps='+'x'.repeat(110001)),null);
 });
