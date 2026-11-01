@@ -5,6 +5,7 @@ import {paperRevisit} from './revisit-model.mjs';
 import {paperLoopVisual} from './loop-visual.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
 import {paperReturnRoute,WALK_LABELS} from './return-route.mjs';
+import {paperReturnReflection} from './return-reflection.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
@@ -21,11 +22,13 @@ const incoming=decodeLoopTransfer(location.hash);
 const linkedE10=incoming?.e10||null,upstream=incoming?.upstream||null;
 let state=incoming?.e11||fresh(),tool='walk',begun=!!incoming?.e11?.history.length,
  screen='trial',revisitFocus='quiet_reader',roleCell=null,mapView='now';
-let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[];
+let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[],
+ reflectionChoices={},reflectionFocus=null;
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
+function clearReflection(){reflectionChoices={};reflectionFocus=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
-function act(action){returnSteps=[];state=dispatch(state,action);render();}
+function act(action){returnSteps=[];clearReflection();state=dispatch(state,action);render();}
 function button(host,name,handler,disabled=false,pressed=false){
  const b=document.createElement('button');b.type='button';b.textContent=name;b.disabled=disabled;
  if(pressed)b.setAttribute('aria-pressed','true');
@@ -306,15 +309,53 @@ function returnRoute(){
   'map_room:garden':'Return to Garden PAPER stop'
  };
  for(const to of model.choices)
-  button(host,labels[model.at+':'+to],()=>{returnSteps=[...returnSteps,to];returnRoute();},
+  button(host,labels[model.at+':'+to],()=>{returnSteps=[...returnSteps,to];clearReflection();returnRoute();reflection();},
    returnSteps.length>=24);
  button(host,'Undo last PAPER step',()=>{
-  returnSteps=returnSteps.slice(0,-1);returnRoute();
+  returnSteps=returnSteps.slice(0,-1);clearReflection();returnRoute();reflection();
  },!returnSteps.length);
- button(host,'Restart PAPER return route',()=>{returnSteps=[];returnRoute();},!returnSteps.length);
+ button(host,'Restart PAPER return route',()=>{returnSteps=[];clearReflection();returnRoute();reflection();},!returnSteps.length);
  $('return-route-result').textContent=model.complete?
   'PAPER route tested: both stops visited and Milo returned. No real route, Common access or official unlock.':
   'Not complete. Milo must visit both model stops and return to Square; a wrong turn is safe.';
+}
+
+function reflection(){
+ const model=paperReturnReflection(state,returnSteps,upstream,reflectionChoices);
+ const panel=$('return-reflection');panel.hidden=!model;
+ if(!model)return;
+ const cards=$('reflection-cards');cards.replaceChildren();
+ for(const card of model.cards){
+  const shelf=card.placed==='paper'?'SEEN IN PAPER':card.placed==='check'?'NEEDS REAL CHECK':'not sorted';
+  button(cards,'Choose '+card.label+' · '+shelf,()=>{
+   reflectionFocus=card.id;reflection();
+  },false,reflectionFocus===card.id);
+ }
+ const actions=$('reflection-places');actions.replaceChildren();
+ for(const [shelf,label] of [['paper','Place under SEEN IN PAPER'],
+  ['check','Place under NEEDS REAL CHECK']]){
+  button(actions,label,()=>{
+   if(!reflectionFocus)return;
+   reflectionChoices={...reflectionChoices,[reflectionFocus]:shelf};
+   reflection();
+  },!reflectionFocus);
+ }
+ const chosen=model.cards.find(c=>c.id===reflectionFocus);
+ $('reflection-feedback').textContent=!chosen?
+  'Milo: "Pick a note. Where does our evidence belong?"':
+  !chosen.placed?'Milo: "Try placing this note on a shelf."':
+  (chosen.correct?'Nia: "That matches what we can check. "':
+   'Nia: "Look again. A PAPER test is not a real-world fact. "')
+  +chosen.explanation+' You can move the note again.';
+ const shelves=$('reflection-shelves');shelves.replaceChildren();
+ for(const [shelf,label] of [['paper','SEEN IN PAPER'],['check','NEEDS REAL CHECK']]){
+  const p=document.createElement('p');
+  p.textContent=label+': '+(model.cards.filter(c=>c.placed===shelf)
+   .map(c=>c.label).join(' · ')||'No notes yet');shelves.append(p);
+ }
+ $('reflection-result').textContent=model.complete?
+  'Four notes sorted. Milo: "Our PAPER world changed, but real facts still need checking." No real planting, public route, official Chronicle or unlock.':
+  model.sortedCount+' of 4 notes supported by the model. Move any uncertain note and try again. No real-world facts verified.';
 }
 
 function gardenRevisit(){
@@ -396,7 +437,7 @@ function render(){
   (Object.values(state.tests).some(t=>!t.passed)?
    'Milo stops at a conflict. Finn: "Who needs this way?" Try moving a piece.':
    'Two simulated needs share one small model. Milo can test, move, compare and try again.');
- controls();board();tests();comparison();map();drawPaperLoop();review();worldRevisit();returnRoute();
+ controls();board();tests();comparison();map();drawPaperLoop();review();worldRevisit();returnRoute();reflection();
 }
 $('access').addEventListener('click',()=>act({type:'place',tokenId:'access',cells:['1,1','1,2']}));
 $('lift-quiet').addEventListener('click',()=>act({type:'lift',tokenId:'quiet'}));
