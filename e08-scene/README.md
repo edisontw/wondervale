@@ -16,3 +16,7 @@ A strictly replayed child-checked E07 PAPER route walk to the unlit Steps BASE o
 ## E08 ↔ E09 independent PAPER survey (2026-11-01)
 
 Only after Milo completes both lower-lamp model views and compares the fixed marks does a separate E09 authoring link appear. E09 receives strictly replayed E08 observations (including two apparent spreads), asks Milo to inspect the CLOSED hill from safe synthetic ground, and can return to E08 without losing either model's progress. E09 restart clears only E09; E08 restart invalidates its linked E09 rehearsal. Direct E09 access remains possible for authoring QA, but cannot fabricate E08 proof. Bounded URL fragments; no storage, rights, actual lighting, verified access, canonical Chronicle, official unlock or production release.
+
+## E04–E08 provenance-preserving PAPER visit (2026-11-01)
+
+A child-earned E07 route check may now carry E04's two undated attributed memories, E05's MOCK station question, E06's two-garden model and E07's revised connector into this separate E08 scene. Both lamps begin OFF until Milo tests them; the two safe-view observations remain a child action. The E08→E07→E06→E05→E04→E05→E06→E07→E08 return preserves strictly replayed PAPER histories. E08 restart clears E08 only; upstream restart withdraws dependent progress. This is a bounded, editable URL-fragment rehearsal without saved Chronicle, verified history, real lighting/access, identity proof, rights, MN4 deployment or official E08 unlock. E08→E09 does not yet carry the E04/E05 provenance.
