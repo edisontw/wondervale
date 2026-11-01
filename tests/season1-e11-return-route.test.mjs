@@ -5,6 +5,7 @@ import * as E05 from '../e05-scene/scene-model.mjs';
 import * as E06 from '../e06-scene/scene-model.mjs';
 import {paperReturnRoute,PAPER_WALK} from '../e11-scene/return-route.mjs';
 import {paperReturnReflection} from '../e11-scene/return-reflection.mjs';
+import {paperReflectionWorld} from '../e11-scene/reflection-world.mjs';
 
 function reviewed(){
  let s=E11.fresh();
@@ -100,6 +101,17 @@ test('strict E06 child-tested lower PAPER sprout appears at Garden stop, not as 
  assert.equal(reflection.observedPaperCount,1);
  assert.equal(reflection.cards.find(c=>c.id==='garden').correct,true);
  assert.equal(reflection.realWorldFactsVerified,0);
+ const diary=paperReflectionWorld(s,completed,{e06},{
+  station:'check',garden:'paper',planting:'check',route:'check'
+ });
+ assert.equal(diary.paperCount,1);
+ assert.equal(diary.checkCount,3);
+ assert.equal(diary.now.find(c=>c.id==='garden').shelf,'paper');
+ assert.equal(diary.now.find(c=>c.id==='station').shelf,'check');
+ assert.deepEqual(diary.canonicalEvents,[]);
+ assert.equal(paperReflectionWorld(s,completed,{e06:E06.dispatch(e06,{scene:'nav',type:'restart'})},{
+  station:'check',garden:'paper',planting:'check',route:'check'
+ }),null,'upstream restart withdraws the PAPER diary');
  assert.equal(paperReturnRoute(s,['garden'],{e06:E06.dispatch(e06,{scene:'nav',type:'restart'})}).gardenEarned,false);
 });
 
@@ -126,4 +138,28 @@ test('child sorts PAPER evidence only after return; incorrect shelf can be revis
  assert.equal(paperReturnReflection(s,steps,null,{secret:'paper'}),null);
  assert.equal(paperReturnReflection({...s,rights:['approved']},steps),null);
  assert.equal(paperReturnReflection(E11.dispatch(s,{type:'reset'}),steps),null);
+});
+
+test('FIRST/NOW diary appears only after correctly sorted child return, and undo revokes it',()=>{
+ const s=reviewed(),steps=['market','square','garden','map_room','garden','square'];
+ const correct={station:'check',garden:'check',planting:'check',route:'check'};
+ assert.equal(paperReflectionWorld(s,steps.slice(0,-1),null,correct),null);
+ assert.equal(paperReflectionWorld(s,steps,null,{...correct,station:'paper'}),null);
+ assert.equal(paperReflectionWorld(s,steps,null,{}),null);
+ const diary=paperReflectionWorld(s,steps,null,correct);
+ assert.equal(diary.first.length,4);
+ assert.ok(diary.first.every(c=>c.shelf==='unsorted'));
+ assert.equal(diary.now.length,4);
+ assert.equal(diary.paperCount,0,'direct E11 must not invent upstream changes');
+ assert.equal(diary.checkCount,4);
+ assert.match(diary.chroniclePreview,/PAPER DIARY ONLY/);
+ assert.match(diary.chroniclePreview,/No place was opened/);
+ assert.equal(diary.realWorldFactsVerified,0);
+ assert.equal(diary.realRouteOpen,false);
+ assert.equal(diary.seasonComplete,false);
+ assert.deepEqual(diary.canonicalEvents,[]);
+ assert.deepEqual(diary.unlocks,[]);
+ assert.equal(paperReflectionWorld({...s,rights:['approved']},steps,null,correct),null);
+ assert.equal(paperReflectionWorld(E11.dispatch(s,{type:'reset'}),steps,null,correct),null);
+ assert.equal(paperReflectionWorld(s,['garden','map_room','garden'],null,correct),null);
 });

@@ -177,15 +177,24 @@ async function journey(page,label,shots){
  }
  assert.match(await page.locator('#reflection-result').innerText(),/Four notes sorted/);
  assert.match(await page.locator('#reflection-result').innerText(),/No real planting/);
+ assert.equal(await page.locator('#reflection-world').isVisible(),true);
+ assert.equal(await page.locator('#reflection-world-first .reflection-note').count(),4);
+ assert.equal(await page.locator('#reflection-world-now .reflection-note[data-shelf="check"]').count(),4);
+ assert.equal(await page.locator('#reflection-world-now .reflection-note[data-shelf="paper"]').count(),0);
+ assert.match(await page.locator('#reflection-chronicle-preview').innerText(),/PAPER DIARY ONLY/);
+ assert.match(await page.locator('#reflection-chronicle-preview').innerText(),/No place was opened/);
+ assert.doesNotMatch(await page.locator('#reflection-chronicle-preview').innerText(),/\\bCommon\\b/);
  assert.doesNotMatch(await page.locator('#reflection-result').innerText(),/\bCommon\b/);
  assert.doesNotMatch(await page.locator('#return-route-trail').innerText(),/North Hill|Common/);
  assert.equal(await page.locator('#return-route-map [data-visited="true"]').count(),2);
  await press(page,'Undo last PAPER step');
+ assert.equal(await page.locator('#reflection-world').isVisible(),false);
  assert.match(await page.locator('#return-route-result').innerText(),/Not complete/);
  assert.equal(await page.locator('#return-reflection').isVisible(),false);
  await press(page,'Return to Square PAPER start');
  assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
  assert.match(await page.locator('#reflection-result').innerText(),/0 of 4 notes/);
+ assert.equal(await page.locator('#reflection-world').isVisible(),false);
  await invariant(page,label+' reviewed');
  assert.equal(await btn(page,'Review E10 PAPER needs').isEnabled(),true);
  await press(page,'Review E10 PAPER needs');

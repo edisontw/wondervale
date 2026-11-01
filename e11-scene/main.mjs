@@ -6,6 +6,7 @@ import {paperLoopVisual} from './loop-visual.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
 import {paperReturnRoute,WALK_LABELS} from './return-route.mjs';
 import {paperReturnReflection} from './return-reflection.mjs';
+import {paperReflectionWorld} from './reflection-world.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
@@ -323,7 +324,7 @@ function returnRoute(){
 function reflection(){
  const model=paperReturnReflection(state,returnSteps,upstream,reflectionChoices);
  const panel=$('return-reflection');panel.hidden=!model;
- if(!model)return;
+ if(!model){reflectionWorld();return;}
  const cards=$('reflection-cards');cards.replaceChildren();
  for(const card of model.cards){
   const shelf=card.placed==='paper'?'SEEN IN PAPER':card.placed==='check'?'NEEDS REAL CHECK':'not sorted';
@@ -356,6 +357,31 @@ function reflection(){
  $('reflection-result').textContent=model.complete?
   'Four notes sorted. Milo: "Our PAPER world changed, but real facts still need checking." No real planting, public route, official Chronicle or unlock.':
   model.sortedCount+' of 4 notes supported by the model. Move any uncertain note and try again. No real-world facts verified.';
+ reflectionWorld();
+}
+
+// Reconstruct a visible FIRST/NOW diary only from a completed, strictly replayed
+// child return route and all four correctly placed evidence notes.
+function reflectionWorld(){
+ const world=paperReflectionWorld(state,returnSteps,upstream,reflectionChoices);
+ const panel=$('reflection-world');panel.hidden=!world;
+ if(!world)return;
+ for(const stage of ['first','now']){
+  const host=$('reflection-world-'+stage);host.replaceChildren();
+  for(const card of world[stage]){
+   const note=document.createElement('div');note.className='reflection-note';
+   note.dataset.shelf=card.shelf;
+   const name=document.createElement('strong');name.textContent=card.label;
+   const status=document.createElement('span');
+   status.textContent=card.shelf==='paper'?'SEEN IN PAPER':
+    card.shelf==='check'?'NEEDS REAL CHECK':'NOT SORTED';
+   note.append(name,status);host.append(note);
+  }
+ }
+ $('reflection-world-summary').textContent='Milo moved '+world.paperCount+
+  ' verified PAPER model note(s) to SEEN IN PAPER and kept '+world.checkCount+
+  ' note(s) for real checks. This is a changed PAPER notebook, not an opened place.';
+ $('reflection-chronicle-preview').textContent=world.chroniclePreview;
 }
 
 function gardenRevisit(){

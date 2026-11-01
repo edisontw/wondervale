@@ -242,6 +242,11 @@ try{
     await press('Place under NEEDS REAL CHECK');
    }
    assert.match(await page.locator('#reflection-result').innerText(),/Four notes sorted/);
+   assert.equal(await page.locator('#reflection-world').isVisible(),true);
+   assert.equal(await page.locator('#reflection-world-first .reflection-note').count(),4);
+   assert.equal(await page.locator('#reflection-world-now .reflection-note[data-shelf="paper"]').count(),2);
+   assert.equal(await page.locator('#reflection-world-now .reflection-note[data-shelf="check"]').count(),2);
+   assert.match(await page.locator('#reflection-chronicle-preview').innerText(),/2 child-earned model observations and 2 questions/);
    const shelves=await page.locator('#reflection-shelves').innerText();
    assert.match(shelves,/SEEN IN PAPER: E05 wall-side PAPER table · E06 possible PAPER sprout/);
    assert.match(shelves,/NEEDS REAL CHECK: Real seeds were planted · The public route is safe/);
@@ -250,6 +255,7 @@ try{
    assert.match(await page.locator('#return-route-trail').innerText(),/Market PAPER detour/);
    assert.doesNotMatch(await page.locator('#return-route-trail').innerText(),/North Hill|Common/);
    await press('Undo last PAPER step');
+   assert.equal(await page.locator('#reflection-world').isVisible(),false);
    assert.match(await page.locator('#return-route-result').innerText(),/Not complete/);
    assert.equal(await page.locator('#return-reflection').isVisible(),false,
     'undo must withdraw the completed reflection');
