@@ -25,3 +25,9 @@ Checks: `node --test tests/season1-e09-e10-scene-transfer.test.mjs` and `node te
 ## E04–E09 six-scene PAPER provenance (2026-11-01)
 
 E09 can receive the child-earned E04 undated-memory → E05 MOCK station → E06 two gardens → E07 revised connector → E08 two-view model context. Milo still walks and revises the E09 safe-survey sketch himself; the upper hill remains CLOSED. The strict replay of all six histories rejects forged dates, rights, missing actions and extra keys. E09↔E08 preserves the E09 survey, and E09 restart preserves E04–E08; upstream resets revoke the dependent link. Going on to the separate E10 authoring scene currently drops E04/E05 provenance and is explicitly labelled as such; that longer transfer is future work, not canonical unlock or real access.
+
+## E09 child-placed ground observation pins (2026-11-02, PR #277)
+
+Milo must first walk to the **fictional safe fence lookout** to inspect loose ground and to the **fictional lower bend** to inspect water marks. The child picks a clue and taps a station on the PAPER sketch. Wrong placement remains visible, can be moved or removed without penalty; comparing the two correctly placed firsthand observations displays a visible question mark between them: **cause/date UNKNOWN**. This is not evidence that water caused the closure. The upper hill stays CLOSED.
+
+Pin actions live in the existing strictly replayed E09 in-memory history, not a mutable completion snapshot; tampered comparison, closed-node placement and uninspected clues fail closed. E09 restart clears pins; a valid E08↔E09 PAPER history transfer can reconstruct them, but no production save, canonical Chronicle, E10 unlock or real site right is granted. Node anti-forgery and four-viewport Chromium wrong-place/revise/compare/restart tests are included in the E09 scene-shell workflow. Real terrain and access remain Owner-gated.
