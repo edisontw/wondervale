@@ -88,8 +88,8 @@ try{
    assert.match(await page.locator('#stage').innerText(),/finished/);
    await page.locator('#e11-paper').click();
    assert.equal(await page.locator('#revisit').isVisible(),false,'E11 reset clears E11 only');
-   assert.equal(await page.locator('#e10-use-world').isVisible(),true,
-    'E11 restart retains read-only E10 PAPER cutout comparison');
+   assert.equal(await page.locator('#e10-use-world').getAttribute('hidden'),null,
+    'E11 restart retains the earned E10 note even before its model opens');
    await page.locator('#e10-return').click();
    await page.locator('#restart').click();
    assert.equal(await page.locator('#e11-paper').isVisible(),false,'E10 reset withdraws E11 link');
