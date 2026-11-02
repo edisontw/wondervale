@@ -89,3 +89,35 @@ test('restart remains possible at action cap',()=>{
  assert.equal(can(s,n(view(s).screen==='hill'?'lantern':'hill')),false);
  s=go(s,n('restart'));assert.deepEqual(s,fresh());
 });
+
+test('E09 child moves two inspected ground pins, corrects mistakes, and cannot invent a closure cause',()=>{
+ const g=(type,clue,at)=>type==='compare'?{scene:'ground',type}:
+  type==='remove'?{scene:'ground',type,clue}:{scene:'ground',type,clue,at};
+ let s=go(fresh(),a('start'));
+ assert.equal(can(s,g('place','disturbed_ground','fence_view')),false);
+ s=go(s,a('walk','to','signpost'));
+ s=go(s,a('walk','to','fence_view'));
+ s=go(s,a('inspect','clueId','disturbed_ground'));
+ s=go(s,g('place','disturbed_ground','lower_bend'));
+ assert.equal(view(s).groundBoard.placements.disturbed_ground,'lower_bend');
+ assert.equal(can(s,g('compare')),false,'need both firsthand inspections');
+ s=go(s,a('walk','to','signpost'));s=go(s,a('walk','to','lower_bend'));
+ s=go(s,a('inspect','clueId','runoff_marks'));
+ s=go(s,g('place','runoff_marks','fence_view'));
+ s=go(s,g('compare'));
+ assert.equal(view(s).groundBoard.compared,false,'two incorrect pins do not compare');
+ s=go(s,g('place','disturbed_ground','fence_view'));
+ s=go(s,g('place','runoff_marks','lower_bend'));
+ s=go(s,g('compare'));
+ assert.equal(view(s).groundBoard.compared,true);
+ assert.equal(view(s).groundBoard.realCauseKnown,false);
+ assert.match(view(s).groundBoard.feedback,/UNKNOWN/);
+ assert.deepEqual(replay(s.history),s);
+ const forged=structuredClone(s);forged.groundBoard.compared=false;
+ assert.equal(restore(forged),null,'tampered result cannot be replayed');
+ assert.equal(can(s,{scene:'ground',type:'place',clue:'runoff_marks',at:'upper_closed'}),false);
+ s=go(s,g('remove','runoff_marks'));
+ assert.equal(view(s).groundBoard.compared,false,'moving a pin revokes comparison');
+ s=go(s,n('restart'));
+ assert.deepEqual(s.groundBoard,fresh().groundBoard);
+});

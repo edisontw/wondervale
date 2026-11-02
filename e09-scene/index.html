@@ -33,6 +33,10 @@ button[aria-pressed=true]{background:#dceedd;border-color:#37684c}
 .closed-node{position:absolute;z-index:2;left:80%;top:16%;transform:translate(-50%,-50%);background:#f4d9d5;border:2px dashed #8d3838;border-radius:.3rem;padding:.2rem;font-size:.68rem;font-weight:700;pointer-events:none}
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
 .field-frames{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem;margin:.5rem 0}
+.ground-map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem;margin:.5rem 0}
+.ground-site{border:2px dashed #57756b;border-radius:.5rem;padding:.6rem;background:#f2f5e9;min-width:0}
+.ground-pin{display:block;margin-top:.35rem;min-height:1.5rem;font-weight:700;overflow-wrap:anywhere}
+.ground-question{font-weight:800;padding:.4rem;border:1px dashed #7b6554;margin:.5rem 0}
 .card{border:1px solid #b8c7c0;border-radius:.5rem;padding:.5rem;min-width:0;overflow-wrap:anywhere}
 .card h3{font-size:.95rem;margin:.1rem 0 .3rem}
 .finish-controls{position:relative;z-index:10;display:flex;flex-wrap:wrap;gap:.4rem;
@@ -105,8 +109,30 @@ small{color:#485f55}
 <p id="symbol-status" class="status" aria-live="polite"></p>
 </section>
 </div>
+<section id="ground-panel" class="panel" aria-label="Child-placed fictional ground observation pins">
+<h2>4. Put the ground clues where Milo saw them</h2>
+<p>Nia: "We saw two clues. Do they tell us why?" Pick a clue and tap a safe sketch station. A wrong placement can be moved or removed. The drawing is <strong>fictional, not a map of real hill terrain</strong>.</p>
+<div class="ground-map" role="group" aria-label="Two safe PAPER observation sites">
+ <div class="ground-site"><strong>FENCE LOOKOUT — safe side</strong><span id="ground-fence-pin" class="ground-pin">No pin</span></div>
+ <div class="ground-site"><strong>LOWER BEND — safe side</strong><span id="ground-bend-pin" class="ground-pin">No pin</span></div>
+</div>
+<div class="controls" aria-label="Pick an inspected observation">
+ <button data-ground-select="disturbed_ground" aria-pressed="true">Pick LOOSE GROUND</button>
+ <button data-ground-select="runoff_marks" aria-pressed="false">Pick WATER MARKS</button>
+</div>
+<div class="controls" aria-label="Place the picked observation">
+ <button data-ground-site="fence_view">Put pin at FENCE</button>
+ <button data-ground-site="lower_bend">Put pin at BEND</button>
+ <button data-ground-remove="disturbed_ground">Remove GROUND pin</button>
+ <button data-ground-remove="runoff_marks">Remove WATER pin</button>
+ <button id="ground-compare">Compare my two observations</button>
+</div>
+<p id="ground-link" class="ground-question" hidden>GROUND ? WATER — Two things seen, but the reason is UNKNOWN.</p>
+<p id="ground-feedback" class="status" role="status" aria-live="polite"></p>
+<p><small>Child-operated PAPER evidence placement; strictly replayed across a PAPER return visit. No real erosion explanation, historical date, path permission, Chronicle event or E10 unlock.</small></p>
+</section>
 <section class="panel">
-<h2>4. Field notebook — seen / think / unknown</h2>
+<h2>5. Field notebook — seen / think / unknown</h2>
 <div id="finish-controls" class="finish-controls" aria-label="Survey review and finish"></div>
 <div class="controls"><button id="restart">Restart E09 PAPER survey</button></div>
 <div class="cards">
