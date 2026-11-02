@@ -193,12 +193,28 @@ async function journey(page,label,shots){
  await page.keyboard.press('Enter');
  assert.match(await page.locator('#follow-up-diary').innerText(),/PAPER NEXT STEP — NOT DONE/);
  assert.match(await page.locator('#follow-up-diary').innerText(),/public route/);
+ assert.equal(await page.locator('#follow-up-map').isVisible(),true);
+ assert.equal(await page.locator('#follow-up-map-now [data-marker="true"]').count(),0);
+ await press(page,'Place ? at Garden PAPER stop');
+ assert.match(await page.locator('#follow-up-map-feedback').innerText(),/Move it/);
+ assert.equal(await page.locator('#follow-up-map-now [data-marker="true"]').count(),1);
+ assert.match(await page.locator('#follow-up-map-diary').innerText(),/no completed check/);
+ await press(page,'Place ? at Square PAPER start');
+ assert.equal(await page.locator('#follow-up-map-now [data-marker="true"]').getAttribute('data-place'),'square');
+ assert.match(await page.locator('#follow-up-map-diary').innerText(),/PAPER MAP PLAN — NOT DONE/);
+ await press(page,'Remove PAPER question mark');
+ assert.equal(await page.locator('#follow-up-map-now [data-marker="true"]').count(),0);
+ await press(page,'Place ? at Square PAPER start');
+ assert.match(await page.locator('#follow-up-map-diary').innerText(),/NOT DONE/);
  assert.doesNotMatch(await page.locator('#follow-up-diary').innerText(),/\\bCommon\\b/);
  await press(page,'Question: Real seeds were planted');
+ assert.equal(await page.locator('#follow-up-map').isVisible(),false);
  assert.match(await page.locator('#follow-up-diary').innerText(),/none chosen/);
  await press(page,'Request permission before changing anything');
  assert.match(await page.locator('#follow-up-diary').innerText(),/NOT DONE/);
  assert.match(await page.locator('#follow-up-diary').innerText(),/site owner/);
+ await press(page,'Place ? at Garden PAPER stop');
+ assert.match(await page.locator('#follow-up-map-diary').innerText(),/PAPER MAP PLAN — NOT DONE/);
 
  assert.doesNotMatch(await page.locator('#reflection-chronicle-preview').innerText(),/\\bCommon\\b/);
  assert.doesNotMatch(await page.locator('#reflection-result').innerText(),/\bCommon\b/);
@@ -207,6 +223,7 @@ async function journey(page,label,shots){
  await press(page,'Undo last PAPER step');
  assert.equal(await page.locator('#reflection-world').isVisible(),false);
  assert.equal(await page.locator('#reflection-follow-up').isVisible(),false);
+ assert.equal(await page.locator('#follow-up-map').isVisible(),false);
  assert.match(await page.locator('#return-route-result').innerText(),/Not complete/);
  assert.equal(await page.locator('#return-reflection').isVisible(),false);
  await press(page,'Return to Square PAPER start');
