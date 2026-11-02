@@ -88,6 +88,9 @@ try{
    assert.match(await page.locator('#stage').innerText(),/finished/);
    await page.locator('#e11-paper').click();
    assert.equal(await page.locator('#revisit').isVisible(),false,'E11 reset clears E11 only');
+   // The E11 module renders after navigation; #revisit is hidden both before and after
+   // hydration, so its visibility is not a valid readiness signal for this assertion.
+   await page.waitForFunction(()=>document.querySelector('#e10-use-world')?.hasAttribute('hidden')===false);
    assert.equal(await page.locator('#e10-use-world').getAttribute('hidden'),null,
     'E11 restart retains the earned E10 note even before its model opens');
    await page.locator('#e10-return').click();
