@@ -5,6 +5,7 @@ on:
       - 'e11-scene/**'
       - 'engine/s01e11-authoring-prototype.mjs'
       - 'tests/season1-e11-scene-shell*'
+      - 'tests/season1-e11-role-walk.test.mjs'
       - '.github/workflows/wondervale-e11-scene-shell.yml'
   push:
     branches: [main]
@@ -12,6 +13,7 @@ on:
       - 'e11-scene/**'
       - 'engine/s01e11-authoring-prototype.mjs'
       - 'tests/season1-e11-scene-shell*'
+      - 'tests/season1-e11-role-walk.test.mjs'
       - '.github/workflows/wondervale-e11-scene-shell.yml'
 permissions:
   contents: read
@@ -27,11 +29,12 @@ jobs:
       - name: Node strict replay and source gates
         run: |
           node --check e11-scene/main.mjs
+          node --check e11-scene/role-walk.mjs
           node --check e11-scene/loop-visual.mjs
           node --check e11-scene/return-route.mjs
           node --check e11-scene/return-reflection.mjs
           node --check tests/season1-e11-scene-shell-browser.mjs
-          node --test tests/s01e11-authoring-prototype.test.mjs tests/season1-e11-scene-shell.test.mjs tests/season1-e11-return-route.test.mjs
+          node --test tests/s01e11-authoring-prototype.test.mjs tests/season1-e11-scene-shell.test.mjs tests/season1-e11-return-route.test.mjs tests/season1-e11-role-walk.test.mjs
       - name: Guard noncanonical production packaging
         run: |
           if grep -R -n 'e11-scene' scripts/compile_episode.py scripts/package_static.py scripts/package_e02.py scripts/package_e03.py; then

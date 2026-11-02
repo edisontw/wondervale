@@ -81,6 +81,23 @@ async function journey(page,label,shots){
  await press(page,'Compare FIRST and NOW');
  assert.match(await page.locator('#comparison').innerText(),/trial-1 → NOW trial-2/);
  assert.match(await page.locator('#comparison').innerText(),/not real access/);
+ assert.equal(await page.locator('#visitor-walk').isVisible(),true);
+ for(const [stage,role,route] of [
+  ['FIRST','quiet reader',['1,1']],
+  ['FIRST','activity group',['1,1','1,2']],
+  ['NOW','quiet reader',['1,1']],
+  ['NOW','activity group',['1,1']]
+ ]){
+  await press(page,'Walk '+stage+' · '+role);
+  for(const cell of route)await press(page,'Walk visitor to '+cell);
+  await press(page,'Check visitor at place');
+ }
+ assert.match(await page.locator('#visitor-walk-chronicle').innerText(),
+  /FIRST quiet RETRY, group PASS → NOW quiet PASS, group PASS/);
+ assert.match(await page.locator('#visitor-walk-chronicle').innerText(),/UNKNOWN/);
+ assert.equal(await page.locator('#visitor-walk-board').getAttribute('data-stage'),'now');
+ await invariant(page,label+' child visitor rehearsal');
+
  assert.equal(await page.locator('#revisit').isVisible(),true);
  assert.match(await page.locator('#revisit-first-result').innerText(),/FIRST Quiet reader: RETRY/);
  assert.match(await page.locator('#revisit-now-result').innerText(),/NOW Quiet reader: PASS/);
