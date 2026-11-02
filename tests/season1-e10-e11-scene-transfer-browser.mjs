@@ -38,13 +38,13 @@ try{
    assert.match(await page.locator('#e10-linked-context').innerText(),/observed 2 fictional traces/);
    assert.match(await page.locator('#e10-linked-notes').textContent(),/SIMULATED NEEDS/);
    assert.match(await page.locator('#e10-linked-notes').textContent(),/UNKNOWN/);
+   assert.equal(await page.locator('#grid .quiet').count(),0,'E10 cannot pre-place E11 pieces');
+   const press=async name=>page.getByRole('button',{name,exact:true}).click();
+   await press('Begin the PAPER trial');
    assert.equal(await page.locator('#e10-use-world').isVisible(),true);
    assert.match(await page.locator('#e10-use-first').innerText(),/Seat cutout at stone edge.*Notice cutout at stone edge/);
    assert.match(await page.locator('#e10-use-now').innerText(),/Notice cutout at notice wall/);
    assert.match(await page.locator('#e10-use-result').innerText(),/UNKNOWN/);
-   assert.equal(await page.locator('#grid .quiet').count(),0,'E10 cannot pre-place E11 pieces');
-   const press=async name=>page.getByRole('button',{name,exact:true}).click();
-   await press('Begin the PAPER trial');
    assert.equal(await page.locator('#e10-needs-world').isVisible(),true);
    assert.equal(await page.locator('#e10-needs-first .needs-slot').count(),3);
    assert.equal(await page.locator('#e10-needs-first .needs-slot[data-conflict="true"]').count(),1);
