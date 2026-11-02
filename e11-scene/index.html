@@ -42,6 +42,13 @@ button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
 .paper-flow-cell{display:flex;align-items:center;justify-content:center;min-width:0;min-height:30px;background:#e3eee9;border:1px solid #9cafa6;border-radius:.2rem;font-size:.8rem;font-weight:650}
 .paper-flow-cell[data-conflict=true]{background:#f4c2aa;border-color:#9a503b}
 
+.atlas-places{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin:.5rem 0}
+.atlas-place{display:flex;flex-direction:column;justify-content:center;gap:.3rem;min-width:0;min-height:94px;background:#f4f1e6;border-style:dashed;overflow-wrap:anywhere}
+.atlas-place small{display:block;font-size:.8rem;color:#344a41}
+.atlas-place[data-mark=conflict]{background:#f8e2d4;border-color:#a46c52}
+.atlas-place[data-mark=revised],.atlas-place[data-mark=paper-sprout]{background:#e1efe2;border-color:#547b60}
+.atlas-place[data-selected=true]{outline:3px solid #8c571d;outline-offset:2px}
+@media(max-width:700px){.atlas-places{grid-template-columns:1fr}.atlas-place{min-height:64px}}
 .revisit-panel{border:1px solid #b8c8bf;border-radius:.5rem;padding:.5rem;min-width:0}
 .garden-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin:.5rem 0}
 .garden-card{border:2px dashed #9caaa0;border-radius:.5rem;background:#f3f1e6;padding:.55rem;min-width:0}
@@ -155,6 +162,15 @@ small{color:#50655e}
 </div>
 <p id="shared-use-note" class="status" aria-live="polite"></p>
 <small>Only appears after four child-walked E11 visitors and strictly replayed E06/E07 model experiments. Rain tray and connector are NOT physically coupled. No real drainage, user consultation, access, permission, official Chronicle, new identity or unlock.</small>
+</div>
+<div id="world-atlas" class="revisit-panel" hidden aria-label="Child-earned E06 E07 E10 FIRST NOW PAPER world atlas">
+<h3>Three places, one changed PAPER notebook · FIRST / NOW</h3>
+<p>Finn: "Our first plan did not fit everyone." Nia: "Look at what Milo actually tested." Switch FIRST and NOW; inspect Garden, connector and courtyard. These are three independent models, NOT a real connecting route.</p>
+<div id="world-atlas-stages" class="controls" aria-label="Choose FIRST or NOW PAPER world"></div>
+<div id="world-atlas-places" class="atlas-places" role="group" aria-label="Inspect three separate PAPER places"></div>
+<p id="world-atlas-observation" class="status" aria-live="polite"></p>
+<p id="world-atlas-chronicle" class="status" aria-live="polite"></p>
+<small>Earned only after child-replayed E06 garden, E07 connector, E10 courtyard needs and four E11 visitor walks with two compared shared-use checks. No physical connections, real growth, history, consultation, access, rights, Common reveal, canonical Chronicle, save or unlock. Restart/reload withdraws this model.</small>
 </div>
 <small>Four child-walked PAPER observations only. No real people, site clearance, access certification, official Chronicle, new identity or season unlock. Changing the layout withdraws this rehearsal; reload clears it.</small>
 </div>

@@ -206,6 +206,7 @@ try{
    // Child must walk all four E11 visitors before E06/E07 PAPER constraints
    // can be revisited. The upstream experiments were performed on this journey.
    assert.equal(await page.locator('#shared-use').isVisible(),false);
+   assert.equal(await page.locator('#world-atlas').isVisible(),false);
    for(const [phase,role,route] of [
     ['FIRST','quiet reader',['1,1']],
     ['FIRST','activity group',['1,1','1,2']],
@@ -229,8 +230,27 @@ try{
     /FIRST 3\/3 rain marks, 2 connector overlap cells; NOW 1\/3 rain marks, 0 overlaps/);
    assert.match(await page.locator('#shared-use-note').innerText(),/UNKNOWN/);
    assert.doesNotMatch(await page.locator('#shared-use-note').innerText(),/\bCommon\b/);
+   // Strictly earned E06/E07/E10 + four E11 visitor walks + two shared checks.
+   await page.locator('#world-atlas').waitFor({state:'visible'});
+   assert.equal(await page.locator('#world-atlas-places .atlas-place').count(),3);
+   assert.equal(await page.locator('#world-atlas-places').getAttribute('data-stage'),'now');
+   assert.match(await page.locator('#world-atlas-chronicle').innerText(),/INDEPENDENT/);
+   assert.match(await page.locator('#world-atlas-chronicle').innerText(),/UNKNOWN/);
+   await press('Show FIRST three-place PAPER world');
+   assert.equal(await page.locator('#world-atlas-places').getAttribute('data-stage'),'first');
+   await press("Inspect Finn's connector PAPER change");
+   assert.match(await page.locator('#world-atlas-observation').innerText(),/2 overlaps/);
+   await press('Show NOW three-place PAPER world');
+   assert.equal(await page.locator('#world-atlas-places').getAttribute('data-stage'),'now');
+   assert.match(await page.locator('#world-atlas-observation').innerText(),/0 overlaps/);
+   await press('Inspect Unnamed courtyard PAPER change');
+   assert.match(await page.locator('#world-atlas-observation').innerText(),/separate model slots/);
+   await press('Inspect Lower Garden PAPER change');
+   assert.match(await page.locator('#world-atlas-observation').innerText(),/PAPER sprout/);
+   assert.doesNotMatch(await page.locator('#world-atlas-chronicle').innerText(),/Common/);
    await press('Restart shared-use PAPER checks');
    assert.match(await page.locator('#shared-use-note').innerText(),/pending/);
+   assert.equal(await page.locator('#world-atlas').isVisible(),false,'reset withdraws atlas');
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
 
    // E05 -> E06 -> E11 is one real child-operated Chromium journey, not a
