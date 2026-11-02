@@ -38,6 +38,10 @@ button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
 .mini-cell.mini-quiet{background:#cce2f1}
 .mini-cell.mini-activity{background:#f4dfc9}
 .mini-cell.mini-focus{outline:3px solid #8c571d;outline-offset:-3px}
+.paper-flow-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px;max-width:420px;margin:.45rem 0}
+.paper-flow-cell{display:flex;align-items:center;justify-content:center;min-width:0;min-height:30px;background:#e3eee9;border:1px solid #9cafa6;border-radius:.2rem;font-size:.8rem;font-weight:650}
+.paper-flow-cell[data-conflict=true]{background:#f4c2aa;border-color:#9a503b}
+
 .revisit-panel{border:1px solid #b8c8bf;border-radius:.5rem;padding:.5rem;min-width:0}
 .garden-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin:.5rem 0}
 .garden-card{border:2px dashed #9caaa0;border-radius:.5rem;background:#f3f1e6;padding:.55rem;min-width:0}
@@ -138,6 +142,20 @@ small{color:#50655e}
 <p id="visitor-walk-feedback" class="status" aria-live="polite"></p>
 <p id="visitor-walk-results" class="status" aria-live="polite"></p>
 <p id="visitor-walk-chronicle" class="status" aria-live="polite"></p>
+<div id="shared-use" class="revisit-panel" hidden aria-label="Child-revised E06 E07 E11 PAPER shared-use comparison">
+<h3>What changed for both visitors? · two PAPER checks</h3>
+<p>Milo: "Our garden tray and Finn's path are separate models. Can I try FIRST, then NOW?" Choose the model water channel and connector, inspect the X overlaps, record FIRST and NOW, then compare. Try again freely.</p>
+<div id="shared-use-choices" class="controls" aria-label="Choose independently tested model conditions"></div>
+<div id="shared-use-grid" class="paper-flow-grid" role="img" aria-label="Independent PAPER connector conflict grid"></div>
+<p id="shared-use-observation" class="status" aria-live="polite"></p>
+<div id="shared-use-controls" class="controls"></div>
+<div class="columns">
+<div class="revisit-panel"><strong>FIRST · child check</strong><p id="shared-use-first" class="status"></p></div>
+<div class="revisit-panel"><strong>NOW · child revision</strong><p id="shared-use-now" class="status"></p></div>
+</div>
+<p id="shared-use-note" class="status" aria-live="polite"></p>
+<small>Only appears after four child-walked E11 visitors and strictly replayed E06/E07 model experiments. Rain tray and connector are NOT physically coupled. No real drainage, user consultation, access, permission, official Chronicle, new identity or unlock.</small>
+</div>
 <small>Four child-walked PAPER observations only. No real people, site clearance, access certification, official Chronicle, new identity or season unlock. Changing the layout withdraws this rehearsal; reload clears it.</small>
 </div>
 <div class="revisit-panel" id="role-inspection"><h2>Listen to both model needs</h2>
