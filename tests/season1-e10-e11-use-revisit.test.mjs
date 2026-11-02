@@ -70,11 +70,16 @@ test('incomplete, removed, stale and forged cutout histories never import an E11
  for(const history of [
   [{type:'place',prop:'seat',anchor:'closed_hill'}],
   [{type:'place',prop:'seat',anchor:'stone_edge',permissionApproved:true}],
-  [...packet.useStage,{type:'grant-unlock'}],
+  [...packet.useStage.history,{type:'grant-unlock'}],
   [{type:'compare'}],
   [],
   'not an array'
- ])assert.equal(decodeLoopTransfer(pack({...packet,useStage:history})),null);
+ ])assert.equal(decodeLoopTransfer(pack({...packet,useStage:{
+  ...packet.useStage,history}})),null);
+ assert.equal(decodeLoopTransfer(pack({...packet,useStage:{
+  ...packet.useStage,sourceKey:'stale-source'}})),null);
+ assert.equal(decodeLoopTransfer(pack({...packet,useStage:{
+  ...packet.useStage,rights:['approved']}})),null);
  assert.equal(decodeLoopTransfer(pack({...packet,useStage:packet.useStage,approved:true})),null);
  assert.equal(decodeLoopTransfer(pack({...packet,e10:[]})),null);
  assert.equal(decodeLoopTransfer(pack({...packet,useStage:undefined})).useTrial,null);
