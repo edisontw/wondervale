@@ -189,10 +189,10 @@ function render(){
  for(const el of document.querySelectorAll('[data-anchor]'))el.dataset.here=String(el.dataset.anchor===s.milo);
 }
 for(const key of ['first','now'])$('e06-world-'+key).addEventListener('click',()=>{
- gardenWorldView=key;for(const b of document.querySelectorAll('[data-flow-channel]'))
+ gardenWorldView=key;render();
+});
+for(const b of document.querySelectorAll('[data-flow-channel]'))
  b.addEventListener('click',()=>{flowChannel=b.dataset.flowChannel;render();});
 for(const b of document.querySelectorAll('[data-flow-phase]'))
  b.addEventListener('click',()=>{flowPhase=b.dataset.flowPhase;render();});
-render();
-});
 render();
