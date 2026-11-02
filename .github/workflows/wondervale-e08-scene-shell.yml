@@ -35,6 +35,8 @@ jobs:
         run: |
           node --check e08-scene/scene-model.mjs
           node --check e08-scene/shadow-experiment.mjs
+          node --check e08-scene/live-viewfinder.mjs
+          node --check tests/season1-e08-live-viewfinder.test.mjs
           node --check e08-scene/main.mjs
           node --check e08-scene/connector-world.mjs
           node --check tests/season1-e07-e08-world-callback.test.mjs
@@ -43,7 +45,7 @@ jobs:
           node --check tests/season1-e07-e08-scene-transfer-browser.mjs
           node --check authoring-labs/e08-e09-scene-transfer.mjs
           node --check tests/season1-e08-e09-scene-transfer-browser.mjs
-          node --test tests/season1-e08-shadow-screen.test.mjs
+          node --test tests/season1-e08-live-viewfinder.test.mjs tests/season1-e08-shadow-screen.test.mjs
           node --test tests/season1-e07-e08-world-callback.test.mjs tests/season1-e08-e09-scene-transfer.test.mjs tests/season1-e07-e08-scene-transfer.test.mjs tests/season1-e08-scene-shell.test.mjs tests/season1-lantern-story.test.mjs tests/s01e08-authoring-prototype.test.mjs
       - name: Guard production packaging
         run: |
