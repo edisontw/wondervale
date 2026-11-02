@@ -25,6 +25,12 @@ button[aria-pressed=true]{background:#d4e9dc;font-weight:700}
 .return-map[data-mark="question"] .return-link::after{content:"? UNKNOWN";background:#eaf0e8;padding:0 .15rem}
 .return-map[data-mark="unsupported"] .return-link::after{content:"NOT VERIFIED";background:#eaf0e8;padding:0 .15rem}
 .paper{border:2px dashed #91a69a;border-radius:.45rem;padding:.65rem;background:#eaf0e8;line-height:1.5;min-height:3rem}
+.replica-board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.2rem;margin:.5rem 0}
+.replica-cell{min-width:0;min-height:4.6rem;border:1px solid #91a69a;border-radius:.3rem;background:#f8faf6;padding:.15rem;display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:.15rem}
+.replica-cell[data-overlap="false"][data-checked="true"]{background:#fff0ce;border-color:#9b6d20}
+.replica-cell[data-overlap="true"][data-checked="true"]{background:#d4e9dc;border-color:#456e63}
+.board-feature{width:100%;font-size:clamp(.62rem,1.5vw,.75rem);padding:.2rem .1rem;min-height:44px;overflow-wrap:anywhere}
+.copy-feature{font-size:clamp(.6rem,1.4vw,.72rem);font-weight:700;color:#385f76;border:1px dashed #385f76;border-radius:.2rem;text-align:center;overflow-wrap:anywhere}
 .dialogue{background:#dcece5;padding:.7rem;border-radius:.5rem;line-height:1.5}
 [hidden]{display:none!important}
 @media(max-width:650px){.scene{grid-template-columns:1fr}.panel{padding:.55rem}}
@@ -34,6 +40,13 @@ button[aria-pressed=true]{background:#d4e9dc;font-weight:700}
 <div class="dialogue" aria-live="polite"><strong id="speaker"></strong>: <span id="line"></span><p id="stage-text"></p></div>
 <section class="panel" id="foyer"><h2>1. Inspect and test the removable copy</h2>
 <p id="foyer-map" class="paper" role="status"></p>
+<div class="paper" aria-label="Synthetic paper board replica experiment">
+<strong>Removable PAPER copy — spatial model, not a real station board</strong>
+<p>Tap the two visible board marks to inspect them. After Milo makes a guess, place or turn the copy. Compare the two positions; a mismatch can be revised safely.</p>
+<div id="replica-board" class="replica-board" role="group" aria-label="Five-column four-row paper board model with original marks and movable copy"></div>
+<p id="replica-status" role="status" aria-live="polite"></p>
+<button type="button" id="board-turn" disabled>Place PAPER copy B</button>
+</div>
 <div class="controls">
 <button data-scene="station" data-type="start">Begin story</button>
 <button data-scene="station" data-type="walk" data-value="door">Milo: door</button>

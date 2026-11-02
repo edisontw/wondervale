@@ -19,11 +19,20 @@ try{
    assert.match(await page.locator('.notice').first().innerText(),/AUTHORING ONLY/);
    assert.equal(await page.locator('[data-type="to-records"]').isDisabled(),true);
    await hit('station','start');await hit('station','walk',{value:'board'});
-   await hit('station','inspect',{value:'peg-pair'});await hit('station','inspect',{value:'worn-edge'});
+   assert.equal(await page.locator('#replica-board .replica-cell').count(),20);
+   await page.locator('[data-board-inspect="peg-pair"]').click();
+   assert.equal(await page.locator('[data-board-inspect="peg-pair"]').getAttribute('aria-pressed'),'true');
+   await hit('station','inspect',{value:'worn-edge'});
    await hit('station','guess',{value:'unsure'});
-   await hit('station','try-copy',{value:'side-b'});await hit('station','check');
+   await page.locator('#board-turn').click();
+   assert.equal(await page.locator('#replica-board [data-copy][data-overlap="false"]').count(),2);
+   await hit('station','check');
+   assert.match(await page.locator('#replica-status').innerText(),/2 marks are offset/);
    assert.match(await page.locator('#foyer-map').innerText(),/do not align/);
-   await hit('station','try-copy',{value:'side-a'});await hit('station','check');
+   await page.locator('#board-turn').click();
+   assert.equal(await page.locator('#replica-board [data-copy][data-overlap="true"]').count(),2);
+   await hit('station','check');
+   assert.match(await page.locator('#replica-status').innerText(),/both marks line up/);
    await hit('station','qualify');await hit('nav','to-records');
    assert.equal(await page.locator('#records').isVisible(),true);
    await hit('sources','start');
@@ -61,6 +70,7 @@ try{
    await hit('nav','restart');
    assert.equal(await page.locator('#foyer').isVisible(),true);
    assert.match(await page.locator('#foyer-map').innerText(),/not tried/);
+   assert.equal(await page.locator('#replica-board [data-copy]').count(),0);
    await hit('station','start');
    assert.equal(await page.locator('[data-scene="garden"][data-type="overlay"]').isDisabled(),true);
   }finally{await context.close();}
@@ -73,6 +83,9 @@ try{
   await page.locator('[data-scene="station"][data-type="walk"][data-value="board"]').focus();
   await page.keyboard.press('Space');
   assert.match(await page.locator('#foyer-map').innerText(),/Milo at board/);
+  await page.locator('[data-board-inspect="peg-pair"]').focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('[data-board-inspect="peg-pair"]').getAttribute('aria-pressed'),'true');
  }finally{await context.close();}
  console.log('E05 scene shell Chromium PASS: three viewports, keyboard, replica retry, MOCK source provenance, clear path, no storage');
 }finally{await browser.close();}

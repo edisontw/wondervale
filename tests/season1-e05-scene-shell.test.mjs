@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {VERSION,MAX_ACTIONS,fresh,dispatch,restore,replay,view,can} from '../e05-scene/scene-model.mjs';
+import {projectReplicaBoard,PAPER_GRID} from '../e05-scene/replica-visual.mjs';
 const n=(s,type)=>dispatch(s,{scene:'nav',type});
 const a=(s,scene,type,props={})=>dispatch(s,{scene,action:{type,...props}});
 function toRecords(wrongFirst=false){
@@ -128,4 +129,39 @@ test('child overlays two PAPER garden sketches only after inspection; no history
  assert.deepEqual(dispatch(s,g('inspect','older')),s);
  const reset=dispatch(s,{scene:'nav',type:'restart'});
  assert.deepEqual(view(reset).gardenMap,{inspected:[],overlay:false,question:false});
+});
+
+test('spatial PAPER board renders two independent features and reversible offset, not historical proof',()=>{
+ assert.deepEqual(PAPER_GRID,{width:5,height:4});
+ let s=fresh();
+ let p=projectReplicaBoard(view(s).station);
+ assert.equal(p.cells.length,20);
+ assert.equal(p.cells.filter(c=>c.board).length,2);
+ assert.equal(p.cells.filter(c=>c.copy).length,0);
+ s=a(s,'station','start');s=a(s,'station','walk',{value:'board'});
+ s=a(s,'station','inspect',{value:'peg-pair'});
+ s=a(s,'station','inspect',{value:'worn-edge'});
+ s=a(s,'station','guess',{value:'unsure'});
+ s=a(s,'station','try-copy',{value:'side-b'});
+ p=projectReplicaBoard(view(s).station);
+ assert.equal(p.checked,false);
+ assert.equal(p.mismatches,2);
+ assert.equal(p.cells.filter(c=>c.copy&&!c.overlap).length,2);
+ s=a(s,'station','check');
+ p=projectReplicaBoard(view(s).station);
+ assert.equal(p.checked,true);
+ assert.equal(p.fit,false);
+ s=a(s,'station','try-copy',{value:'side-a'});
+ p=projectReplicaBoard(view(s).station);
+ assert.equal(p.checked,false);
+ assert.equal(p.matches,2);
+ assert.equal(p.cells.filter(c=>c.copy&&c.overlap).length,2);
+ s=a(s,'station','check');
+ assert.equal(projectReplicaBoard(view(s).station).fit,true);
+ assert.deepEqual(replay(s.history),s);
+ assert.deepEqual(view(s).canonicalEvents,[]);
+ assert.deepEqual(view(s).unlocks,[]);
+ s=n(s,'restart');
+ assert.equal(projectReplicaBoard(view(s).station).orientation,null);
+ assert.equal(projectReplicaBoard(null),null);
 });
