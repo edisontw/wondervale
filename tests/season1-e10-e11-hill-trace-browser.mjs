@@ -42,10 +42,16 @@ try{
    await page.locator('#e10-return').click();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'true');
    await page.locator('#e11-paper').click();
-   await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
-   assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false','E11 marker is session-only');
+   assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'true','strictly replayed marker survives E10 round-trip');
+   assert.match(await page.locator('#hill-trace-diary').innerText(),/NOT DONE/);
+   await page.getByRole('button',{name:'Remove future ? marker'}).click();
+   await page.locator('#e10-return').click();
+   await page.locator('#e11-paper').click();
+   assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false','removal survives E10 round-trip');
+   await page.getByRole('button',{name:/Move \\? to request an attributed source/}).click();
    await page.locator('#restart').click();
    await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
+   assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false','E11 restart removes replayed marker');
    assert.equal(await page.locator('#hill-trace-world').isVisible(),true,'E11 restart keeps earned E10 evidence');
    await page.locator('#e10-return').click();
    await page.locator('#restart').click();
