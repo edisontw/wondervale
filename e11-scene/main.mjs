@@ -375,7 +375,8 @@ function worldAtlas(){
  for(const item of model.boards[atlasStage]){
   const b=button(places,'Inspect '+item.label+' PAPER change',
    ()=>{atlasFocus=item.id;worldAtlas();},false,atlasFocus===item.id);
-  b.className='atlas-place';b.dataset.place=item.id;
+  b.className='atlas-place';b.setAttribute('aria-label','Inspect '+item.label+' PAPER change');
+  b.dataset.place=item.id;
   b.dataset.mark=item.mark;b.dataset.selected=String(atlasFocus===item.id);
   const label=document.createElement('small');label.textContent=item.title;
   b.append(label);
