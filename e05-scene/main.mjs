@@ -1,5 +1,6 @@
 // E05 isolated future scene shell: reuses strict station and mock-source reducers.
 import {fresh,dispatch,can,view} from './scene-model.mjs';
+import {projectReplicaBoard} from './replica-visual.mjs';
 import * as GardenReturn from './garden-return-model.mjs';
 import {fresh as freshE06} from '../e06-scene/scene-model.mjs';
 import {fresh as freshE07} from '../e07-scene/scene-model.mjs';
@@ -19,6 +20,51 @@ let state=arcIncoming?.e05||incoming?.e05||fresh(),
 const linkedE04=arcIncoming?.e04||null;
 let gardenReturnHistory=[];
 const $=id=>document.getElementById(id);
+const boardNames={'peg-pair':'PEG PAIR','worn-edge':'WORN EDGE'};
+function renderReplicaBoard(station){
+  const p=projectReplicaBoard(station),grid=$('replica-board');
+  grid.replaceChildren();
+  for(const item of p.cells){
+    const cell=document.createElement('div');
+    cell.className='replica-cell';
+    cell.dataset.cell=item.x+','+item.y;
+    if(item.board){
+      const inspect=document.createElement('button');
+      inspect.type='button';
+      inspect.className='board-feature';
+      inspect.dataset.boardInspect=item.board;
+      inspect.textContent=(item.board==='peg-pair'?'○ ○':'▰')+' '+boardNames[item.board];
+      inspect.setAttribute('aria-label','Inspect PAPER board '+boardNames[item.board].toLowerCase());
+      inspect.setAttribute('aria-pressed',String(item.inspected));
+      inspect.disabled=!can(state,{scene:'station',action:{type:'inspect',value:item.board}});
+      cell.append(inspect);
+    }
+    if(item.copy){
+      cell.dataset.copy=item.copy;
+      cell.dataset.overlap=String(item.overlap);
+      if(p.checked)cell.dataset.checked='true';
+      const marker=document.createElement('span');
+      marker.className='copy-feature';
+      marker.textContent='COPY '+(item.copy==='peg-pair'?'○ ○':'▰');
+      marker.setAttribute('aria-label','Removable copy '+boardNames[item.copy].toLowerCase()+
+        (item.overlap?' overlaps the same board mark':' is offset from its board mark'));
+      cell.append(marker);
+    }
+    grid.append(cell);
+  }
+  const status=$('replica-status');
+  status.textContent=!p.orientation?
+    'Look at the two PAPER board marks. The removable copy is not placed yet.':
+    p.fit===null?
+    'COPY '+p.orientation.toUpperCase()+' is placed. Look at both positions, then compare the marks.':
+    p.fit?
+    'PAPER COPY: both marks line up on this MODEL. The real station history is still UNKNOWN.':
+    'PAPER COPY: '+p.mismatches+' marks are offset. Turn the removable copy and compare again.';
+  const turn=$('board-turn'),next=p.orientation==='side-b'?'side-a':'side-b';
+  turn.dataset.orientation=next;
+  turn.textContent=p.orientation?'Turn PAPER copy to '+next.toUpperCase():'Place PAPER copy B';
+  turn.disabled=!can(state,{scene:'station',action:{type:'try-copy',value:next}});
+}
 const actionOf=b=>{
   if(b.dataset.scene==='nav')return {scene:'nav',type:b.dataset.type};
   const a={type:b.dataset.type};
@@ -33,6 +79,7 @@ function render(){
   $('speaker').textContent=v.speaker;
   $('line').textContent=v.line;
   $('stage-text').textContent=v.stageText;
+  renderReplicaBoard(v.station);
   $('foyer-map').textContent='Milo at '+v.station.milo+' · inspected '+(v.station.inspected.join(', ')||'nothing')+
     ' · replica '+(v.station.orientation||'not tried')+' · fit '+
     (v.station.fit===null?'not checked':v.station.fit?'two marks align':'marks do not align');
@@ -112,6 +159,16 @@ document.querySelectorAll('button[data-scene]').forEach(b=>b.addEventListener('c
   }
   render();
 }));
+$('replica-board').addEventListener('click',event=>{
+  const target=event.target.closest('button[data-board-inspect]');
+  if(!target)return;
+  state=dispatch(state,{scene:'station',action:{type:'inspect',value:target.dataset.boardInspect}});
+  render();
+});
+$('board-turn').addEventListener('click',()=>{
+  state=dispatch(state,{scene:'station',action:{type:'try-copy',value:$('board-turn').dataset.orientation}});
+  render();
+});
 document.querySelectorAll('[data-return-action]').forEach(b=>b.addEventListener('click',()=>{
   gardenReturnHistory=GardenReturn.dispatch(gardenReturnHistory,b.dataset.returnAction,state,linkedE06);
   render();
