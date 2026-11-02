@@ -13,6 +13,7 @@ on:
       - 'e11-scene/**'
       - 'engine/s01e11-authoring-prototype.mjs'
       - 'tests/season1-e11-scene-shell*'
+      - 'tests/season1-e11-role-walk.test.mjs'
       - '.github/workflows/wondervale-e11-scene-shell.yml'
 permissions:
   contents: read
