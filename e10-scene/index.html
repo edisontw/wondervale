@@ -15,7 +15,8 @@ button{font:inherit;min-width:44px;min-height:44px;padding:.45rem .65rem;border:
 button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px solid #b47a20;outline-offset:2px}
 .map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.35rem;background:#e4e9e0;padding:.5rem;border:2px solid #879f93;border-radius:.5rem}
 .anchor{min-width:0;padding:.55rem .25rem;border:1px solid #a9bcae;background:#f9fbf5;text-align:center;overflow-wrap:anywhere}
-.anchor[data-here=true]{background:#ffe6af;outline:2px solid #a46d20}.anchor[data-here=true]::after{content:'Milo here';display:block;background:#365c66;color:white;border-radius:1rem;font-size:.7rem;font-weight:700;padding:.15rem .35rem;margin:.3rem auto 0;width:max-content;max-width:100%}
+.anchor[data-here=true]{background:#ffe6af;outline:2px solid #a46d20}.anchor[data-paper-question=true]::before{content:"? PAPER";display:block;font-size:.75rem;font-weight:700;background:#e5f0fa;border:1px dashed #426783;border-radius:.35rem;padding:.2rem;margin-bottom:.3rem}
+.anchor[data-here=true]::after{content:'Milo here';display:block;background:#365c66;color:white;border-radius:1rem;font-size:.7rem;font-weight:700;padding:.15rem .35rem;margin:.3rem auto 0;width:max-content;max-width:100%}
 .closed{background:#f9dfd7;border:2px solid #a44d37;text-align:center;padding:.5rem;font-weight:700}
 .paper{background:#f3f5ed;border:1px dashed #98ad9b;border-radius:.4rem;padding:.6rem;margin:.5rem 0;line-height:1.5;overflow-wrap:anywhere}
 .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem}
@@ -46,6 +47,14 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <button id="hill-now" type="button" aria-pressed="true">NOW: Milo's notes</button></div>
 <svg id="hill-world-map" class="hill-world-svg" viewBox="0 0 480 260" role="img" aria-label="PAPER model: upper hill closed"></svg>
 <p id="hill-world-result" class="paper" role="status"></p>
+</section>
+<section id="hill-question-panel" class="panel" hidden data-compared="false">
+<h2>E09 → E10: Carry an unanswered PAPER question</h2>
+<p>Milo can move an E09 question to a courtyard trace, inspect that trace, and compare what it can and cannot tell us. FIRST: no question marker. NOW: Milo's movable ? only. This does not verify hill access, history, or the place name.</p>
+<div class="controls"><button id="question-access" type="button">Ask about CLOSED hill access</button><button id="question-identity" type="button">Ask about the distant mark</button></div>
+<div class="controls"><button id="question-stone" type="button">Move ? to stone edge</button><button id="question-wall" type="button">Move ? to notice wall</button><button id="question-compare" type="button">Compare with Milo's trace</button><button id="question-clear" type="button">Remove ?</button></div>
+<p id="hill-question-note" class="paper" role="status"></p>
+<p class="paper">Nia: “What did we see here?” Finn: “Does that answer our hill question?” Optional parent cue: What evidence would we still need?</p>
 </section>
 <section id="clue-panel" class="panel" hidden>
 <h2>E08 → E10: Trace the same PAPER marks</h2>
@@ -133,6 +142,7 @@ import {TRACES,USE_TAGS,NEEDS,SLOTS} from '../engine/s01e10-authoring-prototype.
 import {view as viewE09} from '../e09-scene/scene-model.mjs';
 import {hillWorld} from './hill-world.mjs';
 import {clueSource,freshTrial,dispatchTrial,viewTrial} from './clue-transfer.mjs';
+import {questionSource,freshTrial as freshQuestion,dispatchTrial as dispatchQuestion,viewTrial as viewQuestion} from './hill-question.mjs';
 import {decodeUnnamedTransfer,encodeUnnamedTransfer} from '../authoring-labs/e09-e10-scene-transfer.mjs';
 import {decodeMemoryCourtyard,encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
 import {decodeLoopTransfer,encodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
@@ -147,6 +157,8 @@ const linkedE04=upstream?.e04||null,linkedE05=upstream?.e05||null;
 let linkedE11=loop?.e11||null;
 const linkedHillWorld=hillWorld(linkedE09);
 const linkedClueSource=clueSource(linkedE08,linkedE09);
+const linkedQuestionSource=questionSource(linkedE07,linkedE08,linkedE09);
+let questionTrial=freshQuestion();
 let clueTrial=freshTrial();
 let hillLayer='now';
 const $=id=>document.getElementById(id);
@@ -252,6 +264,18 @@ function renderHillWorld(){
   ' clues. The upper hill stays CLOSED. Real access NOT approved.':
   'FIRST: Blank PAPER sketch, no child-marked route or clues yet. Upper hill CLOSED.';
 }
+function renderQuestion(){
+ const panel=$('hill-question-panel');panel.hidden=!linkedQuestionSource;
+ if(!linkedQuestionSource)return;
+ const v=viewQuestion(questionTrial,linkedQuestionSource,state);
+ panel.dataset.compared=String(v.compared);
+ for(const id of ['access','identity'])$('question-'+id).setAttribute('aria-pressed',String(v.question===id));
+ for(const a of document.querySelectorAll('#scene .anchor'))
+  a.dataset.paperQuestion=String(a.dataset.anchor===v.anchor);
+ $('hill-question-note').textContent=v.feedback+
+  ' Upper hill CLOSED. PAPER FIRST: no ?. PAPER NOW: '+(v.anchor||'no marker')+
+  '. Real check NOT DONE; no name, access, Chronicle or unlock.';
+}
 function renderClue(){
  const panel=$('clue-panel');panel.hidden=!linkedClueSource;
  if(!linkedClueSource)return;
@@ -348,6 +372,7 @@ function render(){
  drawComparison(v);
  renderHillWorld();
  renderClue();
+ renderQuestion();
  for(const b of document.querySelectorAll('button[data-action]'))b.disabled=!can(state,action(b));
 }
 document.addEventListener('click',e=>{
@@ -374,6 +399,15 @@ $('clue-compare').addEventListener('click',()=>{
  clueTrial=dispatchTrial(clueTrial,{type:'compare'});renderClue();
 });
 $('clue-reset').addEventListener('click',()=>{clueTrial=freshTrial();renderClue();});
-$('restart').addEventListener('click',()=>{state=fresh();linkedE11=null;clueTrial=freshTrial();screen='courtyard';comparisonLayer='now';render();});
+for(const [id,action] of [
+ ['question-access',{type:'choose',question:'access'}],
+ ['question-identity',{type:'choose',question:'identity'}],
+ ['question-stone',{type:'place',anchor:'stone_edge'}],
+ ['question-wall',{type:'place',anchor:'notice_wall'}],
+ ['question-compare',{type:'compare'}],['question-clear',{type:'remove'}]
+])$(id).addEventListener('click',()=>{
+ questionTrial=dispatchQuestion(questionTrial,action,linkedQuestionSource,state);render();
+});
+$('restart').addEventListener('click',()=>{state=fresh();linkedE11=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
 render();
 </script></main></body></html>
