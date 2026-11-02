@@ -88,7 +88,29 @@ button[aria-pressed=true]{background:#d4e9dc;font-weight:700}
 <button data-scene="garden" data-type="inspect" data-value="present">Look at PAPER upper mark</button>
 <button data-scene="garden" data-type="overlay">Lay the two sheets together</button>
 <button data-scene="garden" data-type="ask-why">Milo: Why are they apart?</button>
-</div></section>
+</div>
+<section class="panel" id="garden-return" hidden aria-label="Return to Map Room after the two PAPER gardens">
+<h2>5. Back to the Map Room — what can Milo draw?</h2>
+<p>The E06 Current and Lower Garden observations are separate PAPER models. After actually visiting both, Milo may inspect them here. A solid road is not supported by the evidence; a dotted question keeps the mystery open.</p>
+<div class="scene">
+<p class="paper" id="return-current" role="status"></p>
+<p class="paper" id="return-lower" role="status"></p>
+</div>
+<div class="controls">
+<button data-return-action="inspect-current">Inspect Current Garden MODEL note</button>
+<button data-return-action="inspect-lower">Inspect Lower Garden path and water note</button>
+<button data-return-action="try-solid">Try drawing a solid road</button>
+<button data-return-action="mark-question">Mark an UNKNOWN dotted question</button>
+<button data-return-action="compare">Compare PAPER before and now</button>
+<button data-return-action="erase">Erase PAPER annotation and retry</button>
+</div>
+<div class="scene">
+<p id="return-first" class="paper" role="status"></p>
+<p id="return-now" class="paper" role="status"></p>
+</div>
+<p id="return-feedback" class="dialogue" aria-live="polite"></p>
+<p id="return-chronicle" class="paper" role="status"></p>
+</section></section>
 <p id="e04-context" class="paper" hidden role="status"></p>
 <p><a id="e04-return" hidden href="../authoring-labs/arc1-memory-station-handoff.html">Return to E04 undated PAPER memories (not a canonical Chronicle)</a></p>
 <p><a id="e06-paper" hidden href="../e06-scene/">Visit the two independent E06 PAPER gardens with Milo's question (not an official unlock)</a></p>
