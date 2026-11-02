@@ -46,11 +46,22 @@ try{
    await hit('sources','place',{card:'a',slot:'unknown'});await hit('sources','test',{card:'a'});
    await hit('sources','place',{card:'b',slot:'unknown'});await hit('sources','test',{card:'b'});
    await hit('sources','compare');await hit('sources','finish');await hit('nav','to-layout');
+   assert.equal(await page.locator('#layout-spatial-grid .layout-spatial-cell').count(),20);
+   assert.equal(await page.locator('#layout-spatial-grid [data-walkway="true"]').count(),8);
+   assert.equal(await page.locator('[data-layout-position="near-wall"]').isDisabled(),true);
    await hit('station','walk',{value:'table'});
-   await hit('station','place-table',{value:'across-walkway'});
+   await page.locator('[data-layout-position="across-walkway"]').click();
+   assert.equal(await page.locator('#layout-spatial-grid [data-blocked="true"]').count(),4);
+   assert.match(await page.locator('#layout-spatial-status').innerText(),/BLOCKED/);
    assert.match(await page.locator('#layout-map').innerText(),/BLOCKED/);
    assert.equal(await page.locator('[data-scene="station"][data-type="confirm"]').isDisabled(),true);
-   await hit('station','place-table',{value:'near-wall'});await hit('station','confirm');
+   await page.locator('[data-layout-position="near-wall"]').focus();
+   await page.keyboard.press('Enter');
+   assert.equal(await page.locator('#layout-spatial-grid [data-blocked="true"]').count(),0);
+   assert.equal(await page.locator('#layout-spatial-grid [data-table="true"]').count(),4);
+   assert.match(await page.locator('#layout-spatial-status').innerText(),/OPEN/);
+   await hit('station','confirm');
+   assert.match(await page.locator('#layout-spatial-status').innerText(),/Map Room ready/);
    await hit('station','reflect');await hit('nav','to-review');
    assert.match(await page.locator('#paper-note').innerText(),/UNKNOWN/);
    assert.equal(await page.locator('[data-scene="garden"][data-type="overlay"]').isDisabled(),true);
@@ -87,5 +98,5 @@ try{
   await page.keyboard.press('Enter');
   assert.equal(await page.locator('[data-board-inspect="peg-pair"]').getAttribute('aria-pressed'),'true');
  }finally{await context.close();}
- console.log('E05 scene shell Chromium PASS: three viewports, keyboard, replica retry, MOCK source provenance, clear path, no storage');
+ console.log('E05 scene shell Chromium PASS: three viewports, keyboard, replica and table spatial retry, MOCK provenance, clear path, no storage');
 }finally{await browser.close();}

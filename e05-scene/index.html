@@ -31,6 +31,12 @@ button[aria-pressed=true]{background:#d4e9dc;font-weight:700}
 .replica-cell[data-overlap="true"][data-checked="true"]{background:#d4e9dc;border-color:#456e63}
 .board-feature{width:100%;font-size:clamp(.62rem,1.5vw,.75rem);padding:.2rem .1rem;min-height:44px;overflow-wrap:anywhere}
 .copy-feature{font-size:clamp(.6rem,1.4vw,.72rem);font-weight:700;color:#385f76;border:1px dashed #385f76;border-radius:.2rem;text-align:center;overflow-wrap:anywhere}
+.layout-spatial-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.2rem;margin:.5rem 0}
+.layout-spatial-cell{min-width:0;min-height:3.8rem;display:grid;place-items:center;border:2px solid #91a69a;border-radius:.3rem;background:#f8faf6;font-size:clamp(.6rem,1.7vw,.8rem);font-weight:700;overflow-wrap:anywhere;text-align:center}
+.layout-spatial-cell[data-walkway="true"]{background:#dcece5;border-style:dashed}
+.layout-spatial-cell[data-table="true"]{background:#e5d7bc;border-color:#997b4a}
+.layout-spatial-cell[data-blocked="true"]{background:#fff0ce;border-color:#9b6d20}
+.layout-spatial-cell button{min-height:44px;width:100%;padding:.1rem;font-size:clamp(.67rem,1.7vw,.85rem)}
 .dialogue{background:#dcece5;padding:.7rem;border-radius:.5rem;line-height:1.5}
 [hidden]{display:none!important}
 @media(max-width:650px){.scene{grid-template-columns:1fr}.panel{padding:.55rem}}
@@ -91,6 +97,12 @@ button[aria-pressed=true]{background:#d4e9dc;font-weight:700}
 </div></section>
 <section class="panel" id="layout" hidden><h2>3. Make a small paper Map Room</h2>
 <p id="layout-map" class="paper" role="status"></p>
+<div class="paper" aria-label="Synthetic PAPER Map Room floor experiment">
+<strong>Move the PAPER table — keep the path open</strong>
+<p>This 5×4 floor is invented for a model, not a real station plan. The dashed path runs from ENTRY to EXIT. First walk Milo to the table, then tap Wall or Path. You can move it again without penalty.</p>
+<div id="layout-spatial-grid" class="layout-spatial-grid" role="group" aria-label="Five-column four-row synthetic Map Room floor with wall and walkway table positions"></div>
+<p id="layout-spatial-status" role="status" aria-live="polite"></p>
+</div>
 <div class="controls">
 <button data-scene="station" data-type="walk" data-value="table">Milo: table</button>
 <button data-scene="station" data-type="place-table" data-value="across-walkway">Try table in walkway</button>

@@ -1,6 +1,7 @@
 // E05 isolated future scene shell: reuses strict station and mock-source reducers.
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {projectReplicaBoard} from './replica-visual.mjs';
+import {projectMapRoomLayout} from './layout-visual.mjs';
 import * as GardenReturn from './garden-return-model.mjs';
 import {fresh as freshE06} from '../e06-scene/scene-model.mjs';
 import {fresh as freshE07} from '../e07-scene/scene-model.mjs';
@@ -65,6 +66,40 @@ function renderReplicaBoard(station){
   turn.textContent=p.orientation?'Turn PAPER copy to '+next.toUpperCase():'Place PAPER copy B';
   turn.disabled=!can(state,{scene:'station',action:{type:'try-copy',value:next}});
 }
+function renderMapRoomLayout(station){
+  const p=projectMapRoomLayout(station),grid=$('layout-spatial-grid');
+  grid.replaceChildren();
+  for(const item of p.cells){
+    const cell=document.createElement('div');
+    cell.className='layout-spatial-cell';
+    cell.dataset.cell=item.x+','+item.y;
+    cell.dataset.walkway=String(item.walkway);
+    cell.dataset.table=String(item.occupied);
+    cell.dataset.blocked=String(item.blocked);
+    if(item.option){
+      const button=document.createElement('button');
+      button.type='button';
+      button.dataset.layoutPosition=item.option;
+      button.textContent=item.option==='near-wall'?'Wall':'Path';
+      button.setAttribute('aria-label',item.option==='near-wall'?
+        'Move PAPER table by wall':'Move PAPER table into model walkway');
+      button.setAttribute('aria-pressed',String(p.position===item.option));
+      button.disabled=!can(state,{scene:'station',action:{type:'place-table',value:item.option}});
+      cell.append(button);
+    }else{
+      const label=document.createElement('span');
+      label.textContent=item.blocked?'BLOCKED':item.occupied?'TABLE':
+        item.endpoint|| (item.walkway?'PATH':'·');
+      cell.append(label);
+    }
+    grid.append(cell);
+  }
+  $('layout-spatial-status').textContent=p.ready?
+    'PAPER Map Room ready: table by wall, model passage open. Not a real station layout.':
+    p.position===null?'No PAPER table yet. Milo can try either marked place.':
+    p.clear?'PAPER model passage OPEN. Check it, or move the table again.':
+    'PAPER model passage BLOCKED: '+p.blockedCells+' path squares covered. Move the table and retry.';
+}
 const actionOf=b=>{
   if(b.dataset.scene==='nav')return {scene:'nav',type:b.dataset.type};
   const a={type:b.dataset.type};
@@ -80,6 +115,7 @@ function render(){
   $('line').textContent=v.line;
   $('stage-text').textContent=v.stageText;
   renderReplicaBoard(v.station);
+  renderMapRoomLayout(v.station);
   $('foyer-map').textContent='Milo at '+v.station.milo+' · inspected '+(v.station.inspected.join(', ')||'nothing')+
     ' · replica '+(v.station.orientation||'not tried')+' · fit '+
     (v.station.fit===null?'not checked':v.station.fit?'two marks align':'marks do not align');
@@ -163,6 +199,12 @@ $('replica-board').addEventListener('click',event=>{
   const target=event.target.closest('button[data-board-inspect]');
   if(!target)return;
   state=dispatch(state,{scene:'station',action:{type:'inspect',value:target.dataset.boardInspect}});
+  render();
+});
+$('layout-spatial-grid').addEventListener('click',event=>{
+  const target=event.target.closest('button[data-layout-position]');
+  if(!target)return;
+  state=dispatch(state,{scene:'station',action:{type:'place-table',value:target.dataset.layoutPosition}});
   render();
 });
 $('board-turn').addEventListener('click',()=>{
