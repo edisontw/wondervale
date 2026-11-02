@@ -10,7 +10,7 @@ import {paperReflectionWorld} from './reflection-world.mjs';
 import {paperReflectionFollowUp} from './reflection-follow-up.mjs';
 import {paperFollowUpMap,PAPER_CHECK_STOPS} from './follow-up-map.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
-import {paperHillTraceRevisit,PAPER_FUTURE_STOPS} from './hill-trace-revisit.mjs';
+import {paperHillTraceRevisit,PAPER_FUTURE_STOPS,freshFutureMarker,restoreFutureMarker,dispatchFutureMarker} from './hill-trace-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
 import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
@@ -25,16 +25,17 @@ const toolNames={walk:'Walk Milo',quiet:'Place quiet seat',activity:'Place activ
 const incoming=decodeLoopTransfer(location.hash);
 const linkedE10=incoming?.e10||null,upstream=incoming?.upstream||null;
 const linkedQuestionTrial=incoming?.questionTrial||null;
-let state=incoming?.e11||fresh(),tool='walk',begun=!!incoming?.e11?.history.length,
+let state=incoming?.e11||fresh(),tool='walk',begun=!!(incoming?.e11?.history.length||incoming?.markerTrial?.history.length),
  screen='trial',revisitFocus='quiet_reader',roleCell=null,mapView='now';
 let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[],
  reflectionChoices={},reflectionFocus=null,followUpQuestion=null,followUpAction=null,
- followUpStop=null,traceFutureStop=null;
+ followUpStop=null;
+let markerTrial=incoming?.markerTrial||freshFutureMarker();
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
-function act(action){returnSteps=[];clearReflection();traceFutureStop=null;state=dispatch(state,action);render();}
+function act(action){returnSteps=[];clearReflection();markerTrial=freshFutureMarker();state=dispatch(state,action);render();}
 function button(host,name,handler,disabled=false,pressed=false){
  const b=document.createElement('button');b.type='button';b.textContent=name;b.disabled=disabled;
  if(pressed)b.setAttribute('aria-pressed','true');
@@ -480,17 +481,21 @@ function hillTraceRevisit(){
   ' at '+atlas.anchorLabel+'. Milo compared this fictional trace. '+atlas.questionLabel+
   ' STILL UNKNOWN.';
  const controls=$('hill-trace-controls');controls.replaceChildren();
+ const checked=restoreFutureMarker(markerTrial,atlas);
+ const marker=checked?.stop||null;
  for(const stop of PAPER_FUTURE_STOPS)button(controls,'Move ? to '+stop.label,()=>{
-  traceFutureStop=stop.id;hillTraceRevisit();
- },false,traceFutureStop===stop.id);
- button(controls,'Remove future ? marker',()=>{traceFutureStop=null;hillTraceRevisit();},!traceFutureStop);
- const matched=traceFutureStop===atlas.futureStop;
- $('hill-trace-now').dataset.marker=String(!!traceFutureStop);
- $('hill-trace-now').textContent='NOW: '+(traceFutureStop?
-  '? at '+PAPER_FUTURE_STOPS.find(x=>x.id===traceFutureStop).label:
+  markerTrial=dispatchFutureMarker(markerTrial,{type:'move',stop:stop.id},atlas);render();
+ },false,marker===stop.id);
+ button(controls,'Remove future ? marker',()=>{
+  markerTrial=dispatchFutureMarker(markerTrial,{type:'remove'},atlas);render();
+ },!marker);
+ const matched=marker===atlas.futureStop;
+ $('hill-trace-now').dataset.marker=String(!!marker);
+ $('hill-trace-now').textContent='NOW: '+(marker?
+  '? at '+PAPER_FUTURE_STOPS.find(x=>x.id===marker).label:
   'no future check marked')+'. '+(matched?
   'PAPER NEXT STEP — NOT DONE.':
-  traceFutureStop?'That stop does not check this question. Move ? and try again.':
+  marker?'That stop does not check this question. Move ? and try again.':
   'Choose where Milo should seek a real check later.');
  $('hill-trace-diary').textContent=matched?atlas.chroniclePreview:
   'The PAPER trace does not prove history, access or identity. No real check completed.';
@@ -500,7 +505,8 @@ function render(){
  hillTraceRevisit();
  e10NeedsWorld();
  const linked=linkedE10&&viewE10(linkedE10);
- const fragment=linkedE10&&encodeLoopTransfer(linkedE10,state,upstream,linkedQuestionTrial);
+ const fragment=linkedE10&&encodeLoopTransfer(linkedE10,state,upstream,linkedQuestionTrial,
+  paperHillTraceRevisit(linkedE10,upstream,linkedQuestionTrial)?markerTrial:null);
  $('e10-return').hidden=!fragment;
  if(fragment)$('e10-return').href='../e10-scene/'+fragment;
  const fullMemory=!!(linked?.finishedPaper&&upstream?.e04&&upstream?.e05);
