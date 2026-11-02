@@ -17,6 +17,10 @@ try{
    page.on('pageerror',e=>errors.push(e.message));
    await page.goto(base+'/e10-scene/'+fragment);
    const hit=async(type,value)=>page.locator('[data-action="'+type+'"]'+(value?'[data-value="'+value+'"]':'')).click();
+   const returnE10=async()=>{
+    await page.locator('#e10-return').click();
+    await page.waitForFunction(()=>document.querySelector('#hill-question-panel')?.dataset.compared==='true');
+   };
    await hit('start');await hit('compare-symbol');await hit('walk','stone_edge');
    await hit('inspect','surface');await hit('suggest','surface:passing');
    await hit('revise','surface:passing:resting');await hit('walk','quiet_corner');
@@ -40,20 +44,20 @@ try{
    await page.getByRole('button',{name:/Move \? to request an attributed source/}).click();
    assert.match(await page.locator('#hill-trace-diary').innerText(),/NOT DONE/);
    assert.match(await page.locator('#hill-trace-diary').innerText(),/no real access/);
-   await page.locator('#e10-return').click();
+   await returnE10();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'true');
    await page.locator('#e11-paper').click();
    await page.waitForFunction(()=>document.querySelector('#hill-trace-now')?.dataset.marker==='true');
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'true','strictly replayed marker survives E10 round-trip');
    assert.match(await page.locator('#hill-trace-diary').innerText(),/NOT DONE/);
    await page.getByRole('button',{name:'Remove future ? marker'}).click();
-   await page.locator('#e10-return').click();
+   await returnE10();
    await page.locator('#e11-paper').click();
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false','removal survives E10 round-trip');
    await page.getByRole('button',{name:/Move \? to request an attributed source/}).click();
    // A new E10 question invalidates the previous E11 marker across a return trip.
    // Rechecking either question earns a fresh, empty PAPER future-check map.
-   await page.locator('#e10-return').click();
+   await returnE10();
    await page.locator('#question-access').click();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'false',
     'switching the E10 question withdraws the old checked trace');
@@ -69,7 +73,7 @@ try{
     'identity source marker cannot reappear for access question');
    await page.getByRole('button',{name:/Move \? to ask the responsible person/}).click();
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'true');
-   await page.locator('#e10-return').click();
+   await returnE10();
    await page.locator('#question-identity').click();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'false',
     'switching back to identity withdraws the checked access trace');
@@ -87,7 +91,7 @@ try{
    await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false','E11 restart removes replayed marker');
    assert.equal(await page.locator('#hill-trace-world').isVisible(),true,'E11 restart keeps earned E10 evidence');
-   await page.locator('#e10-return').click();
+   await returnE10();
    await page.locator('#restart').click();
    assert.equal(await page.locator('#e11-paper').isVisible(),false);
    await page.goto(base+'/e11-scene/');
