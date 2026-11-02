@@ -169,7 +169,7 @@ test('E11 three-place FIRST/NOW PAPER atlas is child-earned and source-bound',()
  assert.match(atlas.boards.now[2].title,/separated/);
  assert.match(atlas.chronicle,/INDEPENDENT/);
  assert.match(atlas.chronicle,/UNKNOWN/);
- assert.doesNotMatch(atlas.chronicle,/\\bCommon\\b/);
+ assert.doesNotMatch(atlas.chronicle,/\bCommon\b/);
  assert.deepEqual(atlas.canonicalEvents,[]);
  assert.deepEqual(atlas.unlocks,[]);
  assert.equal(atlas.realRouteOpen,false);
