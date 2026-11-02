@@ -17,6 +17,7 @@ on:
       - 'e07-scene/**'
       - 'tests/season1-e07-scene-shell*'
       - 'tests/season1-e06-e07-world-callback*'
+      - 'tests/season1-e06-e07-runoff-choice*'
       - '.github/workflows/wondervale-e07-scene-shell.yml'
 permissions:
   contents: read
