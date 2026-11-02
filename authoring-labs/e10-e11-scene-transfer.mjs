@@ -5,6 +5,7 @@ import * as E11 from '../engine/s01e11-authoring-prototype.mjs';
 import {encodeUnnamedTransfer,decodeUnnamedTransfer} from './e09-e10-scene-transfer.mjs';
 import {encodeMemoryCourtyard,decodeMemoryCourtyard} from './e04-e10-scene-transfer.mjs';
 import {questionSource,restoreTrial as restoreQuestion,replayTrial as replayQuestion,viewTrial as viewQuestion} from '../e10-scene/hill-question.mjs';
+import {paperHillTraceRevisit,restoreFutureMarker,replayFutureMarker} from '../e11-scene/hill-trace-revisit.mjs';
 
 const PREFIX='#paper-loop=',MAX_FRAGMENT=200000;
 const keys=o=>Object.keys(o).sort().join(',');
@@ -43,13 +44,20 @@ function cleanUpstream(upstream,e10){
  if(checked.e06)out.e06=checked.e06.history;
  return out;
 }
+function allowedPacket(packet){
+ const signature=keys(packet);
+ if(allowed.includes(signature))return true;
+ if(!Object.hasOwn(packet,'marker')||!Object.hasOwn(packet,'question'))return false;
+ const without={...packet};delete without.marker;
+ return allowed.includes(keys(without));
+}
 function safeE11(e11){
  const s=E11.restore(e11),p=s&&E11.projection(s);
  return !!(s&&p&&!p.finished&&p.canonicalEvents.length===0&&
   p.unlocks.length===0&&p.historicalClaims.length===0&&
   s.rights.length===0);
 }
-export function encodeLoopTransfer(e10,e11,upstream=null,questionTrial=null){
+export function encodeLoopTransfer(e10,e11,upstream=null,questionTrial=null,markerTrial=null){
  if(!E10.restore(e10)||!earned(e10)||!safeE11(e11))return null;
  const extra=cleanUpstream(upstream,e10);
  if(!extra)return null;
@@ -60,7 +68,14 @@ export function encodeLoopTransfer(e10,e11,upstream=null,questionTrial=null){
   if(!checked||!viewQuestion(checked,source,e10)?.compared)return null;
   question={question:checked.history};
  }
- const packet={v:1,...extra,e10:e10.history,e11:e11.history,...question};
+ let marker={};
+ if(markerTrial!==null){
+  const atlas=questionTrial&&paperHillTraceRevisit(e10,upstream,questionTrial);
+  const checked=atlas&&restoreFutureMarker(markerTrial,atlas);
+  if(!checked)return null;
+  if(checked.history.length)marker={marker:checked.history};
+ }
+ const packet={v:1,...extra,e10:e10.history,e11:e11.history,...question,...marker};
  const fragment=PREFIX+encodeURIComponent(JSON.stringify(packet));
  return fragment.length<=MAX_FRAGMENT?fragment:null;
 }
@@ -70,7 +85,7 @@ export function decodeLoopTransfer(fragment){
  try{
   const packet=JSON.parse(decodeURIComponent(fragment.slice(PREFIX.length)));
   if(!packet||typeof packet!=='object'||Array.isArray(packet)||
-   packet.v!==1||!allowed.includes(keys(packet))||
+   packet.v!==1||!allowedPacket(packet)||
    !Array.isArray(packet.e10)||!Array.isArray(packet.e11))return null;
   const e10=E10.replay(packet.e10),e11=E11.replay(packet.e11);
   if(!e10||!e11||!earned(e10)||!safeE11(e11))return null;
@@ -107,6 +122,13 @@ export function decodeLoopTransfer(fragment){
    questionTrial=source&&replayQuestion(packet.question,source,e10);
    if(!questionTrial||!viewQuestion(questionTrial,source,e10)?.compared)return null;
   }
-  return {e10,e11,upstream,questionTrial};
+  let markerTrial=null;
+  if(Object.hasOwn(packet,'marker')){
+   if(!questionTrial||!Array.isArray(packet.marker))return null;
+   const atlas=paperHillTraceRevisit(e10,upstream,questionTrial);
+   markerTrial=atlas&&replayFutureMarker(packet.marker,atlas);
+   if(!markerTrial)return null;
+  }
+  return {e10,e11,upstream,questionTrial,markerTrial};
  }catch{return null;}
 }
