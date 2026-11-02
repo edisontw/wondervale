@@ -369,7 +369,7 @@ function reflection(){
 function reflectionWorld(){
  const world=paperReflectionWorld(state,returnSteps,upstream,reflectionChoices);
  const panel=$('reflection-world');panel.hidden=!world;
- if(!world){$('reflection-follow-up').hidden=true;return;}
+ if(!world){$('reflection-follow-up').hidden=true;$('follow-up-map').hidden=true;return;}
  for(const stage of ['first','now']){
   const host=$('reflection-world-'+stage);host.replaceChildren();
   for(const card of world[stage]){
