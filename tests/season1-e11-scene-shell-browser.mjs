@@ -96,6 +96,8 @@ async function journey(page,label,shots){
   /FIRST quiet RETRY, group PASS → NOW quiet PASS, group PASS/);
  assert.match(await page.locator('#visitor-walk-chronicle').innerText(),/UNKNOWN/);
  assert.equal(await page.locator('#visitor-walk-board').getAttribute('data-stage'),'now');
+ assert.equal(await page.locator('#world-atlas').isVisible(),false,
+  'direct E11 cannot invent E06/E07/E10 child-earned atlas');
  assert.equal(await page.locator('#shared-use').isVisible(),false,
   'direct E11 must not pretend E06/E07 model experiments were earned');
  await invariant(page,label+' child visitor rehearsal');
