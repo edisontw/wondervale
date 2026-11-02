@@ -155,6 +155,7 @@ const linkedE09=upstream?.e09||null,linkedE08=upstream?.e08||null;
 const linkedE07=upstream?.e07||null,linkedE06=upstream?.e06||null;
 const linkedE04=upstream?.e04||null,linkedE05=upstream?.e05||null;
 let linkedE11=loop?.e11||null;
+let linkedMarkerTrial=loop?.markerTrial||null;
 const linkedHillWorld=hillWorld(linkedE09);
 const linkedClueSource=clueSource(linkedE08,linkedE09);
 const linkedQuestionSource=questionSource(linkedE07,linkedE08,linkedE09);
@@ -336,7 +337,8 @@ function render(){
   linkedE04?{e04:linkedE04,e05:linkedE05,e06:linkedE06,e07:linkedE07,
    e08:linkedE08,e09:linkedE09}:
   linkedE08?{e08:linkedE08,e09:linkedE09,e07:linkedE07,e06:linkedE06}:null,
-  linkedQuestionSource&&viewQuestion(questionTrial,linkedQuestionSource,state)?.compared?questionTrial:null);
+  linkedQuestionSource&&viewQuestion(questionTrial,linkedQuestionSource,state)?.compared?questionTrial:null,
+  linkedMarkerTrial);
  $('e11-paper').hidden=!loopFragment;
  if(loopFragment)$('e11-paper').href='../e11-scene/'+loopFragment;
  if(linkedE04)$('e11-paper').textContent='Visit E11 PAPER with E04 UNKNOWN memories and E05 MOCK sources (not official unlock)';
@@ -378,7 +380,7 @@ function render(){
 }
 document.addEventListener('click',e=>{
  const b=e.target.closest('button[data-action]');if(!b)return;
- state=dispatch(state,action(b));render();
+ linkedMarkerTrial=null;state=dispatch(state,action(b));render();
 });
 $('e09-callback').addEventListener('click',()=>{if(view(state).finishedPaper){screen='survey';render();}});
 $('e10-back').addEventListener('click',()=>{screen='courtyard';render();});
@@ -407,8 +409,8 @@ for(const [id,action] of [
  ['question-wall',{type:'place',anchor:'notice_wall'}],
  ['question-compare',{type:'compare'}],['question-clear',{type:'remove'}]
 ])$(id).addEventListener('click',()=>{
- questionTrial=dispatchQuestion(questionTrial,action.type==='compare'?{type:'compare',atE10:state.history.length}:action,linkedQuestionSource,state);render();
+ linkedMarkerTrial=null;questionTrial=dispatchQuestion(questionTrial,action.type==='compare'?{type:'compare',atE10:state.history.length}:action,linkedQuestionSource,state);render();
 });
-$('restart').addEventListener('click',()=>{state=fresh();linkedE11=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
+$('restart').addEventListener('click',()=>{state=fresh();linkedE11=null;linkedMarkerTrial=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
 render();
 </script></main></body></html>
