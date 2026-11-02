@@ -22,6 +22,7 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 .map{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:2px;background:#c3d0d2;padding:.25rem;border-radius:.4rem}
 .cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;background:#f7faf8;font-size:clamp(.7rem,1.8vw,.95rem);font-weight:700}
 .cell[data-here=true]{background:#f3d99d}.cell[data-marker=true]{background:#b5d3db}.cell[data-dark=true]{background:#d8dedf}
+.shadow-map{display:block;width:min(100%,420px);height:auto;background:#f4f7f5;border:1px solid #9ab3b7;border-radius:.4rem}[data-shadow][aria-pressed=true]{background:#d8e9df;border-color:#35634d}
 .connector-grid{grid-template-columns:repeat(8,minmax(0,1fr))}.connector-grid .cell[data-connector=true]{background:#d8e9df}.connector-grid .cell[data-conflict=true]{background:#efc9b9}
 [data-active=true].connector-grid{outline:3px solid #98641b;outline-offset:2px}.approach-map{display:block;width:min(100%,360px);height:auto;background:#f4f7f5;border:1px solid #9ab3b7;border-radius:.4rem;margin:.5rem 0}[data-approach][aria-pressed=true]{background:#d8e9df;border-color:#35634d}
 [hidden]{display:none!important}@media(max-width:700px){.columns,.world{grid-template-columns:1fr}.panel{padding:.55rem}.anchors{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -46,6 +47,16 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <p>The same three PAPER marks stay in place. Trace the lines from the first or second safe viewpoint, then overlay both. The lower model lamps are not real wiring.</p>
 <div id="trace-controls" class="controls"></div><svg id="trace-map" class="trace-map" viewBox="0 0 360 240" role="img" aria-label="PAPER viewpoint trace"></svg>
 <p id="trace-detail" class="paper" role="status"></p></section>
+<section id="shadow-panel" class="panel" hidden><h2>Milo's PAPER shadow screen — what really changed?</h2>
+<p>After comparing two safe views, Milo notices that a mark's shadow can move even when the mark stays still. Move a synthetic PAPER screen nearer or farther, keep one model lamp the same, and record what happens. No real lamp or closed path is operated.</p>
+<div class="controls" aria-label="Move the synthetic screen"><button type="button" data-shadow="near">Screen NEAR</button><button type="button" data-shadow="far">Screen FAR</button></div>
+<div class="controls" aria-label="Choose one model lamp"><button type="button" data-shadow="a">Model lamp A</button><button type="button" data-shadow="b">Model lamp B</button></div>
+<svg id="shadow-map" class="shadow-map" viewBox="0 0 420 150" role="img" aria-label="Synthetic shadow projections A B C"></svg>
+<p id="shadow-position" class="paper"></p>
+<div class="controls"><button type="button" data-shadow="record">Record this shadow</button><button type="button" data-shadow="compare">Compare one-lamp trials</button><button type="button" data-shadow="clear">Clear observations</button><button type="button" data-shadow="reset">Restart shadow screen</button></div>
+<p id="shadow-observations" class="paper"></p><p id="shadow-result" class="paper" role="status"></p>
+<p>Optional parent cue: What stayed still? What did Milo move? Can we change only one thing?</p>
+<p><small>Unitless PAPER geometry, not a verified lamp projection, electrical repair, historical clue, or E09 unlock.</small></p></section>
 <section id="connector-revisit" class="panel" hidden><h2>Look back at Finn's PAPER connector</h2>
 <p>Finn revised a model to consider Milo, another traveler and water. The Current Garden remains healthy. Nothing was built or unlocked. This is a read-only callback, not verified E07 progress.</p><p id="connector-trace" class="paper"></p></section>
 <section id="connector-world-panel" class="panel" hidden><h2>Finn's connector: PAPER FIRST / NOW</h2>
