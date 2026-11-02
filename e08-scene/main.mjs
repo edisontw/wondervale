@@ -3,6 +3,7 @@ import {MARKERS,VIEWPOINTS} from '../engine/s01e08-authoring-prototype.mjs';
 import {view as viewE07} from '../e07-scene/scene-model.mjs';
 import {connectorWorld} from './connector-world.mjs';
 import {approachFrame} from './approach-experiment.mjs';
+import {freshShadow,dispatchShadow,canShadow,viewShadow} from './shadow-experiment.mjs';
 import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
 import {decodeMemoryLantern,encodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
@@ -14,7 +15,7 @@ const hillIncoming=lantern?null:decodeHillTransfer(location.hash);
 const incoming=lantern||hillIncoming||decodeStepsTransfer(location.hash);
 let state=incoming?.e08||fresh(),linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
 let linkedE09=memoryHill?.e09||hillIncoming?.e09||null;
-let approach={layout:'first',view:'first',pins:[]};
+let approach={layout:'first',view:'first',pins:[]},shadow=freshShadow();
 const linkedE04=lantern?.e04||null,linkedE05=lantern?.e05||null;
 const $=id=>document.getElementById(id);
 const a=(type,key,value)=>({scene:'story',action:key?{type,[key]:value}:{type}});
@@ -46,7 +47,7 @@ const groups={'walk-controls':rows.slice(0,4),'inspect-controls':rows.slice(4,9)
  'trace-controls':rows.slice(14,17),'nav-controls':rows.slice(17)};
 for(const [host,items] of Object.entries(groups))for(const [key,label,action] of items){
  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
- b.addEventListener('click',()=>{if(action.scene==='nav'&&action.type==='restart'){linkedE09=null;approach={layout:'first',view:'first',pins:[]};}state=dispatch(state,action);render();});$(host).append(b);
+ b.addEventListener('click',()=>{if(action.scene==='nav'&&action.type==='restart'){linkedE09=null;approach={layout:'first',view:'first',pins:[]};shadow=freshShadow();}state=dispatch(state,action);render();});$(host).append(b);
 }
 for(const button of document.querySelectorAll('[data-approach]')){
  button.addEventListener('click',()=>{
@@ -60,6 +61,54 @@ for(const button of document.querySelectorAll('[data-approach]')){
   else if(key==='here'||key==='there')approach.view=key==='here'?'first':'second';
   render();
  });
+}
+for(const button of document.querySelectorAll('[data-shadow]')){
+ button.addEventListener('click',()=>{
+  const key=button.dataset.shadow;
+  const action=key==='near'||key==='far'?{type:'move-screen',screen:key}:
+   key==='a'||key==='b'?{type:'choose-lamp',lamp:key}:
+   {type:key};
+  shadow=dispatchShadow(shadow,action);render();
+ });
+}
+function drawShadow(){
+ const story=view(state).story,paper=viewShadow(shadow);
+ $('shadow-panel').hidden=!(story.previewComplete&&view(state).screen==='steps');
+ const root=$('shadow-map');root.replaceChildren();
+ const ns='http://www.w3.org/2000/svg';
+ const add=(tag,attrs,caption)=>{
+  const el=document.createElementNS(ns,tag);
+  for(const [key,value] of Object.entries(attrs))el.setAttribute(key,String(value));
+  if(caption!==undefined)el.textContent=caption;
+  root.append(el);
+ };
+ add('line',{x1:15,y1:82,x2:405,y2:82,stroke:'#314c58','stroke-width':3});
+ for(const mark of paper.shadows){
+  const x=30+(mark.x+7)*18;
+  add('circle',{'data-shadow-mark':mark.mark,cx:x,cy:82,r:12,fill:'#b5d3db',stroke:'#314c58'});
+  add('text',{x,y:87,'text-anchor':'middle','font-size':13,fill:'#203b45'},mark.mark);
+ }
+ root.setAttribute('aria-label','Synthetic PAPER screen '+paper.screen+', lamp '+paper.lamp+
+  ', shadow projections '+paper.shadows.map(p=>p.mark+' at '+p.x).join(', ')+'. No real light test.');
+ $('shadow-position').textContent='Milo moves the PAPER screen '+paper.screen.toUpperCase()+
+  ' and selects model lamp '+paper.lamp.toUpperCase()+'. Shadows A/B/C: '+
+  paper.shadows.map(p=>p.mark+' '+p.x).join(' · ')+' (unitless). The marks stay fixed.';
+ $('shadow-observations').textContent='Recorded PAPER trials: '+paper.notes.length+'/4. '+
+  (paper.notes.map(p=>p.lamp.toUpperCase()+' '+p.screen.toUpperCase()).join(' · ')||'None yet.');
+ $('shadow-result').textContent=paper.compared?
+  'PAPER COMPARED — same lamp, screen moved. Shadow shifts: '+
+  paper.shifts.map(p=>p.mark+' '+p.delta).join(' · ')+
+  '. The marks did not move. This is not proof of a historical direction.':
+  paper.comparable?'Two screen distances with one lamp are ready. Compare what changed.':
+  'Keep one model lamp the same; move the PAPER screen and record both positions. Two changes at once do not isolate a cause.';
+ for(const button of document.querySelectorAll('[data-shadow]')){
+  const key=button.dataset.shadow;
+  const action=key==='near'||key==='far'?{type:'move-screen',screen:key}:
+   key==='a'||key==='b'?{type:'choose-lamp',lamp:key}:{type:key};
+  button.disabled=!canShadow(shadow,action);
+  if(['near','far','a','b'].includes(key))
+   button.setAttribute('aria-pressed',String(key===paper.screen||key===paper.lamp));
+ }
 }
 const spread=o=>o?o.viewpoint.replaceAll('-',' ')+' · fixed marks A/B/C · apparent spread '+o.spreadDegrees.toFixed(1)+'°':'Not observed yet';
 function draw(v){
@@ -206,7 +255,7 @@ function render(){
  }else{$('trace-map').replaceChildren();$('trace-detail').textContent='Finish the PAPER comparison to trace both views.';}
  $('note').textContent=s.paperNote;
  $('hook').textContent=v.lowerLightsPaperOn?'Next question: survey North Hill from a safe place. E09 NOT UNLOCKED.':'The service plate date and source are UNKNOWN. No E09 unlock.';
- draw(s);drawConnectorCallback();drawApproach(approachFrame(linkedE07,state,approach.layout,approach.view));
+ draw(s);drawShadow();drawConnectorCallback();drawApproach(approachFrame(linkedE07,state,approach.layout,approach.view));
  for(const [key,,action] of rows)document.querySelector('[data-key="'+key+'"]').disabled=!can(state,action);
  for(const el of document.querySelectorAll('[data-anchor]'))el.dataset.here=String(el.dataset.anchor===s.milo);
 }
