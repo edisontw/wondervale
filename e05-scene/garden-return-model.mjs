@@ -17,8 +17,8 @@ function evidence(e05,e06){
      b.e07Unlocked!==false||b.northHillClosed!==true||
      station.canonicalEvents.length||station.unlocks.length||station.rights.length||
      garden.canonicalEvents.length||garden.unlocks.length||garden.rights.length)return null;
-  return {current:'MODEL rain/channel compared in Current Garden',
-    lower:'PAPER runoff trace and public path inspected in Lower Garden',
+  return {currentObservation:'MODEL rain/channel compared in Current Garden',
+    lowerObservation:'PAPER runoff trace and public path inspected in Lower Garden',
     growth:b.lowerGrowthVisible?'PAPER seed-care comparison recorded':'No PAPER growth trial confirmed'};
 }
 export function replay(history,e05,e06){
