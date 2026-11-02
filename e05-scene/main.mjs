@@ -46,8 +46,12 @@ function render(){
   const ret=GardenReturn.view(gardenReturnHistory,state,linkedE06);
   $('garden-return').hidden=!ret.eligible||v.stage!=='review';
   if(ret.eligible){
-    $('return-current').textContent=ret.current;
-    $('return-lower').textContent=ret.lower+' · '+ret.growth;
+    $('return-map').dataset.mark=ret.annotation;
+    $('return-map').setAttribute('aria-label',ret.now+'; two separate PAPER garden markers, not real geography');
+    $('return-pin-current').dataset.inspected=String(ret.current);
+    $('return-pin-lower').dataset.inspected=String(ret.lower);
+    $('return-current').textContent=ret.currentObservation;
+    $('return-lower').textContent=ret.lowerObservation+' · '+ret.growth;
     $('return-first').textContent=ret.first;
     $('return-now').textContent=ret.now;
     $('return-feedback').textContent=ret.feedback;
