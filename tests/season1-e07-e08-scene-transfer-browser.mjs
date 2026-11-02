@@ -87,7 +87,7 @@ try{
    await page.locator('#field-clear').click();
    assert.equal(await page.locator('[data-field-pin]').count(),0);
    await page.locator('[data-field-place="overlook"]').click();
-   await hit('restart');
+   await page.locator('#restart').click();
    assert.equal(await page.locator('[data-field-pin]').count(),0);
    assert.equal(await page.locator('[data-field-place="fence_view"]').isDisabled(),true);
    assert.equal(await page.locator('#field-frames .card').count(),4);
