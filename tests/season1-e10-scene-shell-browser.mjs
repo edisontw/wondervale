@@ -38,6 +38,20 @@ try{
    await hit('walk','notice_wall');await hit('inspect','holes');
    assert.match(await page.locator('#parent-evidence').innerText(),/more than one use/);
    await hit('suggest','holes:display');
+   assert.equal(await page.locator('#use-staging').isVisible(),true);
+   await page.locator('[data-use-prop="seat"][data-use-anchor="stone_edge"]').click();
+   await page.locator('[data-use-prop="notice"][data-use-anchor="stone_edge"]').click();
+   await page.locator('#use-stage-compare').click();
+   assert.equal(await page.locator('#use-staging').getAttribute('data-conflict'),'true');
+   assert.equal(await page.locator('#use-stage-board [data-overlap="true"]').count(),1);
+   await page.locator('[data-use-prop="notice"][data-use-anchor="notice_wall"]').click();
+   assert.equal(await page.locator('#use-staging').getAttribute('data-revised'),'false');
+   await page.locator('#use-stage-compare').click();
+   assert.equal(await page.locator('#use-staging').getAttribute('data-revised'),'true');
+   assert.match(await page.locator('#use-stage-chronicle').innerText(),/SEEN traces unchanged.*UNKNOWN/);
+   await page.locator('#use-stage-reset').click();
+   assert.equal(await page.locator('#use-staging').getAttribute('data-revised'),'false');
+   assert.equal(await page.locator('#use-stage-board [data-overlap="true"]').count(),0);
    await hit('check-source');
    assert.match(await page.locator('#line').innerText(),/UNKNOWN/);
    await hit('review-tradeoff');await hit('review');await hit('finish-paper');
@@ -73,6 +87,7 @@ try{
    await page.locator('#restart').click();
    assert.match(await page.locator('#stage').innerText(),/opening/);
    assert.equal(await page.locator('#paper-comparison').isVisible(),false);
+   assert.equal(await page.locator('#use-staging').isVisible(),false);
    await page.reload();
    assert.match(await page.locator('#stage').innerText(),/opening/);
    assert.deepEqual(errors,[]);
