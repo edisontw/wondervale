@@ -46,7 +46,7 @@ function render(){
   const ret=GardenReturn.view(gardenReturnHistory,state,linkedE06);
   $('garden-return').hidden=!ret.eligible||v.stage!=='review';
   if(ret.eligible){
-    $('return-current').textContent=ret.current+(ret.current?' · '+(ret.current&&ret.current.length?'observed':''):'');
+    $('return-current').textContent=ret.current;
     $('return-lower').textContent=ret.lower+' · '+ret.growth;
     $('return-first').textContent=ret.first;
     $('return-now').textContent=ret.now;
