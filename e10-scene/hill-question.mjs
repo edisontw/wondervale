@@ -32,7 +32,9 @@ function clean(a){
  if(!a||typeof a!=='object'||Array.isArray(a))return null;
  if(a.type==='choose'&&Object.hasOwn(RULES,a.question))return {type:'choose',question:a.question};
  if(a.type==='place'&&['stone_edge','notice_wall'].includes(a.anchor))return {type:'place',anchor:a.anchor};
- if(['remove','compare'].includes(a.type))return {type:a.type};
+ if(a.type==='compare'&&Number.isInteger(a.atE10)&&a.atE10>=0&&a.atE10<=120)
+  return {type:'compare',atE10:a.atE10};
+ if(a.type==='remove')return {type:'remove'};
  return null;
 }
 function apply(s,a,source,e10){
@@ -52,7 +54,9 @@ function apply(s,a,source,e10){
  }
  if(a.type==='compare'){
   if(!s.question||!s.anchor)return null;
-  const rule=source.questions[s.question],seen=E10.view(e10)?.inspected||[];
+  if(a.atE10>e10.history.length)return null;
+  const prior=E10.replay(e10.history.slice(0,a.atE10));
+  const rule=source.questions[s.question],seen=E10.view(prior)?.inspected||[];
   const valid=s.anchor===rule.anchor&&seen.includes(rule.trace);
   return {...s,compared:valid,feedback:valid?
    'PAPER QUESTION — STILL UNKNOWN. '+rule.note+' NOT DONE.':
