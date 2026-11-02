@@ -39,6 +39,19 @@ try{
    assert.equal(await page.locator('#trace-map [data-fixed-marker]').count(),3);
    assert.equal(await page.locator('#trace-map [data-viewpoint]').count(),2);
    assert.match(await page.locator('#trace-detail').innerText(),/never moved/);
+   assert.equal(await page.locator('#shadow-panel').isVisible(),true);
+   assert.equal(await page.locator('#shadow-map [data-shadow-mark]').count(),3);
+   assert.match(await page.locator('#shadow-result').innerText(),/Keep one model lamp/);
+   await page.locator('[data-shadow="record"]').click();
+   assert.equal(await page.locator('[data-shadow="compare"]').isDisabled(),true);
+   await page.locator('[data-shadow="far"]').click();
+   await page.locator('[data-shadow="record"]').click();
+   assert.match(await page.locator('#shadow-observations').innerText(),/2\/4/);
+   await page.locator('[data-shadow="compare"]').click();
+   assert.match(await page.locator('#shadow-result').innerText(),/PAPER COMPARED/);
+   assert.match(await page.locator('#shadow-result').innerText(),/marks did not move/);
+   await page.locator('[data-shadow="clear"]').click();
+   assert.match(await page.locator('#shadow-observations').innerText(),/0\/4/);
    await hit('connector');assert.equal(await page.locator('#connector-revisit').isVisible(),true);
    assert.match(await page.locator('#connector-trace').innerText(),/two PAPER viewpoints/);
    await hit('steps');assert.match(await page.locator('#stage').innerText(),/finished/);
@@ -47,6 +60,7 @@ try{
    const sz=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(sz.scroll<=sz.w+1,JSON.stringify({viewport,sz}));assert.deepEqual(errors,[]);
    await hit('restart');assert.match(await page.locator('#stage').innerText(),/opening/);
+   assert.equal(await page.locator('#shadow-panel').isVisible(),false);
    assert.match(await page.locator('#lamp-state').innerText(),/OFF/);
   }finally{await context.close();}
  }
