@@ -48,7 +48,7 @@ try{
    await page.locator('#e10-return').click();
    await page.locator('#e11-paper').click();
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false','removal survives E10 round-trip');
-   await page.getByRole('button',{name:/Move \\? to request an attributed source/}).click();
+   await page.getByRole('button',{name:/Move \? to request an attributed source/}).click();
    await page.locator('#restart').click();
    await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false','E11 restart removes replayed marker');
