@@ -4,7 +4,7 @@ import * as E10 from '../authoring-labs/unnamed-story-model.mjs';
 import * as E07 from '../e07-scene/scene-model.mjs';
 import {sevenSceneUpstream} from './fixtures/season1-e04-e09-paper.mjs';
 import {questionSource,freshTrial,dispatchTrial} from '../e10-scene/hill-question.mjs';
-import {paperHillTraceRevisit} from '../e11-scene/hill-trace-revisit.mjs';
+import {paperHillTraceRevisit,freshFutureMarker,dispatchFutureMarker,restoreFutureMarker} from '../e11-scene/hill-trace-revisit.mjs';
 import {encodeLoopTransfer,decodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
 import {fresh as freshE11} from '../engine/s01e11-authoring-prototype.mjs';
 
@@ -51,4 +51,41 @@ test('strict E10 question/trace travels to E11, with future check still NOT DONE
  forged.question=q.history;forged.rights=['approved'];
  assert.equal(decodeLoopTransfer('#paper-loop='+encodeURIComponent(JSON.stringify(forged))),null);
  assert.equal(encodeLoopTransfer(e10,freshE11(),null,q),null);
+});
+
+test('E11 child marker replays across E10 round-trip, can be removed, and fails closed on upstream reset or forgery',()=>{
+ const u=sevenSceneUpstream(),e10=completedE10();
+ const upstream={e04:u.e04,e05:u.e05,e06:u.e06,e07:u.e07,e08:u.e08,e09:u.e09};
+ const source=questionSource(u.e07,u.e08,u.e09);
+ let q=freshTrial();
+ for(const a of [{type:'choose',question:'identity'},{type:'place',anchor:'notice_wall'},
+  {type:'compare',atE10:e10.history.length}])q=dispatchTrial(q,a,source,e10);
+ const atlas=paperHillTraceRevisit(e10,upstream,q);
+ assert.equal(atlas.futureStop,'source_desk');
+ let marker=freshFutureMarker();
+ marker=dispatchFutureMarker(marker,{type:'move',stop:'ask_caretaker'},atlas);
+ marker=dispatchFutureMarker(marker,{type:'move',stop:'source_desk'},atlas);
+ assert.equal(marker.stop,'source_desk');
+ let fragment=encodeLoopTransfer(e10,freshE11(),upstream,q,marker);
+ assert.ok(fragment);
+ let restored=decodeLoopTransfer(fragment);
+ assert.deepEqual(restored.markerTrial,marker);
+ assert.equal(paperHillTraceRevisit(restored.e10,restored.upstream,restored.questionTrial).realCheckDone,false);
+ marker=dispatchFutureMarker(restored.markerTrial,{type:'remove'},atlas);
+ assert.equal(marker.stop,null);
+ fragment=encodeLoopTransfer(e10,freshE11(),upstream,q,marker);
+ assert.deepEqual(decodeLoopTransfer(fragment).markerTrial,marker);
+ assert.equal(encodeLoopTransfer(e10,freshE11(),upstream,null,marker),null);
+ assert.equal(encodeLoopTransfer(E10.dispatch(e10,{type:'reset'}),freshE11(),upstream,q,marker),null);
+ assert.equal(encodeLoopTransfer(e10,freshE11(),
+  {...upstream,e07:E07.dispatch(u.e07,{scene:'nav',type:'restart'})},q,marker),null);
+ assert.equal(restoreFutureMarker({...marker,rights:['open']},atlas),null);
+ assert.equal(dispatchFutureMarker(marker,{type:'move',stop:'real_hill'},atlas).stop,null);
+ const forged=JSON.parse(decodeURIComponent(fragment.slice('#paper-loop='.length)));
+ forged.marker=[{type:'move',stop:'source_desk',approved:true}];
+ assert.equal(decodeLoopTransfer('#paper-loop='+encodeURIComponent(JSON.stringify(forged))),null);
+ forged.marker=[{type:'move',stop:'real_hill'}];
+ assert.equal(decodeLoopTransfer('#paper-loop='+encodeURIComponent(JSON.stringify(forged))),null);
+ forged.marker=marker.history;delete forged.question;
+ assert.equal(decodeLoopTransfer('#paper-loop='+encodeURIComponent(JSON.stringify(forged))),null);
 });
