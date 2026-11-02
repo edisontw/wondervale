@@ -1,5 +1,6 @@
 // E05 isolated future scene shell: reuses strict station and mock-source reducers.
 import {fresh,dispatch,can,view} from './scene-model.mjs';
+import * as GardenReturn from './garden-return-model.mjs';
 import {fresh as freshE06} from '../e06-scene/scene-model.mjs';
 import {fresh as freshE07} from '../e07-scene/scene-model.mjs';
 import {fresh as freshE08} from '../e08-scene/scene-model.mjs';
@@ -16,6 +17,7 @@ let state=arcIncoming?.e05||incoming?.e05||fresh(),
  linkedE06=arcIncoming?.e06||incoming?.e06||freshE06(),
  linkedE07=extended?.e07||freshE07(),linkedE08=lantern?.e08||freshE08();
 const linkedE04=arcIncoming?.e04||null;
+let gardenReturnHistory=[];
 const $=id=>document.getElementById(id);
 const actionOf=b=>{
   if(b.dataset.scene==='nav')return {scene:'nav',type:b.dataset.type};
@@ -41,6 +43,24 @@ function render(){
     v.station.table?'Trial table '+v.station.table+' · walkway '+(v.station.clear?'clear':'BLOCKED'):
       'Foyer paper floor: empty; public walkway clear';
   $('paper-note').textContent=v.paperChronicle||'No canonical Chronicle.';
+  const ret=GardenReturn.view(gardenReturnHistory,state,linkedE06);
+  $('garden-return').hidden=!ret.eligible||v.stage!=='review';
+  if(ret.eligible){
+    $('return-map').dataset.mark=ret.annotation;
+    $('return-map').setAttribute('aria-label',ret.now+'; two separate PAPER garden markers, not real geography');
+    $('return-pin-current').dataset.inspected=String(ret.current);
+    $('return-pin-lower').dataset.inspected=String(ret.lower);
+    $('return-current').textContent=ret.currentObservation;
+    $('return-lower').textContent=ret.lowerObservation+' · '+ret.growth;
+    $('return-first').textContent=ret.first;
+    $('return-now').textContent=ret.now;
+    $('return-feedback').textContent=ret.feedback;
+    $('return-chronicle').textContent=ret.paperChronicle||'No PAPER return comparison yet. This does not change the official Chronicle.';
+    for(const b of document.querySelectorAll('[data-return-action]')){
+      b.disabled=!GardenReturn.can(gardenReturnHistory,b.dataset.returnAction,state,linkedE06);
+      b.setAttribute('aria-pressed',String(b.dataset.returnAction==='mark-question'&&ret.annotation==='question'));
+    }
+  }
   const g=v.gardenMap;
   const garden=$('garden-map');garden.replaceChildren();
   const grid=document.createElement('div');grid.className='trace-grid';
@@ -88,8 +108,12 @@ document.querySelectorAll('button[data-scene]').forEach(b=>b.addEventListener('c
   const action=actionOf(b);
   state=dispatch(state,action);
   if(action.scene==='nav'&&action.type==='restart'){
-    linkedE06=freshE06();linkedE07=freshE07();linkedE08=freshE08();
+    linkedE06=freshE06();linkedE07=freshE07();linkedE08=freshE08();gardenReturnHistory=[];
   }
+  render();
+}));
+document.querySelectorAll('[data-return-action]').forEach(b=>b.addEventListener('click',()=>{
+  gardenReturnHistory=GardenReturn.dispatch(gardenReturnHistory,b.dataset.returnAction,state,linkedE06);
   render();
 }));
 render();

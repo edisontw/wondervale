@@ -4,6 +4,7 @@ import * as E05 from '../e05-scene/scene-model.mjs';
 import * as E06 from '../e06-scene/scene-model.mjs';
 import {encodeStationGardenTransfer,decodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
 import {stationWorld} from '../e06-scene/station-world.mjs';
+import * as Return from '../e05-scene/garden-return-model.mjs';
 const a=(scene,type,extra={})=>({scene,action:{type,...extra}});
 const nav=type=>({scene:'nav',type});
 const step=(model,s,action)=>{assert.equal(model.can(s,action),true,JSON.stringify(action));return model.dispatch(s,action);};
@@ -99,4 +100,58 @@ test('E05 child-tested Map Room changes independent E06 FIRST/NOW PAPER world',(
  assert.equal(stationWorld(forged),null);
  const tampered=structuredClone(e05);tampered.station.replica.table='across-walkway';
  assert.equal(stationWorld(tampered),null);
+});
+
+test('E05 Map Room return requires E06 child-inspected two gardens; unsupported solid road revises to UNKNOWN question',()=>{
+ const e05=station();
+ let e06=E06.fresh();
+ assert.equal(Return.view([],e05,e06).eligible,false);
+ for(const action of [
+  a('garden','start'),a('garden','inspect',{value:'present-bed'}),
+  a('garden','walk',{value:'slope'}),a('garden','inspect',{value:'slope'}),
+  a('garden','walk',{value:'model-tray'}),a('garden','run'),
+  a('garden','weather',{value:'rain'}),a('garden','run'),
+  a('garden','channel',{value:'blocked'}),a('garden','run'),
+  a('garden','compare'),a('garden','enter'),
+  a('garden','inspect',{value:'runoff-trace'}),
+  a('garden','walk',{value:'public-path'}),a('garden','inspect',{value:'public-path'}),
+  a('garden','walk',{value:'runoff-channel'}),a('garden','place',{value:'runoff-channel'}),
+  a('garden','check'),a('garden','walk',{value:'raised-pocket'}),
+  a('garden','place',{value:'raised-pocket'}),a('garden','check'),
+  a('garden','think',{value:'keep-path'}),a('garden','finish')
+ ])e06=step(E06,e06,action);
+ const earned=decodeStationGardenTransfer(encodeStationGardenTransfer(e05,e06));
+ assert.ok(earned);
+ assert.equal(Return.view([],earned.e05,earned.e06).eligible,true);
+ let h=[];
+ assert.equal(Return.can(h,'try-solid',e05,e06),false);
+ for(const type of ['inspect-current','inspect-lower','try-solid']){
+  assert.equal(Return.can(h,type,e05,e06),true,type);
+  h=Return.dispatch(h,type,e05,e06);
+ }
+ let v=Return.view(h,e05,e06);
+ assert.equal(v.annotation,'unsupported');
+ assert.match(v.feedback,/solid road needs real ground/);
+ assert.equal(v.paperChronicle,null);
+ h=Return.dispatch(h,'mark-question',e05,e06);
+ h=Return.dispatch(h,'compare',e05,e06);
+ v=Return.view(h,e05,e06);
+ assert.equal(v.compared,true);
+ assert.match(v.now,/NO ROAD/);
+ assert.match(v.paperChronicle,/cause and permission remain UNKNOWN/);
+ assert.deepEqual(v.canonicalEvents,[]);
+ assert.deepEqual(v.unlocks,[]);
+ assert.deepEqual(v.rights,[]);
+ assert.equal(Return.replay(h,e05,e06).compared,true);
+ assert.equal(Return.replay([...h,'grant-access'],e05,e06),null);
+ assert.equal(Return.replay(['compare'],e05,e06),null);
+ assert.equal(Return.view(h,E05.dispatch(e05,nav('restart')),e06).eligible,false);
+ assert.equal(Return.view(h,e05,E06.dispatch(e06,nav('restart'))).eligible,false);
+ assert.equal(Return.view(h,{...e05,rights:['station']},e06).eligible,false);
+ assert.equal(Return.view(h,e05,{...e06,unlocks:['E07']}).eligible,false);
+ const erased=Return.dispatch(h,'erase',e05,e06);
+ assert.equal(Return.view(erased,e05,e06).compared,false);
+ assert.equal(Return.view(erased,e05,e06).annotation,'none');
+ assert.equal(Return.view(['inspect-current','inspect-lower','mark-question','compare'],e05,e06).compared,true,
+  'child need not be forced into a wrong first attempt');
 });
