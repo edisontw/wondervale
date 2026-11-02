@@ -2,6 +2,7 @@ import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {MARKERS,VIEWPOINTS} from '../engine/s01e08-authoring-prototype.mjs';
 import {view as viewE07} from '../e07-scene/scene-model.mjs';
 import {connectorWorld} from './connector-world.mjs';
+import {approachFrame} from './approach-experiment.mjs';
 import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
 import {decodeMemoryLantern,encodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
@@ -13,6 +14,7 @@ const hillIncoming=lantern?null:decodeHillTransfer(location.hash);
 const incoming=lantern||hillIncoming||decodeStepsTransfer(location.hash);
 let state=incoming?.e08||fresh(),linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
 let linkedE09=memoryHill?.e09||hillIncoming?.e09||null;
+let approach={layout:'first',view:'first',pins:[]};
 const linkedE04=lantern?.e04||null,linkedE05=lantern?.e05||null;
 const $=id=>document.getElementById(id);
 const a=(type,key,value)=>({scene:'story',action:key?{type,[key]:value}:{type}});
@@ -44,7 +46,20 @@ const groups={'walk-controls':rows.slice(0,4),'inspect-controls':rows.slice(4,9)
  'trace-controls':rows.slice(14,17),'nav-controls':rows.slice(17)};
 for(const [host,items] of Object.entries(groups))for(const [key,label,action] of items){
  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
- b.addEventListener('click',()=>{if(action.scene==='nav'&&action.type==='restart')linkedE09=null;state=dispatch(state,action);render();});$(host).append(b);
+ b.addEventListener('click',()=>{if(action.scene==='nav'&&action.type==='restart'){linkedE09=null;approach={layout:'first',view:'first',pins:[]};}state=dispatch(state,action);render();});$(host).append(b);
+}
+for(const button of document.querySelectorAll('[data-approach]')){
+ button.addEventListener('click',()=>{
+  const key=button.dataset.approach;
+  if(key==='clear')approach.pins=[];
+  else if(key==='pin'){
+   if(!approachFrame(linkedE07,state,approach.layout,approach.view))return;
+   const id=approach.layout+':'+approach.view;
+   if(!approach.pins.includes(id))approach.pins.push(id);
+  }else if(key==='first'||key==='now')approach.layout=key;
+  else if(key==='here'||key==='there')approach.view=key==='here'?'first':'second';
+  render();
+ });
 }
 const spread=o=>o?o.viewpoint.replaceAll('-',' ')+' · fixed marks A/B/C · apparent spread '+o.spreadDegrees.toFixed(1)+'°':'Not observed yet';
 function draw(v){
@@ -88,6 +103,48 @@ function drawTrace(s,mode){
   '. No real lights or hill access.');
 }
 
+function drawApproach(frame){
+ const panel=$('approach-panel');panel.hidden=!frame||view(state).screen!=='steps';
+ const root=$('approach-map');root.replaceChildren();
+ if(!frame)return;
+ const ns='http://www.w3.org/2000/svg',pt=p=>({x:28+p.x*34,y:20+p.y*34});
+ const add=(tag,attrs,text)=>{
+  const el=document.createElementNS(ns,tag);
+  for(const [key,value] of Object.entries(attrs))el.setAttribute(key,String(value));
+  if(text!==undefined)el.textContent=text;
+  root.append(el);
+ };
+ const origin=pt(VIEWPOINTS[frame.viewpoint]);
+ for(const [i,mark] of MARKERS.entries()){
+  const p=pt(mark);
+  add('line',{'data-approach-ray':i,x1:origin.x,y1:origin.y,x2:p.x,y2:p.y,
+   stroke:'#4b7290','stroke-width':2,'stroke-dasharray':'4 3'});
+  add('circle',{'data-approach-marker':'ABC'[i],cx:p.x,cy:p.y,r:9,fill:'#b5d3db',stroke:'#314c58'});
+  add('text',{x:p.x,y:p.y+4,'text-anchor':'middle','font-size':12},'ABC'[i]);
+ }
+ add('circle',{'data-approach-viewpoint':frame.viewpoint,cx:origin.x,cy:origin.y,r:11,fill:'#9a5e38'});
+ add('text',{x:origin.x,y:origin.y+4,'text-anchor':'middle','font-size':12,fill:'white'},'M');
+ root.setAttribute('aria-label','PAPER '+frame.viewpoint+' viewpoint; fixed A B C marks, spread '+frame.spreadDegrees.toFixed(1)+' degrees');
+ $('approach-route').textContent=(frame.layout==='first'?'Finn\'s FIRST short model':'Milo\'s NOW revised model')+
+  ': '+frame.conflicts+' connector overlap cells; traveler '+(frame.peoplePass?'PASS':'BLOCKED')+
+  ', water '+(frame.waterPass?'PASS':'BLOCKED')+'.';
+ $('approach-view').textContent='Milo sees fixed A/B/C from '+frame.viewpoint.toUpperCase()+
+  ' ('+frame.viewpoint.replace('first','FROM HERE').replace('second','FROM THERE')+
+  '): apparent spread '+frame.spreadDegrees.toFixed(1)+'°. Changing the PAPER route does not move these marks.';
+ const total=approach.pins.length;
+ $('approach-note').textContent=total===4?
+  'PAPER COMPARED: Finn\'s revised model clears the traveler/water overlaps. Milo\'s viewpoint changes apparent spacing, but A/B/C stay fixed. No real connector, lights or access approved.':
+  'PAPER field notes: '+total+'/4 model-and-view combinations checked. Choose a route and a viewpoint, then mark what Milo saw. You can revise or clear.';
+ for(const b of document.querySelectorAll('[data-approach]')){
+  const key=b.dataset.approach;
+  b.disabled=key==='pin'?approach.pins.includes(approach.layout+':'+approach.view):
+   key==='clear'?total===0:false;
+  if(['first','now','here','there'].includes(key))
+   b.setAttribute('aria-pressed',String(key===approach.layout||key==='here'&&approach.view==='first'||key==='there'&&approach.view==='second'));
+ }
+ $('connector-first-grid').dataset.active=String(frame.layout==='first');
+ $('connector-now-grid').dataset.active=String(frame.layout==='now');
+}
 function drawConnectorCallback(){
  const paper=connectorWorld(linkedE07);
  $('connector-world-panel').hidden=!paper;
@@ -149,7 +206,7 @@ function render(){
  }else{$('trace-map').replaceChildren();$('trace-detail').textContent='Finish the PAPER comparison to trace both views.';}
  $('note').textContent=s.paperNote;
  $('hook').textContent=v.lowerLightsPaperOn?'Next question: survey North Hill from a safe place. E09 NOT UNLOCKED.':'The service plate date and source are UNKNOWN. No E09 unlock.';
- draw(s);drawConnectorCallback();
+ draw(s);drawConnectorCallback();drawApproach(approachFrame(linkedE07,state,approach.layout,approach.view));
  for(const [key,,action] of rows)document.querySelector('[data-key="'+key+'"]').disabled=!can(state,action);
  for(const el of document.querySelectorAll('[data-anchor]'))el.dataset.here=String(el.dataset.anchor===s.milo);
 }
