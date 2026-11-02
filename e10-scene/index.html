@@ -406,7 +406,7 @@ for(const [id,action] of [
  ['question-wall',{type:'place',anchor:'notice_wall'}],
  ['question-compare',{type:'compare'}],['question-clear',{type:'remove'}]
 ])$(id).addEventListener('click',()=>{
- questionTrial=dispatchQuestion(questionTrial,action,linkedQuestionSource,state);render();
+ questionTrial=dispatchQuestion(questionTrial,action.type==='compare'?{type:'compare',atE10:state.history.length}:action,linkedQuestionSource,state);render();
 });
 $('restart').addEventListener('click',()=>{state=fresh();linkedE11=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
 render();
