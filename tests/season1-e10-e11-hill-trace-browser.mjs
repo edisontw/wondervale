@@ -32,6 +32,7 @@ try{
    await page.locator('#e11-paper').click();
    await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
    assert.equal(await page.locator('#hill-trace-world').isVisible(),true);
+   await page.waitForFunction(trace=>document.querySelector('#hill-trace-first')?.textContent?.includes(trace),'mounting holes');
    assert.match(await page.locator('#hill-trace-first').innerText(),/mounting holes.*STILL UNKNOWN/);
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false');
    await page.getByRole('button',{name:/Move \? to ask the responsible person/}).click();
@@ -60,6 +61,7 @@ try{
    await page.locator('#question-compare').click();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'true');
    await page.locator('#e11-paper').click();
+   await page.waitForFunction(trace=>document.querySelector('#hill-trace-first')?.textContent?.includes(trace),'worn surface');
    assert.match(await page.locator('#hill-trace-first').innerText(),/worn surface.*STILL UNKNOWN/);
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false',
     'identity source marker cannot reappear for access question');
