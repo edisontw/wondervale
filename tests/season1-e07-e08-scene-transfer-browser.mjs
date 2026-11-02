@@ -35,6 +35,28 @@ try{
    for(const k of ['start','inspect-brackets','inspect-boundary','inspect-a','lamp-a',
     'walk-landing','inspect-b','lamp-b','walk-base','observe','walk-landing',
     'walk-side','observe','compare','inspect-plate','finish'])await hit(k);
+   assert.equal(await page.locator('#approach-panel').isVisible(),true);
+   assert.match(await page.locator('#approach-route').innerText(),/FIRST short model.*2 connector overlap/);
+   assert.equal(await page.locator('#approach-map [data-approach-marker]').count(),3);
+   assert.equal(await page.locator('#approach-map [data-approach-ray]').count(),3);
+   await page.locator('[data-approach="pin"]').click();
+   assert.match(await page.locator('#approach-note').innerText(),/1\/4/);
+   await page.locator('[data-approach="there"]').click();
+   const there=await page.locator('#approach-view').innerText();
+   await page.locator('[data-approach="pin"]').click();
+   await page.locator('[data-approach="now"]').click();
+   assert.match(await page.locator('#approach-route').innerText(),/NOW revised model.*0 connector overlap/);
+   assert.match(await page.locator('#approach-view').innerText(),/Changing the PAPER route does not move these marks/);
+   await page.locator('[data-approach="pin"]').click();
+   await page.locator('[data-approach="here"]').click();
+   assert.notEqual(await page.locator('#approach-view').innerText(),there);
+   await page.locator('[data-approach="pin"]').click();
+   assert.match(await page.locator('#approach-note').innerText(),/PAPER COMPARED/);
+   assert.match(await page.locator('#approach-note').innerText(),/No real connector, lights or access approved/);
+   assert.equal(await page.locator('[data-approach="pin"]').isDisabled(),true);
+   await page.locator('[data-approach="clear"]').click();
+   assert.match(await page.locator('#approach-note').innerText(),/0\/4/);
+   assert.equal(await page.locator('[data-approach="pin"]').isDisabled(),false);
    assert.match(await page.locator('#steps-world-note').innerText(),/real lights NOT restored/);
    await page.locator('#e07-return').click();
    await page.waitForFunction(()=>document.querySelector('#route-feedback')?.textContent.includes('reviewed'));
@@ -47,6 +69,7 @@ try{
    assert.equal(await page.locator('#connector-world-panel').isVisible(),true);
    assert.equal(await page.locator('#connector-now-grid [data-conflict="true"]').count(),0);
    assert.match(await page.locator('#lamp-state').innerText(),/Lower A: OFF.*Lower B: OFF/);
+   assert.equal(await page.locator('#approach-panel').isVisible(),false);
    await page.locator('#e07-return').click();
    await page.waitForFunction(()=>document.querySelector('#route-feedback')?.textContent.includes('reviewed'));
    assert.match(await page.locator('#e08-paper-callback').innerText(),/not yet made/);
@@ -57,6 +80,7 @@ try{
    await hit('restart');assert.equal(await page.locator('#e08-transfer').isVisible(),false);
    assert.equal((await page.goto(base+'/e08-scene/'))?.status(),200);
    assert.equal(await page.locator('#connector-world-panel').isVisible(),false);
+   assert.equal(await page.locator('#approach-panel').isVisible(),false);
   }finally{await context.close();}
  }
  console.log('E07/E08 independent PAPER transfer Chromium PASS: 3 viewports, earned link, OFF boundary, return, restart');
