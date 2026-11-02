@@ -22,7 +22,7 @@ export function paperHillTraceRevisit(e10,upstream,questionTrial){
     v.actualName!==null||v.e11Unlocked!==false)return null;
  const rule=LABELS[checked.question];
  if(!rule||checked.anchor!==source.questions[checked.question]?.anchor||
-    !v.observations.some(x=>x.id===rule.trace))return null;
+    !v.observations.some(x=>x.traceId===rule.trace))return null;
  return {question:checked.question,questionLabel:rule.question,
   traceLabel:rule.traceLabel,anchorLabel:rule.anchorLabel,
   futureStop:rule.futureStop,firstMarker:checked.anchor,
