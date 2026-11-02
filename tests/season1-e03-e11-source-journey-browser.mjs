@@ -203,6 +203,36 @@ try{
    await press('Save tested trial');await press('Compare FIRST and NOW');
    assert.match(await page.locator('#revisit-first-result').innerText(),/RETRY/);
    assert.match(await page.locator('#revisit-now-result').innerText(),/PASS/);
+   // Child must walk all four E11 visitors before E06/E07 PAPER constraints
+   // can be revisited. The upstream experiments were performed on this journey.
+   assert.equal(await page.locator('#shared-use').isVisible(),false);
+   for(const [phase,role,route] of [
+    ['FIRST','quiet reader',['1,1']],
+    ['FIRST','activity group',['1,1','1,2']],
+    ['NOW','quiet reader',['1,1']],
+    ['NOW','activity group',['1,1']]
+   ]){
+    await press('Walk '+phase+' · '+role);
+    for(const cell of route)await press('Walk visitor to '+cell);
+    await press('Check visitor at place');
+   }
+   await page.locator('#shared-use').waitFor({state:'visible'});
+   assert.match(await page.locator('#shared-use-observation').innerText(),/RAIN BLOCKED: 3\/3/);
+   assert.equal(await page.locator('#shared-use-grid [data-conflict="true"]').count(),2);
+   await press('Record FIRST PAPER check');
+   await press('NOW connector');
+   await press('OPEN PAPER water channel');
+   assert.equal(await page.locator('#shared-use-grid [data-conflict="true"]').count(),0);
+   await press('Record NOW PAPER check');
+   await press('Compare shared-use PAPER changes');
+   assert.match(await page.locator('#shared-use-note').innerText(),
+    /FIRST 3\/3 rain marks, 2 connector overlap cells; NOW 1\/3 rain marks, 0 overlaps/);
+   assert.match(await page.locator('#shared-use-note').innerText(),/UNKNOWN/);
+   assert.doesNotMatch(await page.locator('#shared-use-note').innerText(),/\bCommon\b/);
+   await press('Restart shared-use PAPER checks');
+   assert.match(await page.locator('#shared-use-note').innerText(),/pending/);
+   assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
+
    // E05 -> E06 -> E11 is one real child-operated Chromium journey, not a
    // pre-completed fixture. Review E11 before walking the separate PAPER loop.
    assert.equal(await page.locator('#garden-lower-now').getAttribute('data-stage'),'paper-sprout');

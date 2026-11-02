@@ -3,6 +3,7 @@ import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
   fresh,dispatch,projection} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperRevisit} from './revisit-model.mjs';
 import {paperRoleWalk,dispatchRoleWalk} from './role-walk.mjs';
+import {paperSharedUse,dispatchSharedUse} from './shared-use-followthrough.mjs';
 import {paperLoopVisual} from './loop-visual.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
 import {paperReturnRoute,WALK_LABELS} from './return-route.mjs';
@@ -35,11 +36,12 @@ let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[],
  followUpStop=null;
 let markerTrial=incoming?.markerTrial||freshFutureMarker();
 let roleWalkHistory=[];
+let sharedUseHistory=[];
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
-function act(action){returnSteps=[];clearReflection();markerTrial=freshFutureMarker();roleWalkHistory=[];state=dispatch(state,action);render();}
+function act(action){returnSteps=[];clearReflection();markerTrial=freshFutureMarker();roleWalkHistory=[];sharedUseHistory=[];state=dispatch(state,action);render();}
 function button(host,name,handler,disabled=false,pressed=false){
  const b=document.createElement('button');b.type='button';b.textContent=name;b.disabled=disabled;
  if(pressed)b.setAttribute('aria-pressed','true');
@@ -245,7 +247,7 @@ function visitorWalk(){
  ]){
   button(choices,'Walk '+label,()=>{
    roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'choose',stage,role});
-   visitorWalk();
+   sharedUseHistory=[];visitorWalk();
   },false,model.stage===stage&&model.role===role);
  }
  const board=$('visitor-walk-board');board.replaceChildren();
@@ -267,7 +269,7 @@ function visitorWalk(){
   b.disabled=!model.stage||closed||!adjacent(model.position,cell);
   b.addEventListener('click',()=>{
    roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'step',to:cell});
-   visitorWalk();
+   sharedUseHistory=[];visitorWalk();
   });
   board.append(b);
  }
@@ -279,9 +281,9 @@ function visitorWalk(){
  const controls=$('visitor-walk-controls');controls.replaceChildren();
  button(controls,'Check visitor at place',()=>{
   roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'check'});
-  visitorWalk();
+  sharedUseHistory=[];visitorWalk();
  },!model.stage||model.steps<1);
- button(controls,'Restart visitor rehearsal',()=>{roleWalkHistory=[];visitorWalk();},!roleWalkHistory.length);
+ button(controls,'Restart visitor rehearsal',()=>{roleWalkHistory=[];sharedUseHistory=[];visitorWalk();},!roleWalkHistory.length);
  $('visitor-walk-results').textContent=['first','now'].flatMap(stage=>
   USERS.map(role=>{
    const result=model.visits[stage+':'+role];
@@ -289,6 +291,70 @@ function visitorWalk(){
     (result.passed?'PASS':'RETRY')+' after '+result.steps+' child steps':'not walked');
   })).join(' | ');
  $('visitor-walk-chronicle').textContent=model.chronicle;
+ sharedUseView();
+}
+
+function sharedUseView(){
+ const model=paperSharedUse(state,roleWalkHistory,upstream,sharedUseHistory);
+ const panel=$('shared-use');panel.hidden=!model;
+ if(!model)return;
+ const choices=$('shared-use-choices');choices.replaceChildren();
+ const choose=(phase,channel)=>{
+  sharedUseHistory=dispatchSharedUse(state,roleWalkHistory,upstream,sharedUseHistory,
+   {type:'choose',phase,channel});
+  sharedUseView();
+ };
+ for(const phase of ['first','now'])
+  button(choices,phase.toUpperCase()+' connector',()=>choose(phase,model.channel),
+   false,model.phase===phase);
+ for(const channel of ['blocked','open'])
+  button(choices,channel.toUpperCase()+' PAPER water channel',
+   ()=>choose(model.phase,channel),false,model.channel===channel);
+ const grid=$('shared-use-grid');grid.replaceChildren();
+ const C=new Set(model.selected.footprint),P=new Set(model.selected.residentPath),
+  W=new Set(model.selected.waterPath);
+ for(let y=0;y<7;y++)for(let x=0;x<8;x++){
+  const id=x+','+y,c=C.has(id),p=P.has(id),w=W.has(id);
+  const tile=document.createElement('span');tile.className='paper-flow-cell';
+  tile.dataset.conflict=String(c&&(p||w));
+  tile.textContent=c&&(p||w)?'X':c?'C':p?'P':w?'W':'·';
+  grid.append(tile);
+ }
+ grid.setAttribute('aria-label',model.phase.toUpperCase()+' independent PAPER connector: '+
+  model.selected.overlap.length+' overlap cells; E06 rain '+model.channel+
+  ' '+model.selected.catchment+' of 3 model marks.');
+ $('shared-use-observation').textContent=
+  'E06 RAIN '+model.channel.toUpperCase()+': '+model.selected.catchment+
+  '/3 model marks. E07 '+model.phase.toUpperCase()+': '+
+  model.selected.overlap.length+' connector overlap cells. E11 quiet visitor '+
+  (model.visitors[model.phase+':quiet_reader'].passed?'PASS':'RETRY')+
+  ', group '+(model.visitors[model.phase+':activity_group'].passed?'PASS':'RETRY')+
+  '. These are separate PAPER models, not measured connected places.';
+ const controls=$('shared-use-controls');controls.replaceChildren();
+ button(controls,'Record '+model.phase.toUpperCase()+' PAPER check',()=>{
+  sharedUseHistory=dispatchSharedUse(state,roleWalkHistory,upstream,sharedUseHistory,
+   {type:'record'});sharedUseView();
+ },model.phase==='first'?!!model.first:!model.first||!!model.now);
+ button(controls,'Compare shared-use PAPER changes',()=>{
+  sharedUseHistory=dispatchSharedUse(state,roleWalkHistory,upstream,sharedUseHistory,
+   {type:'compare'});sharedUseView();
+ },!model.first||!model.now||model.compared);
+ button(controls,'Restart shared-use PAPER checks',()=>{
+  sharedUseHistory=[];sharedUseView();
+ },!sharedUseHistory.length);
+ $('shared-use-first').textContent=model.first?
+  'FIRST: '+model.first.catchment+'/3 rain marks; '+
+  model.first.overlaps+' connector overlaps; quiet '+
+  (model.first.quietPass?'PASS':'RETRY')+', group '+
+  (model.first.groupPass?'PASS':'RETRY')+'.':
+  'FIRST: no child-recorded shared-use check.';
+ $('shared-use-now').textContent=model.now?
+  'NOW: '+model.now.catchment+'/3 rain marks; '+
+  model.now.overlaps+' connector overlaps; quiet '+
+  (model.now.quietPass?'PASS':'RETRY')+', group '+
+  (model.now.groupPass?'PASS':'RETRY')+'.':
+  'NOW: choose NOW and record a second check.';
+ $('shared-use-note').textContent=model.chronicle;
 }
 
 function verificationPlan(){
