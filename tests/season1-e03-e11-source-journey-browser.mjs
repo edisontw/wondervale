@@ -264,18 +264,28 @@ try{
     await press('Arrange an authorized access check later');
     assert.match(await page.locator('#follow-up-diary').innerText(),/PAPER NEXT STEP — NOT DONE/);
     assert.match(await page.locator('#follow-up-diary').innerText(),/public route/);
+    assert.equal(await page.locator('#follow-up-map').isVisible(),true);
+    await press('Place ? at Garden PAPER stop');
+    assert.match(await page.locator('#follow-up-map-feedback').innerText(),/Move it/);
+    await press('Place ? at Square PAPER start');
+    assert.match(await page.locator('#follow-up-map-diary').innerText(),/PAPER MAP PLAN — NOT DONE/);
+    assert.equal(await page.locator('#follow-up-map-now [data-marker="true"]').getAttribute('data-place'),'square');
     await press('Question: Real seeds were planted');
+    assert.equal(await page.locator('#follow-up-map').isVisible(),false);
     assert.match(await page.locator('#follow-up-diary').innerText(),/none chosen/);
     await press('Request permission before changing anything');
     assert.match(await page.locator('#follow-up-diary').innerText(),/PAPER NEXT STEP — NOT DONE/);
     assert.match(await page.locator('#follow-up-diary').innerText(),/site owner/);
+    await press('Place ? at Garden PAPER stop');
+    assert.match(await page.locator('#follow-up-map-diary').innerText(),/PAPER MAP PLAN — NOT DONE/);
     assert.doesNotMatch(await page.locator('#follow-up-diary').innerText(),/\bCommon\b/);
    assert.doesNotMatch(await page.locator('#reflection-result').innerText(),/real facts verified: [1-9]/i);
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
    assert.match(await page.locator('#return-route-trail').innerText(),/Market PAPER detour/);
    assert.doesNotMatch(await page.locator('#return-route-trail').innerText(),/North Hill|Common/);
    await press('Undo last PAPER step');
-assert.equal(await page.locator('#reflection-follow-up').isVisible(),false,
+assert.equal(await page.locator('#follow-up-map').isVisible(),false);
+ assert.equal(await page.locator('#reflection-follow-up').isVisible(),false,
      'undo withdraws the future check, not just the sorted notebook');
    assert.equal(await page.locator('#reflection-world').isVisible(),false);
    assert.match(await page.locator('#return-route-result').innerText(),/Not complete/);
