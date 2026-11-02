@@ -56,6 +56,15 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <p id="hill-question-note" class="paper" role="status"></p>
 <p class="paper">Nia: “What did we see here?” Finn: “Does that answer our hill question?” Optional parent cue: What evidence would we still need?</p>
 </section>
+<section id="ground-provenance" class="panel" hidden data-compared="false">
+<h2>E09 → E10: Where did Milo really see it?</h2>
+<p>Nia: "We saw loose ground and water marks THERE. Now we see a worn surface and holes HERE. Do they prove one cause?" Move four PAPER evidence cards under HILL, COURTYARD or UNKNOWN. Inspect courtyard traces with Milo first; mistaken placements are safe to change.</p>
+<div id="ground-provenance-actions" aria-label="Move observed PAPER evidence cards"></div>
+<div class="controls"><button id="ground-provenance-compare" type="button">Compare where we saw them</button><button id="ground-provenance-reset" type="button">Clear my PAPER sorting</button></div>
+<p id="ground-provenance-summary" class="paper" role="status"></p>
+<p id="ground-provenance-feedback" class="paper" role="status" aria-live="polite"></p>
+<p class="paper">Finn: "A mark on a hill and a mark here are not one proven story." Optional parent cue: Which clue was seen in which place? What still needs checking? Upper hill CLOSED; cause, age, name and real access UNKNOWN. No official Chronicle or E11 unlock.</p>
+</section>
 <section id="clue-panel" class="panel" hidden>
 <h2>E08 → E10: Trace the same PAPER marks</h2>
 <p>Milo saw three fixed model marks from two safe E08 viewpoints. E09 found only a tentative distant shape. Move the tracing viewpoint, pin A/B/C in BOTH views, then compare. An early comparison is safe to retry. No real lights, history, route or hill access is established.</p>
@@ -143,6 +152,7 @@ import {view as viewE09} from '../e09-scene/scene-model.mjs';
 import {hillWorld} from './hill-world.mjs';
 import {clueSource,freshTrial,dispatchTrial,viewTrial} from './clue-transfer.mjs';
 import {questionSource,freshTrial as freshQuestion,dispatchTrial as dispatchQuestion,viewTrial as viewQuestion} from './hill-question.mjs';
+import {CARDS as GROUND_CARDS,groundSource,freshTrial as freshGroundTrial,dispatchTrial as dispatchGround,viewTrial as viewGround} from './hill-ground-provenance.mjs';
 import {decodeUnnamedTransfer,encodeUnnamedTransfer} from '../authoring-labs/e09-e10-scene-transfer.mjs';
 import {decodeMemoryCourtyard,encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
 import {decodeLoopTransfer,encodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
@@ -159,6 +169,8 @@ let linkedMarkerTrial=loop?.markerTrial||null;
 const linkedHillWorld=hillWorld(linkedE09);
 const linkedClueSource=clueSource(linkedE08,linkedE09);
 const linkedQuestionSource=questionSource(linkedE07,linkedE08,linkedE09);
+const linkedGroundSource=groundSource(linkedE09);
+let groundTrial=freshGroundTrial();
 let questionTrial=loop?.questionTrial||freshQuestion();
 let clueTrial=freshTrial();
 let hillLayer='now';
@@ -277,6 +289,35 @@ function renderQuestion(){
   ' Upper hill CLOSED. PAPER FIRST: no ?. PAPER NOW: '+(v.anchor||'no marker')+
   '. Real check NOT DONE; no name, access, Chronicle or unlock.';
 }
+function renderGround(){
+ const panel=$('ground-provenance');panel.hidden=!linkedGroundSource;
+ if(!linkedGroundSource)return;
+ let v=viewGround(groundTrial,linkedGroundSource,state);
+ if(!v){groundTrial=freshGroundTrial();v=viewGround(groundTrial,linkedGroundSource,state);}
+ panel.dataset.compared=String(v.compared);
+ const host=$('ground-provenance-actions');host.replaceChildren();
+ for(const [id,card] of Object.entries(GROUND_CARDS)){
+  const row=document.createElement('div');row.className='paper';
+  const title=document.createElement('strong');title.textContent=card.seen+' — '+(v.now[id]||'not placed');
+  row.append(title);
+  const actions=document.createElement('div');actions.className='controls';
+  for(const slot of ['hill','courtyard','unknown']){
+   const b=document.createElement('button');b.type='button';
+   b.dataset.groundCard=id;b.dataset.groundSlot=slot;
+   b.textContent='Put in '+(slot==='hill'?'HILL (THERE)':slot==='courtyard'?'COURTYARD (HERE)':'UNKNOWN');
+   b.disabled=!!card.trace&&!v.seen.includes(card.trace);
+   b.setAttribute('aria-pressed',String(v.now[id]===slot));actions.append(b);
+  }
+  const remove=document.createElement('button');remove.type='button';remove.dataset.groundRemove=id;
+  remove.textContent='Remove';remove.disabled=!v.now[id];actions.append(remove);
+  row.append(actions);host.append(row);
+ }
+ const counts={hill:0,courtyard:0,unknown:0};
+ for(const slot of Object.values(v.now))if(slot)counts[slot]++;
+ $('ground-provenance-summary').textContent='PAPER NOW: '+counts.courtyard+' HERE / '+counts.hill+
+  ' THERE / '+counts.unknown+' UNKNOWN / '+(4-v.placed)+' unplaced. FIRST: no cards. Cause still UNKNOWN.';
+ $('ground-provenance-feedback').textContent=v.feedback;
+}
 function renderClue(){
  const panel=$('clue-panel');panel.hidden=!linkedClueSource;
  if(!linkedClueSource)return;
@@ -376,6 +417,7 @@ function render(){
  renderHillWorld();
  renderClue();
  renderQuestion();
+ renderGround();
  for(const b of document.querySelectorAll('button[data-action]'))b.disabled=!can(state,action(b));
 }
 document.addEventListener('click',e=>{
@@ -411,6 +453,21 @@ for(const [id,action] of [
 ])$(id).addEventListener('click',()=>{
  linkedMarkerTrial=null;questionTrial=dispatchQuestion(questionTrial,action.type==='compare'?{type:'compare',atE10:state.history.length}:action,linkedQuestionSource,state);render();
 });
-$('restart').addEventListener('click',()=>{state=fresh();linkedE11=null;linkedMarkerTrial=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
+document.addEventListener('click',e=>{
+ const b=e.target.closest('button[data-ground-card],button[data-ground-remove]');
+ if(!b||!linkedGroundSource)return;
+ const a=b.dataset.groundCard?
+  {type:'place',card:b.dataset.groundCard,slot:b.dataset.groundSlot,atE10:state.history.length}:
+  {type:'remove',card:b.dataset.groundRemove};
+ groundTrial=dispatchGround(groundTrial,a,linkedGroundSource,state);renderGround();
+});
+$('ground-provenance-compare').addEventListener('click',()=>{
+ groundTrial=dispatchGround(groundTrial,{type:'compare',atE10:state.history.length},linkedGroundSource,state);
+ renderGround();
+});
+$('ground-provenance-reset').addEventListener('click',()=>{
+ groundTrial=freshGroundTrial();renderGround();
+});
+$('restart').addEventListener('click',()=>{groundTrial=freshGroundTrial();state=fresh();linkedE11=null;linkedMarkerTrial=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
 render();
 </script></main></body></html>
