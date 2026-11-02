@@ -6,6 +6,8 @@ import {encodeUnnamedTransfer,decodeUnnamedTransfer} from './e09-e10-scene-trans
 import {encodeMemoryCourtyard,decodeMemoryCourtyard} from './e04-e10-scene-transfer.mjs';
 import {questionSource,restoreTrial as restoreQuestion,replayTrial as replayQuestion,viewTrial as viewQuestion} from '../e10-scene/hill-question.mjs';
 import {paperHillTraceRevisit,restoreFutureMarker,replayFutureMarker} from '../e11-scene/hill-trace-revisit.mjs';
+import {paperE10UseRevisit} from '../e11-scene/e10-use-revisit.mjs';
+import {replayTransferredTrial} from '../e10-scene/use-staging.mjs';
 
 const PREFIX='#paper-loop=',MAX_FRAGMENT=200000;
 const keys=o=>Object.keys(o).sort().join(',');
@@ -45,11 +47,12 @@ function cleanUpstream(upstream,e10){
  return out;
 }
 function allowedPacket(packet){
- const signature=keys(packet);
- if(allowed.includes(signature))return true;
- if(!Object.hasOwn(packet,'marker')||!Object.hasOwn(packet,'question'))return false;
- const without={...packet};delete without.marker;
- return allowed.includes(keys(without));
+ // Optional useStage is a strictly replayed E10 child experiment, never a claimed state.
+ const base={...packet};delete base.useStage;
+ if(allowed.includes(keys(base)))return true;
+ if(!Object.hasOwn(base,'marker')||!Object.hasOwn(base,'question'))return false;
+ delete base.marker;
+ return allowed.includes(keys(base));
 }
 function safeE11(e11){
  const s=E11.restore(e11),p=s&&E11.projection(s);
@@ -57,7 +60,7 @@ function safeE11(e11){
   p.unlocks.length===0&&p.historicalClaims.length===0&&
   s.rights.length===0);
 }
-export function encodeLoopTransfer(e10,e11,upstream=null,questionTrial=null,markerTrial=null){
+export function encodeLoopTransfer(e10,e11,upstream=null,questionTrial=null,markerTrial=null,useTrial=null){
  if(!E10.restore(e10)||!earned(e10)||!safeE11(e11))return null;
  const extra=cleanUpstream(upstream,e10);
  if(!extra)return null;
@@ -75,7 +78,12 @@ export function encodeLoopTransfer(e10,e11,upstream=null,questionTrial=null,mark
   if(!checked)return null;
   if(checked.history.length)marker={marker:checked.history};
  }
- const packet={v:1,...extra,e10:e10.history,e11:e11.history,...question,...marker};
+ let useStage={};
+ if(useTrial!==null){
+  if(!paperE10UseRevisit(e10,useTrial))return null;
+  useStage={useStage:useTrial.history};
+ }
+ const packet={v:1,...extra,e10:e10.history,e11:e11.history,...question,...marker,...useStage};
  const fragment=PREFIX+encodeURIComponent(JSON.stringify(packet));
  return fragment.length<=MAX_FRAGMENT?fragment:null;
 }
@@ -129,6 +137,11 @@ export function decodeLoopTransfer(fragment){
    markerTrial=atlas&&replayFutureMarker(packet.marker,atlas);
    if(!markerTrial)return null;
   }
-  return {e10,e11,upstream,questionTrial,markerTrial};
+  let useTrial=null;
+  if(Object.hasOwn(packet,'useStage')){
+   useTrial=replayTransferredTrial(packet.useStage,e10);
+   if(!useTrial||!paperE10UseRevisit(e10,useTrial))return null;
+  }
+  return {e10,e11,upstream,questionTrial,markerTrial,useTrial};
  }catch{return null;}
 }
