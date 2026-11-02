@@ -42,6 +42,7 @@ try{
    await page.locator('#e10-return').click();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'true');
    await page.locator('#e11-paper').click();
+   await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false','E11 marker is session-only');
    await page.locator('#restart').click();
    await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
