@@ -23,7 +23,21 @@ h1{font-size:1.35rem;margin:.2rem 0}h2{font-size:1.1rem;margin:.25rem 0}
 .station-cell{min-height:68px;padding:.55rem;border:2px dashed #8fa997;border-radius:.45rem;background:#eaf1e7;overflow-wrap:anywhere}
 .controls{display:flex;flex-wrap:wrap;gap:.4rem;margin:.5rem 0}
 button{font:inherit;min-height:44px;max-width:100%;padding:.5rem .7rem;border:2px solid #49725c;border-radius:.45rem;background:white;color:#214734;cursor:pointer;overflow-wrap:anywhere}
-button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.playfield{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin:.7rem 0;padding:.6rem;border:2px solid #9cae98;border-radius:.7rem;background:linear-gradient(145deg,#d8e8d0,#f4edd6);min-width:0}
+.playfield.lower-field{background:linear-gradient(145deg,#e9e1c7,#dce7d7)}
+.spot{min-width:0;min-height:68px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:.15rem;text-align:left;font-size:.9rem;line-height:1.3;background:#fffdf4}
+.spot[data-here=true]{outline:3px solid #345d4a;outline-offset:-5px}
+.spot[data-observed=true]{border-style:solid;background:#d8e9d0}
+.spot[data-marker=true]{border-color:#b05e28;border-style:solid;background:#ffefcc}
+.spot[data-growth=true]{background:#d3e8cb;border-color:#3e7751}
+.spot:disabled{opacity:1;color:#456151;border-color:#9aac9d}
+.spot .spot-state{font-size:.78rem;font-weight:700}
+.flow-meter{border:2px solid #7c9daf;border-radius:.4rem;overflow:hidden;height:22px;display:flex;margin:.4rem 0}
+.flow-meter span{flex:1;background:#f5f8f8;border-right:1px solid #9cb7c5}
+.flow-meter[data-level="1"] span:first-child,.flow-meter[data-level="3"] span{background:#79b7d1}
+@media(max-width:420px){.playfield{grid-template-columns:repeat(2,minmax(0,1fr))}.spot{font-size:.82rem;padding:.4rem}}
+button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
 .paper{background:#edf2e9;border:1px dashed #9aaf9f;border-radius:.4rem;padding:.65rem;line-height:1.5;margin:.4rem 0;overflow-wrap:anywhere}
 [hidden]{display:none!important}
 @media(max-width:650px){.station-map{grid-template-columns:1fr}.world{grid-template-columns:1fr}.diagram{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:.55rem}}
@@ -44,6 +58,15 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <div class="diagram" aria-label="Synthetic Current Garden model">
 <div class="tile" id="upper-bed-tile" data-stage="healthy">Healthy bed<br>NOW · unchanged</div><div class="tile">Slope<br>Higher / lower</div><div class="tile path">Shared path<br>Keep clear</div>
 <div class="tile water">MODEL tray<br>DRY / RAIN</div><div class="tile water">Channel<br>OPEN / BLOCKED</div><div class="tile">Garden stays<br>No transplant</div></div>
+<div class="playfield" id="current-playfield" aria-label="Synthetic Current Garden: tap a place to walk Milo, tap again to inspect">
+<button class="spot" data-spot="present-bed" type="button">Healthy bed</button>
+<button class="spot" data-spot="slope" type="button">Uphill slope</button>
+<button class="spot" data-spot="shared-path" type="button">Shared path</button>
+<button class="spot" data-spot="model-tray" type="button">MODEL tray</button>
+</div>
+<p class="paper">Tap a place to move Milo; tap it again to inspect. The MODEL tray uses the controls below. These are PAPER positions, not approved terrain.</p>
+<div id="model-catchment" class="flow-meter" data-level="0" role="meter" aria-label="Last MODEL catchment marks" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span></span><span></span><span></span></div>
+<p id="model-flow-caption" class="paper">Run the MODEL to see water.</p>
 <p id="upper-observations" class="paper"></p><p id="tray" class="paper"></p>
 <div id="current-actions" class="controls"></div><section id="e05-world" class="panel" hidden aria-label="E05 station PAPER world callback" data-view="now">
 <h2>E05 station memory · FIRST / NOW</h2>
@@ -58,6 +81,14 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <div class="diagram" aria-label="Synthetic Lower Garden model">
 <div class="tile water">Runoff trace<br>Wet in MODEL</div><div class="tile path">Public path<br>People pass</div><div class="tile water">Runoff channel<br>Keep open</div>
 <div class="tile path">Footpath<br>Do not block</div><div class="tile">Raised pocket<br>Temporary marker</div><div class="tile" id="lower-growth-tile" data-stage="paper-marker">Future growth<br>NOT APPROVED</div></div>
+<div class="playfield lower-field" id="lower-playfield" aria-label="Synthetic Lower Garden: move Milo and test a planting marker">
+<button class="spot" data-spot="runoff-trace" type="button">Runoff trace</button>
+<button class="spot" data-spot="public-path" type="button">Public path</button>
+<button class="spot" data-spot="runoff-channel" type="button">Water route</button>
+<button class="spot" data-spot="footpath" type="button">Walking route</button>
+<button class="spot" data-spot="raised-pocket" type="button">Raised pocket</button>
+</div>
+<p class="paper">Tap a place to walk Milo, then tap again to inspect or place a removable marker. Use “Check water and people” to see the consequence.</p>
 <p id="lower-observations" class="paper"></p><p id="marker" class="paper"></p>
 <div id="lower-actions" class="controls"></div></section>
 <section id="care-panel" class="panel" hidden><h2>MODEL care: can a PAPER seed change?</h2>
