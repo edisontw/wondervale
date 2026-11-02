@@ -5,6 +5,8 @@ import * as E07 from '../e07-scene/scene-model.mjs';
 import * as E11 from '../engine/s01e11-authoring-prototype.mjs';
 import {dispatchRoleWalk,paperRoleWalk} from '../e11-scene/role-walk.mjs';
 import {paperSharedUse,dispatchSharedUse} from '../e11-scene/shared-use-followthrough.mjs';
+import {paperWorldAtlas} from '../e11-scene/world-atlas.mjs';
+import * as E10 from '../authoring-labs/unnamed-story-model.mjs';
 
 const g=(type,value)=>({scene:'garden',action:value===undefined?{type}:{type,value}});
 const care=(type,value)=>value===undefined?{scene:'care',type}:{scene:'care',type,value};
@@ -125,4 +127,63 @@ test('missing or forged upstream and visitor evidence fail closed, retries do no
  assert.equal(actions.length,1);
  assert.deepEqual(dispatchSharedUse(e11,h,upstream,actions,{type:'record'}),actions);
  assert.deepEqual(dispatchSharedUse(e11,h,upstream,actions,{type:'open-real-route'}),actions);
+});
+
+function courtyard(){
+ let s=E10.dispatch(E10.fresh(),{type:'start'});
+ for(const a of [
+  {type:'compare-symbol'},{type:'walk',to:'stone_edge'},
+  {type:'inspect',traceId:'surface'},{type:'suggest',traceId:'surface',useTag:'passing'},
+  {type:'revise',traceId:'surface',oldTag:'passing',newTag:'resting'},
+  {type:'walk',to:'quiet_corner'},{type:'hear',needId:'quiet'},
+  {type:'place',needId:'quiet',slot:'shared'},
+  {type:'walk',to:'meeting_edge'},{type:'hear',needId:'activity'},
+  {type:'place',needId:'activity',slot:'shared'},
+  {type:'test-one-slot'},{type:'place',needId:'quiet',slot:'left'},
+  {type:'place',needId:'activity',slot:'right'},
+  {type:'walk',to:'notice_wall'},{type:'inspect',traceId:'holes'},
+  {type:'suggest',traceId:'holes',useTag:'display'},
+  {type:'check-source'},{type:'review-tradeoff'},
+  {type:'review'},{type:'finish-paper'}
+ ]){assert.equal(E10.can(s,a),true,JSON.stringify(a));s=E10.dispatch(s,a);}
+ return s;
+}
+
+test('E11 three-place FIRST/NOW PAPER atlas is child-earned and source-bound',()=>{
+ const e11=layout(),h=walked(e11),u={e06:gardens(),e07:connector()},e10=courtyard();
+ let actions=[];
+ assert.equal(paperWorldAtlas(e11,h,u,actions,e10),null,'no atlas before child comparison');
+ for(const a of [
+  {type:'record'},{type:'choose',phase:'now',channel:'open'},
+  {type:'record'},{type:'compare'}
+ ])actions=dispatchSharedUse(e11,h,u,actions,a);
+ const atlas=paperWorldAtlas(e11,h,u,actions,e10);
+ assert.ok(atlas);
+ assert.deepEqual(atlas.boards.first.map(p=>p.id),['garden','connector','courtyard']);
+ assert.deepEqual(atlas.boards.now.map(p=>p.id),['garden','connector','courtyard']);
+ assert.equal(atlas.boards.first[0].mark,'paper-marker');
+ assert.equal(atlas.boards.now[0].mark,'paper-sprout');
+ assert.match(atlas.boards.first[1].title,/2 connector overlap/);
+ assert.match(atlas.boards.now[1].title,/0 connector overlap/);
+ assert.match(atlas.boards.first[2].title,/overlap/);
+ assert.match(atlas.boards.now[2].title,/separated/);
+ assert.match(atlas.chronicle,/INDEPENDENT/);
+ assert.match(atlas.chronicle,/UNKNOWN/);
+ assert.doesNotMatch(atlas.chronicle,/\\bCommon\\b/);
+ assert.deepEqual(atlas.canonicalEvents,[]);
+ assert.deepEqual(atlas.unlocks,[]);
+ assert.equal(atlas.realRouteOpen,false);
+ assert.equal(atlas.persistentSave,false);
+ assert.deepEqual(paperWorldAtlas(e11,h,{
+  e06:E06.replay(u.e06.history),e07:E07.replay(u.e07.history)
+ },actions,E10.replay(e10.history)),atlas);
+ assert.equal(paperWorldAtlas(e11,h,u,actions,null),null);
+ assert.equal(paperWorldAtlas(e11,h,u,actions,E10.fresh()),null);
+ assert.equal(paperWorldAtlas(e11,[],u,actions,e10),null);
+ assert.equal(paperWorldAtlas(e11,h,{...u,e06:E06.fresh()},actions,e10),null);
+ assert.equal(paperWorldAtlas(e11,h,{...u,e07:E07.fresh()},actions,e10),null);
+ assert.equal(paperWorldAtlas(e11,h,u,[{type:'compare'}],e10),null);
+ assert.equal(paperWorldAtlas(E11.dispatch(e11,{type:'reset'}),h,u,actions,e10),null);
+ assert.equal(paperWorldAtlas(e11,h,u,actions,{...e10,rights:['open']}),null);
+ assert.equal(paperWorldAtlas(e11,h,u,actions,e10,{rights:['open']}),null);
 });
