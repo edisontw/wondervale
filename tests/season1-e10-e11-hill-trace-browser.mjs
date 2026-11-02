@@ -54,8 +54,8 @@ try{
    // Rechecking either question earns a fresh, empty PAPER future-check map.
    await page.locator('#e10-return').click();
    await page.locator('#question-access').click();
-   assert.equal(await page.locator('#e11-paper').isVisible(),false,
-    'switching the E10 question withdraws the checked E11 link');
+   assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'false',
+    'switching the E10 question withdraws the old checked trace');
    await page.locator('#question-stone').click();
    await page.locator('#question-compare').click();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'true');
@@ -67,8 +67,8 @@ try{
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'true');
    await page.locator('#e10-return').click();
    await page.locator('#question-identity').click();
-   assert.equal(await page.locator('#e11-paper').isVisible(),false,
-    'switching back to identity withdraws the access marker');
+   assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'false',
+    'switching back to identity withdraws the checked access trace');
    await page.locator('#question-wall').click();
    await page.locator('#question-compare').click();
    await page.locator('#e11-paper').click();
