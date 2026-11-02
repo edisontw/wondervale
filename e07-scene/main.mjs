@@ -45,6 +45,9 @@ const walkRows=[
  ['walk-start','Begin revised PAPER route walk',w('start')],
  ['walk-crossing','Walk Milo to model crossing',w('move','crossing')],
  ['walk-check-crossing','Look: can another traveler pass?',w('inspect','crossing')],
+ ['other-start','Let another traveler approach',w('other-start')],
+ ['other-step','Move traveler one PAPER step',w('other-step')],
+ ['other-reset','Retry traveler crossing',w('other-reset')],
  ['walk-closed','Try CLOSED North Hill boundary (stop)',w('try-closed')],
  ['walk-water','Walk Milo to model water edge',w('move','water-edge')],
  ['walk-check-water','Look: can water pass?',w('inspect','water-edge')],
@@ -138,6 +141,9 @@ function render(){
  $('route-walk').hidden=v.screen!=='connector'||s.stage!=='finished';
  $('route-position').textContent='Milo at '+v.walkthrough.positionLabel+' (synthetic MODEL only).';
  $('route-feedback').textContent=v.walkthrough.feedback;
+ $('other-traveler').textContent=v.walkthrough.otherFeedback;
+ for(const el of document.querySelectorAll('[data-other-point]'))
+  el.dataset.here=String(el.dataset.otherPoint===v.walkthrough.otherPosition);
  $('route-note').textContent='Checked: '+(v.walkthrough.checked.join(', ')||'none yet')+
   ' · Hill CLOSED · Steps lights OFF · no real route or unlock.';
  for(const el of document.querySelectorAll('[data-walk-point]'))
