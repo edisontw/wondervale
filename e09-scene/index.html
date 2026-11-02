@@ -32,13 +32,14 @@ button[aria-pressed=true]{background:#dceedd;border-color:#37684c}
 .world-label{left:.35rem;background:#fff8e5}.closed-label{right:.35rem;max-width:46%;background:#542e34;color:white}
 .closed-node{position:absolute;z-index:2;left:80%;top:16%;transform:translate(-50%,-50%);background:#f4d9d5;border:2px dashed #8d3838;border-radius:.3rem;padding:.2rem;font-size:.68rem;font-weight:700;pointer-events:none}
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}
+.field-frames{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem;margin:.5rem 0}
 .card{border:1px solid #b8c7c0;border-radius:.5rem;padding:.5rem;min-width:0;overflow-wrap:anywhere}
 .card h3{font-size:.95rem;margin:.1rem 0 .3rem}
 .finish-controls{position:relative;z-index:10;display:flex;flex-wrap:wrap;gap:.4rem;
   background:#fff;padding:.65rem .2rem;margin:.6rem 0 .9rem;border:1px solid #c4d0c9;border-radius:.4rem}
 .card ul{margin:.2rem 0;padding-left:1.15rem;line-height:1.45}
 small{color:#485f55}
-@media(max-width:700px){.two,.cards{grid-template-columns:1fr}.scene{aspect-ratio:auto;min-height:240px;height:240px}.milo{width:40px;height:40px}.closed-node{font-size:.6rem}}
+@media(max-width:700px){.two,.cards,.field-frames{grid-template-columns:1fr}.scene{aspect-ratio:auto;min-height:240px;height:240px}.milo{width:40px;height:40px}.closed-node{font-size:.6rem}}
 @media(prefers-reduced-motion:reduce){.milo{transition:none}}
 </style>
 </head>
@@ -55,6 +56,23 @@ small{color:#485f55}
 <div class="controls"><button id="lantern-first" aria-pressed="false">FIRST — lamps OFF</button><button id="lantern-now" aria-pressed="true">NOW — two lamps and two views</button></div>
 <svg id="lantern-world-map" class="lantern-map" viewBox="0 0 360 240" role="img" aria-label="Synthetic lower Steps FIRST and NOW viewpoint model"></svg>
 <p id="lantern-world-result" class="status" role="status"></p>
+</section>
+<section id="field-question-panel" class="panel" hidden aria-label="E07 and E08 PAPER evidence at the closed hill">
+<h2>E08 → E09: What still needs checking?</h2>
+<p>Four PAPER comparisons from Milo's E07 connector trial and E08 two safe viewpoints. They are separate models, <strong>not a real connector-to-hill map</strong>. FIRST and NOW change model overlaps; FROM HERE and FROM THERE change apparent spacing of fixed A/B/C.</p>
+<div id="field-frames" class="field-frames" aria-label="Four replay-derived PAPER comparisons"></div>
+<p>Nia: "What do we know? What must we check?" Choose one question, then place a <strong>?</strong> at an observed safe point on Milo's hill sketch. Wrong placements can be revised.</p>
+<div class="controls" aria-label="Choose a future question">
+<button data-field-question="access" aria-pressed="true">Can people use this way?</button>
+<button data-field-question="identity" aria-pressed="false">What is beyond the mark?</button>
+</div>
+<div class="controls" aria-label="Place a provisional question marker">
+<button data-field-place="fence_view">Put ? at fence lookout</button>
+<button data-field-place="overlook">Put ? at model overlook</button>
+<button id="field-clear">Remove ?</button>
+</div>
+<p id="field-note" class="status" role="status" aria-live="polite"></p>
+<p><small>PAPER future question only — NOT DONE. E08's temporary local pin selections are not transferred. No real access, history, electricity, Chronicle event or E10 unlock.</small></p>
 </section><div id="scene" class="scene" role="group" aria-label="Fictional five-anchor safe survey graph; closed upper hill cannot be entered" data-phase="survey"></div>
 <section id="survey-compare" class="panel" hidden aria-label="Milo's field survey model comparison">
 <h2>Revisit Milo's survey — BEFORE / NOW</h2>
