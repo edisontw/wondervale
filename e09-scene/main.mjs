@@ -27,6 +27,7 @@ let linkedE10=incoming?.e10||null;
 const linkedLampWorld=lanternWorld(linkedE08);
 let lampLayer='now';
 let fieldPlan={question:'access',anchor:null,feedback:''};
+let selectedGround='disturbed_ground';
 const fourFrames=fourFrameEvidence(linkedE07,linkedE08);
 const story=()=>view(state).story;
 const wrap=action=>({scene:'story',action});
@@ -39,7 +40,7 @@ actor.className='milo';actor.textContent='Milo';actor.setAttribute('aria-hidden'
 const adjacent=(a,b)=>SAFE_EDGES.some(e=>(e.a===a&&e.b===b)||(e.b===a&&e.a===b));
 const required=['boundary_sign','disturbed_ground','runoff_marks','distant_symbol'];
 function act(action){state=dispatch(state,wrap(action));render();}
-function navigate(type){state=dispatch(state,nav(type));if(type==='restart'){linkedE10=null;fieldPlan={question:'access',anchor:null,feedback:''};}render();}
+function navigate(type){state=dispatch(state,nav(type));if(type==='restart'){linkedE10=null;fieldPlan={question:'access',anchor:null,feedback:''};selectedGround='disturbed_ground';}render();}
 function button(host,label,action,disabled=false,pressed=false){
   const b=document.createElement('button');b.type='button';b.textContent=label;
   b.disabled=disabled||!can(state,wrap(action));
@@ -196,6 +197,40 @@ function survey(){const v=view(state),s=v.story,done=s.previewComplete;
   ' on his sketch, and observed '+v.surveyBoard.inspectedClues+
   ' clues. The lower route is a PAPER model only. The upper hill stays CLOSED.';
 }
+function renderGround(){
+ const s=story(),board=view(state).groundBoard;
+ const sites={fence_view:$('ground-fence-pin'),lower_bend:$('ground-bend-pin')};
+ for(const [site,el] of Object.entries(sites)){
+  const pins=Object.entries(board.placements).filter(([,at])=>at===site)
+   .map(([clue])=>clue==='disturbed_ground'?'GROUND':'WATER');
+  el.textContent=pins.join(' + ')||'No pin';
+  el.dataset.groundPins=pins.length.toString();
+ }
+ for(const b of document.querySelectorAll('[data-ground-select]')){
+  b.disabled=!s.inspected.includes(b.dataset.groundSelect)||s.previewComplete;
+  b.setAttribute('aria-pressed',String(selectedGround===b.dataset.groundSelect));
+ }
+ for(const b of document.querySelectorAll('[data-ground-site]'))
+  b.disabled=!s.inspected.includes(selectedGround)||s.previewComplete;
+ for(const b of document.querySelectorAll('[data-ground-remove]'))
+  b.disabled=!board.placements[b.dataset.groundRemove]||s.previewComplete;
+ $('ground-compare').disabled=s.previewComplete||
+  !['disturbed_ground','runoff_marks'].every(id=>s.inspected.includes(id));
+ $('ground-link').hidden=!board.compared;
+ $('ground-feedback').textContent=board.feedback+
+  ' PAPER ONLY — no real access, historical date or closure cause confirmed.';
+}
+for(const b of document.querySelectorAll('[data-ground-select]'))
+ b.addEventListener('click',()=>{selectedGround=b.dataset.groundSelect;renderGround();});
+for(const b of document.querySelectorAll('[data-ground-site]'))
+ b.addEventListener('click',()=>{state=dispatch(state,{scene:'ground',type:'place',
+  clue:selectedGround,at:b.dataset.groundSite});render();});
+for(const b of document.querySelectorAll('[data-ground-remove]'))
+ b.addEventListener('click',()=>{state=dispatch(state,{scene:'ground',type:'remove',
+  clue:b.dataset.groundRemove});render();});
+$('ground-compare').addEventListener('click',()=>{
+ state=dispatch(state,{scene:'ground',type:'compare'});render();
+});
 function renderLanternWorld(){
  const panel=$('lantern-world-panel');
  panel.hidden=!linkedLampWorld;
@@ -316,7 +351,7 @@ function render(){
  const e10Link=$('e10-paper');e10Link.hidden=!e10Fragment;
  if(e10Fragment)e10Link.href='../e10-scene/'+e10Fragment;
  if(linkedE04)e10Link.textContent='Visit independent E10 PAPER scene (E04 UNKNOWN memories and E05 MOCK sources travel as PAPER notes; no official unlock)';
- world();movement();inspect();sketch();thoughts();notebook();survey();renderLanternWorld();renderFieldQuestion();
+ world();movement();inspect();sketch();thoughts();notebook();survey();renderGround();renderLanternWorld();renderFieldQuestion();
 }
 $('lantern-first').addEventListener('click',()=>{lampLayer='first';renderLanternWorld();});
 $('lantern-now').addEventListener('click',()=>{lampLayer='now';renderLanternWorld();});

@@ -19,6 +19,18 @@ try{
    assert.match(await page.locator('#inspections').innerText(),/Milo: Fence lookout/);
    await hit('inspect-disturbed_ground');await hit('walk-signpost');
    await hit('walk-lower_bend');await hit('inspect-runoff_marks');
+   // Two child-moved evidence pins: incorrect placement, safe retry, compare, replay.
+   await page.locator('[data-ground-select="disturbed_ground"]').click();
+   await page.locator('[data-ground-site="lower_bend"]').click();
+   assert.match(await page.locator('#ground-feedback').innerText(),/not where Milo saw/);
+   await page.locator('[data-ground-site="fence_view"]').click();
+   await page.locator('[data-ground-select="runoff_marks"]').click();
+   await page.locator('[data-ground-site="lower_bend"]').click();
+   await page.locator('#ground-compare').click();
+   assert.equal(await page.locator('#ground-link').isVisible(),true);
+   assert.match(await page.locator('#ground-feedback').innerText(),/cause and date are still UNKNOWN/);
+   assert.equal(await page.locator('#ground-fence-pin').innerText(),'GROUND');
+   assert.equal(await page.locator('#ground-bend-pin').innerText(),'WATER');
    await hit('walk-overlook');await hit('inspect-distant_symbol');
    await hit('mark-steps_base:signpost');await hit('mark-lower_bend:overlook');
    await hit('check-route');assert.match(await page.locator('#route-status').innerText(),/gap/);
@@ -48,6 +60,8 @@ try{
    const sz=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(sz.scroll<=sz.w+1,JSON.stringify({viewport,sz}));assert.deepEqual(errors,[]);
    await page.locator('#restart').click();assert.match(await page.locator('#stage').innerText(),/opening/);
+   assert.equal(await page.locator('#ground-link').isVisible(),false);
+   assert.equal(await page.locator('#ground-fence-pin').innerText(),'No pin');
   }finally{await context.close();}
  }
  const ctx=await browser.newContext({viewport:{width:568,height:320}});

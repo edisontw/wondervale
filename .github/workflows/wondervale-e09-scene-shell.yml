@@ -30,6 +30,7 @@ jobs:
           node-version: '24'
       - name: Strict E09 Node, geometry and anti-forgery
         run: |
+          node --check e09-scene/ground-evidence.mjs
           node --check e09-scene/scene-model.mjs
           node --check e09-scene/main.mjs
           node --check e09-scene/lantern-world.mjs
