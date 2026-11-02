@@ -81,6 +81,56 @@ function buttons(id,rows){
     root.append(b);
   }
 }
+// Each PAPER location is a child-operated place, not a route inferred from artwork.
+// First tap moves Milo; a second tap inspects or places a reversible marker.
+const spotNames={
+ 'present-bed':'Healthy bed','slope':'Uphill slope','shared-path':'Shared path',
+ 'model-tray':'MODEL tray','runoff-trace':'Runoff trace','public-path':'Public path',
+ 'runoff-channel':'Water route','footpath':'Walking route','raised-pocket':'Raised pocket'
+};
+function spotAction(spot,g){
+ if(g.milo!==spot)return garden('walk',spot);
+ if(['present-bed','slope','shared-path','runoff-trace','public-path'].includes(spot))
+  return garden('inspect',spot);
+ if(['runoff-channel','footpath','raised-pocket'].includes(spot))
+  return garden('place',spot);
+ return null;
+}
+function renderSpots(v){
+ const g=v.garden,last=g.attempts.at(-1);
+ for(const spot of document.querySelectorAll('[data-spot]')){
+  const id=spot.dataset.spot,here=g.milo===id,marked=g.markerSite===id;
+  const observed=g.observedCurrent.includes(id)||g.observedLower.includes(id);
+  const grown=id==='raised-pocket'&&v.lowerGrowthVisible;
+  const action=spotAction(id,g);
+  spot.disabled=!action||!can(state,action);
+  spot.dataset.here=String(here);
+  spot.dataset.observed=String(observed);
+  spot.dataset.marker=String(marked);
+  spot.dataset.growth=String(grown);
+  spot.setAttribute('aria-pressed',String(here));
+  const status=marked?(last?.site===id?
+    last.wet?'PAPER marker · WET':last.blocksPath?'PAPER marker · PATH BLOCKED':
+      'PAPER marker · CLEAR MODEL':'PAPER marker · check it'):
+   grown?'PAPER sprout · MODEL only':here?'Milo here':observed?'Observed':'';
+  const hint=spot.disabled?'':here?
+   (['runoff-channel','footpath','raised-pocket'].includes(id)?'Tap to place':'Tap to inspect'):
+   'Tap to walk';
+  const label=document.createElement('span');
+  label.className='spot-state';
+  label.textContent=[status,hint].filter(Boolean).join(' · ');
+  spot.replaceChildren(document.createTextNode(spotNames[id]),label);
+ }
+ const run=g.runs.at(-1),meter=$('model-catchment');
+ meter.dataset.level=String(run?.catchment??0);
+ meter.setAttribute('aria-valuenow',String(run?.catchment??0));
+ $('model-flow-caption').textContent=run?
+  'Last MODEL: '+run.weather.toUpperCase()+' · channel '+run.channel.toUpperCase()+
+  ' · low catchment '+run.catchment+'/3 marks · bypass '+run.bypass+
+  '. A PAPER test, not the garden\'s history.':
+  'No water run yet. Try DRY and RAIN, then change the MODEL channel.';
+}
+
 function renderStationMap(){
  const paper=stationWorld(linkedE05),panel=$('e05-world');
  panel.hidden=!paper;
@@ -136,6 +186,7 @@ function render(){
     (last?' · last check: '+(last.wet?'WET in model':last.blocksPath?'BLOCKS path':'model path and water clear'):' · not checked');
   $('note').textContent=v.paperChronicle;
   $('parent').textContent='Optional parent question: '+v.parentCue;
+  renderSpots(v);
   const stationFragment=linkedE05&&(linkedE04?
    (lantern?(encodeMemoryLantern(linkedE04,linkedE05,state,linkedE07,linkedE08)||
      encodeMemoryGardenShortcut(linkedE04,linkedE05,state,linkedE07)):
@@ -172,4 +223,12 @@ for(const key of ['first','now'])$('e05-world-'+key).addEventListener('click',()
  stationMapView=key;
  render();
 });
+for(const spot of document.querySelectorAll('[data-spot]')){
+ spot.addEventListener('click',()=>{
+  const g=view(state)?.garden;
+  if(!g)return;
+  const action=spotAction(spot.dataset.spot,g);
+  if(action&&can(state,action)){state=dispatch(state,action);render();}
+ });
+}
 render();
