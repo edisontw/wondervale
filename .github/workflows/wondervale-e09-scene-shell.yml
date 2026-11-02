@@ -6,6 +6,8 @@ on:
       - 'tests/season1-e09-scene-shell*'
       - 'authoring-labs/e08-e09-scene-transfer.mjs'
       - 'tests/season1-e08-e09-scene-transfer*'
+      - 'tests/season1-e07-e08-scene-transfer-browser.mjs'
+      - 'tests/season1-e08-e09-field-question.test.mjs'
       - '.github/workflows/wondervale-e09-scene-shell.yml'
   push:
     branches: [main]
@@ -31,10 +33,12 @@ jobs:
           node --check e09-scene/scene-model.mjs
           node --check e09-scene/main.mjs
           node --check e09-scene/lantern-world.mjs
+          node --check e09-scene/field-question.mjs
+          node --check tests/season1-e08-e09-field-question.test.mjs
           node --check tests/season1-e09-scene-shell-browser.mjs
           node --check authoring-labs/e08-e09-scene-transfer.mjs
           node --check tests/season1-e08-e09-scene-transfer-browser.mjs
-          node --test tests/season1-e08-e09-scene-transfer.test.mjs tests/season1-e08-e09-world-callback.test.mjs tests/season1-e09-scene-shell.test.mjs tests/season1-hill-story.test.mjs tests/s01e09-authoring-prototype.test.mjs
+          node --test tests/season1-e08-e09-scene-transfer.test.mjs tests/season1-e08-e09-world-callback.test.mjs tests/season1-e08-e09-field-question.test.mjs tests/season1-e09-scene-shell.test.mjs tests/season1-hill-story.test.mjs tests/s01e09-authoring-prototype.test.mjs
       - name: Guard production packaging
         run: |
           if grep -R -n 'e09-scene' scripts/compile_episode.py scripts/package_static.py scripts/package_e02.py scripts/package_e03.py; then
@@ -59,3 +63,4 @@ jobs:
           if [ "$ready" -ne 1 ]; then cat /tmp/e09-scene-server.log >&2; exit 1; fi
           node tests/season1-e09-scene-shell-browser.mjs
           node tests/season1-e08-e09-scene-transfer-browser.mjs
+          node tests/season1-e07-e08-scene-transfer-browser.mjs
