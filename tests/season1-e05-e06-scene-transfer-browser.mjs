@@ -69,10 +69,26 @@ try{
    const go=async key=>{assert.equal(await b(key).isDisabled(),false,key);await b(key).click();};
    for(const k of ['start','bed','slope-walk','slope','tray-walk','run','rain','run','blocked','run','compare','enter'])await go(k);
    assert.equal(await page.locator('#lower-scene').isVisible(),true);
+   for(const k of ['trace','lower-path-walk','lower-path','channel-walk','channel-place','check',
+    'pocket-walk','pocket-place','check','think','finish'])await go(k);
    await page.locator('#e05-return').click();
    assert.match(page.url(),/\/e05-scene\/#paper-station-garden=/);
    await page.waitForFunction(()=>document.querySelector('#garden-map')?.textContent?.includes('LOWER PAPER mark'));
    assert.match(await page.locator('#paper-note').innerText(),/cause remain UNKNOWN/);
+   await page.locator('#garden-return').waitFor({state:'visible'});
+   const ret=type=>page.locator('[data-return-action="'+type+'"]');
+   assert.equal(await ret('try-solid').isDisabled(),true);
+   await ret('inspect-current').click();await ret('inspect-lower').click();
+   await ret('try-solid').click();
+   assert.match(await page.locator('#return-feedback').innerText(),/solid road needs real ground/);
+   assert.match(await page.locator('#return-now').innerText(),/NOT SUPPORTED/);
+   await ret('mark-question').click();await ret('compare').click();
+   assert.match(await page.locator('#return-now').innerText(),/NO ROAD/);
+   assert.match(await page.locator('#return-chronicle').innerText(),/permission remain UNKNOWN/);
+   assert.match(await page.locator('#guard').innerText(),/E06 NOT UNLOCKED/);
+   await ret('erase').click();
+   assert.match(await page.locator('#return-now').innerText(),/no link marked/);
+   await ret('mark-question').click();await ret('compare').click();
    await page.locator('#e06-paper').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('Lower Garden'));
    assert.equal(await page.locator('#lower-scene').isVisible(),true);
