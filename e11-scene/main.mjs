@@ -2,6 +2,7 @@
 import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
   fresh,dispatch,projection} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperRevisit} from './revisit-model.mjs';
+import {paperRoleWalk,dispatchRoleWalk} from './role-walk.mjs';
 import {paperLoopVisual} from './loop-visual.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
 import {paperReturnRoute,WALK_LABELS} from './return-route.mjs';
@@ -33,11 +34,12 @@ let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[],
  reflectionChoices={},reflectionFocus=null,followUpQuestion=null,followUpAction=null,
  followUpStop=null;
 let markerTrial=incoming?.markerTrial||freshFutureMarker();
+let roleWalkHistory=[];
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
-function act(action){returnSteps=[];clearReflection();markerTrial=freshFutureMarker();state=dispatch(state,action);render();}
+function act(action){returnSteps=[];clearReflection();markerTrial=freshFutureMarker();roleWalkHistory=[];state=dispatch(state,action);render();}
 function button(host,name,handler,disabled=false,pressed=false){
  const b=document.createElement('button');b.type='button';b.textContent=name;b.disabled=disabled;
  if(pressed)b.setAttribute('aria-pressed','true');
@@ -230,6 +232,65 @@ function miniBoard(host,trial,focus,stage){
   host.append(mark);
  }
 }
+function visitorWalk(){
+ const model=paperRoleWalk(state,roleWalkHistory),panel=$('visitor-walk');
+ panel.hidden=!model;
+ if(!model)return;
+ const choices=$('visitor-walk-choices');choices.replaceChildren();
+ for(const [stage,role,label] of [
+  ['first','quiet_reader','FIRST · quiet reader'],
+  ['first','activity_group','FIRST · activity group'],
+  ['now','quiet_reader','NOW · quiet reader'],
+  ['now','activity_group','NOW · activity group']
+ ]){
+  button(choices,'Walk '+label,()=>{
+   roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'choose',stage,role});
+   visitorWalk();
+  },false,model.stage===stage&&model.role===role);
+ }
+ const board=$('visitor-walk-board');board.replaceChildren();
+ board.dataset.stage=model.stage||'none';
+ board.dataset.role=model.role||'none';
+ board.dataset.position=model.position;
+ const layout=model.stage?model.boards[model.stage]:null;
+ for(let r=0;r<3;r++)for(let c=0;c<4;c++){
+  const cell=r+','+c,closed=BOUNDARY.includes(cell),
+   quiet=!!layout?.quiet.includes(cell),activity=!!layout?.activity.includes(cell),
+   here=model.stage&&model.position===cell;
+  const b=document.createElement('button');b.type='button';b.className='mini-cell';
+  if(closed)b.classList.add('mini-closed');
+  if(quiet)b.classList.add('mini-quiet');
+  if(activity)b.classList.add('mini-activity');
+  if(here)b.classList.add('mini-focus');
+  b.textContent=(here?'Visitor · ':'')+(quiet?'Quiet':activity?'Group':closed?'CLOSED':cell);
+  b.setAttribute('aria-label','Walk visitor to '+cell);
+  b.disabled=!model.stage||closed||!adjacent(model.position,cell);
+  b.addEventListener('click',()=>{
+   roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'step',to:cell});
+   visitorWalk();
+  });
+  board.append(b);
+ }
+ $('visitor-walk-position').textContent=model.stage?
+  model.stage.toUpperCase()+' · '+titles[model.role]+' at '+model.position+
+  ' · '+model.steps+' steps · '+model.blocked+' safe blocked tries.':
+  'Choose a visitor to start at the model entrance.';
+ $('visitor-walk-feedback').textContent=model.feedback;
+ const controls=$('visitor-walk-controls');controls.replaceChildren();
+ button(controls,'Check visitor at place',()=>{
+  roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'check'});
+  visitorWalk();
+ },!model.stage||model.steps<1);
+ button(controls,'Restart visitor rehearsal',()=>{roleWalkHistory=[];visitorWalk();},!roleWalkHistory.length);
+ $('visitor-walk-results').textContent=['first','now'].flatMap(stage=>
+  USERS.map(role=>{
+   const result=model.visits[stage+':'+role];
+   return stage.toUpperCase()+' '+titles[role]+': '+(result?
+    (result.passed?'PASS':'RETRY')+' after '+result.steps+' child steps':'not walked');
+  })).join(' | ');
+ $('visitor-walk-chronicle').textContent=model.chronicle;
+}
+
 function verificationPlan(){
  const inspection=roleCell?inspectPaperRole(state,revisitFocus,roleCell):null;
  const host=$('verification-plan');host.hidden=!inspection?.found;
@@ -557,7 +618,7 @@ function render(){
   (Object.values(state.tests).some(t=>!t.passed)?
    'Milo stops at a conflict. Finn: "Who needs this way?" Try moving a piece.':
    'Two simulated needs share one small model. Milo can test, move, compare and try again.');
- controls();board();tests();comparison();map();drawPaperLoop();review();worldRevisit();returnRoute();reflection();
+ controls();board();tests();comparison();map();drawPaperLoop();review();worldRevisit();visitorWalk();returnRoute();reflection();
 }
 $('access').addEventListener('click',()=>act({type:'place',tokenId:'access',cells:['1,1','1,2']}));
 $('lift-quiet').addEventListener('click',()=>act({type:'lift',tokenId:'quiet'}));
