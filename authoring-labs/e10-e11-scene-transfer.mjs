@@ -4,12 +4,15 @@ import * as E10 from './unnamed-story-model.mjs';
 import * as E11 from '../engine/s01e11-authoring-prototype.mjs';
 import {encodeUnnamedTransfer,decodeUnnamedTransfer} from './e09-e10-scene-transfer.mjs';
 import {encodeMemoryCourtyard,decodeMemoryCourtyard} from './e04-e10-scene-transfer.mjs';
+import {questionSource,restoreTrial as restoreQuestion,replayTrial as replayQuestion,viewTrial as viewQuestion} from '../e10-scene/hill-question.mjs';
 
 const PREFIX='#paper-loop=',MAX_FRAGMENT=200000;
 const keys=o=>Object.keys(o).sort().join(',');
 const allowed=['e10,e11,v','e08,e09,e10,e11,v',
  'e07,e08,e09,e10,e11,v','e06,e07,e08,e09,e10,e11,v',
- 'e04,e05,e06,e07,e08,e09,e10,e11,v'];
+ 'e04,e05,e06,e07,e08,e09,e10,e11,v',
+ 'e07,e08,e09,e10,e11,question,v','e06,e07,e08,e09,e10,e11,question,v',
+ 'e04,e05,e06,e07,e08,e09,e10,e11,question,v'];
 function earned(e10){
  const v=E10.view(e10);
  return !!(v?.finishedPaper&&v.sourceChecked&&v.comparison&&
@@ -46,11 +49,18 @@ function safeE11(e11){
   p.unlocks.length===0&&p.historicalClaims.length===0&&
   s.rights.length===0);
 }
-export function encodeLoopTransfer(e10,e11,upstream=null){
+export function encodeLoopTransfer(e10,e11,upstream=null,questionTrial=null){
  if(!E10.restore(e10)||!earned(e10)||!safeE11(e11))return null;
  const extra=cleanUpstream(upstream,e10);
  if(!extra)return null;
- const packet={v:1,...extra,e10:e10.history,e11:e11.history};
+ let question={};
+ if(questionTrial!==null){
+  const source=questionSource(upstream?.e07,upstream?.e08,upstream?.e09);
+  const checked=source&&restoreQuestion(questionTrial,source,e10);
+  if(!checked||!viewQuestion(checked,source,e10)?.compared)return null;
+  question={question:checked.history};
+ }
+ const packet={v:1,...extra,e10:e10.history,e11:e11.history,...question};
  const fragment=PREFIX+encodeURIComponent(JSON.stringify(packet));
  return fragment.length<=MAX_FRAGMENT?fragment:null;
 }
@@ -90,6 +100,13 @@ export function decodeLoopTransfer(fragment){
    if(!checked)return null;
    upstream={e08:checked.e08,e09:checked.e09,e07:checked.e07,e06:checked.e06};
   }
-  return {e10,e11,upstream};
+  let questionTrial=null;
+  if(Object.hasOwn(packet,'question')){
+   if(!Array.isArray(packet.question))return null;
+   const source=questionSource(upstream?.e07,upstream?.e08,upstream?.e09);
+   questionTrial=source&&replayQuestion(packet.question,source,e10);
+   if(!questionTrial||!viewQuestion(questionTrial,source,e10)?.compared)return null;
+  }
+  return {e10,e11,upstream,questionTrial};
  }catch{return null;}
 }
