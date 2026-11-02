@@ -81,7 +81,7 @@ export function encodeLoopTransfer(e10,e11,upstream=null,questionTrial=null,mark
  let useStage={};
  if(useTrial!==null){
   if(!paperE10UseRevisit(e10,useTrial))return null;
-  useStage={useStage:useTrial.history};
+  useStage={useStage:{sourceKey:useTrial.sourceKey,history:useTrial.history}};
  }
  const packet={v:1,...extra,e10:e10.history,e11:e11.history,...question,...marker,...useStage};
  const fragment=PREFIX+encodeURIComponent(JSON.stringify(packet));
@@ -139,8 +139,14 @@ export function decodeLoopTransfer(fragment){
   }
   let useTrial=null;
   if(Object.hasOwn(packet,'useStage')){
-   useTrial=replayTransferredTrial(packet.useStage,e10);
-   if(!useTrial||!paperE10UseRevisit(e10,useTrial))return null;
+   const claimed=packet.useStage;
+   if(!claimed||typeof claimed!=='object'||Array.isArray(claimed)||
+    keys(claimed)!=='history,sourceKey'||typeof claimed.sourceKey!=='string'||
+    !Array.isArray(claimed.history))return null;
+   useTrial=replayTransferredTrial(claimed.history,e10);
+   // The child's original hypothesis/inspection source must still match.
+   if(!useTrial||claimed.sourceKey!==useTrial.sourceKey||
+    !paperE10UseRevisit(e10,useTrial))return null;
   }
   return {e10,e11,upstream,questionTrial,markerTrial,useTrial};
  }catch{return null;}
