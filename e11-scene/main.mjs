@@ -8,6 +8,7 @@ import {paperReturnRoute,WALK_LABELS} from './return-route.mjs';
 import {paperReturnReflection} from './return-reflection.mjs';
 import {paperReflectionWorld} from './reflection-world.mjs';
 import {paperReflectionFollowUp} from './reflection-follow-up.mjs';
+import {paperFollowUpMap,PAPER_CHECK_STOPS} from './follow-up-map.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
@@ -25,9 +26,10 @@ const linkedE10=incoming?.e10||null,upstream=incoming?.upstream||null;
 let state=incoming?.e11||fresh(),tool='walk',begun=!!incoming?.e11?.history.length,
  screen='trial',revisitFocus='quiet_reader',roleCell=null,mapView='now';
 let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[],
- reflectionChoices={},reflectionFocus=null,followUpQuestion=null,followUpAction=null;
+ reflectionChoices={},reflectionFocus=null,followUpQuestion=null,followUpAction=null,
+ followUpStop=null;
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
-function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;}
+function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
 function act(action){returnSteps=[];clearReflection();state=dispatch(state,action);render();}
@@ -339,7 +341,7 @@ function reflection(){
   button(actions,label,()=>{
    if(!reflectionFocus)return;
    reflectionChoices={...reflectionChoices,[reflectionFocus]:shelf};
-    followUpQuestion=null;followUpAction=null;
+    followUpQuestion=null;followUpAction=null;followUpStop=null;
    reflection();
   },!reflectionFocus);
  }
@@ -367,7 +369,7 @@ function reflection(){
 function reflectionWorld(){
  const world=paperReflectionWorld(state,returnSteps,upstream,reflectionChoices);
  const panel=$('reflection-world');panel.hidden=!world;
- if(!world){$('reflection-follow-up').hidden=true;return;}
+ if(!world){$('reflection-follow-up').hidden=true;$('follow-up-map').hidden=true;return;}
  for(const stage of ['first','now']){
   const host=$('reflection-world-'+stage);host.replaceChildren();
   for(const card of world[stage]){
@@ -391,18 +393,45 @@ function reflectionFollowUp(){
  const model=paperReflectionFollowUp(state,returnSteps,upstream,reflectionChoices,
   followUpQuestion,followUpAction);
  const panel=$('reflection-follow-up');panel.hidden=!model;
- if(!model)return;
+ if(!model){$('follow-up-map').hidden=true;return;}
  const questions=$('follow-up-questions');questions.replaceChildren();
  for(const q of model.unknowns)button(questions,'Question: '+q.label,()=>{
-  followUpQuestion=q.id;followUpAction=null;reflectionFollowUp();
+  followUpQuestion=q.id;followUpAction=null;followUpStop=null;reflectionFollowUp();
  },false,followUpQuestion===q.id);
  const actions=$('follow-up-actions');actions.replaceChildren();
  for(const action of model.actions)button(actions,action.label,()=>{
-  followUpAction=action.id;reflectionFollowUp();
+  followUpAction=action.id;followUpStop=null;reflectionFollowUp();
  },!followUpQuestion,followUpAction===action.id);
  $('follow-up-feedback').textContent=model.feedback;
  $('follow-up-diary').textContent=model.diaryLine||
   'PAPER NEXT STEP: none chosen. Real-world facts, permissions and access remain UNKNOWN.';
+ followUpMap();
+}
+
+function followUpMap(){
+ const model=paperFollowUpMap(state,returnSteps,upstream,reflectionChoices,
+  followUpQuestion,followUpAction,followUpStop);
+ const panel=$('follow-up-map');panel.hidden=!model;
+ if(!model)return;
+ const controls=$('follow-up-map-controls');controls.replaceChildren();
+ for(const stop of PAPER_CHECK_STOPS)button(controls,'Place ? at '+stop.label,()=>{
+  followUpStop=stop.id;followUpMap();
+ },false,followUpStop===stop.id);
+ button(controls,'Remove PAPER question mark',()=>{
+  followUpStop=null;followUpMap();
+ },!model.markerPlaced);
+ for(const stage of ['first','now']){
+  const host=$('follow-up-map-'+stage);host.replaceChildren();
+  for(const stop of model[stage]){
+   const note=document.createElement('div');note.className='check-map-stop';
+   note.dataset.place=stop.id;note.dataset.marker=String(stop.marker);
+   note.textContent=(stop.marker?'? · ':'')+stop.label;
+   host.append(note);
+  }
+ }
+ $('follow-up-map-feedback').textContent=model.feedback;
+ $('follow-up-map-diary').textContent=model.chroniclePreview||
+  'PAPER MAP: no completed check. Move the question mark to try another place.';
 }
 
 function gardenRevisit(){

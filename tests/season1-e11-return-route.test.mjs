@@ -7,6 +7,7 @@ import {paperReturnRoute,PAPER_WALK} from '../e11-scene/return-route.mjs';
 import {paperReturnReflection} from '../e11-scene/return-reflection.mjs';
 import {paperReflectionWorld} from '../e11-scene/reflection-world.mjs';
 import {paperReflectionFollowUp} from '../e11-scene/reflection-follow-up.mjs';
+import {paperFollowUpMap,PAPER_CHECK_STOPS} from '../e11-scene/follow-up-map.mjs';
 
 function reviewed(){
  let s=E11.fresh();
@@ -197,4 +198,43 @@ test('Milo chooses one unverified PAPER question and safe future action, without
  assert.equal(paperReflectionFollowUp({...s,rights:['approved']},steps,null,sorted,'route','survey'),null);
  assert.equal(paperReflectionFollowUp(E11.dispatch(s,{type:'reset'}),steps,null,sorted,'route','survey'),null);
  assert.equal(paperReflectionFollowUp(s,steps.slice(0,-1),null,sorted,'route','survey'),null);
+});
+
+test('Milo moves a PAPER future-check marker; wrong stop, removal and reset cannot verify reality',()=>{
+ const s=reviewed(),steps=['garden','map_room','garden','square'];
+ const sorted={station:'check',garden:'check',planting:'check',route:'check'};
+ assert.deepEqual(PAPER_CHECK_STOPS.map(x=>x.id),['square','garden','map_room']);
+ assert.equal(paperFollowUpMap(s,steps,null,sorted,'route','permission','square'),null,
+  'wrong verification action cannot place a question mark');
+ const first=paperFollowUpMap(s,steps,null,sorted,'route','survey');
+ assert.equal(first.markerPlaced,false);
+ assert.equal(first.chroniclePreview,null);
+ assert.equal(first.first.every(x=>!x.marker),true);
+ const wrong=paperFollowUpMap(s,steps,null,sorted,'route','survey','garden');
+ assert.equal(wrong.markerPlaced,true);
+ assert.equal(wrong.markerMatches,false);
+ assert.match(wrong.feedback,/Move it/);
+ assert.equal(wrong.chroniclePreview,null);
+ const moved=paperFollowUpMap(s,steps,null,sorted,'route','survey','square');
+ assert.equal(moved.markerMatches,true);
+ assert.equal(moved.now.find(x=>x.id==='square').marker,true);
+ assert.equal(moved.now.filter(x=>x.marker).length,1);
+ assert.match(moved.chroniclePreview,/PAPER MAP PLAN — NOT DONE/);
+ assert.equal(moved.actualCheckPerformed,false);
+ assert.equal(moved.realWorldFactsVerified,0);
+ assert.equal(moved.permissionApproved,false);
+ assert.equal(moved.realRouteOpen,false);
+ assert.deepEqual(moved.canonicalEvents,[]);
+ assert.deepEqual(moved.unlocks,[]);
+ assert.equal(moved.seasonComplete,false);
+ assert.equal(moved.persistentSave,false);
+ assert.equal(paperFollowUpMap(s,steps,null,sorted,'route','survey','north_hill_closed'),null);
+ assert.equal(paperFollowUpMap(s,steps,null,sorted,'route','survey','common'),null);
+ assert.equal(paperFollowUpMap(s,steps,null,sorted,'station','ask','garden').markerMatches,false);
+ assert.equal(paperFollowUpMap(s,steps,null,sorted,'station','ask','map_room').markerMatches,true);
+ assert.equal(paperFollowUpMap(s,steps,null,sorted,'planting','permission','garden').markerMatches,true);
+ assert.equal(paperFollowUpMap(s,steps.slice(0,-1),null,sorted,'route','survey','square'),null);
+ assert.equal(paperFollowUpMap(s,steps,null,{...sorted,route:'paper'},'route','survey','square'),null);
+ assert.equal(paperFollowUpMap({...s,rights:['approved']},steps,null,sorted,'route','survey','square'),null);
+ assert.equal(paperFollowUpMap(E11.dispatch(s,{type:'reset'}),steps,null,sorted,'route','survey','square'),null);
 });
