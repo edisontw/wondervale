@@ -62,7 +62,7 @@ After the child has tried a conflicting and then revised seat/notice cutout layo
 
 Regression: `tests/season1-e10-e11-use-revisit.test.mjs` (strict replay, anti-forgery and reset), `tests/season1-e10-e11-scene-transfer-browser.mjs` (three viewport child-operated round trip), and the existing E10/E11/12-scene workflows. PR #280 CI must be verified separately before merge.
 
-## Child-stepped two-visitor PAPER rehearsal (2026-11-03; PR pending)
+## Child-stepped two-visitor PAPER rehearsal (2026-11-03; noncanonical authoring)
 
 After Milo has actually tested, revised and compared FIRST/NOW layouts, the child can choose each simulated visitor (quiet reader or activity group) in either layout, walk one adjacent paper-grid cell at a time, and check the visitor only from a model access-strip stop next to that role's piece. Trying an occupied cell visibly stops the visitor without penalty; the child can walk around and retry. Four child-earned observations produce a separate provisional **FIRST quiet RETRY / group PASS → NOW both PASS** PAPER Chronicle line, not a canonical event or a real-world safety finding. This does not repeat E10 historical-source sorting: it is a spatial, embodied shared-use test with two distinct simulated needs.
 
