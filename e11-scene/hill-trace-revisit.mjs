@@ -31,3 +31,33 @@ export function paperHillTraceRevisit(e10,upstream,questionTrial){
    '. NOT DONE; no real access, identity, history or permission.',
   upperHillClosed:true,realCheckDone:false,canonicalEvents:[],unlocks:[],rights:[]};
 }
+
+ 
+// Bounded, strictly replayed child marker actions. These are transferable PAPER
+// observations, not localStorage, real checks, permissions or canonical events.
+export const MAX_FUTURE_MARKER_EVENTS=128;
+export function freshFutureMarker(){return {history:[],stop:null};}
+export function replayFutureMarker(history,atlas){
+ if(!atlas||!Array.isArray(history)||history.length>MAX_FUTURE_MARKER_EVENTS)return null;
+ let stop=null;
+ for(const action of history){
+  if(!action||typeof action!=='object'||Array.isArray(action))return null;
+  const fields=Object.keys(action).sort().join(',');
+  if(fields==='stop,type'&&action.type==='move'&&
+   PAPER_FUTURE_STOPS.some(x=>x.id===action.stop)&&action.stop!==stop)stop=action.stop;
+  else if(fields==='type'&&action.type==='remove'&&stop!==null)stop=null;
+  else return null;
+ }
+ return {history:history.map(action=>({...action})),stop};
+}
+export function restoreFutureMarker(trial,atlas){
+ if(!trial||typeof trial!=='object'||Array.isArray(trial)||
+  Object.keys(trial).sort().join(',')!=='history,stop')return null;
+ const replayed=replayFutureMarker(trial.history,atlas);
+ return replayed&&replayed.stop===trial.stop?replayed:null;
+}
+export function dispatchFutureMarker(trial,action,atlas){
+ const current=restoreFutureMarker(trial,atlas);
+ if(!current||!action)return trial;
+ return replayFutureMarker([...current.history,action],atlas)||current;
+}
