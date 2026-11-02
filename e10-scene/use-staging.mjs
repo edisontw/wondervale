@@ -75,3 +75,15 @@ export function dispatchTrial(trial,action,state){
  const history=[...trial.history,a],next=replay(history);
  return next?{version:VERSION,sourceKey:key,history}:trial;
 }
+
+/** Decode an untrusted URL history by executing each action, never importing claimed state. */
+export function replayTransferredTrial(history,state){
+ if(!Array.isArray(history)||history.length>MAX_ACTIONS)return null;
+ let trial=freshTrial();
+ for(const raw of history){
+  const next=dispatchTrial(trial,raw,state);
+  if(next.history.length!==trial.history.length+1)return null;
+  trial=next;
+ }
+ return viewTrial(trial,state)?.revised?trial:null;
+}

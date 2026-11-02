@@ -10,6 +10,7 @@ import {paperReflectionWorld} from './reflection-world.mjs';
 import {paperReflectionFollowUp} from './reflection-follow-up.mjs';
 import {paperFollowUpMap,PAPER_CHECK_STOPS} from './follow-up-map.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
+import {paperE10UseRevisit} from './e10-use-revisit.mjs';
 import {paperHillTraceRevisit,PAPER_FUTURE_STOPS,freshFutureMarker,restoreFutureMarker,dispatchFutureMarker} from './hill-trace-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
@@ -25,6 +26,7 @@ const toolNames={walk:'Walk Milo',quiet:'Place quiet seat',activity:'Place activ
 const incoming=decodeLoopTransfer(location.hash);
 const linkedE10=incoming?.e10||null,upstream=incoming?.upstream||null;
 const linkedQuestionTrial=incoming?.questionTrial||null;
+const linkedUseTrial=incoming?.useTrial||null;
 let state=incoming?.e11||fresh(),tool='walk',begun=!!(incoming?.e11?.history.length||incoming?.markerTrial?.history.length),
  screen='trial',revisitFocus='quiet_reader',roleCell=null,mapView='now';
 let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[],
@@ -473,6 +475,14 @@ function e10NeedsWorld(){
   ' → NOW: '+(atlas.nowConflict?'overlap':'0 overlaps after Milo moved a card')+
   '. The two simulated needs remain visible. Source, consent and real access UNKNOWN; North Hill CLOSED.';
 }
+function e10UseWorld(){
+ const atlas=paperE10UseRevisit(linkedE10,linkedUseTrial);
+ $('e10-use-world').hidden=!atlas;
+ if(!atlas)return;
+ $('e10-use-first').textContent=atlas.first.map(x=>x.label).join(' + ')+'. Both imagined pieces overlap.';
+ $('e10-use-now').textContent=atlas.now.map(x=>x.label).join(' / ')+'. Milo moved a cutout.';
+ $('e10-use-result').textContent=atlas.paperNote;
+}
 function hillTraceRevisit(){
  const atlas=paperHillTraceRevisit(linkedE10,upstream,linkedQuestionTrial);
  const panel=$('hill-trace-world');panel.hidden=!atlas;
@@ -504,9 +514,11 @@ function render(){
  gardenRevisit();
  hillTraceRevisit();
  e10NeedsWorld();
+ e10UseWorld();
  const linked=linkedE10&&viewE10(linkedE10);
  const fragment=linkedE10&&encodeLoopTransfer(linkedE10,state,upstream,linkedQuestionTrial,
-  paperHillTraceRevisit(linkedE10,upstream,linkedQuestionTrial)?markerTrial:null);
+  paperHillTraceRevisit(linkedE10,upstream,linkedQuestionTrial)?markerTrial:null,
+  paperE10UseRevisit(linkedE10,linkedUseTrial)?linkedUseTrial:null);
  $('e10-return').hidden=!fragment;
  if(fragment)$('e10-return').href='../e10-scene/'+fragment;
  const fullMemory=!!(linked?.finishedPaper&&upstream?.e04&&upstream?.e05);

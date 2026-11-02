@@ -24,6 +24,14 @@ try{
    await hit('check-source');await hit('review-tradeoff');await hit('review');await hit('finish-paper');
    assert.equal(await page.locator('#e11-paper').isVisible(),true);
    assert.match(await page.locator('#hook').innerText(),/E11 NOT UNLOCKED/);
+   // Milo first overlaps two invented cutouts, then moves one and compares again.
+   await page.locator('[data-use-prop="seat"][data-use-anchor="stone_edge"]').click();
+   await page.locator('[data-use-prop="notice"][data-use-anchor="stone_edge"]').click();
+   await page.locator('#use-stage-compare').click();
+   assert.equal(await page.locator('#use-staging').getAttribute('data-conflict'),'true');
+   await page.locator('[data-use-prop="notice"][data-use-anchor="notice_wall"]').click();
+   await page.locator('#use-stage-compare').click();
+   assert.equal(await page.locator('#use-staging').getAttribute('data-revised'),'true');
    await page.locator('#e11-paper').click();
    assert.match(page.url(),/\/e11-scene\/#paper-loop=/);
    await page.waitForFunction(()=>document.querySelector('#e10-linked-context')?.textContent?.includes('observed 2 fictional traces'));
@@ -33,6 +41,10 @@ try{
    assert.equal(await page.locator('#grid .quiet').count(),0,'E10 cannot pre-place E11 pieces');
    const press=async name=>page.getByRole('button',{name,exact:true}).click();
    await press('Begin the PAPER trial');
+   assert.equal(await page.locator('#e10-use-world').isVisible(),true);
+   assert.match(await page.locator('#e10-use-first').innerText(),/Seat cutout at stone edge.*Notice cutout at stone edge/);
+   assert.match(await page.locator('#e10-use-now').innerText(),/Notice cutout at notice wall/);
+   assert.match(await page.locator('#e10-use-result').innerText(),/UNKNOWN/);
    assert.equal(await page.locator('#e10-needs-world').isVisible(),true);
    assert.equal(await page.locator('#e10-needs-first .needs-slot').count(),3);
    assert.equal(await page.locator('#e10-needs-first .needs-slot[data-conflict="true"]').count(),1);
@@ -56,6 +68,8 @@ try{
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    assert.match(await page.locator('#stage').innerText(),/finished/);
    assert.equal(await page.locator('#paper-comparison').isVisible(),true);
+   assert.equal(await page.locator('#use-staging').getAttribute('data-revised'),'true',
+    'E10 return retains only replayed child revision');
    await page.locator('#e11-paper').click();
    await page.waitForFunction(()=>document.querySelector('#comparison')?.textContent?.includes('trial-1 → NOW trial-2'));
    assert.match(await page.locator('#comparison').innerText(),/trial-1 → NOW trial-2/);
@@ -74,12 +88,16 @@ try{
    assert.match(await page.locator('#stage').innerText(),/finished/);
    await page.locator('#e11-paper').click();
    assert.equal(await page.locator('#revisit').isVisible(),false,'E11 reset clears E11 only');
+   assert.equal(await page.locator('#e10-use-world').getAttribute('hidden'),null,
+    'E11 restart retains the earned E10 note even before its model opens');
    await page.locator('#e10-return').click();
    await page.locator('#restart').click();
    assert.equal(await page.locator('#e11-paper').isVisible(),false,'E10 reset withdraws E11 link');
    await page.goto(base+'/e11-scene/');
    assert.equal(await page.locator('#e10-needs-world').isVisible(),false,
     'direct E11 must not invent an E10 needs world');
+   assert.equal(await page.locator('#e10-use-world').isVisible(),false,
+    'direct E11 cannot invent a revised E10 use trial');
   }finally{await ctx.close();}
  }
  console.log('E10-E11 independent PAPER transfer Chromium PASS: 3 viewports, earned entry, FIRST/NOW, return, resets, closed rights and no storage writes');
