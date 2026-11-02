@@ -3,6 +3,7 @@ import {NODES,SAFE_EDGES,CLOSED_NODE,CLOSED_EDGE,CLUES,HYPOTHESES} from '../engi
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {view as viewE08} from '../e08-scene/scene-model.mjs';
 import {lanternWorld} from './lantern-world.mjs';
+import {fourFrameEvidence,placeQuestion} from './field-question.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
 import {decodeMemoryHill,encodeMemoryHill} from '../authoring-labs/e04-e09-scene-transfer.mjs';
 import {decodeMemoryCourtyard,encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
@@ -25,6 +26,8 @@ const linkedE04=incoming?.e04||null,linkedE05=incoming?.e05||null;
 let linkedE10=incoming?.e10||null;
 const linkedLampWorld=lanternWorld(linkedE08);
 let lampLayer='now';
+let fieldPlan={question:'access',anchor:null,feedback:''};
+const fourFrames=fourFrameEvidence(linkedE07,linkedE08);
 const story=()=>view(state).story;
 const wrap=action=>({scene:'story',action});
 const nav=type=>({scene:'nav',type});
@@ -36,7 +39,7 @@ actor.className='milo';actor.textContent='Milo';actor.setAttribute('aria-hidden'
 const adjacent=(a,b)=>SAFE_EDGES.some(e=>(e.a===a&&e.b===b)||(e.b===a&&e.a===b));
 const required=['boundary_sign','disturbed_ground','runoff_marks','distant_symbol'];
 function act(action){state=dispatch(state,wrap(action));render();}
-function navigate(type){state=dispatch(state,nav(type));if(type==='restart')linkedE10=null;render();}
+function navigate(type){state=dispatch(state,nav(type));if(type==='restart'){linkedE10=null;fieldPlan={question:'access',anchor:null,feedback:''};}render();}
 function button(host,label,action,disabled=false,pressed=false){
   const b=document.createElement('button');b.type='button';b.textContent=label;
   b.disabled=disabled||!can(state,wrap(action));
@@ -86,6 +89,15 @@ function world(){const s=story(),v=view(state);
     b.disabled=!can(state,wrap({type:'walk',to:id}));
     b.style.left=coords[id][0]+'%';b.style.top=coords[id][1]+'%';
     b.addEventListener('click',()=>act({type:'walk',to:id}));host.append(b);
+  }
+  const mark=fieldPlan.anchor&&placeQuestion(linkedE07,linkedE08,state,fieldPlan.question,fieldPlan.anchor);
+  if(mark?.ok){
+    const pin=document.createElement('span');pin.className='evidence-pin';
+    pin.dataset.fieldPin=mark.question;pin.textContent='?';
+    pin.setAttribute('aria-label','Future PAPER check at '+names[mark.anchor]+' — NOT DONE');
+    pin.style.left=Math.min(94,coords[mark.anchor][0]+9)+'%';
+    pin.style.top=Math.min(90,coords[mark.anchor][1]+12)+'%';
+    host.append(pin);
   }
   host.append(actor);
   actor.style.left=coords[s.position][0]+'%';
@@ -236,6 +248,49 @@ function renderLanternWorld(){
   linkedLampWorld.differenceDegrees.toFixed(1)+'°. Real lights NOT restored. Upper hill CLOSED.':
   'FIRST: Both LOWER PAPER lamps OFF. No usable viewpoint rays yet. The same three marks remain. Upper hill CLOSED.';
 }
+function renderFieldQuestion(){
+ const panel=$('field-question-panel');panel.hidden=!fourFrames;
+ if(!fourFrames)return;
+ const cards=$('field-frames');cards.replaceChildren();
+ for(const frame of fourFrames.cells){
+  const card=document.createElement('div');card.className='card';
+  card.textContent=(frame.layout==='first'?'FIRST':'NOW')+' / '+
+   (frame.view==='first'?'FROM HERE':'FROM THERE')+
+   ': '+frame.conflicts+' model overlap cells; A/B/C spread '+
+   frame.spreadDegrees.toFixed(1)+'°.';
+  cards.append(card);
+ }
+ const seen=view(state).story.inspected;
+ for(const b of document.querySelectorAll('[data-field-question]')){
+  b.setAttribute('aria-pressed',String(b.dataset.fieldQuestion===fieldPlan.question));
+ }
+ for(const b of document.querySelectorAll('[data-field-place]')){
+  b.disabled=!seen.includes('boundary_sign');
+ }
+ const placed=fieldPlan.anchor&&placeQuestion(linkedE07,linkedE08,state,fieldPlan.question,fieldPlan.anchor);
+ $('field-note').textContent=placed?.ok?
+  'PAPER QUESTION — NOT DONE: '+placed.note+
+  ' E07 FIRST/NOW changed model overlap; E08 viewpoints changed apparent spacing, not the fixed marks. The hill stays CLOSED.':
+  fieldPlan.feedback||'Milo can inspect the fence, then put a ? at a safe observation point. These four results are recomputed from verified E07/E08 PAPER histories; E08 local pin choices are not transferred. No real access or lighting is approved.';
+}
+for(const b of document.querySelectorAll('[data-field-question]')){
+ b.addEventListener('click',()=>{
+  if(!fourFrames)return;
+  fieldPlan={question:b.dataset.fieldQuestion,anchor:null,feedback:''};render();
+ });
+}
+for(const b of document.querySelectorAll('[data-field-place]')){
+ b.addEventListener('click',()=>{
+  const at=b.dataset.fieldPlace;
+  const result=placeQuestion(linkedE07,linkedE08,state,fieldPlan.question,at);
+  fieldPlan.anchor=result?.ok?at:null;
+  fieldPlan.feedback=result?.ok?'':result?.reason||'This PAPER clue is not available.';
+  render();
+ });
+}
+$('field-clear').addEventListener('click',()=>{
+ fieldPlan.anchor=null;fieldPlan.feedback='Question marker removed. Nothing was checked in the real world.';render();
+});
 function render(){
  const v=view(state),s=v.story;
  $('stage').textContent='E09 '+s.stage+' · '+v.screen+' · production LOCKED';
@@ -261,7 +316,7 @@ function render(){
  const e10Link=$('e10-paper');e10Link.hidden=!e10Fragment;
  if(e10Fragment)e10Link.href='../e10-scene/'+e10Fragment;
  if(linkedE04)e10Link.textContent='Visit independent E10 PAPER scene (E04 UNKNOWN memories and E05 MOCK sources travel as PAPER notes; no official unlock)';
- world();movement();inspect();sketch();thoughts();notebook();survey();renderLanternWorld();
+ world();movement();inspect();sketch();thoughts();notebook();survey();renderLanternWorld();renderFieldQuestion();
 }
 $('lantern-first').addEventListener('click',()=>{lampLayer='first';renderLanternWorld();});
 $('lantern-now').addEventListener('click',()=>{lampLayer='now';renderLanternWorld();});
