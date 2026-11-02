@@ -16,6 +16,14 @@ button[aria-pressed=true]{background:#d4e9dc;font-weight:700}
 .trace-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.3rem;margin:.5rem 0}
 .trace-cell{border:1px solid #76968b;border-radius:.35rem;padding:.4rem;min-height:3rem;text-align:center;background:#f8faf6}
 .trace-cell strong{display:block}.trace-cell small{display:block;font-size:.75rem}
+.return-map{display:grid;grid-template-columns:minmax(0,1fr) minmax(5rem,1fr) minmax(0,1fr);align-items:center;gap:.3rem;text-align:center}
+.return-pin{padding:.5rem .2rem;border:2px solid #456e63;border-radius:.5rem;background:#fff}
+.return-pin[data-inspected="true"]{background:#d4e9dc;font-weight:700}
+.return-link{min-height:2.5rem;position:relative;display:grid;place-items:center;font-weight:700;font-size:.78rem}
+.return-map[data-mark="question"] .return-link{border-top:3px dashed #456e63}
+.return-map[data-mark="unsupported"] .return-link{border-top:3px solid #9b6d20}
+.return-map[data-mark="question"] .return-link::after{content:"? UNKNOWN";background:#eaf0e8;padding:0 .15rem}
+.return-map[data-mark="unsupported"] .return-link::after{content:"NOT VERIFIED";background:#eaf0e8;padding:0 .15rem}
 .paper{border:2px dashed #91a69a;border-radius:.45rem;padding:.65rem;background:#eaf0e8;line-height:1.5;min-height:3rem}
 .dialogue{background:#dcece5;padding:.7rem;border-radius:.5rem;line-height:1.5}
 [hidden]{display:none!important}
@@ -95,6 +103,11 @@ button[aria-pressed=true]{background:#d4e9dc;font-weight:700}
 <div class="scene">
 <p class="paper" id="return-current" role="status"></p>
 <p class="paper" id="return-lower" role="status"></p>
+</div>
+<div class="return-map paper" id="return-map" data-mark="none" aria-label="Two separate model garden markers, no verified road">
+<span class="return-pin" id="return-pin-current">CURRENT MODEL</span>
+<span class="return-link" aria-hidden="true"></span>
+<span class="return-pin" id="return-pin-lower">LOWER MODEL</span>
 </div>
 <div class="controls">
 <button data-return-action="inspect-current">Inspect Current Garden MODEL note</button>
