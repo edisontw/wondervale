@@ -14,13 +14,32 @@ try{
    const hit=async key=>{assert.equal(await b(key).isDisabled(),false,key);await b(key).click();};
    assert.match(await page.locator('.notice').innerText(),/AUTHORING ONLY/);
    assert.equal(await b('enter').isDisabled(),true);
-   for(const k of ['start','bed','slope-walk','slope','tray-walk','run','rain','run',
-    'blocked','run','compare','enter'])await hit(k);
+   const spot=id=>page.locator('[data-spot="'+id+'"]');
+   const tap=async id=>{assert.equal(await spot(id).isDisabled(),false,id);await spot(id).click();};
+   await hit('start');
+   await tap('present-bed');
+   assert.equal(await spot('present-bed').getAttribute('data-observed'),'true');
+   await tap('slope');
+   assert.equal(await spot('slope').getAttribute('data-here'),'true');
+   await tap('slope');
+   await tap('model-tray');
+   await hit('run');
+   assert.equal(await page.locator('#model-catchment').getAttribute('aria-valuenow'),'0');
+   await hit('rain');await hit('run');
+   assert.equal(await page.locator('#model-catchment').getAttribute('aria-valuenow'),'1');
+   await hit('blocked');await hit('run');
+   assert.equal(await page.locator('#model-catchment').getAttribute('aria-valuenow'),'3');
+   assert.match(await page.locator('#model-flow-caption').innerText(),/RAIN.*BLOCKED.*3\\/3/);
+   await hit('compare');await hit('enter');
    assert.equal(await page.locator('#lower-scene').isVisible(),true);
    assert.match(await page.locator('#current-world-note').innerText(),/completed/);
-   for(const k of ['trace','lower-path-walk','lower-path','channel-walk','channel-place','check'])await hit(k);
+   await tap('runoff-trace');await tap('public-path');await tap('public-path');
+   await tap('runoff-channel');await tap('runoff-channel');await hit('check');
+   assert.equal(await spot('runoff-channel').getAttribute('data-marker'),'true');
+   assert.match(await spot('runoff-channel').innerText(),/WET/);
    assert.match(await page.locator('#marker').innerText(),/WET/);
-   await hit('pocket-walk');await hit('pocket-place');await hit('check');
+   await tap('raised-pocket');await tap('raised-pocket');await hit('check');
+   assert.equal(await spot('raised-pocket').getAttribute('data-marker'),'true');
    assert.match(await page.locator('#marker').innerText(),/clear/);
    await hit('think');await hit('finish');
    assert.equal(await page.locator('#care-panel').isVisible(),true);
@@ -29,6 +48,7 @@ try{
    assert.match(await page.locator('#lower-world-note').innerText(),/retry/);
    await hit('gentle-care');await hit('test-care');await hit('compare-care');
    assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-sprout');
+   assert.equal(await spot('raised-pocket').getAttribute('data-growth'),'true');
    assert.match(await page.locator('#care-feedback').innerText(),/BEFORE \/ NOW compared/);
    assert.match(await page.locator('#note').innerText(),/PAPER CARE MODEL/);
    assert.match(await page.locator('#note').innerText(),/Actual growth.*UNKNOWN/);
@@ -76,6 +96,7 @@ try{
    assert.equal(await b('enter').isDisabled(),true);
    assert.equal(await page.locator('#care-panel').isVisible(),false);
    assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-marker');
+   assert.equal(await spot('raised-pocket').getAttribute('data-growth'),'false');
   }finally{await context.close();}
  }
  const context=await browser.newContext({viewport:{width:568,height:320}});
