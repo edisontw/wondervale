@@ -10,6 +10,7 @@ import {paperReflectionWorld} from './reflection-world.mjs';
 import {paperReflectionFollowUp} from './reflection-follow-up.mjs';
 import {paperFollowUpMap,PAPER_CHECK_STOPS} from './follow-up-map.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
+import {paperHillTraceRevisit,PAPER_FUTURE_STOPS} from './hill-trace-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
 import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
@@ -23,16 +24,17 @@ const titles={quiet:'Quiet seat',activity:'Activity area',access:'Access strip',
 const toolNames={walk:'Walk Milo',quiet:'Place quiet seat',activity:'Place activity area'};
 const incoming=decodeLoopTransfer(location.hash);
 const linkedE10=incoming?.e10||null,upstream=incoming?.upstream||null;
+const linkedQuestionTrial=incoming?.questionTrial||null;
 let state=incoming?.e11||fresh(),tool='walk',begun=!!incoming?.e11?.history.length,
  screen='trial',revisitFocus='quiet_reader',roleCell=null,mapView='now';
 let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[],
  reflectionChoices={},reflectionFocus=null,followUpQuestion=null,followUpAction=null,
- followUpStop=null;
+ followUpStop=null,traceFutureStop=null;
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
-function act(action){returnSteps=[];clearReflection();state=dispatch(state,action);render();}
+function act(action){returnSteps=[];clearReflection();traceFutureStop=null;state=dispatch(state,action);render();}
 function button(host,name,handler,disabled=false,pressed=false){
  const b=document.createElement('button');b.type='button';b.textContent=name;b.disabled=disabled;
  if(pressed)b.setAttribute('aria-pressed','true');
@@ -470,11 +472,35 @@ function e10NeedsWorld(){
   ' → NOW: '+(atlas.nowConflict?'overlap':'0 overlaps after Milo moved a card')+
   '. The two simulated needs remain visible. Source, consent and real access UNKNOWN; North Hill CLOSED.';
 }
+function hillTraceRevisit(){
+ const atlas=paperHillTraceRevisit(linkedE10,upstream,linkedQuestionTrial);
+ const panel=$('hill-trace-world');panel.hidden=!atlas;
+ if(!atlas)return;
+ $('hill-trace-first').textContent='E10 SEEN: '+atlas.traceLabel+
+  ' at '+atlas.anchorLabel+'. Milo compared this fictional trace. '+atlas.questionLabel+
+  ' STILL UNKNOWN.';
+ const controls=$('hill-trace-controls');controls.replaceChildren();
+ for(const stop of PAPER_FUTURE_STOPS)button(controls,'Move ? to '+stop.label,()=>{
+  traceFutureStop=stop.id;hillTraceRevisit();
+ },false,traceFutureStop===stop.id);
+ button(controls,'Remove future ? marker',()=>{traceFutureStop=null;hillTraceRevisit();},!traceFutureStop);
+ const matched=traceFutureStop===atlas.futureStop;
+ $('hill-trace-now').dataset.marker=String(!!traceFutureStop);
+ $('hill-trace-now').textContent='NOW: '+(traceFutureStop?
+  '? at '+PAPER_FUTURE_STOPS.find(x=>x.id===traceFutureStop).label:
+  'no future check marked')+'. '+(matched?
+  'PAPER NEXT STEP — NOT DONE.':
+  traceFutureStop?'That stop does not check this question. Move ? and try again.':
+  'Choose where Milo should seek a real check later.');
+ $('hill-trace-diary').textContent=matched?atlas.chroniclePreview:
+  'The PAPER trace does not prove history, access or identity. No real check completed.';
+}
 function render(){
  gardenRevisit();
+ hillTraceRevisit();
  e10NeedsWorld();
  const linked=linkedE10&&viewE10(linkedE10);
- const fragment=linkedE10&&encodeLoopTransfer(linkedE10,state,upstream);
+ const fragment=linkedE10&&encodeLoopTransfer(linkedE10,state,upstream,linkedQuestionTrial);
  $('e10-return').hidden=!fragment;
  if(fragment)$('e10-return').href='../e10-scene/'+fragment;
  const fullMemory=!!(linked?.finishedPaper&&upstream?.e04&&upstream?.e05);
