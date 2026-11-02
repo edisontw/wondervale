@@ -28,6 +28,10 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 .compare-slot[data-conflict=true]{background:#ffdfcb;border-color:#9b4d32}
 .compare-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
 .compare-evidence .paper{margin:.2rem 0}
+.use-stage-board{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+.use-stage-slot{border:2px dashed #8da79b;border-radius:.45rem;background:#f5f7ed;padding:.6rem;min-height:5rem}
+.use-stage-slot[data-overlap=true]{background:#ffe4d2;border-color:#a35a38}
+.use-stage-slot strong{display:block;margin-bottom:.25rem}
 .hill-world-svg{display:block;width:100%;height:auto;max-height:290px;border:1px solid #a6bbb0;border-radius:.4rem;background:#f3f7f2}
 .hill-world-svg text{font:12px system-ui,sans-serif;fill:#21443e}
 .hill-world-svg [data-closed=true]{stroke:#a44838;stroke-width:5;stroke-dasharray:7 5}
@@ -64,6 +68,24 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <p id="ground-provenance-summary" class="paper" role="status"></p>
 <p id="ground-provenance-feedback" class="paper" role="status" aria-live="polite"></p>
 <p class="paper">Finn: "A mark on a hill and a mark here are not one proven story." Optional parent cue: Which clue was seen in which place? What still needs checking? Upper hill CLOSED; cause, age, name and real access UNKNOWN. No official Chronicle or E11 unlock.</p>
+</section>
+<section id="use-staging" class="panel" hidden data-revised="false" data-conflict="false">
+<h2>E10: What could have been here? Try PAPER cutouts</h2>
+<p>After Milo looks at both traces and suggests MAYBE uses, move a paper seat and notice cutout. Try both in one place; compare the overlap, then move one and compare again. These are invented shapes, not evidence that either object existed.</p>
+<div class="controls" id="use-stage-actions">
+<button type="button" data-use-prop="seat" data-use-anchor="stone_edge">Move seat to stone edge</button>
+<button type="button" data-use-prop="seat" data-use-anchor="notice_wall">Move seat to notice wall</button>
+<button type="button" data-use-remove="seat">Remove seat</button>
+<button type="button" data-use-prop="notice" data-use-anchor="stone_edge">Move notice to stone edge</button>
+<button type="button" data-use-prop="notice" data-use-anchor="notice_wall">Move notice to notice wall</button>
+<button type="button" data-use-remove="notice">Remove notice</button>
+</div>
+<div id="use-stage-board" class="use-stage-board" aria-label="Two fictional cutout stations"></div>
+<div class="controls"><button id="use-stage-compare" type="button">Compare cutout fit</button>
+<button id="use-stage-reset" type="button">Clear PAPER cutouts</button></div>
+<p id="use-stage-feedback" class="paper" role="status" aria-live="polite"></p>
+<p id="use-stage-chronicle" class="paper" role="status"></p>
+<p class="paper">Nia: “We saw marks, not the things that made them.” Finn: “Let's test a different fit.” Optional parent cue: What would we need to check before saying this really happened?</p>
 </section>
 <section id="clue-panel" class="panel" hidden>
 <h2>E08 → E10: Trace the same PAPER marks</h2>
@@ -153,6 +175,7 @@ import {hillWorld} from './hill-world.mjs';
 import {clueSource,freshTrial,dispatchTrial,viewTrial} from './clue-transfer.mjs';
 import {questionSource,freshTrial as freshQuestion,dispatchTrial as dispatchQuestion,viewTrial as viewQuestion} from './hill-question.mjs';
 import {CARDS as GROUND_CARDS,groundSource,freshTrial as freshGroundTrial,dispatchTrial as dispatchGround,viewTrial as viewGround} from './hill-ground-provenance.mjs';
+import {source as useSource,freshTrial as freshUseTrial,dispatchTrial as dispatchUse,viewTrial as viewUse} from './use-staging.mjs';
 import {decodeUnnamedTransfer,encodeUnnamedTransfer} from '../authoring-labs/e09-e10-scene-transfer.mjs';
 import {decodeMemoryCourtyard,encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
 import {decodeLoopTransfer,encodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
@@ -171,6 +194,7 @@ const linkedClueSource=clueSource(linkedE08,linkedE09);
 const linkedQuestionSource=questionSource(linkedE07,linkedE08,linkedE09);
 const linkedGroundSource=groundSource(linkedE09);
 let groundTrial=freshGroundTrial();
+let useTrial=freshUseTrial();
 let questionTrial=loop?.questionTrial||freshQuestion();
 let clueTrial=freshTrial();
 let hillLayer='now';
@@ -318,6 +342,35 @@ function renderGround(){
   ' THERE / '+counts.unknown+' UNKNOWN / '+(4-v.placed)+' unplaced. FIRST: no cards. Cause still UNKNOWN.';
  $('ground-provenance-feedback').textContent=v.feedback;
 }
+function renderUseStage(){
+ const panel=$('use-staging'),ready=!!useSource(state);
+ panel.hidden=!ready||screen!=='courtyard';
+ if(!ready){useTrial=freshUseTrial();return;}
+ let v=viewUse(useTrial,state);
+ if(!v){useTrial=freshUseTrial();v=viewUse(useTrial,state);}
+ panel.dataset.revised=String(v.revised);panel.dataset.conflict=String(v.conflict);
+ for(const b of panel.querySelectorAll('[data-use-prop]')){
+  b.disabled=v.now[b.dataset.useProp]===b.dataset.useAnchor;
+  b.setAttribute('aria-pressed',String(v.now[b.dataset.useProp]===b.dataset.useAnchor));
+ }
+ for(const b of panel.querySelectorAll('[data-use-remove]'))
+  b.disabled=!v.now[b.dataset.useRemove];
+ $('use-stage-compare').disabled=!v.now.seat||!v.now.notice||v.compared;
+ const board=$('use-stage-board');board.replaceChildren();
+ for(const [anchor,label] of [['stone_edge','Stone edge'],['notice_wall','Notice wall']]){
+  const tile=document.createElement('div');tile.className='use-stage-slot';
+  tile.dataset.anchor=anchor;tile.dataset.overlap=String(v.now.seat===anchor&&v.now.notice===anchor);
+  const heading=document.createElement('strong');heading.textContent=label+' — PAPER only';
+  const body=document.createElement('span');
+  const here=Object.entries(v.now).filter(([,at])=>at===anchor).map(([prop])=>prop==='seat'?'Seat cutout':'Notice cutout');
+  body.textContent=here.join(' + ')||'No cutout here';
+  tile.append(heading,body);board.append(tile);
+ }
+ $('use-stage-feedback').textContent=v.feedback+
+  (v.first?' FIRST: '+Object.entries(v.first).map(([p,a])=>p+' at '+a.replaceAll('_',' ')).join('; ')+'.':' FIRST: no comparison yet.')+
+  ' NOW: '+Object.entries(v.now).map(([p,a])=>p+' at '+(a?a.replaceAll('_',' '):'unplaced')).join('; ')+'.';
+ $('use-stage-chronicle').textContent=v.paperNote;
+}
 function renderClue(){
  const panel=$('clue-panel');panel.hidden=!linkedClueSource;
  if(!linkedClueSource)return;
@@ -418,6 +471,7 @@ function render(){
  renderClue();
  renderQuestion();
  renderGround();
+ renderUseStage();
  for(const b of document.querySelectorAll('button[data-action]'))b.disabled=!can(state,action(b));
 }
 document.addEventListener('click',e=>{
@@ -465,9 +519,23 @@ $('ground-provenance-compare').addEventListener('click',()=>{
  groundTrial=dispatchGround(groundTrial,{type:'compare',atE10:state.history.length},linkedGroundSource,state);
  renderGround();
 });
+document.addEventListener('click',e=>{
+ const b=e.target.closest('[data-use-prop],[data-use-remove]');
+ if(!b||!useSource(state))return;
+ const a=b.dataset.useProp?
+  {type:'place',prop:b.dataset.useProp,anchor:b.dataset.useAnchor}:
+  {type:'remove',prop:b.dataset.useRemove};
+ useTrial=dispatchUse(useTrial,a,state);renderUseStage();
+});
+$('use-stage-compare').addEventListener('click',()=>{
+ useTrial=dispatchUse(useTrial,{type:'compare'},state);renderUseStage();
+});
+$('use-stage-reset').addEventListener('click',()=>{
+ useTrial=freshUseTrial();renderUseStage();
+});
 $('ground-provenance-reset').addEventListener('click',()=>{
  groundTrial=freshGroundTrial();renderGround();
 });
-$('restart').addEventListener('click',()=>{groundTrial=freshGroundTrial();state=fresh();linkedE11=null;linkedMarkerTrial=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
+$('restart').addEventListener('click',()=>{useTrial=freshUseTrial();groundTrial=freshGroundTrial();state=fresh();linkedE11=null;linkedMarkerTrial=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
 render();
 </script></main></body></html>
