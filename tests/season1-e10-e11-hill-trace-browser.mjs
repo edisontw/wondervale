@@ -42,6 +42,7 @@ try{
    await page.locator('#e10-return').click();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'true');
    await page.locator('#e11-paper').click();
+   await page.waitForFunction(()=>document.querySelector('#hill-trace-now')?.dataset.marker==='true');
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'true','strictly replayed marker survives E10 round-trip');
    assert.match(await page.locator('#hill-trace-diary').innerText(),/NOT DONE/);
    await page.getByRole('button',{name:'Remove future ? marker'}).click();
