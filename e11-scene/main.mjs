@@ -4,6 +4,7 @@ import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
 import {paperRevisit} from './revisit-model.mjs';
 import {paperRoleWalk,dispatchRoleWalk} from './role-walk.mjs';
 import {paperSharedUse,dispatchSharedUse} from './shared-use-followthrough.mjs';
+import {paperWorldAtlas} from './world-atlas.mjs';
 import {paperLoopVisual} from './loop-visual.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
 import {paperReturnRoute,WALK_LABELS} from './return-route.mjs';
@@ -37,11 +38,12 @@ let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[],
 let markerTrial=incoming?.markerTrial||freshFutureMarker();
 let roleWalkHistory=[];
 let sharedUseHistory=[];
+let atlasStage='now',atlasFocus='garden';
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
-function act(action){returnSteps=[];clearReflection();markerTrial=freshFutureMarker();roleWalkHistory=[];sharedUseHistory=[];state=dispatch(state,action);render();}
+function act(action){returnSteps=[];clearReflection();markerTrial=freshFutureMarker();roleWalkHistory=[];sharedUseHistory=[];atlasStage='now';atlasFocus='garden';state=dispatch(state,action);render();}
 function button(host,name,handler,disabled=false,pressed=false){
  const b=document.createElement('button');b.type='button';b.textContent=name;b.disabled=disabled;
  if(pressed)b.setAttribute('aria-pressed','true');
@@ -297,7 +299,7 @@ function visitorWalk(){
 function sharedUseView(){
  const model=paperSharedUse(state,roleWalkHistory,upstream,sharedUseHistory);
  const panel=$('shared-use');panel.hidden=!model;
- if(!model)return;
+ if(!model){worldAtlas();return;}
  const choices=$('shared-use-choices');choices.replaceChildren();
  const choose=(phase,channel)=>{
   sharedUseHistory=dispatchSharedUse(state,roleWalkHistory,upstream,sharedUseHistory,
@@ -355,6 +357,34 @@ function sharedUseView(){
   (model.now.groupPass?'PASS':'RETRY')+'.':
   'NOW: choose NOW and record a second check.';
  $('shared-use-note').textContent=model.chronicle;
+ worldAtlas();
+}
+
+
+function worldAtlas(){
+ const model=paperWorldAtlas(state,roleWalkHistory,upstream,sharedUseHistory,
+  linkedE10,linkedUseTrial);
+ const panel=$('world-atlas');panel.hidden=!model;
+ if(!model)return;
+ const stages=$('world-atlas-stages');stages.replaceChildren();
+ for(const phase of ['first','now'])
+  button(stages,'Show '+phase.toUpperCase()+' three-place PAPER world',
+   ()=>{atlasStage=phase;worldAtlas();},false,atlasStage===phase);
+ const places=$('world-atlas-places');places.replaceChildren();
+ places.dataset.stage=atlasStage;
+ for(const item of model.boards[atlasStage]){
+  const b=button(places,'Inspect '+item.label+' PAPER change',
+   ()=>{atlasFocus=item.id;worldAtlas();},false,atlasFocus===item.id);
+  b.className='atlas-place';b.dataset.place=item.id;
+  b.dataset.mark=item.mark;b.dataset.selected=String(atlasFocus===item.id);
+  const label=document.createElement('small');label.textContent=item.title;
+  b.append(label);
+ }
+ const focused=model.boards[atlasStage].find(p=>p.id===atlasFocus);
+ $('world-atlas-observation').textContent=
+  atlasStage.toUpperCase()+' · '+focused.label+'. '+focused.detail+
+  ' Milo can switch the view or inspect another PAPER place.';
+ $('world-atlas-chronicle').textContent=model.chronicle;
 }
 
 function verificationPlan(){
