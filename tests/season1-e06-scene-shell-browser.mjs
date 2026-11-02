@@ -29,7 +29,7 @@ try{
    assert.equal(await page.locator('#model-catchment').getAttribute('aria-valuenow'),'1');
    await hit('blocked');await hit('run');
    assert.equal(await page.locator('#model-catchment').getAttribute('aria-valuenow'),'3');
-   assert.match(await page.locator('#model-flow-caption').innerText(),/RAIN.*BLOCKED.*3\\/3/);
+   assert.match(await page.locator('#model-flow-caption').innerText(),/RAIN.*BLOCKED.*3\/3/);
    await hit('compare');await hit('enter');
    assert.equal(await page.locator('#lower-scene').isVisible(),true);
    assert.match(await page.locator('#current-world-note').innerText(),/completed/);
