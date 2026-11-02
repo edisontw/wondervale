@@ -32,8 +32,8 @@ function apply(s,a,sourceTrials){
   if(!same(Object.keys(a),['type'])||!s.stage||s.steps<1)return null;
   const t=sourceTrials[s.stage],token=s.role==='quiet_reader'?'quiet':'activity';
   const target=t.layout[token][0];
-  if(!target||!adjacent(s.position,target))
-   return {...s,feedback:'Not beside the visitor\'s place yet. Walk closer and try again.'};
+  if(!target||!adjacent(s.position,target)||!t.layout.access.includes(s.position))
+   return {...s,feedback:'Not at the visitor\'s access stop yet. Walk closer and try again.'};
   const result=t.tests[s.role];
   const visits={...s.visits,[key(s.stage,s.role)]:{passed:result.passed,reason:result.reason,steps:s.steps}};
   return {...s,visits,feedback:(result.passed?'PAPER PASS: ':'PAPER RETRY: ')+result.reason};
