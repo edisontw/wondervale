@@ -49,6 +49,32 @@ try{
    await page.locator('#e11-paper').click();
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false','removal survives E10 round-trip');
    await page.getByRole('button',{name:/Move \? to request an attributed source/}).click();
+   // A new E10 question invalidates the previous E11 marker across a return trip.
+   // Rechecking either question earns a fresh, empty PAPER future-check map.
+   await page.locator('#e10-return').click();
+   await page.locator('#question-access').click();
+   assert.equal(await page.locator('#e11-paper').isVisible(),false,
+    'switching the E10 question withdraws the checked E11 link');
+   await page.locator('#question-stone').click();
+   await page.locator('#question-compare').click();
+   assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'true');
+   await page.locator('#e11-paper').click();
+   assert.match(await page.locator('#hill-trace-first').innerText(),/worn surface.*STILL UNKNOWN/);
+   assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false',
+    'identity source marker cannot reappear for access question');
+   await page.getByRole('button',{name:/Move \? to ask the responsible person/}).click();
+   assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'true');
+   await page.locator('#e10-return').click();
+   await page.locator('#question-identity').click();
+   assert.equal(await page.locator('#e11-paper').isVisible(),false,
+    'switching back to identity withdraws the access marker');
+   await page.locator('#question-wall').click();
+   await page.locator('#question-compare').click();
+   await page.locator('#e11-paper').click();
+   assert.match(await page.locator('#hill-trace-first').innerText(),/mounting holes.*STILL UNKNOWN/);
+   assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false',
+    'old identity marker must not resurrect after two question changes');
+   await page.getByRole('button',{name:/Move \? to request an attributed source/}).click();
    await page.locator('#restart').click();
    await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false','E11 restart removes replayed marker');
