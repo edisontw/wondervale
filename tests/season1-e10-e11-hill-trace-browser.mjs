@@ -30,6 +30,7 @@ try{
    await page.locator('#question-compare').click();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'true');
    await page.locator('#e11-paper').click();
+   await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
    assert.equal(await page.locator('#hill-trace-world').isVisible(),true);
    assert.match(await page.locator('#hill-trace-first').innerText(),/mounting holes.*STILL UNKNOWN/);
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false');
