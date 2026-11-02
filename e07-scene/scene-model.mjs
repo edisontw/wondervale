@@ -2,13 +2,13 @@ import * as E07 from '../authoring-labs/shortcut-story-model.mjs';
 export const VERSION='e07-isolated-paper-v1',MAX_ACTIONS=90;
 const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b),verified=new WeakMap();
 const mark=s=>(verified.set(s,JSON.stringify(s)),s);
-export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',screen:'connector',story:E07.fresh(),walkthrough:{phase:'idle',position:'bench',checked:[],stopped:false},history:[],canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]});}
+export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',screen:'connector',story:E07.fresh(),walkthrough:{phase:'idle',position:'bench',checked:[],stopped:false,otherPosition:'waiting'},history:[],canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]});}
 function clean(raw){
  if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
  if(raw.scene==='nav'&&['garden','connector','restart'].includes(raw.type)){const a={scene:'nav',type:raw.type};return eq(a,raw)?a:null;}
  if(raw.scene==='walkthrough'){
   const withValue=['move','inspect'].includes(raw.type);
-  const plain=['start','try-closed','review'].includes(raw.type);
+  const plain=['start','try-closed','review','other-start','other-step','other-reset'].includes(raw.type);
   const a=withValue?{scene:'walkthrough',type:raw.type,value:raw.value}:
    plain?{scene:'walkthrough',type:raw.type}:null;
   return a&&eq(a,raw)?a:null;
@@ -31,6 +31,14 @@ function apply(s,a){
   if(a.type==='start'&&w.phase==='idle')
    return {...s,walkthrough:{...w,phase:'walking'}};
   if(w.phase!=='walking')return null;
+  // Child-controlled unnamed traveler on the synthetic shared path, not a real site claim.
+  if(a.type==='other-start'&&w.position==='crossing'&&
+    w.checked.includes('crossing')&&w.otherPosition==='waiting')
+   return {...s,walkthrough:{...w,otherPosition:'approach'}};
+  if(a.type==='other-step'&&['approach','crossing'].includes(w.otherPosition))
+   return {...s,walkthrough:{...w,otherPosition:w.otherPosition==='approach'?'crossing':'clear'}};
+  if(a.type==='other-reset'&&w.otherPosition==='clear')
+   return {...s,walkthrough:{...w,otherPosition:'waiting'}};
   if(a.type==='try-closed'&&w.position==='crossing'&&!w.stopped)
    return {...s,walkthrough:{...w,stopped:true}};
   if(a.type==='move'){
@@ -73,5 +81,10 @@ export function view(snapshot){const s=restore(snapshot);if(!s)return null;const
   'Walk the PAPER route and check who else uses it.';
  return {screen:s.screen,story,walkthrough:{phase:w.phase,position:w.position,
    positionLabel:positionNames[w.position],checked:[...w.checked],stopped:w.stopped,
-   feedback:walkFeedback,reviewed:w.phase==='reviewed'},
+   feedback:walkFeedback,otherPosition:w.otherPosition,
+   otherFeedback:w.otherPosition==='waiting'?'Another traveler is waiting to try the revised PAPER shared path.':
+    w.otherPosition==='approach'?'Another traveler approaches. Can they pass?':
+    w.otherPosition==='crossing'?'The traveler crosses the PAPER shared path. The model has no overlap here.':
+    'The traveler passed on the PAPER model. Real access and clearance remain UNKNOWN.',
+   reviewed:w.phase==='reviewed'},
   connectorPaperRevised:story.previewComplete,currentGardenHealthy:true,lowerGardenUnbuilt:true,e06Verified:false,e08Unlocked:false,northHillClosed:true,lightsOff:true,realAccessApproved:false,productionEntryReady:false,canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]};}
