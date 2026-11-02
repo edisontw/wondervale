@@ -77,7 +77,7 @@ test('incomplete, removed, stale and forged cutout histories never import an E11
  ])assert.equal(decodeLoopTransfer(pack({...packet,useStage:history})),null);
  assert.equal(decodeLoopTransfer(pack({...packet,useStage:packet.useStage,approved:true})),null);
  assert.equal(decodeLoopTransfer(pack({...packet,e10:[]})),null);
- assert.equal(decodeLoopTransfer(pack({...packet,useStage:undefined})),null);
+ assert.equal(decodeLoopTransfer(pack({...packet,useStage:undefined})).useTrial,null);
  const removed=dispatchTrial(t,{type:'remove',prop:'seat'},e10);
  assert.equal(paperE10UseRevisit(e10,removed),null);
 });
