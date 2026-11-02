@@ -71,6 +71,10 @@ button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
 .reflection-note strong,.reflection-note span{display:block;font-size:.81rem;line-height:1.35}
 .reflection-note[data-shelf=paper]{border-style:solid;border-color:#46745c;background:#e0f0e2}
 .reflection-note[data-shelf=check]{border-style:solid;border-color:#94764c;background:#f7edda}
+.check-map-stops{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.4rem;margin:.4rem 0}
+.check-map-stop{border:2px dashed #9ba99d;border-radius:.5rem;padding:.55rem;min-height:60px;background:#f4f4ec;text-align:center;overflow-wrap:anywhere}
+.check-map-stop[data-marker=true]{border-style:solid;border-color:#815d29;background:#ffedc7;font-weight:700}
+@media(max-width:700px){.check-map-stops{grid-template-columns:1fr}}
 ul{padding-left:1.3rem;line-height:1.45}
 small{color:#50655e}
 @media(max-width:700px){.reflection-world-board,.reflection-notes{grid-template-columns:1fr}.needs-boards{grid-template-columns:1fr}.route-stops{grid-template-columns:repeat(2,minmax(0,1fr))}.garden-cards{grid-template-columns:1fr}.columns{grid-template-columns:1fr}.cell{min-height:56px;font-size:.75rem}.grid{gap:.25rem;padding:.25rem}.map{grid-template-columns:1fr}.trials{grid-template-columns:1fr}}
@@ -220,6 +224,16 @@ small{color:#50655e}
 <div id="follow-up-actions" class="controls" aria-label="Choose a future verification action"></div>
 <p id="follow-up-feedback" class="status" aria-live="polite"></p>
 <p id="follow-up-diary" class="status" aria-live="polite"></p>
+<div id="follow-up-map" class="revisit-panel" hidden aria-label="Move a future check question mark on a PAPER map">
+<h3>Move the ? to plan where to ask · PAPER only</h3>
+<p>Milo: "This is a question mark, not a flag saying DONE." Choose a model stop, try it, move it or remove it. No site is being visited.</p>
+<div id="follow-up-map-controls" class="controls" aria-label="Choose or remove a PAPER question mark"></div>
+<div class="reflection-world-board"><div><strong>FIRST · no marker</strong><div id="follow-up-map-first" class="check-map-stops" role="img" aria-label="Unmarked fictional model stops"></div></div>
+<div><strong>NOW · Milo's marker</strong><div id="follow-up-map-now" class="check-map-stops" role="img" aria-label="Reversible child-placed future question marker"></div></div></div>
+<p id="follow-up-map-feedback" class="status" aria-live="polite"></p>
+<p id="follow-up-map-diary" class="status" aria-live="polite"></p>
+<small>Model labels are not verified public routes or actual site geometry. No consultation, permission, inspection, Common reveal, unlock or saved progress.</small>
+</div>
 <small>NOT DONE: no actual consultation, site visit, permission, safety approval, canonical Chronicle or unlock. Undo the return walk or revise a shelf to withdraw this plan.</small>
 </div>
 <small>Provisional diary only. No real testimony, source date, site permission, canonical Chronicle, hidden-place reveal, unlock or saved season completion.</small>
