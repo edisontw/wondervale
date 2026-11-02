@@ -61,6 +61,8 @@ try{
    await page.locator('#question-compare').click();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'true');
    await page.locator('#e11-paper').click();
+   if(await page.getByRole('button',{name:'Begin the PAPER trial'}).isVisible())
+    await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
    await page.waitForFunction(trace=>document.querySelector('#hill-trace-first')?.textContent?.includes(trace),'worn surface');
    assert.match(await page.locator('#hill-trace-first').innerText(),/worn surface.*STILL UNKNOWN/);
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false',
@@ -74,6 +76,9 @@ try{
    await page.locator('#question-wall').click();
    await page.locator('#question-compare').click();
    await page.locator('#e11-paper').click();
+   if(await page.getByRole('button',{name:'Begin the PAPER trial'}).isVisible())
+    await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
+   await page.waitForFunction(trace=>document.querySelector('#hill-trace-first')?.textContent?.includes(trace),'mounting holes');
    assert.match(await page.locator('#hill-trace-first').innerText(),/mounting holes.*STILL UNKNOWN/);
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false',
     'old identity marker must not resurrect after two question changes');
