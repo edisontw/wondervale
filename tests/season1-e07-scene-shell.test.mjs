@@ -88,3 +88,31 @@ test('Milo checks both uses on revised PAPER route and safely stops at CLOSED bo
  s=go(s,n('restart'));assert.equal(view(s).walkthrough.phase,'idle');
  assert.equal(can(s,w('start')),false);
 });
+
+
+test('Milo steps an unnamed second traveler across the revised PAPER shared path without inventing access',()=>{
+ let s=complete();
+ assert.equal(can(s,w('other-start')),false);
+ s=go(s,w('start'));s=go(s,w('move','crossing'));
+ assert.equal(can(s,w('other-start')),false);
+ s=go(s,w('inspect','crossing'));
+ s=go(s,w('other-start'));
+ assert.equal(view(s).walkthrough.otherPosition,'approach');
+ s=go(s,w('other-step'));
+ assert.equal(view(s).walkthrough.otherPosition,'crossing');
+ s=go(s,w('other-step'));
+ assert.equal(view(s).walkthrough.otherPosition,'clear');
+ assert.match(view(s).walkthrough.otherFeedback,/Real access and clearance remain UNKNOWN/);
+ assert.equal(can(s,w('other-step')),false);
+ s=go(s,w('other-reset'));
+ assert.equal(view(s).walkthrough.otherPosition,'waiting');
+ assert.equal(can(s,w('other-step')),false);
+ assert.deepEqual(replay(s.history),s);
+ assert.deepEqual(restore(structuredClone(s)),s);
+ const forged=structuredClone(s);forged.walkthrough.otherPosition='clear';
+ assert.equal(restore(forged),null);
+ assert.deepEqual(view(s).canonicalEvents,[]);
+ assert.equal(view(s).e08Unlocked,false);
+ s=go(s,n('restart'));
+ assert.equal(view(s).walkthrough.otherPosition,'waiting');
+});
