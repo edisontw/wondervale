@@ -20,7 +20,7 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 .garden-tile[data-marker=true]{background:#e2efd2;border-color:#567a49}
 .garden-tile[data-risk=true]{background:#f7e6d6;border-color:#ae7453}
 .garden-tile strong,.garden-tile span{display:block}
-#e06-world [aria-pressed=true]{background:#315648;color:white}
+#e06-world [aria-pressed=true],#garden-flow [aria-pressed=true]{background:#315648;color:white}
 .board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:2px;background:#c2d1c3;padding:.25rem;border-radius:.4rem}
 .cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;background:#f8faf5;font-size:clamp(.6rem,1.6vw,.85rem);font-weight:700}.cell[data-conflict=true]{background:#edb8a4}
 [hidden]{display:none!important}@media(max-width:700px){.columns,.world{grid-template-columns:1fr}.panel{padding:.55rem}.anchors{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -39,6 +39,22 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <p id="e06-garden-water" class="paper" role="status"></p>
 <p id="e06-garden-result" class="paper"></p>
 <p>Only a removable PAPER marker and model water. No actual plant, drainage measurement, planting permission, historical claim, route or official unlock.</p>
+</section>
+<section id="garden-flow" class="panel" hidden aria-label="E06 garden to E07 connector PAPER what-if">
+<h2>Milo’s garden water → Finn’s connector: try two PAPER models</h2>
+<p>Milo tested the Current Garden rain tray and the Lower Garden marker, then checked Finn’s revised connector. Choose an E06 water-channel test and move Finn’s E07 model footprint between FIRST and NOW. The two diagrams are independent; this does not measure a real garden-to-connector flow.</p>
+<div class="controls" aria-label="E06 child-tested rain tray">
+<button type="button" data-flow-channel="blocked" aria-pressed="true">Garden channel blocked</button>
+<button type="button" data-flow-channel="open" aria-pressed="false">Garden channel open</button></div>
+<p id="flow-water" class="paper" role="status"></p>
+<div class="controls" aria-label="Move Finn’s PAPER connector piece">
+<button type="button" data-flow-phase="first" aria-pressed="true">Finn’s FIRST crossing</button>
+<button type="button" data-flow-phase="now" aria-pressed="false">Move to NOW detour</button></div>
+<div id="flow-grid" class="board" role="img" aria-label="Synthetic connector footprint"></div>
+<p>C = connector · P = shared traveler path · W = water route · X = conflict.</p>
+<p id="flow-people" class="paper" role="status"></p>
+<p id="flow-summary" class="paper"></p>
+<p>Ask: “Water needs a way. Can they pass?” No real runoff, terrain, public access, construction, growth, history or official unlock is established. These choices are reversible and not saved.</p>
 </section>
 <p id="stage" class="paper" role="status"></p><p class="paper" aria-live="polite"><strong id="speaker"></strong>: <span id="line"></span></p>
 <section id="connector-scene" class="panel"><h2>Walk, test and redesign</h2>

@@ -1,4 +1,5 @@
 import {gardenCareWorld} from './garden-world.mjs';
+import {runoffChoice} from './garden-connector-whatif.mjs';
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {decodeTransfer,encodeTransfer} from '../authoring-labs/e06-e07-scene-transfer.mjs';
 import {fresh as freshE08,view as viewE08} from '../e08-scene/scene-model.mjs';
@@ -14,7 +15,7 @@ let state=extended?.e07||stepsIncoming?.e07||gardenIncoming?.e07||fresh(),
  linkedE06=extended?.e06||stepsIncoming?.e06||gardenIncoming?.e06||null,
  linkedE08=lantern?.e08||stepsIncoming?.e08||freshE08();
 const linkedE04=extended?.e04||null,linkedE05=extended?.e05||null;const $=id=>document.getElementById(id);
-let gardenWorldView='now';
+let gardenWorldView='now',flowChannel='blocked',flowPhase='first';
 const a=(type,value)=>({scene:'story',action:value===undefined?{type}:{type,value}});
 const n=type=>({scene:'nav',type});
 const w=(type,value)=>({scene:'walkthrough',type,...(value===undefined?{}:{value})});
@@ -100,6 +101,37 @@ function drawGardenWorld(){
   'NOW: Milo moved the marker to the raised pocket and tested gentler MODEL water. '+
   selected.risk+'. This is only a possible PAPER sprout.';
 }
+function drawGardenFlow(){
+ const comparison=runoffChoice(linkedE06,state,flowChannel,flowPhase);
+ const panel=$('garden-flow');panel.hidden=!comparison;
+ if(!comparison)return;
+ panel.dataset.phase=flowPhase;panel.dataset.channel=flowChannel;
+ for(const b of document.querySelectorAll('[data-flow-channel]'))
+  b.setAttribute('aria-pressed',String(b.dataset.flowChannel===flowChannel));
+ for(const b of document.querySelectorAll('[data-flow-phase]'))
+  b.setAttribute('aria-pressed',String(b.dataset.flowPhase===flowPhase));
+ $('flow-water').textContent='E06 RAIN / '+flowChannel.toUpperCase()+
+  ': '+comparison.catchment+' of 3 PAPER catchment marks. This is a garden tray, not measured downstream water.';
+ $('flow-people').textContent='E07 '+flowPhase.toUpperCase()+
+  ': shared-path overlap '+comparison.residentOverlaps.length+
+  ', water-channel overlap '+comparison.waterOverlaps.length+
+  '. Milo model route '+(comparison.modelWalkClear?'and both other uses clear':'needs revision for other uses')+'.';
+ $('flow-summary').textContent=comparison.bothPaperChecksClear?
+  'Both separate PAPER checks are clear. A real garden-to-passage connection is still UNKNOWN.':
+  'Try changing the garden channel or Finn’s connector piece. These are two separate PAPER models; a real connection is UNKNOWN.';
+ const grid=$('flow-grid'),C=new Set(comparison.footprint),P=new Set(comparison.residentPath),
+  W=new Set(comparison.waterPath);
+ grid.replaceChildren();
+ for(let y=0;y<7;y++)for(let x=0;x<8;x++){
+  const id=x+','+y,c=C.has(id),p=P.has(id),w=W.has(id);
+  const el=document.createElement('div');el.className='cell';
+  el.dataset.conflict=String(c&&(p||w));el.dataset.cell=id;
+  el.textContent=c&&(p||w)?'X':c?'C':p?'P':w?'W':'·';grid.append(el);
+ }
+ grid.setAttribute('aria-label','E07 '+flowPhase+' synthetic footprint: '+
+  comparison.overlap.length+' overlap cells; E06 rain '+flowChannel+
+  ' garden catchment '+comparison.catchment+' of 3. Independent models.');
+}
 function render(){
  const v=view(state),s=v.story;
  $('connector-scene').hidden=v.screen!=='connector';$('garden-revisit').hidden=v.screen!=='garden';
@@ -124,6 +156,7 @@ function render(){
    'E06 hypothetical PAPER sprout carried from the other playable model. E07 MODEL water still needs a child-checked route walk.'):
   'No E06 PAPER care record in this independent visit; the lower pocket remains unbuilt.';
  drawGardenWorld();
+ drawGardenFlow();
  const stepsFragment=linkedE04?
   encodeMemoryLantern(linkedE04,linkedE05,linkedE06,state,linkedE08):
   encodeStepsTransfer(state,linkedE08,linkedE06);
@@ -158,4 +191,8 @@ function render(){
 for(const key of ['first','now'])$('e06-world-'+key).addEventListener('click',()=>{
  gardenWorldView=key;render();
 });
+for(const b of document.querySelectorAll('[data-flow-channel]'))
+ b.addEventListener('click',()=>{flowChannel=b.dataset.flowChannel;render();});
+for(const b of document.querySelectorAll('[data-flow-phase]'))
+ b.addEventListener('click',()=>{flowPhase=b.dataset.flowPhase;render();});
 render();
