@@ -70,6 +70,7 @@ try{
    if(await page.getByRole('button',{name:'Begin the PAPER trial'}).isVisible())
     await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
    await page.waitForFunction(trace=>document.querySelector('#hill-trace-first')?.textContent?.includes(trace),'worn surface');
+   await page.locator('#hill-trace-world').waitFor({state:'visible'});
    assert.match(await page.locator('#hill-trace-first').innerText(),/worn surface.*STILL UNKNOWN/);
    assert.equal(await page.locator('#hill-trace-now').getAttribute('data-marker'),'false',
     'identity source marker cannot reappear for access question');
