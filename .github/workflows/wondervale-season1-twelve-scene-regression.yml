@@ -5,6 +5,7 @@ on:
     paths:
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
       - 'tests/season1-e10-e11-scene-transfer*'
+      - 'tests/season1-e10-e11-hill-trace*'
       - 'tests/season1-e08-e10-clue-transfer.test.mjs'
       - 'tests/season1-e04-e11-scene-transfer*'
       - 'tests/season1-e03-e11-paper-chronicle*'
@@ -21,6 +22,7 @@ on:
     paths:
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
       - 'tests/season1-e10-e11-scene-transfer*'
+      - 'tests/season1-e10-e11-hill-trace*'
       - 'tests/season1-e08-e10-clue-transfer.test.mjs'
       - 'tests/season1-e04-e11-scene-transfer*'
       - 'tests/season1-e03-e11-paper-chronicle*'
