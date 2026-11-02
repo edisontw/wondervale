@@ -23,6 +23,7 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 .cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;background:#f7faf8;font-size:clamp(.7rem,1.8vw,.95rem);font-weight:700}
 .cell[data-here=true]{background:#f3d99d}.cell[data-marker=true]{background:#b5d3db}.cell[data-dark=true]{background:#d8dedf}
 .connector-grid{grid-template-columns:repeat(8,minmax(0,1fr))}.connector-grid .cell[data-connector=true]{background:#d8e9df}.connector-grid .cell[data-conflict=true]{background:#efc9b9}
+[data-active=true].connector-grid{outline:3px solid #98641b;outline-offset:2px}.approach-map{display:block;width:min(100%,360px);height:auto;background:#f4f7f5;border:1px solid #9ab3b7;border-radius:.4rem;margin:.5rem 0}[data-approach][aria-pressed=true]{background:#d8e9df;border-color:#35634d}
 [hidden]{display:none!important}@media(max-width:700px){.columns,.world{grid-template-columns:1fr}.panel{padding:.55rem}.anchors{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head><body><main>
 <header><h1>E08 — When the Steps Light Up</h1><div>Scene 09 of 12 · independent child-controlled PAPER model</div></header>
@@ -52,6 +53,16 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <div class="columns"><div><h2>FIRST — short crossing</h2><div id="connector-first-grid" class="map connector-grid" role="img" aria-label="E07 FIRST model"></div></div>
 <div><h2>NOW — tested detour</h2><div id="connector-now-grid" class="map connector-grid" role="img" aria-label="E07 NOW model"></div></div></div>
 <p id="connector-world-result" class="paper" role="status"></p></section>
+<section id="approach-panel" class="panel" hidden><h2>Test Finn's route with two views</h2>
+<p>Only after Milo tested E07's PAPER connector and compared E08's two safe views: switch the FIRST/NOW model route, then trace the SAME fixed A/B/C marks from HERE or THERE. These are separate synthetic diagrams, not a real connecting path.</p>
+<div class="controls" aria-label="Choose PAPER connector model"><button type="button" data-approach="first">FIRST short model</button><button type="button" data-approach="now">NOW revised model</button></div>
+<div class="controls" aria-label="Choose safe PAPER viewpoint"><button type="button" data-approach="here">FROM HERE</button><button type="button" data-approach="there">FROM THERE</button></div>
+<div class="columns"><div><p id="approach-route" class="paper"></p><p>Highlighted E07 grid above shows this model route. It does not define a real Steps approach.</p></div>
+<div><svg id="approach-map" class="approach-map" viewBox="0 0 360 240" role="img" aria-label="Fixed PAPER marks from selected viewpoint"></svg><p id="approach-view" class="paper"></p></div></div>
+<div class="controls"><button type="button" data-approach="pin">Mark this comparison</button><button type="button" data-approach="clear">Clear my PAPER notes</button></div>
+<p id="approach-note" class="paper" role="status"></p>
+<p>Optional parent cue: What changed because Milo moved the connector? What changed only because Milo moved himself?</p>
+</section>
 <section class="panel"><h2>Revisit or restart</h2><div id="nav-controls" class="controls"></div>
 <p><a id="e07-return" hidden href="../e07-scene/">Return to Finn's independent E07 PAPER connector (not a production unlock)</a></p>
 <p><a id="e09-transfer" hidden href="../e09-scene/">Visit E09 independent CLOSED Hill PAPER survey — no official E09 unlock</a></p>
