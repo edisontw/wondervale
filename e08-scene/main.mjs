@@ -4,6 +4,7 @@ import {view as viewE07} from '../e07-scene/scene-model.mjs';
 import {connectorWorld} from './connector-world.mjs';
 import {approachFrame} from './approach-experiment.mjs';
 import {freshShadow,dispatchShadow,canShadow,viewShadow} from './shadow-experiment.mjs';
+import {viewfinderFrame} from './live-viewfinder.mjs';
 import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
 import {decodeMemoryLantern,encodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
@@ -123,6 +124,31 @@ function draw(v){
   ', lower lamp A '+(v.lights['lower-a']?'on':'off')+', lower lamp B '+(v.lights['lower-b']?'on':'off'));
 }
 
+function drawLiveView(s){
+ const frame=viewfinderFrame(s.milo,s.lights),root=$('live-viewfinder');
+ root.replaceChildren();root.dataset.lit=String(frame.lit);
+ const ns='http://www.w3.org/2000/svg';
+ const add=(tag,attrs,content)=>{
+  const el=document.createElementNS(ns,tag);
+  for(const [key,value] of Object.entries(attrs))el.setAttribute(key,String(value));
+  if(content!==undefined)el.textContent=content;
+  root.append(el);
+ };
+ add('line',{x1:160,y1:8,x2:160,y2:136,stroke:'#7b9ba4','stroke-width':2,'stroke-dasharray':'4 4'});
+ if(frame.lit)for(const mark of frame.marks){
+  add('line',{'data-sightline':mark.mark,x1:160,y1:mark.y,x2:mark.x,y2:mark.y,
+    stroke:'#4b7290','stroke-width':3});
+  add('circle',{'data-live-mark':mark.mark,cx:mark.x,cy:mark.y,r:12,
+    fill:'#b5d3db',stroke:'#314c58','stroke-width':2});
+  add('text',{x:mark.x,y:mark.y+5,'text-anchor':'middle','font-size':13,fill:'#203b45'},mark.mark);
+ }
+ root.setAttribute('aria-label',frame.label);
+ $('live-view-note').textContent=frame.lit?
+  'Milo at '+frame.anchor.replaceAll('-',' ')+': A/B/C appear '+frame.spreadDegrees.toFixed(1)+
+  '° apart. Walk to another SAFE viewpoint and watch the marks shift across the viewfinder. '+
+  'The PAPER marks themselves stay fixed. Tap Observe to keep a note.':
+  'The PAPER viewfinder is dim. Turn on both lower MODEL lamps to see A/B/C. Upper hill CLOSED.';
+}
 function drawTrace(s,mode){
  const root=$('trace-map');root.replaceChildren();root.dataset.mode=mode;
  const ns='http://www.w3.org/2000/svg',point=p=>({x:28+p.x*34,y:20+p.y*34});
@@ -255,7 +281,7 @@ function render(){
  }else{$('trace-map').replaceChildren();$('trace-detail').textContent='Finish the PAPER comparison to trace both views.';}
  $('note').textContent=s.paperNote;
  $('hook').textContent=v.lowerLightsPaperOn?'Next question: survey North Hill from a safe place. E09 NOT UNLOCKED.':'The service plate date and source are UNKNOWN. No E09 unlock.';
- draw(s);drawShadow();drawConnectorCallback();drawApproach(approachFrame(linkedE07,state,approach.layout,approach.view));
+ draw(s);drawLiveView(s);drawShadow();drawConnectorCallback();drawApproach(approachFrame(linkedE07,state,approach.layout,approach.view));
  for(const [key,,action] of rows)document.querySelector('[data-key="'+key+'"]').disabled=!can(state,action);
  for(const el of document.querySelectorAll('[data-anchor]'))el.dataset.here=String(el.dataset.anchor===s.milo);
 }
