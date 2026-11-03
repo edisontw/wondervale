@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'engine/s01e07-authoring-prototype.mjs'
+      - 'engine/s01e07-trace-frames.mjs'
+      - 'tests/s01e07-trace-frames.test.mjs'
       - 'tests/s01e07-authoring-prototype.test.mjs'
       - 'tests/s01e07-browser.mjs'
       - 'e07-prototype/**'
@@ -11,6 +13,8 @@ on:
     branches: [main]
     paths:
       - 'engine/s01e07-authoring-prototype.mjs'
+      - 'engine/s01e07-trace-frames.mjs'
+      - 'tests/s01e07-trace-frames.test.mjs'
       - 'tests/s01e07-authoring-prototype.test.mjs'
       - 'tests/s01e07-browser.mjs'
       - 'e07-prototype/**'
@@ -32,8 +36,10 @@ jobs:
           node --check tests/s01e07-authoring-prototype.test.mjs
           node --check tests/s01e07-browser.mjs
           node --check e07-prototype/main.mjs
+          node --check engine/s01e07-trace-frames.mjs
+          node --check tests/s01e07-trace-frames.test.mjs
       - name: Verify deterministic connector, evidence and preview isolation
-        run: node --test tests/s01e07-authoring-prototype.test.mjs
+        run: node --test tests/s01e07-authoring-prototype.test.mjs tests/s01e07-trace-frames.test.mjs
       - name: Keep E07 model out of production packaging
         run: |
           if grep -R -n -E 's01e07-authoring-prototype|e07-prototype' scripts/package_static.py scripts/compile_episode.py scripts/package_e03.py; then

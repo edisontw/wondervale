@@ -62,6 +62,22 @@ async function open(width,height,label,touch){
 }
 async function journey(page,label,screenshots){
   await geometry(page,label+' start');
+  assert.match(await page.locator('#trace-caption').innerText(),/Another person/);
+  // A trace can have clear cells before its conflict; step until the model shows it.
+  async function reachBlockedTrace(){
+    let caption=await page.locator('#trace-caption').innerText();
+    for(let step=0;step<56&&!/BLOCKED/.test(caption);step++){
+      assert.equal(await btn(page,'Next trace step').isEnabled(),true,
+        'expected a blocked model cell before trace ends');
+      await press(page,'Next trace step');
+      caption=await page.locator('#trace-caption').innerText();
+    }
+    assert.match(caption,/BLOCKED/);
+  }
+  await reachBlockedTrace();
+  await press(page,'Follow water');
+  await reachBlockedTrace();
+  await press(page,'Follow other person');
   assert.equal(await btn(page,'Walk Milo to Model bench').isDisabled(),true,'no teleport');
   assert.equal(await btn(page,'Test Milo').isDisabled(),true,'must observe first');
   assert.equal(await btn(page,'Place: Upper side detour').isDisabled(),true,'no premature edit');
@@ -93,6 +109,8 @@ async function journey(page,label,screenshots){
   assert.match(await page.locator('#revision-results').innerText(),/Water: NEEDS TEST/,
     'new layout invalidates old traces');
   await press(page,'Run all three traces');
+  await press(page,'Next trace step');
+  assert.match(await page.locator('#trace-caption').innerText(),/clear/);
   const now=await page.locator('#revision-results').innerText();
   assert.match(now,/Milo: PASS/);assert.match(now,/Another person: PASS/);
   assert.match(now,/Water: PASS/);
