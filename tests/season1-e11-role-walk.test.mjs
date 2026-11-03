@@ -68,3 +68,23 @@ test('unknown commands, forged result, teleport, closed cell and overlong histor
  assert.equal(paperRoleWalk(s,Array(81).fill({type:'check'})),null);
  assert.equal(paperRoleWalk(s,[{type:'choose',stage:'first',role:'quiet_reader',rights:true}]),null);
 });
+
+test('child can retrace a walked cell without teleporting, losing prior visitor checks or claiming real access',()=>{
+ const s=ready();let h=[];
+ const act=a=>{h=dispatchRoleWalk(s,h,a);};
+ act({type:'choose',stage:'now',role:'quiet_reader'});
+ assert.deepEqual(dispatchRoleWalk(s,h,{type:'retrace'}),h);
+ act({type:'step',to:'1,1'});
+ act({type:'step',to:'1,2'});
+ assert.equal(paperRoleWalk(s,h).position,'1,2');
+ act({type:'retrace'});
+ const p=paperRoleWalk(s,h);
+ assert.equal(p.position,'1,1');
+ assert.deepEqual(p.trail,['1,0','1,1']);
+ assert.match(p.feedback,/retraced one PAPER step/);
+ assert.equal(p.realAccess,false);
+ assert.deepEqual(p.canonicalEvents,[]);
+ act({type:'check'});
+ assert.equal(paperRoleWalk(s,h).visits['now:quiet_reader'].passed,true);
+ assert.equal(paperRoleWalk(s,[...h,{type:'retrace',approved:true}]),null);
+});
