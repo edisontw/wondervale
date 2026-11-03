@@ -23,6 +23,7 @@ button[aria-pressed=true]{background:#dceedd;border-color:#37684c}
 .scene:before{content:"";position:absolute;inset:45% 0 0;background:repeating-linear-gradient(135deg,#c3b59c 0 18px,#d5c6ac 18px 36px);opacity:.55}
 .edge{position:absolute;height:6px;z-index:1;transform-origin:left center;background:#9b9e91;border-radius:4px;pointer-events:none}
 .edge.surveyed{background:#537c69}.edge.marked{height:9px;background:#235b48}
+.sightline-pin{position:absolute;z-index:2;transform:translate(-50%,-50%);padding:.1rem .25rem;border:2px dashed #74558a;border-radius:.35rem;background:#f5e9fc;color:#4a2b62;font-size:clamp(.55rem,1vw,.72rem);font-weight:800;pointer-events:none}
 .evidence-pin{position:absolute;z-index:2;transform:translate(-50%,-50%);padding:.1rem .2rem;border:2px solid #1f574a;border-radius:.35rem;background:#d7f0d5;color:#194c3c;font-size:clamp(.5rem,1vw,.7rem);font-weight:800;pointer-events:none}
 .edge.closed{height:5px;background:repeating-linear-gradient(90deg,#8d3838 0 10px,transparent 10px 16px)}
 .anchor{position:absolute;z-index:3;transform:translate(-50%,-50%);max-width:30%;font-size:clamp(.69rem,1.6vw,.9rem);padding:.25rem .4rem;background:#fff9eb}
@@ -77,6 +78,27 @@ small{color:#485f55}
 </div>
 <p id="field-note" class="status" role="status" aria-live="polite"></p>
 <p><small>PAPER future question only — NOT DONE. E08's temporary local pin selections are not transferred. No real access, history, electricity, Chronicle event or E10 unlock.</small></p>
+</section>
+<section id="sightline-panel" class="panel" hidden aria-label="E08-earned questions on E09 safe PAPER sketch">
+<h2>Carry E08's light and viewpoint questions to the hill</h2>
+<p>After Milo's <strong>two lower PAPER lamps</strong> and <strong>two safe views</strong> in E08, he can pin questions on this <strong>separate fictional hill sketch</strong>. He cannot move the E08 lamps here. A question is not a completed real-world check.</p>
+<div class="ground-map" role="group" aria-label="Safe model sites for future questions">
+ <div class="ground-site"><strong>FENCE LOOKOUT — visibility of loose ground?</strong><span id="sightline-fence-pin" class="ground-pin">No question pinned</span></div>
+ <div class="ground-site"><strong>MODEL OVERLOOK — another view of the distant mark?</strong><span id="sightline-overlook-pin" class="ground-pin">No question pinned</span></div>
+</div>
+<div class="controls" aria-label="Choose an E08-inspired future check">
+ <button data-sightline-select="light" aria-pressed="true">Pick VISIBILITY ?</button>
+ <button data-sightline-select="view" aria-pressed="false">Pick VIEWPOINT ?</button>
+</div>
+<div class="controls" aria-label="Place or revise questions on safe sketch points">
+ <button data-sightline-site="fence_view">Pin ? at FENCE</button>
+ <button data-sightline-site="overlook">Pin ? at OVERLOOK</button>
+ <button data-sightline-remove="light">Remove VISIBILITY ?</button>
+ <button data-sightline-remove="view">Remove VIEWPOINT ?</button>
+ <button id="sightline-compare">Compare my question notes</button>
+</div>
+<p id="sightline-feedback" class="status" role="status" aria-live="polite"></p>
+<p><small>These are reversible, replay-verified PAPER future checks, not E08 lamps on North Hill, an E09 second viewpoint experiment, real public access, official source or production unlock. Upper hill CLOSED.</small></p>
 </section><div id="scene" class="scene" role="group" aria-label="Fictional five-anchor safe survey graph; closed upper hill cannot be entered" data-phase="survey"></div>
 <section id="survey-compare" class="panel" hidden aria-label="Milo's field survey model comparison">
 <h2>Revisit Milo's survey — BEFORE / NOW</h2>
