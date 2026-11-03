@@ -1,7 +1,9 @@
 // Isolated E06 authoring lab: never import production progress or write storage.
 import {CURRENT_ANCHORS,LOWER_ANCHORS,CURRENT_OBSERVATIONS,LOWER_OBSERVATIONS,
   SITES,fresh,dispatch,previewProjection,siteEffect} from '../engine/s01e06-authoring-prototype.mjs';
+import {lowerGardenRevisit} from '../engine/s01e06-lower-revisit.mjs';
 let state=fresh();
+let revisitStage='first';
 let previousScene=null,previousLocation=null;
 const $=id=>document.getElementById(id);
 const names={'present-bed':'Healthy beds','slope':'Higher slope','shared-path':'Garden path',
@@ -29,8 +31,8 @@ function drawWorld(){
   const path=document.createElement('div');path.className='path';host.append(path);
   if(lower){
     const pocket=document.createElement('div');
-    pocket.className='pocket'+(state.lowerPreviewStarted?' planted':'');
-    pocket.textContent=state.lowerPreviewStarted?'Small trial pocket':'Possible pocket';
+    pocket.className='pocket'+(state.lowerPreviewStarted&&revisitStage==='now'?' planted':'');
+    pocket.textContent=state.lowerPreviewStarted?(revisitStage==='now'?'Synthetic sprout (MODEL)':'FIRST: empty trial pocket'):'Possible pocket';
     host.append(pocket);
   }
   const label=document.createElement('span');label.className='world-label';
@@ -68,7 +70,7 @@ function drawWorld(){
     const site=SITES[state.markerSite];
     const mark=document.createElement('div');
     mark.className='anchor active';
-    mark.textContent=state.lowerPreviewStarted?'Planted (preview)':'Trial marker';
+    mark.textContent=state.lowerPreviewStarted?(revisitStage==='now'?'Model sprout marker':'Trial marker (FIRST)'):'Trial marker';
     mark.style.left=positions.lower[state.markerSite][0]+'%';
     mark.style.top=(positions.lower[state.markerSite][1]+14)+'%';
     mark.style.pointerEvents='none';
@@ -138,6 +140,24 @@ function drawPlant(){
     (state.lowerPreviewStarted?'Small pocket shown ONLY in this preview.':'No planting confirmed.')+
     ' Real permission and care are not approved.';
 }
+function drawRevisit(){
+ const projection=lowerGardenRevisit(state.history,revisitStage);
+ const host=$('revisit-controls');host.replaceChildren();
+ for(const stage of ['first','now']){
+  const b=document.createElement('button');
+  b.textContent=stage==='first'?'FIRST — before trial':'NOW — model revisit';
+  b.setAttribute('aria-pressed',String(revisitStage===stage));
+  b.disabled=state.phase!=='done';
+  b.addEventListener('click',()=>{revisitStage=stage;render();});
+  host.append(b);
+ }
+ $('revisit-result').textContent=state.phase!=='done'?
+  'Finish a valid PAPER pocket trial before comparing FIRST and NOW. No real growth is claimed.':
+  (projection?.difference||'No valid revisit evidence.')+' FIRST: empty pocket. NOW: '+
+  (projection?.now.pocket==='model-sprout'?'one synthetic sprout':'no established growth')+
+  '. No real planting, permission, historical claim, Chronicle event or unlock.';
+ $('scene').dataset.revisit=revisitStage;
+}
 function drawChronicle(){
   const p=previewProjection(state);
   $('chronicle').textContent='OBSERVED (now): '+(state.currentObserved.map(x=>names[x]).join(', ')||'none')+
@@ -151,7 +171,7 @@ function drawChronicle(){
   $('scene').dataset.scene=p.scene;
 }
 function render(){
-  drawWorld();drawObservations();drawModel();drawPlant();drawChronicle();
+  drawWorld();drawObservations();drawModel();drawPlant();drawChronicle();drawRevisit();
 }
-$('restart').addEventListener('click',()=>{state=fresh();render();});
+$('restart').addEventListener('click',()=>{state=fresh();revisitStage='first';render();});
 render();
