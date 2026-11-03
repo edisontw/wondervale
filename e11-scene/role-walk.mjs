@@ -14,19 +14,25 @@ function source(snapshot){
  if(!first||!now||!USERS.every(id=>own(first.tests,id)&&own(now.tests,id)))return null;
  return {first,now};
 }
-function initial(){return {stage:null,role:null,position:START,steps:0,blocked:0,visits:{},feedback:'Choose a visitor and a PAPER layout.'};}
+function initial(){return {stage:null,role:null,position:START,trail:[START],steps:0,blocked:0,visits:{},feedback:'Choose a visitor and a PAPER layout.'};}
 function apply(s,a,sourceTrials){
  if(!a||typeof a!=='object'||Array.isArray(a))return null;
  if(a.type==='choose'){
   if(!same(Object.keys(a).sort(),['role','stage','type'])||!STAGES.includes(a.stage)||!USERS.includes(a.role))return null;
-  return {...s,stage:a.stage,role:a.role,position:START,steps:0,feedback:'Walk one paper cell at a time. Try a blocked cell safely.'};
+  return {...s,stage:a.stage,role:a.role,position:START,trail:[START],steps:0,feedback:'Walk one paper cell at a time. Try a blocked cell safely.'};
  }
  if(a.type==='step'){
   if(!same(Object.keys(a).sort(),['to','type'])||!s.stage||!cell(a.to)||!adjacent(s.position,a.to))return null;
   const layout=sourceTrials[s.stage].layout;
   if([...layout.quiet,...layout.activity].includes(a.to))
    return {...s,blocked:s.blocked+1,feedback:'The visitor stops before a paper piece. Choose another adjacent cell.'};
-  return {...s,position:a.to,steps:s.steps+1,feedback:'The visitor moved one paper cell.'};
+  return {...s,position:a.to,trail:[...s.trail,a.to],steps:s.steps+1,feedback:'The visitor moved one paper cell.'};
+ }
+ if(a.type==='retrace'){
+  if(!same(Object.keys(a),['type'])||!s.stage||s.trail.length<2)return null;
+  const trail=s.trail.slice(0,-1);
+  return {...s,position:trail[trail.length-1],trail,steps:s.steps+1,
+   feedback:'The visitor retraced one PAPER step. Try another way; no penalty.'};
  }
  if(a.type==='check'){
   if(!same(Object.keys(a),['type'])||!s.stage||s.steps<1)return null;
