@@ -27,7 +27,7 @@ button[aria-pressed=true]{background:#e4f1df;border-color:#356e49}
 .board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:2px;width:min(100%,460px);margin:.5rem auto;background:#526b62;border:3px solid #526b62;border-radius:.4rem;overflow:hidden}
 .cell{aspect-ratio:1;display:grid;place-items:center;background:#f2eee0;font-weight:700;font-size:clamp(.55rem,1.8vw,.86rem);position:relative}
 .cell.route{background:#c9dcaa}.cell.resident{box-shadow:inset 0 0 0 3px #866ab4}.cell.water{border-bottom:5px dashed #337db1}
-.cell.overlap{background:#f6bba2}.cell.trace{outline:2px solid #2b6258;outline-offset:-5px}
+.cell.overlap{background:#f6bba2}.cell.trace-focus{outline:4px solid #172f72;outline-offset:-5px;font-weight:900}.cell.trace{outline:2px solid #2b6258;outline-offset:-5px}
 .legend{font-size:.83rem;line-height:1.4}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
 .trace-result{border:1px solid #b8cbbf;border-radius:.4rem;padding:.5rem;margin:.35rem 0}
