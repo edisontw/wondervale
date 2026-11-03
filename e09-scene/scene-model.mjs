@@ -1,18 +1,25 @@
 import * as E09 from '../authoring-labs/hill-story-model.mjs';
 import {freshGround,groundStep} from './ground-evidence.mjs';
+import {freshSightline,sightlineStep} from './sightline-questions.mjs';
 
 // Isolated E09 PAPER state: no canonical E08 prerequisite, rights, history or unlock.
 export const VERSION='e09-isolated-paper-v1',MAX_ACTIONS=110;
 const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b),verified=new WeakMap();
 const mark=s=>(verified.set(s,JSON.stringify(s)),s);
 export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',screen:'hill',surveyLayer:'notes',
- story:E09.fresh(),groundBoard:freshGround(),history:[],canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]});}
+ story:E09.fresh(),groundBoard:freshGround(),sightlineBoard:freshSightline(),history:[],canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]});}
 function clean(raw){
  if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
  if(raw.scene==='ground'){
   const a=raw.type==='compare'?{scene:'ground',type:'compare'}:
    raw.type==='place'?{scene:'ground',type:'place',clue:raw.clue,at:raw.at}:
    raw.type==='remove'?{scene:'ground',type:'remove',clue:raw.clue}:null;
+  return a&&same(a,raw)?a:null;
+ }
+ if(raw.scene==='sightline'){
+  const a=raw.type==='compare'?{scene:'sightline',type:'compare'}:
+   raw.type==='place'?{scene:'sightline',type:'place',question:raw.question,at:raw.at}:
+   raw.type==='remove'?{scene:'sightline',type:'remove',question:raw.question}:null;
   return a&&same(a,raw)?a:null;
  }
  if(raw.scene==='nav'&&['hill','lantern','restart','blank','notes'].includes(raw.type)){
@@ -40,6 +47,11 @@ function apply(s,a){
   if(s.screen!=='hill'||E09.view(s.story).previewComplete)return null;
   const next=groundStep(s.groundBoard,a,E09.view(s.story).inspected);
   return next?{...s,groundBoard:next}:null;
+ }
+ if(a.scene==='sightline'){
+  if(s.screen!=='hill'||E09.view(s.story).previewComplete)return null;
+  const next=sightlineStep(s.sightlineBoard,a,E09.view(s.story).inspected);
+  return next?{...s,sightlineBoard:next}:null;
  }
  if(s.screen!=='hill'||!E09.can(s.story,a.action))return null;
  return {...s,story:E09.dispatch(s.story,a.action)};
@@ -75,6 +87,7 @@ export function view(snapshot){
  const story=E09.view(s.story);
  return {screen:s.screen,story,surveyLayer:s.surveyLayer,
   groundBoard:{...s.groundBoard,kind:'fictional_observation_only',realCauseKnown:false},
+   sightlineBoard:{...s.sightlineBoard,kind:'future_paper_questions_only',realCheckDone:false,realLightingApproved:false},
   surveyBoard:{kind:'fictional_model_only',walkedEdges:story.surveyedEdges.length,
    markedEdges:story.markedEdges.length,inspectedClues:story.inspected.length,
    closedBoundary:true,realAccessApproved:false},

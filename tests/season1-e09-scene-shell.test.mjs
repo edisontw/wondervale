@@ -82,6 +82,39 @@ test('forged date, access, source, route and extra action keys fail closed',()=>
  assert.equal(can(complete(),{scene:'nav',type:'blank',sourceApproved:true}),false);
  assert.equal(replay([n('blank')]),null);
 });
+test('E08-inspired future question pins are replayed, revisable and never grant access',()=>{
+ const q=(type,question,at)=>type==='compare'?{scene:'sightline',type}:
+  type==='remove'?{scene:'sightline',type,question}:{scene:'sightline',type,question,at};
+ let s=go(fresh(),a('start'));
+ assert.equal(can(s,q('place','light','fence_view')),false);
+ s=go(s,a('walk','to','signpost'));
+ s=go(s,a('inspect','clueId','boundary_sign'));
+ s=go(s,a('walk','to','fence_view'));
+ s=go(s,a('inspect','clueId','disturbed_ground'));
+ s=go(s,q('place','light','overlook'));
+ assert.equal(view(s).sightlineBoard.placements.light,'overlook');
+ s=go(s,a('walk','to','signpost'));s=go(s,a('walk','to','lower_bend'));
+ s=go(s,a('walk','to','overlook'));s=go(s,a('inspect','clueId','distant_symbol'));
+ s=go(s,q('place','view','fence_view'));
+ s=go(s,q('compare'));
+ assert.equal(view(s).sightlineBoard.compared,false);
+ s=go(s,q('place','light','fence_view'));
+ s=go(s,q('place','view','overlook'));
+ s=go(s,q('compare'));
+ assert.equal(view(s).sightlineBoard.compared,true);
+ assert.match(view(s).sightlineBoard.feedback,/NOT DONE/);
+ assert.equal(view(s).sightlineBoard.realCheckDone,false);
+ assert.equal(view(s).upperHillClosed,true);
+ assert.deepEqual(view(s).canonicalEvents,[]);assert.deepEqual(view(s).unlocks,[]);
+ assert.deepEqual(replay(s.history),s);
+ const bad=structuredClone(s);bad.sightlineBoard.compared=false;
+ assert.equal(restore(bad),null);
+ assert.equal(can(s,q('place','light','upper_closed')),false);
+ assert.equal(can(s,{scene:'sightline',type:'compare',approved:true}),false);
+ s=go(s,q('remove','view'));
+ assert.equal(view(s).sightlineBoard.compared,false);
+ assert.deepEqual(go(s,n('restart')).sightlineBoard,fresh().sightlineBoard);
+});
 test('restart remains possible at action cap',()=>{
  let s=complete();
  while(s.history.length<MAX_ACTIONS)s=go(s,n(view(s).screen==='hill'?'lantern':'hill'));

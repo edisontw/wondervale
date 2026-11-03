@@ -28,6 +28,7 @@ const linkedLampWorld=lanternWorld(linkedE08);
 let lampLayer='now';
 let fieldPlan={question:'access',anchor:null,feedback:''};
 let selectedGround='disturbed_ground';
+let selectedSightline='light';
 const fourFrames=fourFrameEvidence(linkedE07,linkedE08);
 const story=()=>view(state).story;
 const wrap=action=>({scene:'story',action});
@@ -40,7 +41,7 @@ actor.className='milo';actor.textContent='Milo';actor.setAttribute('aria-hidden'
 const adjacent=(a,b)=>SAFE_EDGES.some(e=>(e.a===a&&e.b===b)||(e.b===a&&e.a===b));
 const required=['boundary_sign','disturbed_ground','runoff_marks','distant_symbol'];
 function act(action){state=dispatch(state,wrap(action));render();}
-function navigate(type){state=dispatch(state,nav(type));if(type==='restart'){linkedE10=null;fieldPlan={question:'access',anchor:null,feedback:''};selectedGround='disturbed_ground';}render();}
+function navigate(type){state=dispatch(state,nav(type));if(type==='restart'){linkedE10=null;fieldPlan={question:'access',anchor:null,feedback:''};selectedGround='disturbed_ground';selectedSightline='light';}render();}
 function button(host,label,action,disabled=false,pressed=false){
   const b=document.createElement('button');b.type='button';b.textContent=label;
   b.disabled=disabled||!can(state,wrap(action));
@@ -99,6 +100,16 @@ function world(){const s=story(),v=view(state);
     pin.style.left=Math.min(94,coords[mark.anchor][0]+9)+'%';
     pin.style.top=Math.min(90,coords[mark.anchor][1]+12)+'%';
     host.append(pin);
+  }
+  if(linkedLampWorld){
+    for(const [question,at] of Object.entries(v.sightlineBoard.placements)){
+      if(!at)continue;
+      const pin=document.createElement('span');pin.className='sightline-pin';
+      pin.dataset.sightlinePin=question;pin.textContent=question==='light'?'L?':'V?';
+      pin.setAttribute('aria-label',(question==='light'?'Visibility':'Viewpoint')+' future PAPER check at '+names[at]+' — NOT DONE');
+      pin.style.left=Math.min(95,coords[at][0]+13)+'%';
+      pin.style.top=Math.max(5,coords[at][1]-21)+'%';host.append(pin);
+    }
   }
   host.append(actor);
   actor.style.left=coords[s.position][0]+'%';
@@ -231,6 +242,44 @@ for(const b of document.querySelectorAll('[data-ground-remove]'))
 $('ground-compare').addEventListener('click',()=>{
  state=dispatch(state,{scene:'ground',type:'compare'});render();
 });
+function renderSightline(){
+ const panel=$('sightline-panel');panel.hidden=!linkedLampWorld;
+ if(!linkedLampWorld)return;
+ const board=view(state).sightlineBoard,s=story();
+ for(const [at,id] of [['fence_view','sightline-fence-pin'],['overlook','sightline-overlook-pin']]){
+  const pins=Object.entries(board.placements).filter(([,site])=>site===at)
+   .map(([q])=>q==='light'?'VISIBILITY ?':'VIEWPOINT ?');
+  $(id).textContent=pins.join(' + ')||'No question pinned';
+ }
+ for(const b of document.querySelectorAll('[data-sightline-select]')){
+  b.setAttribute('aria-pressed',String(b.dataset.sightlineSelect===selectedSightline));
+  b.disabled=s.previewComplete;
+ }
+ for(const b of document.querySelectorAll('[data-sightline-site]'))
+  b.disabled=s.previewComplete||!can(state,{scene:'sightline',type:'place',
+   question:selectedSightline,at:b.dataset.sightlineSite});
+ for(const b of document.querySelectorAll('[data-sightline-remove]'))
+  b.disabled=s.previewComplete||!board.placements[b.dataset.sightlineRemove];
+ $('sightline-compare').disabled=s.previewComplete||
+  !can(state,{scene:'sightline',type:'compare'});
+ $('sightline-feedback').textContent=board.feedback+
+  ' PAPER ONLY — real hill lighting, access, history and route remain unverified.';
+}
+for(const b of document.querySelectorAll('[data-sightline-select]'))
+ b.addEventListener('click',()=>{selectedSightline=b.dataset.sightlineSelect;renderSightline();});
+for(const b of document.querySelectorAll('[data-sightline-site]'))
+ b.addEventListener('click',()=>{
+  state=dispatch(state,{scene:'sightline',type:'place',question:selectedSightline,
+   at:b.dataset.sightlineSite});render();
+ });
+for(const b of document.querySelectorAll('[data-sightline-remove]'))
+ b.addEventListener('click',()=>{
+  state=dispatch(state,{scene:'sightline',type:'remove',question:b.dataset.sightlineRemove});
+  render();
+ });
+$('sightline-compare').addEventListener('click',()=>{
+ state=dispatch(state,{scene:'sightline',type:'compare'});render();
+});
 function renderLanternWorld(){
  const panel=$('lantern-world-panel');
  panel.hidden=!linkedLampWorld;
@@ -351,7 +400,7 @@ function render(){
  const e10Link=$('e10-paper');e10Link.hidden=!e10Fragment;
  if(e10Fragment)e10Link.href='../e10-scene/'+e10Fragment;
  if(linkedE04)e10Link.textContent='Visit independent E10 PAPER scene (E04 UNKNOWN memories and E05 MOCK sources travel as PAPER notes; no official unlock)';
- world();movement();inspect();sketch();thoughts();notebook();survey();renderGround();renderLanternWorld();renderFieldQuestion();
+ world();movement();inspect();sketch();thoughts();notebook();survey();renderGround();renderSightline();renderLanternWorld();renderFieldQuestion();
 }
 $('lantern-first').addEventListener('click',()=>{lampLayer='first';renderLanternWorld();});
 $('lantern-now').addEventListener('click',()=>{lampLayer='now';renderLanternWorld();});

@@ -59,3 +59,7 @@ Implement a deterministic reducer with a fixed maximum action-history length, st
 A future production runtime must separately verify canonical E08 prerequisite, Owner-approved **actual** safe ground and route geometry, genuine evidence provenance, source/asset integrity, Chronicle and E10 unlock rules, remote release and family acceptance. An E09 authoring test PASS cannot satisfy those gates.
 
 **Next implementation:** a small pure Node state engine with calculated route connectivity and explicit closed-edge invariants; then an isolated child-driven browser survey, followed by Chromium and accepted-episode regression. No production E09 deployment.
+
+## E08→E09 PAPER future-check placement (2026-11-03, engineering draft)
+
+Only a strictly replayed E08 two-lower-lamp/two-view history displays the separate E09 visibility/viewpoint question panel. After personally inspecting the E09 safe-side fence/loose-ground and distant symbol, Milo pins two **questions** (visibility at the model fence; another viewpoint at the model overlook) to a synthetic sketch. He may put a question at the other point, compare the mismatch, move/remove it and compare again. The E09 action history deterministically replays these placements across E08↔E09; E09 restart clears them. The result is **NOT DONE**, never a real lighting experiment, E09 second-view observation, access approval, history date, Chronicle or E10 unlock. E08 and E09 remain geometrically independent. Production awaits Owner-approved source, site access, safety and art gates.
