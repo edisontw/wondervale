@@ -4,6 +4,7 @@ import {
   fresh,dispatch,previewProjection,evaluateLayout
 } from '../engine/s01e07-authoring-prototype.mjs';
 
+import {traceFrames,stepTrace} from '../engine/s01e07-trace-frames.mjs';
 const $=id=>document.getElementById(id);
 const names={'entry':'Entry','shared-path':'Shared path','channel':'Water channel','workbench':'Model bench'};
 const coords={'entry':[12,59],'shared-path':[36,40],'channel':[62,59],'workbench':[86,40]};
@@ -17,6 +18,7 @@ const snapNames={
 const kinds=['milo','resident','water'];
 const kindNames={milo:'Milo',resident:'Another person',water:'Water'};
 let state=fresh();
+let traceView={kind:'resident',index:0,snap:BASELINE};
 const actor=document.createElement('div');
 actor.className='milo';actor.textContent='Milo';
 actor.setAttribute('aria-hidden','true');
@@ -31,6 +33,7 @@ const ready=()=>state.observed.includes('shared-path')&&
   state.observed.includes('channel')&&state.miloPosition==='workbench';
 function act(action){
   state=dispatch(state,action);
+  traceView={kind:'resident',index:0,snap:state.currentSnap};
   render();
 }
 function button(host,label,action,disabled=false,pressed=false){
@@ -108,6 +111,29 @@ function snaps(){
     '. '+kinds.map(k=>result(k,state.revisedTrials[k])).join(' · ')+
     '. Moving the piece clears previous NOW tests; retest the new footprint.';
 }
+function traceWalk(){
+  let host=$('trace-walk');
+  if(!host){
+    host=document.createElement('section');host.id='trace-walk';host.className='panel';
+    host.innerHTML='<h2>Walk a second trace — PAPER model</h2><p id="trace-caption" class="status" aria-live="polite"></p><div id="trace-buttons" class="controls"></div>';
+    $('board').parentElement.append(host);
+  }
+  const controls=$('trace-buttons');controls.replaceChildren();
+  const snap=state.phase==='inspect'||state.phase==='first-trial'?BASELINE:state.currentSnap;
+  if(traceView.snap!==snap)traceView={kind:'resident',index:0,snap};
+  for(const kind of ['resident','water']){
+    const b=document.createElement('button');b.textContent=kind==='resident'?'Follow other person':'Follow water';
+    b.setAttribute('aria-pressed',String(traceView.kind===kind));
+    b.addEventListener('click',()=>{traceView={kind,index:0,snap};render();});controls.append(b);
+  }
+  const frames=traceFrames(snap,traceView.kind),frame=stepTrace(frames,traceView.index);
+  const next=document.createElement('button');next.textContent='Next trace step';
+  next.disabled=traceView.index>=frames.length-1;
+  next.addEventListener('click',()=>{traceView.index++;render();});controls.append(next);
+  $('trace-caption').textContent=frame.caption+' Cell '+frame.cell+' ('+(frame.index+1)+'/'+frame.total+'). '+
+    (frame.blocked?'BLOCKED by the model connector.':'This model cell is clear.')+' Not real terrain.';
+  return frame;
+}
 function board(){
   const host=$('board');host.replaceChildren();
   const layout=evaluateLayout(state.currentSnap);
@@ -115,15 +141,17 @@ function board(){
   const resident=new Set(RESIDENT_PATH);
   const water=new Set(WATER_PATH);
   const trace=new Set(layout.traces.milo.path);
+  const viewed=traceWalk();
   for(let y=0;y<BOARD.height;y++)for(let x=0;x<BOARD.width;x++){
     const id=x+','+y,route=footprint.has(id),r=resident.has(id),w=water.has(id);
     const c=document.createElement('div');
     c.className='cell'+(route?' route':'')+(r?' resident':'')+
-      (w?' water':'')+(route&&(r||w)?' overlap':'')+(trace.has(id)?' trace':'');
-    c.textContent=(route&&(r||w))?'!':(id===BOARD.start?'S':
+      (w?' water':'')+(route&&(r||w)?' overlap':'')+(trace.has(id)?' trace':'')+(viewed.cell===id?' trace-focus':'');
+    c.textContent=viewed.cell===id?'◎':(route&&(r||w))?'!':(id===BOARD.start?'S':
       id===BOARD.finish?'E':route?'·':r?'R':w?'W':'');
     c.setAttribute('title','Cell '+id+
       (route?', connector':'')+(r?', resident path':'')+(w?', water channel':''));
+    if(viewed.cell===id)c.setAttribute('aria-current','step');
     host.append(c);
   }
   host.setAttribute('aria-label','Synthetic 8 by 7 model, '+snapNames[state.currentSnap]+
