@@ -5,6 +5,9 @@ on:
       - 'engine/s01e06-authoring-prototype.mjs'
       - 'tests/s01e06-authoring-prototype.test.mjs'
       - 'tests/s01e06-browser.mjs'
+      - 'tests/s01e06-revisit-browser.mjs'
+      - 'tests/s01e06-lower-revisit.test.mjs'
+      - 'engine/s01e06-lower-revisit.mjs'
       - 'e06-prototype/**'
       - '.github/workflows/wondervale-e06-prototype.yml'
   push:
@@ -28,9 +31,13 @@ jobs:
           node --check engine/s01e06-authoring-prototype.mjs
           node --check tests/s01e06-authoring-prototype.test.mjs
           node --check tests/s01e06-browser.mjs
+          node --check tests/s01e06-revisit-browser.mjs
+          node --check engine/s01e06-lower-revisit.mjs
           node --check e06-prototype/main.mjs
       - name: Test two-garden authoring state and preview isolation
-        run: node --test tests/s01e06-authoring-prototype.test.mjs
+        run: |
+          node --test tests/s01e06-authoring-prototype.test.mjs
+          node --test tests/s01e06-lower-revisit.test.mjs
       - name: Keep E06 sandbox out of production packaging
         run: |
           if grep -R -n -E 's01e06-authoring-prototype|e06-prototype' scripts/package_static.py scripts/compile_episode.py; then
@@ -70,6 +77,7 @@ jobs:
             exit 1
           fi
           node tests/s01e06-browser.mjs
+          node --test tests/s01e06-revisit-browser.mjs
       - name: Upload E06 authoring browser report and scene screenshots
         if: always()
         uses: actions/upload-artifact@v4
