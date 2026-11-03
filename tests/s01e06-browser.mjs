@@ -144,8 +144,15 @@ async function complete(page,label,screenshots){
   await press(page,'Inspect marker result');
   await press(page,'Confirm small trial (preview)');
   assert.equal(await sceneId(page),'s01e06-lower-garden');
+  assert.equal(await page.locator('.pocket.planted').count(),0,
+    'FIRST keeps the original empty pocket after a valid trial');
+  assert.match(await page.locator('.pocket').innerText(),/FIRST: empty/);
+  await btn(page,'NOW — model revisit').click();
   assert.equal(await page.locator('.pocket.planted').count(),1,
-    'small pocket appears only in noncanonical preview');
+    'synthetic sprout appears only when NOW is explicitly selected');
+  await btn(page,'FIRST — before trial').click();
+  assert.equal(await page.locator('.pocket.planted').count(),0,
+    'returning to FIRST restores the empty pocket');
   assert.equal(await btn(page,'Walk Milo to Footpath').isDisabled(),true,
     'completed preview is frozen');
   assert.match(await page.locator('#plant-result').innerText(),/Real permission and care are not approved/);
