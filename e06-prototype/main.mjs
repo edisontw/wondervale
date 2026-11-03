@@ -31,8 +31,8 @@ function drawWorld(){
   const path=document.createElement('div');path.className='path';host.append(path);
   if(lower){
     const pocket=document.createElement('div');
-    pocket.className='pocket'+(state.lowerPreviewStarted?' planted':'');
-    pocket.textContent=state.lowerPreviewStarted?'Small trial pocket':'Possible pocket';
+    pocket.className='pocket'+(state.lowerPreviewStarted&&revisitStage==='now'?' planted':'');
+    pocket.textContent=state.lowerPreviewStarted?(revisitStage==='now'?'Synthetic sprout (MODEL)':'FIRST: empty trial pocket'):'Possible pocket';
     host.append(pocket);
   }
   const label=document.createElement('span');label.className='world-label';
@@ -70,7 +70,7 @@ function drawWorld(){
     const site=SITES[state.markerSite];
     const mark=document.createElement('div');
     mark.className='anchor active';
-    mark.textContent=state.lowerPreviewStarted?'Planted (preview)':'Trial marker';
+    mark.textContent=state.lowerPreviewStarted?(revisitStage==='now'?'Model sprout marker':'Trial marker (FIRST)'):'Trial marker';
     mark.style.left=positions.lower[state.markerSite][0]+'%';
     mark.style.top=(positions.lower[state.markerSite][1]+14)+'%';
     mark.style.pointerEvents='none';
