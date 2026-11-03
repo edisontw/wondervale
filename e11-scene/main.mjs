@@ -281,6 +281,10 @@ function visitorWalk(){
   'Choose a visitor to start at the model entrance.';
  $('visitor-walk-feedback').textContent=model.feedback;
  const controls=$('visitor-walk-controls');controls.replaceChildren();
+ button(controls,'Retrace one visitor step',()=>{
+  roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'retrace'});
+  sharedUseHistory=[];visitorWalk();
+ },!model.stage||model.trail.length<2);
  button(controls,'Check visitor at place',()=>{
   roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'check'});
   sharedUseHistory=[];visitorWalk();
