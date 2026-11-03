@@ -63,11 +63,20 @@ async function open(width,height,label,touch){
 async function journey(page,label,screenshots){
   await geometry(page,label+' start');
   assert.match(await page.locator('#trace-caption').innerText(),/Another person/);
-  await press(page,'Next trace step');
-  assert.match(await page.locator('#trace-caption').innerText(),/BLOCKED/);
+  // A trace can have clear cells before its conflict; step until the model shows it.
+  async function reachBlockedTrace(){
+    let caption=await page.locator('#trace-caption').innerText();
+    for(let step=0;step<56&&!/BLOCKED/.test(caption);step++){
+      assert.equal(await btn(page,'Next trace step').isEnabled(),true,
+        'expected a blocked model cell before trace ends');
+      await press(page,'Next trace step');
+      caption=await page.locator('#trace-caption').innerText();
+    }
+    assert.match(caption,/BLOCKED/);
+  }
+  await reachBlockedTrace();
   await press(page,'Follow water');
-  await press(page,'Next trace step');
-  assert.match(await page.locator('#trace-caption').innerText(),/BLOCKED/);
+  await reachBlockedTrace();
   await press(page,'Follow other person');
   assert.equal(await btn(page,'Walk Milo to Model bench').isDisabled(),true,'no teleport');
   assert.equal(await btn(page,'Test Milo').isDisabled(),true,'must observe first');
