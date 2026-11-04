@@ -2,7 +2,7 @@ import * as E07 from '../authoring-labs/shortcut-story-model.mjs';
 export const VERSION='e07-isolated-paper-v1',MAX_ACTIONS=90;
 const eq=(a,b)=>JSON.stringify(a)===JSON.stringify(b),verified=new WeakMap();
 const mark=s=>(verified.set(s,JSON.stringify(s)),s);
-export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',screen:'connector',story:E07.fresh(),walkthrough:{phase:'idle',position:'bench',checked:[],stopped:false,otherPosition:'waiting'},history:[],canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]});}
+export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',screen:'connector',story:E07.fresh(),walkthrough:{phase:'idle',position:'bench',checked:[],stopped:false,otherPosition:'waiting',otherPassed:false},history:[],canonicalEvents:[],unlocks:[],rights:[],historicalClaims:[]});}
 function clean(raw){
  if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
  if(raw.scene==='nav'&&['garden','connector','restart'].includes(raw.type)){const a={scene:'nav',type:raw.type};return eq(a,raw)?a:null;}
@@ -36,7 +36,7 @@ function apply(s,a){
     w.checked.includes('crossing')&&w.otherPosition==='waiting')
    return {...s,walkthrough:{...w,otherPosition:'approach'}};
   if(a.type==='other-step'&&['approach','crossing'].includes(w.otherPosition))
-   return {...s,walkthrough:{...w,otherPosition:w.otherPosition==='approach'?'crossing':'clear'}};
+   return {...s,walkthrough:{...w,otherPosition:w.otherPosition==='approach'?'crossing':'clear',otherPassed:w.otherPassed||w.otherPosition==='crossing'}};
   if(a.type==='other-reset'&&w.otherPosition==='clear')
    return {...s,walkthrough:{...w,otherPosition:'waiting'}};
   if(a.type==='try-closed'&&w.position==='crossing'&&!w.stopped)
@@ -51,7 +51,7 @@ function apply(s,a){
   if(a.type==='inspect'&&a.value===w.position&&
     ['crossing','water-edge'].includes(a.value)&&!w.checked.includes(a.value))
    return {...s,walkthrough:{...w,checked:[...w.checked,a.value]}};
-  if(a.type==='review'&&w.position==='steps-base'&&w.checked.length===2)
+  if(a.type==='review'&&w.position==='steps-base'&&w.checked.length===2&&w.otherPassed)
    return {...s,walkthrough:{...w,phase:'reviewed'}};
   return null;
  }
@@ -72,7 +72,7 @@ export function dispatch(snapshot,action){const s=restore(snapshot);if(!s)return
 export function view(snapshot){const s=restore(snapshot);if(!s)return null;const story=E07.view(s.story),w=s.walkthrough;
  const positionNames={bench:'model bench',crossing:'shared crossing','water-edge':'water edge','steps-base':'Lantern Steps BASE'};
  const walkFeedback=w.phase==='idle'?'First test and revise the connector for all three uses.':
-  w.phase==='reviewed'?'PAPER route walk reviewed: people can pass, water stays open, Steps lights OFF.':
+  w.phase==='reviewed'?'PAPER route walk reviewed: the other traveler passed, water stays open, Steps lights OFF.':
   s.history.at(-1)?.scene==='walkthrough'&&s.history.at(-1)?.type==='try-closed'?
    'CLOSED North Hill route: Milo stops at the boundary and stays on the model crossing.':
   w.position==='crossing'?'Can the other traveler pass? Look before moving.':
@@ -80,7 +80,7 @@ export function view(snapshot){const s=restore(snapshot);if(!s)return null;const
   w.position==='steps-base'?'At the MODEL Steps BASE. The lights are OFF. Review what you checked.':
   'Walk the PAPER route and check who else uses it.';
  return {screen:s.screen,story,walkthrough:{phase:w.phase,position:w.position,
-   positionLabel:positionNames[w.position],checked:[...w.checked],stopped:w.stopped,
+   positionLabel:positionNames[w.position],checked:[...w.checked],stopped:w.stopped,otherPassed:w.otherPassed,
    feedback:walkFeedback,otherPosition:w.otherPosition,
    otherFeedback:w.otherPosition==='waiting'?'Another traveler is waiting to try the revised PAPER shared path.':
     w.otherPosition==='approach'?'Another traveler approaches. Can they pass?':
