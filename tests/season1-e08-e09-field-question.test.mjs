@@ -29,7 +29,7 @@ function connector(){
   e07a('trial','resident'),e07a('trial','water'),e07a('place','side-offset'),
   e07a('trial','water'),e07a('trial','milo'),e07a('trial','resident'),
   e07a('compare'),e07a('finish'),e07w('start'),e07w('move','crossing'),
-  e07w('inspect','crossing'),e07w('move','water-edge'),e07w('inspect','water-edge'),
+  e07w('inspect','crossing'),e07w('other-start'),e07w('other-step'),e07w('other-step'),e07w('move','water-edge'),e07w('inspect','water-edge'),
   e07w('move','steps-base'),e07w('review')]){
   assert.equal(E07.can(s,a),true,JSON.stringify(a));s=E07.dispatch(s,a);
  }
