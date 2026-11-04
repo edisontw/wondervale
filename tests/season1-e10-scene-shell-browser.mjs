@@ -22,16 +22,19 @@ try{
    assert.equal(await b('walk','meeting_edge').isDisabled(),true);
    await hit('compare-symbol');
    await hit('walk','stone_edge');await hit('inspect','surface');
+   assert.equal(await page.locator('#story-reaction').getAttribute('data-beat'),'first-trace');
    await hit('suggest','surface:passing');
    await hit('revise','surface:passing:resting');
    assert.match(await page.locator('#maybe').innerText(),/resting \(MAYBE\)/);
    await hit('walk','quiet_corner');await hit('hear','quiet');
    await hit('place','quiet:shared');
    await hit('walk','meeting_edge');await hit('hear','activity');
+   assert.equal(await page.locator('#story-reaction').getAttribute('data-beat'),'two-voices');
    await hit('place','activity:shared');
    assert.match(await page.locator('#parent-needs').innerText(),/Whose need/);
    assert.equal(await b('review-tradeoff').isDisabled(),true);
    await hit('test-one-slot');
+   assert.equal(await page.locator('#story-reaction').getAttribute('data-beat'),'one-slot-trial');
    assert.match(await page.locator('#feedback').innerText(),/one shared spot/i);
    await hit('place','quiet:left');await hit('place','activity:right');
    assert.match(await page.locator('#needs').innerText(),/left/);
@@ -55,6 +58,8 @@ try{
    await hit('check-source');
    assert.match(await page.locator('#line').innerText(),/UNKNOWN/);
    await hit('review-tradeoff');await hit('review');await hit('finish-paper');
+   assert.equal(await page.locator('#story-reaction').getAttribute('data-beat'),'unfinished-answer');
+   assert.match(await page.locator('#story-reaction-evidence').innerText(),/No approved history/);
    assert.match(await page.locator('#stage').innerText(),/finished/);
    assert.equal(await page.locator('#paper-comparison').isVisible(),true);
    assert.match(await page.locator('#comparison-summary').innerText(),/NOW: Milo moved/);
@@ -85,6 +90,7 @@ try{
    assert.ok(g.scroll<=g.width+1,JSON.stringify({size,g}));
    for(const x of g.buttons)assert.ok(x.w>=43.5&&x.h>=43.5,JSON.stringify(x));
    await page.locator('#restart').click();
+   assert.equal(await page.locator('#story-reaction').getAttribute('data-beat'),'arrival');
    assert.match(await page.locator('#stage').innerText(),/opening/);
    assert.equal(await page.locator('#paper-comparison').isVisible(),false);
    assert.equal(await page.locator('#use-staging').isVisible(),false);
