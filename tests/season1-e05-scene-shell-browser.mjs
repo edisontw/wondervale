@@ -65,6 +65,17 @@ try{
    await hit('station','reflect');await hit('nav','to-review');
    assert.match(await page.locator('#paper-note').innerText(),/UNKNOWN/);
    assert.equal(await page.locator('[data-scene="garden"][data-type="overlay"]').isDisabled(),true);
+   // Child can revisit the completed MOCK record desk without erasing the PAPER Chronicle.
+   const chronicleBefore=await page.locator('#paper-note').innerText();
+   await hit('nav','back-to-records');
+   assert.equal(await page.locator('#records').isVisible(),true);
+   assert.equal(await page.locator('[data-scene="sources"][data-type="place"]').first().isDisabled(),true);
+   await hit('nav','to-layout');
+   assert.equal(await page.locator('#layout').isVisible(),true);
+   await hit('nav','to-review');
+   assert.equal(await page.locator('#review').isVisible(),true);
+   assert.equal(await page.locator('#paper-note').innerText(),chronicleBefore);
+   assert.match(await page.locator('#guard').innerText(),/E06 NOT UNLOCKED/);
    await hit('garden','inspect',{value:'older'});
    assert.equal(await page.locator('[data-scene="garden"][data-type="overlay"]').isDisabled(),true);
    await hit('garden','inspect',{value:'present'});
