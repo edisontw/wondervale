@@ -34,7 +34,7 @@ function apply(s,a){
        Story.view(s.station)?.phase==='layout')return {...s,stage:'records'};
     if(a.type==='to-layout'&&s.stage==='records'&&
        Sources.view(s.sources)?.phase==='finished')return {...s,stage:'layout'};
-    if(a.type==='back-to-records'&&s.stage==='layout'&&
+    if(a.type==='back-to-records'&&['layout','review'].includes(s.stage)&&
        Sources.view(s.sources)?.phase==='finished')return {...s,stage:'records'};
     if(a.type==='to-review'&&s.stage==='layout'&&
        Story.view(s.station)?.reflection&&Sources.view(s.sources)?.phase==='finished')
