@@ -14,6 +14,7 @@ function checked(){
  a('place','path-clear-water-blocked'),a('trial','milo'),a('trial','resident'),a('trial','water'),
  a('place','side-offset'),a('trial','water'),a('trial','milo'),a('trial','resident'),
  a('compare'),a('finish'),w('start'),w('move','crossing'),w('inspect','crossing'),
+ w('other-start'),w('other-step'),w('other-step'),
  w('move','water-edge'),w('inspect','water-edge'),w('move','steps-base'),w('review')]){
   assert.equal(E07.can(s,x),true,JSON.stringify(x));s=E07.dispatch(s,x);
  }return s;
