@@ -26,7 +26,7 @@ try{
     'walk-workbench','test-milo','test-resident','test-water','place-water',
     'test-milo','test-resident','test-water','place-upper','test-water',
     'test-milo','test-resident','compare','finish','walk-start','walk-crossing',
-    'walk-check-crossing','walk-water','walk-check-water','walk-base','walk-review'])
+    'walk-check-crossing','other-start','other-step','other-step','walk-water','walk-check-water','walk-base','walk-review'])
     await hit(k);
    await page.locator('#garden-flow').waitFor({state:'visible'});
    assert.match(await page.locator('#flow-water').innerText(),/BLOCKED: 3 of 3/);
