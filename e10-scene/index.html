@@ -108,7 +108,8 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 </section>
 <p><a id="e09-return" hidden href="../e09-scene/">Return to E09 PAPER survey (not a real hill route)</a></p>
 <p><a id="e11-paper" hidden href="../e11-scene/">Visit E11 independent shared-space PAPER trial — not an official unlock</a></p>
-<div class="dialogue" aria-live="polite"><strong id="speaker">Milo</strong>: <span id="line"></span><div id="stage"></div></div><div class="controls"><button id="e09-callback" disabled>Review E09 PAPER field notes</button><button id="e10-back" hidden>Return to E10 courtyard</button></div><section id="e09-notes" class="panel" hidden><h2>Looking back at the hill</h2><p id="e09-observation" class="paper">No linked field observations.</p><p>The upper hill remains CLOSED. An unidentified mark was observed in a fictional lower survey. It does not prove a real safe entrance, a date, or a place name. No E09 completion is imported.</p></section>
+<div class="dialogue" aria-live="polite"><strong id="speaker">Milo</strong>: <span id="line"></span><div id="stage"></div></div>
+<div id="story-reaction" class="dialogue" role="status" aria-live="polite" data-beat="arrival"><strong id="story-reaction-speaker">Nia</strong>: <span id="story-reaction-line">What do we know?</span><div id="story-reaction-evidence">PAPER story reactions follow Milo’s actions, not a historical source.</div></div><div class="controls"><button id="e09-callback" disabled>Review E09 PAPER field notes</button><button id="e10-back" hidden>Return to E10 courtyard</button></div><section id="e09-notes" class="panel" hidden><h2>Looking back at the hill</h2><p id="e09-observation" class="paper">No linked field observations.</p><p>The upper hill remains CLOSED. An unidentified mark was observed in a fictional lower survey. It does not prove a real safe entrance, a date, or a place name. No E09 completion is imported.</p></section>
 <div class="controls"><button data-action="start">Begin Milo's investigation</button></div>
 <div class="columns" id="e10-work">
 <section class="panel"><h2>1. Walk Milo and look</h2>
@@ -410,8 +411,43 @@ function renderClue(){
  $('clue-parent').textContent='Optional parent cue: '+v.parentCue;
  $('clue-chronicle').textContent=v.paperNote;
 }
+function renderStoryReaction(v){
+ // Read only replay-validated view fields; this layer cannot grant completion or unlocks.
+ const observed=v.observations.length,ideas=v.hypotheses.length,heard=v.needs.length;
+ let beat='arrival',speaker='Nia',line='What do we know?',evidence='Walk Milo to a trace and look closely.';
+ if(v.finishedPaper){
+  beat='unfinished-answer';speaker='Finn';line='What could we try together?';
+  evidence='PAPER notes only. No approved history, construction, access or E11 unlock.';
+ }else if(v.changedAfterTest){
+  beat='revised-plan';speaker='Milo';line='Can both fit?';
+  evidence='Milo changed a PAPER plan after testing; neither need has become a permanent layout.';
+ }else if(v.testedOneSlot){
+  beat='one-slot-trial';speaker='Finn';line='I planned for one. Who is left out?';
+  evidence='The one-slot test is reversible. Move a need card and compare again.';
+ }else if(heard>=2){
+  beat='two-voices';speaker='Finn';line='We need room for both.';
+  evidence='Two simulated present needs, not evidence of the past.';
+ }else if(heard===1){
+  beat='first-voice';speaker='Nia';line='Who else should we hear?';
+  evidence='One simulated present need is not everybody’s view.';
+ }else if(ideas>=2){
+  beat='maybe-ideas';speaker='Nia';line='Maybe. What else do we see?';
+  evidence='These are editable MAYBE ideas, not dated facts.';
+ }else if(observed>=2){
+  beat='two-traces';speaker='Milo';line='Two clues! What could they mean?';
+  evidence='Two distinct SEEN observations. Their age and use remain unknown.';
+ }else if(observed===1){
+  beat='first-trace';speaker='Nia';line='I see a trace. Let’s look closer.';
+  evidence='One SEEN observation is not proof of a past use.';
+ }
+ const host=$('story-reaction');host.dataset.beat=beat;
+ $('story-reaction-speaker').textContent=speaker;
+ $('story-reaction-line').textContent=line;
+ $('story-reaction-evidence').textContent=evidence;
+}
 function render(){
  const v=view(state);
+ renderStoryReaction(v);
  const hill=linkedE09&&viewE09(linkedE09).story;
  $('hill-context').textContent=hill?.previewComplete?
   'E09 PAPER survey carried forward: Milo inspected '+hill.inspected.length+
