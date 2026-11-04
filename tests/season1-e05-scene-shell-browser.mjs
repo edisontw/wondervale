@@ -14,7 +14,7 @@ try{
    const hit=async(scene,type,extra={})=>{
     let selector='[data-scene="'+scene+'"][data-type="'+type+'"]';
     for(const [k,v] of Object.entries(extra))selector+='[data-'+k+'="'+v+'"]';
-    await page.locator(selector).click();
+    await page.locator(selector+':visible').click();
    };
    assert.match(await page.locator('.notice').first().innerText(),/AUTHORING ONLY/);
    assert.equal(await page.locator('[data-type="to-records"]').isDisabled(),true);
