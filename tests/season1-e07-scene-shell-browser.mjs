@@ -41,6 +41,7 @@ try{
    assert.match(await page.locator('#other-traveler').innerText(),/Real access and clearance remain UNKNOWN/);
    assert.equal(await page.locator('[data-other-point="clear"]').getAttribute('data-here'),'true');
    await hit('other-reset');
+   assert.equal(await b('walk-review').isDisabled(),true);
    assert.match(await page.locator('#other-traveler').innerText(),/waiting/);
    assert.equal(await b('other-step').isDisabled(),true);
    await hit('walk-water');
@@ -48,6 +49,7 @@ try{
    assert.equal(await b('walk-base').isDisabled(),true);
    await hit('walk-check-water');await hit('walk-base');
    assert.match(await page.locator('#route-feedback').innerText(),/Steps BASE/);
+   assert.equal(await b('walk-review').isDisabled(),false);
    await hit('walk-review');
    assert.match(await page.locator('#route-feedback').innerText(),/PAPER route walk reviewed/);
    assert.match(await page.locator('#route-position').innerText(),/Steps BASE/);
