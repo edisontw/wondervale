@@ -66,14 +66,14 @@ test('Milo checks both uses on revised PAPER route and safely stops at CLOSED bo
  assert.equal(view(s).walkthrough.position,'crossing');
  assert.equal(view(s).walkthrough.stopped,true);
  assert.equal(can(s,w('try-closed')),false);
- s=go(s,w('inspect','crossing'));s=go(s,w('move','water-edge'));
+ s=go(s,w('inspect','crossing'));s=go(s,w('other-start'));s=go(s,w('other-step'));s=go(s,w('other-step'));s=go(s,w('move','water-edge'));
  assert.match(view(s).walkthrough.feedback,/Water needs a way/);
  assert.equal(can(s,w('move','steps-base')),false);
  s=go(s,w('inspect','water-edge'));s=go(s,w('move','steps-base'));
  assert.match(view(s).walkthrough.feedback,/Steps BASE/);
  s=go(s,w('review'));
  const v=view(s);
- assert.equal(v.walkthrough.reviewed,true);
+ assert.equal(v.walkthrough.reviewed,true);assert.equal(v.walkthrough.otherPassed,true);
  assert.deepEqual(v.walkthrough.checked,['crossing','water-edge']);
  assert.equal(v.walkthrough.position,'steps-base');
  assert.equal(v.lightsOff,true);assert.equal(v.e08Unlocked,false);
@@ -115,4 +115,15 @@ test('Milo steps an unnamed second traveler across the revised PAPER shared path
  assert.equal(view(s).e08Unlocked,false);
  s=go(s,n('restart'));
  assert.equal(view(s).walkthrough.otherPosition,'waiting');
+});
+
+
+test('route review requires observed second-user passage, not just two Milo inspections',()=>{
+ let s=complete();for(const x of [w('start'),w('move','crossing'),w('inspect','crossing'),w('move','water-edge'),w('inspect','water-edge'),w('move','steps-base')])s=go(s,x);
+ assert.equal(can(s,w('review')),false);
+ assert.equal(view(s).walkthrough.otherPassed,false);
+ assert.deepEqual(replay(s.history),s);
+ // The traveler must be walked while Milo is at the shared crossing; no remote completion.
+ assert.equal(can(s,w('other-start')),false);
+ assert.deepEqual(view(s).canonicalEvents,[]);
 });

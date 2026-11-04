@@ -80,6 +80,7 @@ export function sevenSceneUpstream(){
   ...['water','milo','resident'].map(value=>a('story','trial',{value})),
   a('story','compare'),a('story','finish'),
   w('start'),w('move','crossing'),w('inspect','crossing'),
+  w('other-start'),w('other-step'),w('other-step'),
   w('move','water-edge'),w('inspect','water-edge'),
   w('move','steps-base'),w('review')])e07=step(E07,e07,x);
  const l=(type,key,value)=>({scene:'story',action:key?{type,[key]:value}:{type}});

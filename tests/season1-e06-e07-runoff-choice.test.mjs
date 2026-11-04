@@ -28,7 +28,7 @@ function e07(){
   story('trial','resident'),story('trial','water'),story('place','side-offset'),
   story('trial','water'),story('trial','milo'),story('trial','resident'),
   story('compare'),story('finish'),walk('start'),walk('move','crossing'),
-  walk('inspect','crossing'),walk('move','water-edge'),walk('inspect','water-edge'),
+  walk('inspect','crossing'),walk('other-start'),walk('other-step'),walk('other-step'),walk('move','water-edge'),walk('inspect','water-edge'),
   walk('move','steps-base'),walk('review')]){
   assert.equal(E07.can(s,a),true,JSON.stringify(a));s=E07.dispatch(s,a);
  }return s;
