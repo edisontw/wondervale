@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {paperE11Story} from '../e11-scene/story-reactions.mjs';
+const base={trials:[],tests:{},revision:0,blockedAttempts:0};
+assert.match(paperE11Story(base),/Two people/);
+assert.match(paperE11Story({...base,revision:1}),/paper pieces moved/);
+assert.match(paperE11Story({...base,tests:{quiet_reader:{passed:false}}}),/blocks the way/);
+assert.match(paperE11Story({...base,tests:{quiet_reader:{passed:true}}}),/other/);
+assert.match(paperE11Story({...base,trials:[{id:'t1'}]}),/FIRST trial/);
+assert.match(paperE11Story({...base,trials:[{id:'t1'},{id:'t2'}]}),/compare/);
+assert.match(paperE11Story({...base,comparison:{first:'t1',second:'t2'}}),/FIRST and NOW/);
+assert.match(paperE11Story({...base,reviewed:true}),/real place/);
+assert.doesNotMatch(paperE11Story({...base,reviewed:true}),/unlocked|reopened/i);
+console.log('E11 child-action PAPER story reactions PASS');
