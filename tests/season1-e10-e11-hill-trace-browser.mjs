@@ -2,6 +2,8 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import * as E10 from '../authoring-labs/unnamed-story-model.mjs';
+import {decodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
+import {paperHillTraceRevisit} from '../e11-scene/hill-trace-revisit.mjs';
 import {sevenSceneUpstream} from './fixtures/season1-e04-e09-paper.mjs';
 import {encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
 const base=process.env.TEST_BASE_URL||'http://127.0.0.1:4173';
@@ -33,9 +35,16 @@ try{
    await page.locator('#question-wall').click();
    await page.locator('#question-compare').click();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'true');
+   const e11Href=await page.locator('#e11-paper').getAttribute('href');
+   const packet=decodeLoopTransfer(new URL(e11Href,base+'/e10-scene/').hash);
+   assert.ok(packet,'E10 must encode a replay-valid E11 handoff');
+   assert.ok(packet.questionTrial,'E10 child-checked question must be carried to E11');
+   const atlas=paperHillTraceRevisit(packet.e10,packet.upstream,packet.questionTrial);
+   assert.ok(atlas,'E11 must derive a valid child-earned trace atlas before navigation');
    await page.locator('#e11-paper').click();
    await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
-   await page.locator('#hill-trace-world').waitFor({state:'visible'});
+   assert.equal(await page.locator('#hill-trace-world').isVisible(),true,
+    'E11 should show the replay-verified E10 trace after beginning PAPER trial');
    assert.equal(await page.locator('#hill-trace-world').isVisible(),true);
    await page.waitForFunction(trace=>document.querySelector('#hill-trace-first')?.textContent?.includes(trace),'mounting holes');
    await page.locator('#hill-trace-world').waitFor({state:'visible'});
