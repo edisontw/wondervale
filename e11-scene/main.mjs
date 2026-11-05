@@ -6,6 +6,7 @@ import {paperRoleWalk,dispatchRoleWalk} from './role-walk.mjs';
 import {paperSharedUse,dispatchSharedUse} from './shared-use-followthrough.mjs';
 import {paperWorldAtlas} from './world-atlas.mjs';
 import {paperLoopVisual} from './loop-visual.mjs';
+import {paperE11Story} from './story-reactions.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
 import {paperReturnRoute,WALK_LABELS} from './return-route.mjs';
 import {paperReturnReflection} from './return-reflection.mjs';
@@ -714,11 +715,7 @@ function render(){
  $('e10-notes').hidden=screen!=='callback';
  $('e11-back').hidden=screen!=='callback';
  $('e10-callback').disabled=!state.reviewed||screen==='callback';
- $('story-line').textContent=state.reviewed?
-  'Milo revised a paper layout and a model loop. Nia keeps the real-world questions open.':
-  (Object.values(state.tests).some(t=>!t.passed)?
-   'Milo stops at a conflict. Finn: "Who needs this way?" Try moving a piece.':
-   'Two simulated needs share one small model. Milo can test, move, compare and try again.');
+ $('story-line').textContent=paperE11Story(state);
  controls();board();tests();comparison();map();drawPaperLoop();review();worldRevisit();visitorWalk();returnRoute();reflection();
 }
 $('access').addEventListener('click',()=>act({type:'place',tokenId:'access',cells:['1,1','1,2']}));
