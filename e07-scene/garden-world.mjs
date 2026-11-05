@@ -24,7 +24,8 @@ export function gardenCareWorld(snapshot){
    water:'heavy',waterResult:'PAPER soggy seed',tiles:tiles(unsafe.site)},
   now:{markerSite:'raised-pocket',risk:'water and shared path clear in MODEL',
    water:'gentle',waterResult:'hypothetical PAPER sprout',tiles:tiles('raised-pocket')},
-  currentGardenHealthy:true,paperOnly:true,realGrowthObserved:false,
+  currentGardenHealthy:true,twoGardenRevisitCompared:v.revisitCompared===true,
+  paperOnly:true,realGrowthObserved:false,
   plantingPermissionApproved:false,realDrainageVerified:false,
   northHillClosed:true,officialUnlock:false
  };

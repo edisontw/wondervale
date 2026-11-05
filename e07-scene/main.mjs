@@ -156,10 +156,12 @@ function render(){
  $('layout').textContent='Model footprint: '+s.layout.layout+' · Milo route steps: '+s.layout.traces.milo.steps;
  $('connector-world').dataset.done=String(v.connectorPaperRevised);
  const checkedWater=s.revisedTrials.water?.pass===true&&v.walkthrough.reviewed;
+ const twoGardenCompared=gardenCareWorld(linkedE06)?.twoGardenRevisitCompared===true;
  $('e06-transfer-note').textContent=linkedE06?
   (checkedWater?
    'E06 hypothetical PAPER sprout revisited after Milo checked E07 MODEL water: PASS. No real drainage, planting or growth proven.':
-   'E06 hypothetical PAPER sprout carried from the other playable model. E07 MODEL water still needs a child-checked route walk.'):
+   'E06 hypothetical PAPER sprout carried from the other playable model. E07 MODEL water still needs a child-checked route walk.')+
+   (twoGardenCompared?' Milo also returned to compare the healthy upper bed (NOW) with the lower PAPER possibility; neither is evidence of real planting.':' Milo has not yet earned the two-garden return comparison.'):
   'No E06 PAPER care record in this independent visit; the lower pocket remains unbuilt.';
  drawGardenWorld();
  drawGardenFlow();
