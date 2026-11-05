@@ -53,7 +53,10 @@ try{
    assert.match(await page.locator('#note').innerText(),/PAPER CARE MODEL/);
    assert.match(await page.locator('#note').innerText(),/Actual growth.*UNKNOWN/);
    assert.match(await page.locator('#lower-world-note').innerText(),/PAPER pocket/);
+   assert.equal(await b('compare-gardens').isDisabled(),true,'comparison requires both revisits');
+   assert.equal(await page.locator('#garden-revisit-result').isVisible(),false);
    await hit('to-current');
+   assert.equal(await b('compare-gardens').isDisabled(),true,'cannot compare from upper garden');
    assert.equal(await page.locator('#current-scene').isVisible(),true);
    assert.equal(await b('run').isDisabled(),true);
    assert.match(await page.locator('#tray').innerText(),/3 run/);
@@ -61,6 +64,12 @@ try{
    assert.match(await page.locator('#lower-world-note').innerText(),/hypothetical sprout/);
    assert.equal(await page.locator('#care-panel').isVisible(),false);
    await hit('to-lower');
+   assert.equal(await b('compare-gardens').isDisabled(),false);
+   await hit('compare-gardens');
+   assert.equal(await b('compare-gardens').isDisabled(),true,'comparison is earned once');
+   assert.equal(await page.locator('#garden-revisit-result').isVisible(),true);
+   assert.match(await page.locator('#garden-revisit-result').innerText(),/NOW:.*healthy.*POSSIBLE PAPER:.*not a real plant/);
+   assert.match(await page.locator('#note').innerText(),/NOW is observed; POSSIBLE is a model/);
    assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-sprout');
    assert.match(await page.locator('#lower-world-note').innerText(),/PAPER pocket/);
    if(viewport.width===1366){

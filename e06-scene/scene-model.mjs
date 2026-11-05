@@ -12,7 +12,7 @@ export function fresh(){return mark({version:VERSION,mode:'noncanonical_paper',
   canonicalEvents:[],unlocks:[],historicalClaims:[],rights:[]});}
 function clean(raw){
   if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;
-  if(raw.scene==='nav'&&['to-current','to-lower','restart'].includes(raw.type))
+  if(raw.scene==='nav'&&['to-current','to-lower','compare-gardens','restart'].includes(raw.type))
     return {scene:'nav',type:raw.type};
   if(raw.scene==='care'&&raw.type==='choose'&&careChoices.includes(raw.value))
     return {scene:'care',type:'choose',value:raw.value};
@@ -43,6 +43,13 @@ function apply(s,a){
   }
   if(a.scene==='nav'){
     if(a.type==='restart')return {...fresh(),history:s.history};
+    if(a.type==='compare-gardens'){
+      const afterCare=s.history.findLastIndex(h=>h.scene==='care'&&h.type==='compare');
+      const afterReturn=s.history.findIndex((h,i)=>i>afterCare&&h.scene==='nav'&&h.type==='to-current');
+      const returned=afterReturn>=0&&s.history.some((h,i)=>i>afterReturn&&h.scene==='nav'&&h.type==='to-lower');
+      if(s.screen!=='lower'||!s.care.compared||afterCare<0||!returned||s.history.some(h=>h.scene==='nav'&&h.type==='compare-gardens'))return null;
+      return {...s};
+    }
     if(a.type==='to-current'&&s.screen==='lower')return {...s,screen:'current'};
     if(a.type==='to-lower'&&s.screen==='current'&&
       ['lower','finished'].includes(g.phase))return {...s,screen:'lower'};
@@ -102,13 +109,16 @@ export function view(snapshot){
     if(recent.type==='compare'){speaker='Milo';line=
       'Our PAPER model changed. Real plants need care and permission.';}
   }
-  return {screen:s.screen,garden:g,speaker,line,
+  const revisitCompared=s.history.some(h=>h.scene==='nav'&&h.type==='compare-gardens');
+  if(revisitCompared){speaker='Nia';line='One grows here now. One is only our PAPER idea.';}
+  return {screen:s.screen,garden:g,speaker,line,revisitCompared,
     care:{choice:s.care.choice,trials:s.care.trials.map(t=>({...t})),
       compared:s.care.compared,stage:careStage},
     lowerGrowthVisible:s.care.compared,
     currentHealthy:true,lowerPaperStarted:g.phase==='finished',
     currentCompared:g.modelCompared,lowerVisited:g.lowerVisited,
     paperChronicle:(g.paperNote||'PAPER ONLY: compare two garden places. History and permission UNKNOWN.')+
+      (revisitCompared?' TWO-PLACE REVISIT: Milo returned to the healthy upper bed, then the lower PAPER pocket. NOW is observed; POSSIBLE is a model, not real growth.':'')+
       (s.care.compared?' PAPER CARE MODEL: BEFORE the water trial, only a removable seed marker; NOW a hypothetical PAPER sprout after comparing heavy and gentle water. Actual growth, access, care and planting permission remain UNKNOWN.':''),
     parentCue:s.care.compared?'What else must we learn before growing anything in a real garden?':
       g.parentCue||'What do you see? What would you test before deciding?',
