@@ -65,6 +65,7 @@ const careActions=[
 const navigation=[
   ['to-current','Revisit healthy Current Garden',nav('to-current')],
   ['to-lower','Return to Lower Garden model',nav('to-lower')],
+  ['compare-gardens','Milo: compare NOW and POSSIBLE',nav('compare-gardens')],
   ['restart','Restart both PAPER garden scenes',nav('restart')]
 ];
 function buttons(id,rows){
@@ -162,6 +163,8 @@ function render(){
     v.lowerPaperStarted?'A removable PAPER pocket plan remains. No real plants or growth.':
     v.lowerVisited?'Lower garden MODEL inspected; no approved planting.':'Not visited yet.';
   $('care-panel').hidden=!(v.screen==='lower'&&v.lowerPaperStarted);
+  $('garden-revisit-result').hidden=!v.revisitCompared;
+  $('garden-revisit-result').textContent=v.revisitCompared?'NOW: the upper bed is healthy today. POSSIBLE PAPER: our lower model shows a sprout, not a real plant. Milo asks what we must check before planting.':'';
   $('upper-bed-tile').dataset.stage='healthy';
   $('lower-growth-tile').dataset.stage=v.care.stage;
   $('lower-growth-tile').textContent=v.care.stage==='paper-sprout'?
