@@ -35,6 +35,8 @@ test('child walks both simulated visitors on FIRST and NOW; provisional Chronicl
  act({type:'step',to:'1,1'});
  act({type:'check'});
  assert.equal(paperRoleWalk(s,h).visits['first:quiet_reader'].passed,false);
+ assert.match(paperRoleWalk(s,h).feedback,/Finn:.*quiet reader/);
+ assert.match(paperRoleWalk(s,h).feedback,/Milo:.*try again/);
  for(const [stage,role,steps] of [
   ['first','activity_group',['1,1','1,2']],
   ['now','quiet_reader',['1,1']],
@@ -46,6 +48,8 @@ test('child walks both simulated visitors on FIRST and NOW; provisional Chronicl
  }
  const p=paperRoleWalk(s,h);
  assert.equal(p.complete,true);
+ assert.match(p.feedback,/Milo:.*activity group/);
+ assert.match(p.feedback,/Real people have not checked it/);
  assert.match(p.chronicle,/FIRST quiet RETRY, group PASS → NOW quiet PASS, group PASS/);
  assert.match(p.chronicle,/UNKNOWN/);
  assert.deepEqual(p.canonicalEvents,[]);
