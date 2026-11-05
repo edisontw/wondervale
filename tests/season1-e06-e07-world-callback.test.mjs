@@ -26,7 +26,8 @@ test('E07 visualizes the actually tested E06 unsafe marker and gentler PAPER ret
  assert.equal(p.first.tiles.length,3);assert.equal(p.now.tiles.length,3);
  assert.equal(p.first.tiles.filter(t=>t.marker).length,1);
  assert.equal(p.now.tiles.find(t=>t.marker).site,'raised-pocket');
- assert.equal(p.currentGardenHealthy,true);assert.equal(p.paperOnly,true);
+ assert.equal(p.currentGardenHealthy,true);assert.equal(p.twoGardenRevisitCompared,false);
+ assert.equal(p.paperOnly,true);
  assert.equal(p.realGrowthObserved,false);assert.equal(p.plantingPermissionApproved,false);
  assert.equal(p.realDrainageVerified,false);assert.equal(p.northHillClosed,true);
  assert.equal(p.officialUnlock,false);
@@ -45,4 +46,19 @@ test('no partial, reset, invented rights or tampered actions can paint E06 as E0
  assert.equal(gardenCareWorld(forged),null);
  const fake=structuredClone(s);fake.care.compared=true;fake.care.trials[0].result='real-growth';
  assert.equal(gardenCareWorld(fake),null);
+});
+
+test('E07 acknowledges only a replay-earned upper/lower garden revisit',()=>{
+ let s=completed();
+ const upper={scene:'nav',type:'to-current'},lower={scene:'nav',type:'to-lower'},compare={scene:'nav',type:'compare-gardens'};
+ assert.equal(E06.can(s,compare),false);
+ s=E06.dispatch(s,upper);assert.equal(gardenCareWorld(s).twoGardenRevisitCompared,false);
+ s=E06.dispatch(s,lower);assert.equal(gardenCareWorld(s).twoGardenRevisitCompared,false);
+ assert.equal(E06.can(s,compare),true);
+ s=E06.dispatch(s,compare);
+ assert.equal(gardenCareWorld(s).twoGardenRevisitCompared,true);
+ assert.equal(gardenCareWorld(E06.replay(s.history)).twoGardenRevisitCompared,true);
+ const forged=structuredClone(s);forged.history.splice(-2,1);
+ assert.equal(gardenCareWorld(forged),null);
+ assert.equal(gardenCareWorld(E06.fresh()),null);
 });
