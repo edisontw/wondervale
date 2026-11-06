@@ -1,6 +1,7 @@
 // E09 fictional safe-survey browser lab. No production imports, storage, telemetry or real route claims.
 import {NODES,SAFE_EDGES,CLOSED_NODE,CLOSED_EDGE,CLUES,HYPOTHESES} from '../engine/s01e09-authoring-prototype.mjs';
 import {fresh,dispatch,can,view} from './scene-model.mjs';
+import {paperReaction} from './paper-reaction.mjs';
 import {view as viewE08} from '../e08-scene/scene-model.mjs';
 import {lanternWorld} from './lantern-world.mjs';
 import {fourFrameEvidence,placeQuestion} from './field-question.mjs';
@@ -189,9 +190,7 @@ function notebook(){const s=story();
     s.previewComplete||!ready||s.reviewed);
   button(host,'Finish model survey',{type:'finish-preview'},
     s.previewComplete||!s.reviewed);
-  $('chronicle').textContent='PAPER NOTE — MODEL ONLY: '+p.cards.seen.length+' seen; '+
-    p.cards.think.length+' thoughts; '+p.cards.unknown.length+' unknowns. '+
-    'Canonical events: 0; unlocks: 0; historical claims: 0. E10 NOT UNLOCKED.';
+  $('chronicle').textContent=paperReaction(state).chronicle;
   $('hook').hidden=!s.previewComplete;
   $('hook').textContent=s.previewComplete?
     'Model complete. E10 remains NOT UNLOCKED. What is the place beyond the mark? The old hill way stays closed.':'';
@@ -378,7 +377,8 @@ $('field-clear').addEventListener('click',()=>{
 function render(){
  const v=view(state),s=v.story;
  $('stage').textContent='E09 '+s.stage+' · '+v.screen+' · production LOCKED';
- $('dialogue').textContent=s.speaker+': '+s.line;
+ const response=paperReaction(state);
+ $('dialogue').textContent=response.speaker+': '+response.line;
  $('lantern-revisit').hidden=v.screen!=='lantern';
  $('start').disabled=!can(state,wrap({type:'start'}));
  $('revisit').disabled=!can(state,nav('lantern'));
