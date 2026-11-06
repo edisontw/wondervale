@@ -203,3 +203,30 @@ test('E05 spatial PAPER table uses existing synthetic geometry; blocked-first ca
  assert.equal(projectMapRoomLayout(null),null);
  assert.equal(projectMapRoomLayout({table:'invented'}),null);
 });
+
+test('E05 PAPER Map Room distinguishes a child-revised blocked path from a clear-first trial',()=>{
+ let revised=toLayout();
+ revised=a(revised,'station','walk',{value:'table'});
+ revised=a(revised,'station','place-table',{value:'across-walkway'});
+ assert.match(view(revised).line,/table is in the way/i);
+ revised=a(revised,'station','place-table',{value:'near-wall'});
+ assert.match(view(revised).line,/I moved our PAPER table away from the path/);
+ assert.equal(view(revised).station.clear,true);
+ revised=a(revised,'station','confirm');
+ revised=a(revised,'station','reflect');
+ revised=n(revised,'to-review');
+ assert.match(view(revised).paperChronicle,/moved it by the wall, and reopened the model path/);
+ assert.deepEqual(replay(revised.history),revised);
+ assert.deepEqual(view(revised).canonicalEvents,[]);
+
+ let direct=toLayout();
+ direct=a(direct,'station','walk',{value:'table'});
+ direct=a(direct,'station','place-table',{value:'near-wall'});
+ assert.match(view(direct).line,/path stays open/);
+ assert.doesNotMatch(view(direct).line,/I moved our PAPER table/);
+ direct=a(direct,'station','confirm');
+ direct=a(direct,'station','reflect');
+ direct=n(direct,'to-review');
+ assert.doesNotMatch(view(direct).paperChronicle,/reopened the model path/);
+ assert.equal(view(direct).e06Unlocked,false);
+});
