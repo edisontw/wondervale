@@ -115,7 +115,7 @@ export function view(snapshot){
     garden.overlay?'Nia: The model marks are apart. That does not tell us when or why.':
       'Finn: Look at both PAPER garden sheets. Then lay them together.';
   return {stage:s.stage,station,sources,gardenMap:{...garden,inspected:[...garden.inspected]},speaker:s.stage==='foyer'?station.speaker:
-    s.stage==='records'?sources.speaker:s.stage==='layout'?station.speaker:garden.question?'Milo':garden.overlay?'Nia':'Finn',
+    s.stage==='records'?sources.speaker:s.stage==='layout'?(revisedWalkway?'Milo':station.table==='near-wall'&&station.clear?'Finn':station.speaker):garden.question?'Milo':garden.overlay?'Nia':'Finn',
     line:s.stage==='review'?reviewLine:s.stage==='records'?sources.line:
       s.stage==='foyer'?station.line:s.stage==='layout'?layoutLine:station.line,
     stageText:stageText[s.stage],
