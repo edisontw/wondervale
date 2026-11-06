@@ -211,6 +211,7 @@ test('E05 PAPER Map Room distinguishes a child-revised blocked path from a clear
  assert.match(view(revised).line,/table is in the way/i);
  revised=a(revised,'station','place-table',{value:'near-wall'});
  assert.match(view(revised).line,/I moved our PAPER table away from the path/);
+ assert.equal(view(revised).speaker,'Milo');
  assert.equal(view(revised).station.clear,true);
  revised=a(revised,'station','confirm');
  revised=a(revised,'station','reflect');
@@ -223,6 +224,7 @@ test('E05 PAPER Map Room distinguishes a child-revised blocked path from a clear
  direct=a(direct,'station','walk',{value:'table'});
  direct=a(direct,'station','place-table',{value:'near-wall'});
  assert.match(view(direct).line,/path stays open/);
+ assert.equal(view(direct).speaker,'Finn');
  assert.doesNotMatch(view(direct).line,/I moved our PAPER table/);
  direct=a(direct,'station','confirm');
  direct=a(direct,'station','reflect');
