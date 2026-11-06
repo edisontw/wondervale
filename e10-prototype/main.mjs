@@ -1,6 +1,6 @@
 // E10 courtyard authoring lab. Synthetic-only; no production imports, storage, network or unlock.
 import {NODES,CLOSED_NODE,EDGES,TRACES,NEEDS,USE_TAGS,SLOTS,
-  fresh,dispatch,previewProjection} from '../engine/s01e10-authoring-prototype.mjs';
+  fresh,dispatch,previewProjection,earnedVoices} from '../engine/s01e10-authoring-prototype.mjs';
 
 const $=id=>document.getElementById(id);
 const names={entry:'Entry',stone_edge:'Stone edge',notice_wall:'Notice wall',
@@ -161,7 +161,10 @@ function notebook(){
   $('hook').textContent=state.finished?
     'SYNTHETIC MODEL COMPLETE — E11 remains NOT UNLOCKED. What would a fair shared-space layout need? Nothing has been built.':'';
 }
-function render(){world();movement();hypotheses();source();needs();notebook();}
+function render(){world();movement();hypotheses();source();needs();notebook();
+  const host=$('feedback');const voices=earnedVoices(state);
+  if(voices.length)host.textContent=state.feedback+' '+voices.join(' ');
+}
 $('restart').addEventListener('click',()=>act({type:'reset'}));
 window.addEventListener('resize',world);
 render();
