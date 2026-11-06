@@ -100,19 +100,31 @@ export function view(snapshot){
     layout:'Finn: We can make a paper Map Room. Keep the public way clear.',
     review:'Milo: The paper room is ready. Why are there two garden places?'};
   const garden=s.garden;
+  // The child must actually try the blocked PAPER placement and revise it;
+  // a direct clear placement must not be described as a correction.
+  const placements=s.station.history.filter(a=>a.type==='place-table').map(a=>a.value);
+  const revisedWalkway=placements.includes('across-walkway')&&
+    placements.lastIndexOf('near-wall')>placements.lastIndexOf('across-walkway')&&
+    station.clear===true;
+  const layoutLine=revisedWalkway?
+    'Milo: I moved our PAPER table away from the path. Now someone can walk through!':
+    station.table==='near-wall'&&station.clear?
+    'Finn: The PAPER path stays open beside our table. We can test this layout.':
+    station.line;
   const reviewLine=garden.question?'Milo: The two PAPER garden marks differ. Why? We still need real evidence.':
     garden.overlay?'Nia: The model marks are apart. That does not tell us when or why.':
       'Finn: Look at both PAPER garden sheets. Then lay them together.';
   return {stage:s.stage,station,sources,gardenMap:{...garden,inspected:[...garden.inspected]},speaker:s.stage==='foyer'?station.speaker:
-    s.stage==='records'?sources.speaker:s.stage==='layout'?station.speaker:garden.question?'Milo':garden.overlay?'Nia':'Finn',
+    s.stage==='records'?sources.speaker:s.stage==='layout'?(revisedWalkway?'Milo':station.table==='near-wall'&&station.clear?'Finn':station.speaker):garden.question?'Milo':garden.overlay?'Nia':'Finn',
     line:s.stage==='review'?reviewLine:s.stage==='records'?sources.line:
-      s.stage==='foyer'?station.line:station.line,
+      s.stage==='foyer'?station.line:s.stage==='layout'?layoutLine:station.line,
     stageText:stageText[s.stage],
     parentCue:s.stage==='review'?'What do the two PAPER marks show? What can they not explain?':
       s.stage==='records'?sources.parentCue:station.parentCue,
     mapRoomPaperVisible:station.mapRoom&&sources.phase==='finished',
     paperChronicle:s.stage==='review'?
       'PAPER ONLY: the removable copy fit two drawn marks; both MOCK records have maker/date/original UNKNOWN; the trial Map Room keeps a path clear. The old train service and North Hill stay CLOSED. The garden-location question remains OPEN.'+
+      (revisedWalkway?' Milo tried a blocked PAPER table position, moved it by the wall, and reopened the model path.':'')+
       (garden.question?' Milo overlaid two fictional garden marks; their difference is visible, but date, location provenance and cause remain UNKNOWN.':''):null,
     e04CanonicalComplete:false,productionEntryReady:false,foyerAccessApproved:false,
     stationRecordsApproved:false,e06Unlocked:false,northHillClosed:true,commonRevealed:false,
