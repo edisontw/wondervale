@@ -42,7 +42,12 @@ function apply(s,a,sourceTrials){
    return {...s,feedback:'Not at the visitor\'s access stop yet. Walk closer and try again.'};
   const result=t.tests[s.role];
   const visits={...s.visits,[key(s.stage,s.role)]:{passed:result.passed,reason:result.reason,steps:s.steps}};
-  return {...s,visits,feedback:(result.passed?'PAPER PASS: ':'PAPER RETRY: ')+result.reason};
+  const roleName=s.role==='quiet_reader'?'quiet reader':'activity group';
+  const reaction=result.passed?
+   (s.stage==='first'?'Nia: "This first paper path works for the '+roleName+'. Check the other need."':
+    'Milo: "The revised paper path works for the '+roleName+'!" Nia: "Real people have not checked it."'):
+   'Finn: "Our first paper path does not work for the '+roleName+'." Milo: "I can move a piece and try again."';
+  return {...s,visits,feedback:(result.passed?'PAPER PASS: ':'PAPER RETRY: ')+result.reason+' '+reaction};
  }
  return null;
 }
