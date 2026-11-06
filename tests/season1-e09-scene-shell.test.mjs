@@ -154,3 +154,59 @@ test('E09 child moves two inspected ground pins, corrects mistakes, and cannot i
  s=go(s,n('restart'));
  assert.deepEqual(s.groundBoard,fresh().groundBoard);
 });
+
+import {paperReaction} from '../e09-scene/paper-reaction.mjs';
+
+test('E09 PAPER dialogue and Chronicle follow child ground revision, replay and restart',()=>{
+ const ground=(type,clue,at)=>({scene:'ground',type,clue,at});
+ let s=go(fresh(),a('start'));
+ assert.equal(paperReaction(s).chronicle.includes('Milo moved a misplaced pin'),false);
+ for(const x of [a('walk','to','signpost'),a('inspect','clueId','boundary_sign'),
+  a('walk','to','fence_view'),a('inspect','clueId','disturbed_ground'),
+  a('walk','to','upper_closed'),a('walk','to','signpost'),
+  a('walk','to','lower_bend'),a('inspect','clueId','runoff_marks')])s=go(s,x);
+ s=go(s,ground('place','disturbed_ground','lower_bend'));
+ assert.match(paperReaction(s).line,/I can move this PAPER pin/);
+ assert.doesNotMatch(paperReaction(s).chronicle,/moved a misplaced pin/);
+ s=go(s,ground('place','disturbed_ground','fence_view'));
+ assert.match(paperReaction(s).line,/where I looked/);
+ s=go(s,ground('place','runoff_marks','lower_bend'));
+ s=go(s,{scene:'ground',type:'compare'});
+ assert.match(paperReaction(s).line,/still do not know the cause/);
+ assert.match(paperReaction(s).chronicle,/moved a misplaced pin/);
+ assert.match(paperReaction(s).chronicle,/cause and date remain UNKNOWN/);
+ assert.match(paperReaction(s).chronicle,/stopped at the fence/);
+ for(const x of [a('walk','to','overlook'),a('inspect','clueId','distant_symbol'),
+  a('mark','edgeId','steps_base:signpost'),a('mark','edgeId','signpost:lower_bend'),
+  a('mark','edgeId','lower_bend:overlook'),a('check-route'),
+  a('compare-symbol'),a('review'),a('finish-preview')])s=go(s,x);
+ const earned=paperReaction(s);
+ assert.match(earned.chronicle,/connected lower MODEL route/);
+ assert.match(earned.chronicle,/place name is UNKNOWN/);
+ assert.match(earned.chronicle,/E10 NOT UNLOCKED/);
+ assert.deepEqual(paperReaction(replay(s.history)),earned);
+ assert.deepEqual(paperReaction(restore(structuredClone(s))),earned);
+ s=go(s,n('lantern'));assert.equal(paperReaction(s).chronicle,earned.chronicle);
+ assert.equal(paperReaction(go(s,n('restart'))).chronicle.includes('moved a misplaced pin'),false);
+ const forged=structuredClone(s);forged.rights.push('hill-access');
+ assert.equal(paperReaction(forged),null);
+});
+
+test('E09 future check dialogue requires child-pinned questions and remains NOT DONE',()=>{
+ const q=(type,question,at)=>({scene:'sightline',type,question,at});
+ let s=go(fresh(),a('start'));
+ for(const x of [a('walk','to','signpost'),a('inspect','clueId','boundary_sign'),
+  a('walk','to','fence_view'),a('inspect','clueId','disturbed_ground')])s=go(s,x);
+ s=go(s,q('place','light','overlook'));
+ assert.match(paperReaction(s).line,/question needs another place/);
+ s=go(s,q('place','light','fence_view'));
+ for(const x of [a('walk','to','signpost'),a('walk','to','lower_bend'),
+  a('walk','to','overlook'),a('inspect','clueId','distant_symbol')])s=go(s,x);
+ s=go(s,q('place','view','overlook'));
+ s=go(s,{scene:'sightline',type:'compare'});
+ assert.match(paperReaction(s).line,/Both checks are NOT DONE/);
+ assert.match(paperReaction(s).chronicle,/future PAPER questions — NOT DONE/);
+ assert.deepEqual(paperReaction(replay(s.history)),paperReaction(s));
+ s=go(s,{scene:'sightline',type:'remove',question:'view'});
+ assert.doesNotMatch(paperReaction(s).chronicle,/future PAPER questions — NOT DONE/);
+});
