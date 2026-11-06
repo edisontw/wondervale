@@ -64,7 +64,15 @@ export function view(snapshot){
   line=o.spreadDegrees<5?'From here, the marks line up. Is that proof?':'From here, I see a gap. Let me check another place.';
  }
  if(last?.type==='compare-views'){speaker='Nia';line='The marks stayed still. Our view changed. What can we really say?';}
- if(last?.type==='confirm-preview'){speaker='Finn';line='The lower lights are on in our model. The hill is still CLOSED.';}
+ if(last?.type==='confirm-preview'){
+  speaker='Finn';
+  const firstSeen=s.steps.observations[0];
+  const secondSeen=s.steps.observations.find(o=>o.viewpoint!==firstSeen?.viewpoint);
+  const firstAligned=firstSeen?.spreadDegrees<5;
+  line=firstAligned?
+   'Milo, you saw the marks line up first. Then you moved and found a gap. We changed our view, not the marks. The hill stays CLOSED.':
+   'Milo, you saw a gap first. Then you moved and checked the marks again. We changed our view, not the marks. The hill stays CLOSED.';
+ }
  const stage=!s.started?'opening':s.steps.previewComplete?'finished':
   s.steps.compared?'source-check':s.steps.observations.length?'viewpoints':
   p.enoughLight?'observe':'inspect-and-light';

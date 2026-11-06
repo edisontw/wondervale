@@ -35,6 +35,11 @@ test('completion is PAPER only, no rights, chronology, access or E09 unlock',()=
  assert.deepEqual(v.canonicalEvents,[]);assert.deepEqual(v.unlocks,[]);
  assert.deepEqual(v.rights,[]);assert.deepEqual(v.historicalClaims,[]);
  assert.match(v.story.paperNote,/UNKNOWN/);assert.match(v.story.paperNote,/NOT UNLOCKED/);
+ assert.equal(v.story.speaker,'Finn');
+ assert.match(v.story.line,/Milo, you saw the marks line up first/);
+ assert.match(v.story.line,/Then you moved and found a gap/);
+ assert.match(v.story.line,/hill stays CLOSED/);
+ assert.equal(view(replay(s.history)).story.line,v.story.line);
  assert.deepEqual(replay(s.history),s);assert.deepEqual(restore(structuredClone(s)),s);
 });
 test('child revisits both fixed-marker viewpoints without moving evidence or unlocking anything',()=>{
