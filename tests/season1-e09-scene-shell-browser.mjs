@@ -23,11 +23,14 @@ try{
    await page.locator('[data-ground-select="disturbed_ground"]').click();
    await page.locator('[data-ground-site="lower_bend"]').click();
    assert.match(await page.locator('#ground-feedback').innerText(),/not where Milo saw/);
+   assert.match(await page.locator('#dialogue').innerText(),/I can move this PAPER pin/);
    await page.locator('[data-ground-site="fence_view"]').click();
    await page.locator('[data-ground-select="runoff_marks"]').click();
    await page.locator('[data-ground-site="lower_bend"]').click();
    await page.locator('#ground-compare').click();
    assert.equal(await page.locator('#ground-link').isVisible(),true);
+   assert.match(await page.locator('#dialogue').innerText(),/still do not know the cause/);
+   assert.match(await page.locator('#chronicle').innerText(),/moved a misplaced pin/);
    assert.match(await page.locator('#ground-feedback').innerText(),/cause and date are still UNKNOWN/);
    assert.equal(await page.locator('#ground-fence-pin').innerText(),'GROUND');
    assert.equal(await page.locator('#ground-bend-pin').innerText(),'WATER');
@@ -39,6 +42,8 @@ try{
    assert.match(await page.locator('#route-status').innerText(),/Continuous model route/);
    await hit('compare-symbol');await hit('review');await hit('finish-preview');
    assert.match(await page.locator('#chronicle').innerText(),/NOT UNLOCKED/);
+   assert.match(await page.locator('#chronicle').innerText(),/PAPER CHRONICLE/);
+   assert.match(await page.locator('#chronicle').innerText(),/connected lower MODEL route/);
    assert.match(await page.locator('#hook').innerText(),/NOT UNLOCKED/);
    assert.equal(await page.locator('#survey-compare').isVisible(),true);
    assert.equal(await page.locator('#scene .edge.marked').count(),3);
@@ -53,6 +58,7 @@ try{
    assert.equal(await page.locator('#scene .edge.marked').count(),3);
    assert.equal(await page.locator('#scene .evidence-pin').count(),4);
    await hit('revisit');assert.equal(await page.locator('#lantern-revisit').isVisible(),true);
+   assert.match(await page.locator('#chronicle').innerText(),/moved a misplaced pin/);
    await hit('back');assert.match(await page.locator('#stage').innerText(),/finished/);
    assert.equal(await page.locator('#scene .edge.marked').count(),3);
    assert.equal(await page.locator('#scene .evidence-pin').count(),4);
@@ -62,6 +68,7 @@ try{
    await page.locator('#restart').click();assert.match(await page.locator('#stage').innerText(),/opening/);
    assert.equal(await page.locator('#ground-link').isVisible(),false);
    assert.equal(await page.locator('#ground-fence-pin').innerText(),'No pin');
+   assert.doesNotMatch(await page.locator('#chronicle').innerText(),/moved a misplaced pin/);
   }finally{await context.close();}
  }
  const ctx=await browser.newContext({viewport:{width:568,height:320}});
