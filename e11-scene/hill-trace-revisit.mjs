@@ -61,3 +61,16 @@ export function dispatchFutureMarker(trial,action,atlas){
  if(!current||!action)return trial;
  return replayFutureMarker([...current.history,action],atlas)||current;
 }
+
+// Child-earned PAPER dialogue, never a real check or permission.
+export function paperFutureCheckDialogue(trial,atlas){
+ const checked=restoreFutureMarker(trial,atlas);
+ if(!checked)return null;
+ const moves=checked.history.filter(action=>action.type==='move');
+ if(!checked.stop)return 'Milo: "Where could we ask?" Nia: "We can move the paper question." Finn: "The hill stays closed."';
+ if(checked.stop!==atlas.futureStop)
+  return 'Finn: "That place cannot answer this question yet." Milo: "I can move the question." Nia: "Try another paper stop."';
+ if(moves.some(action=>action.stop!==atlas.futureStop))
+  return 'Milo: "I changed where we should ask!" Nia: "You found a better next question stop." Finn: "It is only a plan. No real check is done."';
+ return 'Milo: "This is where we could ask." Nia: "Keep the question for later." Finn: "No real check is done. The hill stays closed."';
+}
