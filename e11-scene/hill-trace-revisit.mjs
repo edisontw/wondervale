@@ -74,3 +74,23 @@ export function paperFutureCheckDialogue(trial,atlas){
   return 'Milo: "I changed where we should ask!" Nia: "You found a better next question stop." Finn: "It is only a plan. No real check is done."';
  return 'Milo: "This is where we could ask." Nia: "Keep the question for later." Finn: "No real check is done. The hill stays closed."';
 }
+
+/**
+ * Replayed, reversible child-visible PAPER notebook. A marker is a proposed
+ * future question, never a visit, permission, source or verified answer.
+ */
+export function paperFutureMarkerChronicle(trial,atlas){
+ const checked=restoreFutureMarker(trial,atlas);
+ if(!checked)return null;
+ const moves=checked.history.filter(action=>action.type==='move');
+ if(!checked.stop)return moves.length?
+  'PAPER Chronicle · Milo tried '+moves.length+' question stop(s), then removed the ?. The question remains UNKNOWN. No real check was done.':
+  'PAPER Chronicle · FIRST: no future question stop chosen. The question remains UNKNOWN. No real check was done.';
+ const label=PAPER_FUTURE_STOPS.find(x=>x.id===checked.stop)?.label;
+ if(!label)return null;
+ const revised=moves.some(action=>action.stop!==checked.stop);
+ const fits=checked.stop===atlas.futureStop;
+ return 'PAPER Chronicle · '+(revised?'Milo moved the ? after trying another stop. ':'Milo placed a future ?. ')+
+  'NOW: '+label+'. '+(fits?'This is a possible place to ask later. ':'This stop cannot answer that question; Milo can revise it. ')+
+  'UNKNOWN · NOT DONE. North Hill CLOSED. No real check, permission, Canon or unlock.';
+}
