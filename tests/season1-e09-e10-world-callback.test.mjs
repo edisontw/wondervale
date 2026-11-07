@@ -50,3 +50,26 @@ test('unearned, reset, forged, or partial E09 never draws E10 route outcome',()=
  const invented=structuredClone(s);invented.unlocks.push('E10');
  assert.equal(hillWorld(invented),null);
 });
+
+test('E10 revisit voice distinguishes first-complete from child-corrected PAPER route',()=>{
+ const first=completedHill(),plain=hillWorld(first);
+ assert.deepEqual(plain.revisitVoice,{
+  speaker:'Finn',line:'Your first PAPER path joined the lower marks.'
+ });
+ // Rebuild the same completed story, but check an incomplete model route first.
+ let s=E09.fresh(),checked=false;
+ for(const entry of first.history){
+  if(!checked&&entry.scene==='story'&&entry.action?.type==='mark'){
+   const attempt={scene:'story',action:{type:'check-route'}};
+   if(E09.can(s,attempt)){s=E09.dispatch(s,attempt);checked=true;}
+  }
+  assert.equal(E09.can(s,entry),true,JSON.stringify(entry));
+  s=E09.dispatch(s,entry);
+ }
+ assert.equal(checked,true);
+ assert.equal(hillWorld(s).revisitVoice.speaker,'Nia');
+ assert.equal(hillWorld(E09.replay(s.history)).revisitVoice.speaker,'Nia');
+ assert.equal(hillWorld(E09.dispatch(s,{scene:'nav',type:'restart'})),null);
+ assert.deepEqual(hillWorld(s).canonicalEvents,[]);
+ assert.deepEqual(hillWorld(s).rights,[]);
+});
