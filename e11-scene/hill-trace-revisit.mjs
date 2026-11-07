@@ -92,5 +92,5 @@ export function paperFutureMarkerChronicle(trial,atlas){
  const fits=checked.stop===atlas.futureStop;
  return 'PAPER Chronicle · '+(revised?'Milo moved the ? after trying another stop. ':'Milo placed a future ?. ')+
   'NOW: '+label+'. '+(fits?'This is a possible place to ask later. ':'This stop cannot answer that question; Milo can revise it. ')+
-  'UNKNOWN · NOT DONE. North Hill CLOSED. No real check, permission, Canon or unlock.';
+  'UNKNOWN · NOT DONE. North Hill CLOSED. No real check; no real access, permission, Canon or unlock.';
 }
