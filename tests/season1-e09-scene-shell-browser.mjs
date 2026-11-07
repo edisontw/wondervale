@@ -43,7 +43,7 @@ try{
    await hit('compare-symbol');await hit('review');await hit('finish-preview');
    assert.match(await page.locator('#chronicle').innerText(),/NOT UNLOCKED/);
    assert.match(await page.locator('#chronicle').innerText(),/PAPER CHRONICLE/);
-   assert.match(await page.locator('#chronicle').innerText(),/connected lower MODEL route/);
+   assert.match(await page.locator('#chronicle').innerText(),/connected (?:the )?lower MODEL route/);
    assert.match(await page.locator('#hook').innerText(),/NOT UNLOCKED/);
    assert.equal(await page.locator('#survey-compare').isVisible(),true);
    assert.equal(await page.locator('#scene .edge.marked').count(),3);
