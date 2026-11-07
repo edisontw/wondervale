@@ -4,7 +4,7 @@ import * as E10 from '../authoring-labs/unnamed-story-model.mjs';
 import * as E07 from '../e07-scene/scene-model.mjs';
 import {sevenSceneUpstream} from './fixtures/season1-e04-e09-paper.mjs';
 import {questionSource,freshTrial,dispatchTrial} from '../e10-scene/hill-question.mjs';
-import {paperHillTraceRevisit,freshFutureMarker,dispatchFutureMarker,restoreFutureMarker} from '../e11-scene/hill-trace-revisit.mjs';
+import {paperHillTraceRevisit,freshFutureMarker,dispatchFutureMarker,restoreFutureMarker,paperFutureCheckDialogue} from '../e11-scene/hill-trace-revisit.mjs';
 import {encodeLoopTransfer,decodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
 import {fresh as freshE11} from '../engine/s01e11-authoring-prototype.mjs';
 
@@ -88,4 +88,23 @@ test('E11 child marker replays across E10 round-trip, can be removed, and fails 
  assert.equal(decodeLoopTransfer('#paper-loop='+encodeURIComponent(JSON.stringify(forged))),null);
  forged.marker=marker.history;delete forged.question;
  assert.equal(decodeLoopTransfer('#paper-loop='+encodeURIComponent(JSON.stringify(forged))),null);
+});
+
+test('E11 future question gives earned, reversible PAPER character response without real checks',()=>{
+ const atlas={futureStop:'source_desk'};
+ let marker=freshFutureMarker();
+ assert.match(paperFutureCheckDialogue(marker,atlas),/Where could we ask/);
+ marker=dispatchFutureMarker(marker,{type:'move',stop:'ask_caretaker'},atlas);
+ assert.match(paperFutureCheckDialogue(marker,atlas),/cannot answer/);
+ marker=dispatchFutureMarker(marker,{type:'move',stop:'source_desk'},atlas);
+ assert.match(paperFutureCheckDialogue(marker,atlas),/I changed where we should ask/);
+ assert.match(paperFutureCheckDialogue(marker,atlas),/No real check is done/);
+ assert.deepEqual(restoreFutureMarker(marker,atlas),marker);
+ const direct=dispatchFutureMarker(freshFutureMarker(),{type:'move',stop:'source_desk'},atlas);
+ assert.match(paperFutureCheckDialogue(direct,atlas),/This is where we could ask/);
+ assert.doesNotMatch(paperFutureCheckDialogue(direct,atlas),/I changed/);
+ marker=dispatchFutureMarker(marker,{type:'remove'},atlas);
+ assert.match(paperFutureCheckDialogue(marker,atlas),/Where could we ask/);
+ assert.equal(paperFutureCheckDialogue({...marker,rights:['open']},atlas),null);
+ assert.equal(paperFutureCheckDialogue(marker,null),null);
 });
