@@ -76,8 +76,12 @@ try{
    await page.locator('#question-compare').click();
    assert.equal(await page.locator('#hill-question-panel').getAttribute('data-compared'),'true');
    await page.locator('#e11-paper').click();
+   // Wait for E11 hydration: the static Begin button can be visible before
+   // the module installs its click listener on a fresh return navigation.
+   await page.waitForFunction(()=>document.querySelector('#e10-linked-context')?.textContent?.includes('observed 2 fictional traces'));
    if(await page.getByRole('button',{name:'Begin the PAPER trial'}).isVisible())
     await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
+   await page.waitForFunction(()=>document.querySelector('#e11-work')?.hidden===false);
    await page.waitForFunction(trace=>document.querySelector('#hill-trace-first')?.textContent?.includes(trace),'worn surface');
    // A valid atlas can update text while its ancestor remains hidden; report the
    // actual E11 screen/begin state rather than treating this as a transfer failure.
@@ -104,8 +108,12 @@ try{
    await page.locator('#question-wall').click();
    await page.locator('#question-compare').click();
    await page.locator('#e11-paper').click();
+   // Wait for E11 hydration: the static Begin button can be visible before
+   // the module installs its click listener on a fresh return navigation.
+   await page.waitForFunction(()=>document.querySelector('#e10-linked-context')?.textContent?.includes('observed 2 fictional traces'));
    if(await page.getByRole('button',{name:'Begin the PAPER trial'}).isVisible())
     await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
+   await page.waitForFunction(()=>document.querySelector('#e11-work')?.hidden===false);
    await page.waitForFunction(trace=>document.querySelector('#hill-trace-first')?.textContent?.includes(trace),'mounting holes');
    await page.locator('#hill-trace-world').waitFor({state:'visible'});
    assert.match(await page.locator('#hill-trace-first').innerText(),/mounting holes.*STILL UNKNOWN/);
