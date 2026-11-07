@@ -15,7 +15,7 @@ import {paperReflectionFollowUp} from './reflection-follow-up.mjs';
 import {paperFollowUpMap,PAPER_CHECK_STOPS} from './follow-up-map.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
 import {paperE10UseRevisit} from './e10-use-revisit.mjs';
-import {paperHillTraceRevisit,PAPER_FUTURE_STOPS,freshFutureMarker,restoreFutureMarker,dispatchFutureMarker} from './hill-trace-revisit.mjs';
+import {paperHillTraceRevisit,PAPER_FUTURE_STOPS,freshFutureMarker,restoreFutureMarker,dispatchFutureMarker,paperFutureCheckDialogue} from './hill-trace-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
 import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
@@ -672,6 +672,7 @@ function hillTraceRevisit(){
   'Choose where Milo should seek a real check later.');
  $('hill-trace-diary').textContent=matched?atlas.chroniclePreview:
   'The PAPER trace does not prove history, access or identity. No real check completed.';
+ $('hill-trace-dialogue').textContent=paperFutureCheckDialogue(markerTrial,atlas)||'';
 }
 function render(){
  gardenRevisit();
