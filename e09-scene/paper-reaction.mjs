@@ -44,7 +44,7 @@ export function paperReaction(snapshot){
   const triedGap=h.slice(0,-1).some(a=>a.scene==='story'&&a.action?.type==='check-route');
   speaker=v.story.routeResult?.complete?'Nia':'Finn';
   line=v.story.routeResult?.complete?
-   (triedGap?'You found the missing link! Your PAPER sketch now follows Milo\\'s walk.':'Your PAPER sketch connects the safe model walk. What did we see?'):
+   (triedGap?"You found the missing link! Your PAPER sketch now follows Milo's walk.":'Your PAPER sketch connects the safe model walk. What did we see?'):
    'I see a gap in our PAPER sketch. Which walked edge can Milo mark next?';
  }else if(last?.scene==='nav'&&last.type==='blank'){
   speaker='Finn';line='BEFORE: this PAPER sketch has no notes from our walk.';
