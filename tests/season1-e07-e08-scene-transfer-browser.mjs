@@ -13,6 +13,7 @@ try{
    const b=k=>page.locator('[data-key="'+k+'"]');
    const hit=async k=>{assert.equal(await b(k).isDisabled(),false,k);await b(k).click();};
    assert.equal(await page.locator('#e08-transfer').isVisible(),false);
+   assert.equal(await page.locator('#e08-revisit-panel').isVisible(),false);
    for(const k of ['start','walk-shared','inspect-shared','walk-channel','inspect-channel',
     'walk-workbench','test-milo','test-resident','test-water','place-water',
     'test-milo','test-resident','test-water','place-upper','test-water',
@@ -101,6 +102,20 @@ try{
    await page.waitForFunction(()=>document.querySelector('#route-feedback')?.textContent.includes('reviewed'));
    assert.match(await page.locator('#e08-paper-callback').innerText(),/two lower-model viewpoints/);
    assert.match(await page.locator('#e08-paper-callback').innerText(),/real Steps remain unlit/);
+   assert.equal(await page.locator('#e08-revisit-panel').isVisible(),true,
+     'returned E08 child-earned views appear inside E07');
+   const marks=page.locator('#e08-revisit-marks [data-mark]');
+   assert.deepEqual(await marks.evaluateAll(es=>es.map(e=>e.dataset.mark)),['A','B','C']);
+   const firstLeft=await marks.evaluateAll(es=>es.map(e=>e.style.left));
+   assert.match(await page.locator('#e08-revisit-detail').innerText(),/marks stayed still/);
+   await page.locator('#e08-revisit-second').click();
+   assert.equal(await page.locator('#e08-revisit-panel').getAttribute('data-view'),'second');
+   assert.equal(await page.locator('#e08-revisit-second').getAttribute('aria-pressed'),'true');
+   const secondLeft=await marks.evaluateAll(es=>es.map(e=>e.style.left));
+   assert.notDeepEqual(firstLeft,secondLeft,'Milo sees different PAPER sightlines');
+   await page.locator('#e08-revisit-first').click();
+   assert.deepEqual(await marks.evaluateAll(es=>es.map(e=>e.style.left)),firstLeft,
+     'safe repeatable first viewpoint');
    await page.locator('#e08-transfer').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
    assert.match(await page.locator('#trace-detail').innerText(),/never moved/);
@@ -112,11 +127,14 @@ try{
    await page.locator('#e07-return').click();
    await page.waitForFunction(()=>document.querySelector('#route-feedback')?.textContent.includes('reviewed'));
    assert.match(await page.locator('#e08-paper-callback').innerText(),/not yet made/);
+   assert.equal(await page.locator('#e08-revisit-panel').isVisible(),false,
+     'E08 restart revokes returned PAPER sightlines');
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['paper-sentinel']);
    assert.deepEqual(errors,[]);
    const size=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(size.scroll<=size.w+1,JSON.stringify({viewport,size}));
    await hit('restart');assert.equal(await page.locator('#e08-transfer').isVisible(),false);
+   assert.equal(await page.locator('#e08-revisit-panel').isVisible(),false);
    assert.equal((await page.goto(base+'/e08-scene/'))?.status(),200);
    assert.equal(await page.locator('#connector-world-panel').isVisible(),false);
    assert.equal(await page.locator('#connector-finn-revisit').innerText(),'');
