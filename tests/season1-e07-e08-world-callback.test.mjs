@@ -4,6 +4,7 @@ import * as E07 from '../e07-scene/scene-model.mjs';
 import {connectorWorld} from '../e08-scene/connector-world.mjs';
 import * as E08 from '../e08-scene/scene-model.mjs';
 import {approachFrame} from '../e08-scene/approach-experiment.mjs';
+import {earnedStepsViews} from '../e07-scene/steps-revisit.mjs';
 const a=(type,value)=>({scene:'story',action:value===undefined?{type}:{type,value}});
 const w=(type,value)=>({scene:'walkthrough',type,...(value===undefined?{}:{value})});
 function checked(){
@@ -82,4 +83,34 @@ test('E07 child-tested route changes overlap, E08 viewpoint changes apparent spa
  const forged=structuredClone(e07);forged.unlocks.push('e08');
  assert.equal(approachFrame(forged,e08,'now','first'),null);
  assert.equal(approachFrame(e07,E08.dispatch(e08,{scene:'nav',type:'restart'}),'now','first'),null);
+});
+
+test('E08 child-earned viewpoint revisits E07 only with two strict PAPER histories',()=>{
+ const e07=checked(),incomplete=twoViews();
+ assert.equal(earnedStepsViews(e07,incomplete),null,'no early E08 record');
+ const plate=lamp('inspect','feature','service-plate');
+ assert.equal(E08.can(incomplete,plate),true);
+ const observed=E08.dispatch(incomplete,plate);
+ const finish=lamp('confirm-preview');
+ assert.equal(E08.can(observed,finish),true);
+ const e08=E08.dispatch(observed,finish),earned=earnedStepsViews(e07,e08);
+ assert.ok(earned,'earned only after both model journeys');
+ assert.equal(earned.paperOnly,true);assert.equal(earned.realLightingApproved,false);
+ assert.equal(earned.upperHillClosed,true);
+ assert.deepEqual(earned.canonicalEvents,[]);assert.deepEqual(earned.unlocks,[]);
+ assert.deepEqual(earned.rights,[]);
+ assert.deepEqual(earned.first.marks.map(x=>x.mark),['A','B','C']);
+ assert.deepEqual(earned.second.marks.map(x=>x.mark),['A','B','C']);
+ assert.notEqual(earned.first.anchor,earned.second.anchor);
+ assert.notEqual(earned.first.spreadDegrees,earned.second.spreadDegrees);
+ assert.equal(earnedStepsViews(E07.fresh(),e08),null);
+ assert.equal(earnedStepsViews(E07.replay(e07.history.slice(0,-1)),e08),null);
+ assert.equal(earnedStepsViews(e07,E08.dispatch(e08,{scene:'nav',type:'restart'})),null);
+ const falseRights=structuredClone(e08);falseRights.rights.push('real-lights');
+ assert.equal(earnedStepsViews(e07,falseRights),null);
+ const falseHistory=structuredClone(e08);falseHistory.history[1].action.feature='upper-hill';
+ assert.equal(earnedStepsViews(e07,falseHistory),null);
+ const falseE07=structuredClone(e07);falseE07.history[1].action.value='north-hill';
+ assert.equal(earnedStepsViews(falseE07,e08),null);
+ assert.ok(earnedStepsViews(E07.replay(e07.history),E08.replay(e08.history)));
 });
