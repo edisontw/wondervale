@@ -86,6 +86,15 @@ test('child revises a soggy PAPER seed and sees hypothetical growth on both revi
  assert.equal(can(s,c('choose','heavy')),false);
  s=doIt(s,n('to-lower'));
  assert.equal(view(s).care.stage,'paper-sprout');
+ s=doIt(s,n('compare-gardens'));
+ assert.equal(view(s).revisitCompared,true);
+ s=doIt(s,c('choose','heavy'));
+ assert.equal(view(s).revisitCompared,false);
+ assert.doesNotMatch(view(s).paperChronicle,/TWO-PLACE REVISIT/);
+ s=doIt(s,c('test'));s=doIt(s,c('choose','gentle'));s=doIt(s,c('test'));s=doIt(s,c('compare'));
+ assert.equal(can(s,n('compare-gardens')),false);
+ s=doIt(s,n('to-current'));s=doIt(s,n('to-lower'));s=doIt(s,n('compare-gardens'));
+ assert.equal(view(s).revisitCompared,true);
  assert.deepEqual(replay(s.history),s);
  assert.deepEqual(restore(structuredClone(s)),s);
  for(const edit of [
