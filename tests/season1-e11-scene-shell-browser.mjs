@@ -152,7 +152,10 @@ async function journey(page,label,shots){
  await press(page,'Add link: market ↔ unnamed place');
  await press(page,'Check the current loop');
  assert.match(await page.locator('#loop-status').innerText(),/not established/);
+ assert.match(await page.locator('#loop-status').innerText(),/connections at.*Square: 1.*Unnamed place: 1/);
+ assert.equal(await page.locator('#loop-visual [data-loop-hint]').count(),2);
  await press(page,'Add link: unnamed place ↔ square');
+ assert.equal(await page.locator('#loop-visual [data-loop-hint]').count(),0);
  assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),3);
  await press(page,'Check the current loop');
  assert.match(await page.locator('#loop-status').innerText(),/YES — FICTIONAL ONLY/);
@@ -162,6 +165,7 @@ async function journey(page,label,shots){
  assert.match(await page.locator('#loop-status').innerText(),/not established/);
  await press(page,'Check the current loop');
  assert.match(await page.locator('#loop-status').innerText(),/not established/);
+ assert.match(await page.locator('#loop-status').innerText(),/Square: 3/);
  await press(page,'Remove link: square ↔ garden');
  assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),3);
  await press(page,'Check the current loop');
