@@ -27,6 +27,6 @@ export function connectorWorld(e07){
  const first=evaluateLayout(BASELINE),now=v.story.layout;
  if(!first||!now||!Object.values(v.story.revisedTrials).every(
   t=>t?.pass===true&&t.layoutHash===now.layoutHash))return null;
- return {first:grid(first),now:grid(now),paperOnly:true,
+ return {first:grid(first),now:grid(now),finnRevisit:'Finn: We checked who needs my path. Here, let us look from two places before we decide.',paperOnly:true,
   realRouteBuilt:false,realDrainageVerified:false,upperHillClosed:true,stepsLightsOff:true};
 }
