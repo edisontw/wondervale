@@ -4,6 +4,7 @@ import * as E06 from '../e06-scene/scene-model.mjs';
 import * as E07 from '../e07-scene/scene-model.mjs';
 import * as E08 from '../e08-scene/scene-model.mjs';
 import {encodeStepsTransfer,decodeStepsTransfer} from '../authoring-labs/e07-e08-scene-transfer.mjs';
+import {connectorWorld} from '../e08-scene/connector-world.mjs';
 const a=(type,value)=>({scene:'story',action:value===undefined?{type}:{type,value}});
 const w=(type,value)=>({scene:'walkthrough',type,...(value===undefined?{}:{value})});
 const l=(type,key,value)=>({scene:'story',action:key?{type,[key]:value}:{type}});
@@ -37,6 +38,10 @@ test('E07 child-checked PAPER route earns reversible E08 model link, never produ
  assert.deepEqual(recovered.e07,e07);assert.deepEqual(recovered.e08,e08);
  assert.equal(recovered.e06,null);
  assert.equal(E07.view(recovered.e07).walkthrough.reviewed,true);
+ assert.match(connectorWorld(recovered.e07).finnRevisit,/look from two places/);
+ assert.equal(connectorWorld(E07.fresh()),null);
+ const forged=structuredClone(recovered.e07);forged.walkthrough.checked=[];
+ assert.equal(connectorWorld(forged),null);
  assert.equal(E08.view(recovered.e08).lowerLightsPaperOn,true);
  assert.equal(E07.view(recovered.e07).e08Unlocked,false);
  assert.equal(E08.view(recovered.e08).e09Unlocked,false);
@@ -46,6 +51,7 @@ test('E07 child-checked PAPER route earns reversible E08 model link, never produ
  }
  const restartedE08=E08.dispatch(recovered.e08,{scene:'nav',type:'restart'});
  const back=decodeStepsTransfer(encodeStepsTransfer(recovered.e07,restartedE08));
+ assert.match(connectorWorld(back.e07).finnRevisit,/who needs my path/);
  assert.equal(E07.view(back.e07).walkthrough.reviewed,true);
  assert.equal(E08.view(back.e08).story.stage,'opening');
  assert.equal(encodeStepsTransfer(E07.fresh(),back.e08),null);

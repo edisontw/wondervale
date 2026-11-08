@@ -238,6 +238,7 @@ function drawConnectorCallback(){
   ' after Milo tested Finn\'s longer detour for Milo, another traveler and water. '+
   'The route is PAPER only; real passage, drainage and lighting are NOT approved.':
   'No child-checked E07 PAPER connector is linked to this independent E08 visit.';
+ $('connector-finn-revisit').textContent=paper?.finnRevisit||'';
 }
 
 function render(){
