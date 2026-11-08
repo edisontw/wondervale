@@ -30,6 +30,7 @@ try{
    assert.equal(await page.locator('#e07-return').isVisible(),true);
    assert.match(await page.locator('#connector-trace').innerText(),/checked the model crossing/);
    assert.equal(await page.locator('#connector-world-panel').isVisible(),true);
+   assert.match(await page.locator('#connector-finn-revisit').innerText(),/Finn: We checked who needs my path.*look from two places/);
    assert.equal(await page.locator('#connector-first-grid [data-conflict="true"]').count(),2);
    assert.equal(await page.locator('#connector-now-grid [data-conflict="true"]').count(),0);
    assert.match(await page.locator('#connector-world-result').innerText(),/real passage, drainage and lighting are NOT approved/);
@@ -118,6 +119,7 @@ try{
    await hit('restart');assert.equal(await page.locator('#e08-transfer').isVisible(),false);
    assert.equal((await page.goto(base+'/e08-scene/'))?.status(),200);
    assert.equal(await page.locator('#connector-world-panel').isVisible(),false);
+   assert.equal(await page.locator('#connector-finn-revisit').innerText(),'');
    assert.equal(await page.locator('#approach-panel').isVisible(),false);
   }finally{await context.close();}
  }
