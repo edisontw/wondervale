@@ -79,7 +79,15 @@ export function view(snapshot){const s=restore(snapshot);if(!s)return null;const
   w.position==='water-edge'?'Water needs a way. Look before moving.':
   w.position==='steps-base'?'At the MODEL Steps BASE. The lights are OFF. Review what you checked.':
   'Walk the PAPER route and check who else uses it.';
- return {screen:s.screen,story,walkthrough:{phase:w.phase,position:w.position,
+ const earnedFinnResponse=w.phase==='reviewed'&&w.otherPassed&&
+  w.checked.includes('crossing')&&w.checked.includes('water-edge')?
+  'Finn: I made a fast path for Milo. You checked the traveler AND the water. A good shortcut leaves room for everyone. Thanks for testing my idea!':
+  w.otherPassed?
+  'Finn: The traveler got through our PAPER crossing. Can we check the water too before we call this a good path?':
+  story.previewComplete?
+  'Finn: My first shortcut worked for Milo, but that was not enough. Let us watch another traveler try it.':
+  null;
+ return {screen:s.screen,story,earnedFinnResponse,walkthrough:{phase:w.phase,position:w.position,
    positionLabel:positionNames[w.position],checked:[...w.checked],stopped:w.stopped,otherPassed:w.otherPassed,
    feedback:walkFeedback,otherPosition:w.otherPosition,
    otherFeedback:w.otherPosition==='waiting'?'Another traveler is waiting to try the revised PAPER shared path.':
