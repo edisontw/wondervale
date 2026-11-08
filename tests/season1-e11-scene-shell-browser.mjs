@@ -92,6 +92,12 @@ async function journey(page,label,shots){
   for(const cell of route)await press(page,'Walk visitor to '+cell);
   await press(page,'Check visitor at place');
  }
+ // Checked PAPER visitor destinations visibly follow replayed check actions, not trial previews.
+ await press(page,'Walk FIRST · quiet reader');
+ assert.equal(await page.locator('#visitor-walk-board [data-checked="retry"]').count(),1);
+ await press(page,'Walk NOW · quiet reader');
+ assert.equal(await page.locator('#visitor-walk-board [data-checked="pass"]').count(),1);
+ assert.match(await page.locator('#visitor-walk-board [data-checked="pass"]').innerText(),/PAPER checked/);
  // A new walk draws footsteps; retracing withdraws them without erasing earlier visits.
  await press(page,'Walk NOW · quiet reader');
  assert.equal(await page.locator('#visitor-walk-board [data-trail="true"]').count(),1);
