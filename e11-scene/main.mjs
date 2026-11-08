@@ -127,6 +127,13 @@ function comparison(){
   'SYNTHETIC earlier-discovery label: '+titles[state.citation]+'. No verified source or canonical E10 handoff.':
   'No earlier model clue selected.';
 }
+function loopHints(){
+ if(state.history.at(-1)?.type!=='check-loop'||state.loopChecked)return [];
+ const counts={};
+ for(const id of state.loopEdges)for(const node of SAFE_LINKS[id])counts[node]=(counts[node]||0)+1;
+ const labels={square:'Square',market:'Market',common:'Unnamed place',garden:'Garden',map_room:'Map Room'};
+ return Object.entries(counts).filter(([,count])=>count!==2).map(([id,count])=>({id,label:labels[id],count}));
+}
 function map(){
  const host=$('map');host.replaceChildren();
  for(const [id,nodes] of Object.entries(SAFE_LINKS)){
@@ -137,7 +144,8 @@ function map(){
  $('check-loop').disabled=state.loopChecked;
  $('loop-status').textContent='Chosen links: '+(state.loopEdges.join(', ')||'none')+
   '. Connected current cycle: '+(state.loopChecked?'YES — FICTIONAL ONLY':'not established')+
-  '. Historic hill remains CLOSED.';
+  '. Historic hill remains CLOSED.'+(loopHints().length?
+  ' PAPER check — connections at '+loopHints().map(x=>x.label+': '+x.count).join(', ')+'. A loop needs two at each used stop.':'');
 }
 
 const SVG_NS='http://www.w3.org/2000/svg';
@@ -168,8 +176,10 @@ function drawPaperLoop(){
   svg.append(line);
  }
  for(const node of model.nodes){
+  const hint=now&&loopHints().find(x=>x.id===node.id);
   svg.append(svgPart('circle',{cx:node.x,cy:node.y,r:16,
-   fill:'#e6ede6',stroke:'#466d61','stroke-width':2}));
+   fill:hint?'#ffe1a8':'#e6ede6',stroke:hint?'#a45a12':'#466d61','stroke-width':hint?4:2,'data-connections':hint?.count??''}));
+  if(hint)svg.append(svgPart('text',{x:node.x,y:node.y+4,'text-anchor':'middle','font-size':12,'font-weight':'bold',fill:'#703b08','data-loop-hint':node.id},String(hint.count)));
   const label=node.label==='Unnamed place'?'Unnamed place':node.label;
   svg.append(svgPart('text',{x:node.x,y:node.y+29,'text-anchor':'middle',
    'font-size':12,fill:'#253f37'},label));
