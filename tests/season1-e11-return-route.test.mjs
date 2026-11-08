@@ -56,6 +56,8 @@ test('Milo safely tries a wrong PAPER turn, retraces, visits both model stops an
  assert.equal(undone.complete,false,'undo withdraws the claimed model return');
  assert.equal(paperReturnRoute(s,['market']).complete,false);
  assert.match(paperReturnRoute(s,['market']).feedback,/walk back/);
+ assert.match(paperReturnRoute(s,['garden']).feedback,/no checked garden PAPER change/);
+ assert.match(paperReturnRoute(s,['garden','map_room']).feedback,/no checked Map Room PAPER table/);
  assert.equal(paperReturnRoute(s,['square','market']),null,'no teleport from Square to Square');
  assert.equal(paperReturnRoute(s,['garden','common']),null,'unnamed place is not walkable');
  assert.equal(paperReturnRoute(s,['north_hill_closed']),null);
@@ -92,6 +94,7 @@ test('strict E06 child-tested lower PAPER sprout appears at Garden stop, not as 
  const s=reviewed();
  const atGarden=paperReturnRoute(s,['garden'],{e06});
  assert.equal(atGarden.gardenEarned,true);
+ assert.match(atGarden.feedback,/check the garden PAPER change/);
  assert.match(atGarden.gardenNote,/possible PAPER sprout/);
  assert.equal(atGarden.stationNote,null,'no fabricated Map Room visit');
  assert.equal(atGarden.siteAccessApproved,false);

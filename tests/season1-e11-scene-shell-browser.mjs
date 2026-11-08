@@ -184,10 +184,12 @@ async function journey(page,label,shots){
  await press(page,'Return to Square PAPER start');
  await press(page,'Visit Garden PAPER stop');
  assert.match(await page.locator('#return-route-garden').innerText(),/NOT VERIFIED/);
+ assert.match(await page.locator('#return-route-feedback').innerText(),/no checked garden PAPER change/);
  assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'garden');
  await press(page,'Visit Map Room PAPER stop');
  assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'map_room');
  assert.match(await page.locator('#return-route-station').innerText(),/NOT VERIFIED/);
+ assert.match(await page.locator('#return-route-feedback').innerText(),/no checked Map Room PAPER table/);
  await press(page,'Return to Garden PAPER stop');
  await press(page,'Return to Square PAPER start');
  assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
