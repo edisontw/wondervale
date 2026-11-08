@@ -272,7 +272,11 @@ function visitorWalk(){
   const cell=r+','+c,closed=BOUNDARY.includes(cell),
    quiet=!!layout?.quiet.includes(cell),activity=!!layout?.activity.includes(cell),
    here=model.stage&&model.position===cell;
+  const checked=model.stage&&model.role&&model.visits[model.stage+':'+model.role];
+  const target=model.role==='quiet_reader'?'quiet':'activity';
+  const isTarget=!!checked&&!!layout?.[target].includes(cell);
   const b=document.createElement('button');b.type='button';b.className='mini-cell';
+  b.dataset.checked=isTarget?(checked.passed?'pass':'retry'):'none';
   if(closed)b.classList.add('mini-closed');
   if(quiet)b.classList.add('mini-quiet');
   if(activity)b.classList.add('mini-activity');
@@ -281,7 +285,8 @@ function visitorWalk(){
   const visitIndex=model.trail.lastIndexOf(cell);
   b.dataset.trail=String(visitIndex>=0);
   b.textContent=(here?'Visitor · ':'')+(quiet?'Quiet':activity?'Group':closed?'CLOSED':cell)+
-   (visitIndex>=0?' · step '+visitIndex:'');
+   (visitIndex>=0?' · step '+visitIndex:'')+
+   (isTarget?(checked.passed?' · PAPER checked':' · PAPER retry'):'');
   b.setAttribute('aria-label','Walk visitor to '+cell);
   b.disabled=!model.stage||closed||!adjacent(model.position,cell);
   b.addEventListener('click',()=>{
