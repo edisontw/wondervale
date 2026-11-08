@@ -72,6 +72,12 @@ try{
    assert.match(await page.locator('#note').innerText(),/NOW is observed; POSSIBLE is a model/);
    assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-sprout');
    assert.match(await page.locator('#lower-world-note').innerText(),/PAPER pocket/);
+   await hit('heavy-care');
+   assert.equal(await page.locator('#garden-revisit-result').isVisible(),false);
+   await hit('test-care');await hit('gentle-care');await hit('test-care');await hit('compare-care');
+   assert.equal(await b('compare-gardens').isDisabled(),true);
+   await hit('to-current');await hit('to-lower');await hit('compare-gardens');
+   assert.equal(await page.locator('#garden-revisit-result').isVisible(),true);
    if(viewport.width===1366){
     assert.equal(await page.locator('#e07-transfer').isVisible(),true);
     await page.locator('#e07-transfer').click();
