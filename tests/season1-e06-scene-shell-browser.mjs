@@ -49,6 +49,7 @@ try{
    await hit('gentle-care');await hit('test-care');await hit('compare-care');
    assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-sprout');
    assert.equal(await spot('raised-pocket').getAttribute('data-growth'),'true');
+   assert.match(await spot('raised-pocket').innerText(),/🌱 PAPER sprout · MODEL only/);
    assert.match(await page.locator('#care-feedback').innerText(),/BEFORE \/ NOW compared/);
    assert.match(await page.locator('#note').innerText(),/PAPER CARE MODEL/);
    assert.match(await page.locator('#note').innerText(),/Actual growth.*UNKNOWN/);
@@ -73,8 +74,10 @@ try{
    assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-sprout');
    assert.match(await page.locator('#lower-world-note').innerText(),/PAPER pocket/);
    await hit('heavy-care');
+   assert.doesNotMatch(await spot('raised-pocket').innerText(),/PAPER sprout/);
    assert.equal(await page.locator('#garden-revisit-result').isVisible(),false);
    await hit('test-care');await hit('gentle-care');await hit('test-care');await hit('compare-care');
+   assert.match(await spot('raised-pocket').innerText(),/🌱 PAPER sprout · MODEL only/);
    assert.equal(await b('compare-gardens').isDisabled(),true);
    await hit('to-current');await hit('to-lower');await hit('compare-gardens');
    assert.equal(await page.locator('#garden-revisit-result').isVisible(),true);

@@ -110,10 +110,10 @@ function renderSpots(v){
   spot.dataset.marker=String(marked);
   spot.dataset.growth=String(grown);
   spot.setAttribute('aria-pressed',String(here));
-  const status=marked?(last?.site===id?
+  const status=grown?'🌱 PAPER sprout · MODEL only':marked?(last?.site===id?
     last.wet?'PAPER marker · WET':last.blocksPath?'PAPER marker · PATH BLOCKED':
       'PAPER marker · CLEAR MODEL':'PAPER marker · check it'):
-   grown?'PAPER sprout · MODEL only':here?'Milo here':observed?'Observed':'';
+   here?'Milo here':observed?'Observed':'';
   const hint=spot.disabled?'':here?
    (['runoff-channel','footpath','raised-pocket'].includes(id)?'Tap to place':'Tap to inspect'):
    'Tap to walk';
