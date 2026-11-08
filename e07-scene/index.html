@@ -21,6 +21,9 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 .garden-tile[data-risk=true]{background:#f7e6d6;border-color:#ae7453}
 .garden-tile strong,.garden-tile span{display:block}
 #e06-world [aria-pressed=true],#garden-flow [aria-pressed=true]{background:#315648;color:white}
+#e08-revisit-panel [aria-pressed=true]{background:#315648;color:white}
+.steps-sightline{position:relative;height:160px;background:repeating-linear-gradient(90deg,#eff4eb 0,#eff4eb 23%,#d1dfd1 24%,#eff4eb 25%);border:2px solid #95ab9a;border-radius:.45rem;overflow:hidden}
+.steps-mark{position:absolute;transform:translate(-50%,-50%);display:grid;place-items:center;border:2px solid #456b58;border-radius:50%;background:#fff7df;font-weight:700;width:36px;height:36px}
 .board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:2px;background:#c2d1c3;padding:.25rem;border-radius:.4rem}
 .cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;background:#f8faf5;font-size:clamp(.6rem,1.6vw,.85rem);font-weight:700}.cell[data-conflict=true]{background:#edb8a4}
 [hidden]{display:none!important}@media(max-width:700px){.columns,.world{grid-template-columns:1fr}.panel{padding:.55rem}.anchors{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -81,6 +84,14 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <p id="other-traveler" class="paper" role="status">Another traveler is waiting to try the revised PAPER shared path.</p>
 <div id="walkthrough-controls" class="controls"></div><p id="route-note" class="paper"></p></section>
 <section id="garden-revisit" class="panel" hidden><h2>Look back at two garden places</h2><p>Current Garden stays healthy. Lower Garden has only a removable PAPER pocket. Finn’s model changed neither place. This is a story callback, not restored E06 save data or proof of E06 completion.</p></section>
+<section id="e08-revisit-panel" class="panel" hidden aria-label="Child-earned E08 PAPER viewpoint revisit">
+<h2>Look back from the PAPER Steps</h2>
+<p>Milo compared the same three MODEL marks from two safe viewpoints. Choose one to look again. No real lights, dates, route rights or hill access are confirmed.</p>
+<div class="controls"><button type="button" id="e08-revisit-first" aria-pressed="true">FROM HERE · first view</button><button type="button" id="e08-revisit-second" aria-pressed="false">FROM THERE · second view</button></div>
+<div id="e08-revisit-marks" class="steps-sightline" role="img" aria-label="No earned viewpoints yet"></div>
+<p id="e08-revisit-detail" class="paper" role="status"></p>
+<p>Same fixed A/B/C marks. Milo moved; the model marks did not. North Hill CLOSED. Only PAPER observation.</p>
+</section>
 <section class="panel"><h2>Revisit or restart</h2><div id="nav-controls" class="controls"></div>
 <p id="e08-paper-callback" class="paper" role="status">E08 PAPER comparison not yet made.</p>
 <p><a id="e08-transfer" hidden href="../e08-scene/">Try the independent E08 lower Steps PAPER model (not an official unlock)</a></p>
