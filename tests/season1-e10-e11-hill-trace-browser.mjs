@@ -42,10 +42,12 @@ try{
    const atlas=paperHillTraceRevisit(packet.e10,packet.upstream,packet.questionTrial);
    assert.ok(atlas,'E11 must derive a valid child-earned trace atlas before navigation');
    await page.locator('#e11-paper').click();
+   // Navigation can expose the static Begin button before E11 installs its
+   // module click listener. Wait for the replayed handoff to hydrate first.
+   await page.waitForFunction(()=>document.querySelector('#e10-linked-context')?.textContent?.includes('observed 2 fictional traces'));
    await page.getByRole('button',{name:'Begin the PAPER trial'}).click();
-   assert.equal(await page.locator('#hill-trace-world').isVisible(),true,
-    'E11 should show the replay-verified E10 trace after beginning PAPER trial');
-   assert.equal(await page.locator('#hill-trace-world').isVisible(),true);
+   await page.waitForFunction(()=>document.querySelector('#e11-work')?.hidden===false);
+   await page.locator('#hill-trace-world').waitFor({state:'visible'});
    await page.waitForFunction(trace=>document.querySelector('#hill-trace-first')?.textContent?.includes(trace),'mounting holes');
    await page.locator('#hill-trace-world').waitFor({state:'visible'});
    assert.match(await page.locator('#hill-trace-first').innerText(),/mounting holes.*STILL UNKNOWN/);
