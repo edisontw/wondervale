@@ -183,9 +183,10 @@ function render(){
   'E04 two sincere memories: UNKNOWN dates. E05 MOCK station question retained. Milo must test E07 himself; no canonical source, access, Chronicle or E08 unlock.';
  back.hidden=!fragment;
  if(fragment)back.href='../e06-scene/'+fragment;
- $('connector-world-note').textContent=v.walkthrough.reviewed?
+ $('connector-world-note').textContent=(v.walkthrough.reviewed?
   'Milo walked and checked the revised PAPER route. No real route built.':
-  v.connectorPaperRevised?'Revised PAPER proposal visible. No real route built.':'FIRST model needs testing.';
+  v.connectorPaperRevised?'Revised PAPER proposal visible. No real route built.':'FIRST model needs testing.')+
+  (v.earnedFinnResponse?' '+v.earnedFinnResponse:'');
  $('note').textContent=s.paperNote+(v.walkthrough.reviewed?
   ' PAPER WALK: BEFORE only a tested connector layout; NOW Milo checked a shared crossing and water edge on the synthetic route. No construction or historical proof.':'');
  $('parent').textContent='Optional parent cue: '+(s.parentCue||'Who else uses this space?');
