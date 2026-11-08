@@ -277,7 +277,11 @@ function visitorWalk(){
   if(quiet)b.classList.add('mini-quiet');
   if(activity)b.classList.add('mini-activity');
   if(here)b.classList.add('mini-focus');
-  b.textContent=(here?'Visitor · ':'')+(quiet?'Quiet':activity?'Group':closed?'CLOSED':cell);
+  // Show only steps earned in this visitor's current reversible PAPER walk.
+  const visitIndex=model.trail.lastIndexOf(cell);
+  b.dataset.trail=String(visitIndex>=0);
+  b.textContent=(here?'Visitor · ':'')+(quiet?'Quiet':activity?'Group':closed?'CLOSED':cell)+
+   (visitIndex>=0?' · step '+visitIndex:'');
   b.setAttribute('aria-label','Walk visitor to '+cell);
   b.disabled=!model.stage||closed||!adjacent(model.position,cell);
   b.addEventListener('click',()=>{
