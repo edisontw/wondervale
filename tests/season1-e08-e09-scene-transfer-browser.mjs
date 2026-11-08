@@ -56,6 +56,16 @@ try{
    await page.locator('#sightline-compare').click();
    assert.match(await page.locator('#sightline-feedback').innerText(),/NOT DONE/);
    assert.equal(await page.locator('#scene .sightline-pin').count(),2);
+   assert.equal(await page.locator('#scene [data-sightline-link="paper"]').count(),1,
+    'Milo sees the earned PAPER link between his two future check questions');
+   await page.locator('[data-sightline-remove="light"]').click();
+   assert.equal(await page.locator('#scene [data-sightline-link="paper"]').count(),0,
+    'Removing a question must undo the visible world response');
+   await page.locator('[data-sightline-select="light"]').click();
+   await page.locator('[data-sightline-site="fence_view"]').click();
+   await page.locator('#sightline-compare').click();
+   assert.equal(await page.locator('#scene [data-sightline-link="paper"]').count(),1,
+    'Revised child action earns the world response again');
    await hit('mark-steps_base:signpost');
    await hit('mark-signpost:lower_bend');await hit('mark-lower_bend:overlook');
    await hit('check-route');await hit('compare-symbol');await hit('review');await hit('finish-preview');
@@ -68,6 +78,7 @@ try{
    assert.match(await page.locator('#survey-summary').innerText(),/Milo walked 4 model edges/);
    assert.equal(await page.locator('#lantern-world-map .view-ray').count(),6);
    assert.equal(await page.locator('#scene .sightline-pin').count(),2);
+   assert.equal(await page.locator('#scene [data-sightline-link="paper"]').count(),1);
    assert.match(await page.locator('#sightline-feedback').innerText(),/NOT DONE/);
    await page.locator('#restart').click();
    assert.equal(await page.locator('#scene .sightline-pin').count(),0);
