@@ -85,6 +85,7 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <button id="use-stage-reset" type="button">Clear PAPER cutouts</button></div>
 <p id="use-stage-feedback" class="paper" role="status" aria-live="polite"></p>
 <p id="use-stage-chronicle" class="paper" role="status"></p>
+<p id="use-stage-reaction" class="dialogue" role="status" aria-live="polite" data-beat="waiting"></p>
 <p class="paper">Nia: “We saw marks, not the things that made them.” Finn: “Let's test a different fit.” Optional parent cue: What would we need to check before saying this really happened?</p>
 </section>
 <section id="clue-panel" class="panel" hidden>
@@ -372,6 +373,22 @@ function renderUseStage(){
   (v.first?' FIRST: '+Object.entries(v.first).map(([p,a])=>p+' at '+a.replaceAll('_',' ')).join('; ')+'.':' FIRST: no comparison yet.')+
   ' NOW: '+Object.entries(v.now).map(([p,a])=>p+' at '+(a?a.replaceAll('_',' '):'unplaced')).join('; ')+'.';
  $('use-stage-chronicle').textContent=v.paperNote;
+ // Only the strictly replayed PAPER cutout trial may change the companions' response.
+ // A move after comparison withdraws the earlier success until Milo compares again.
+ const reaction=$('use-stage-reaction');
+ if(v.revised){
+  reaction.dataset.beat='revised';
+  reaction.textContent='Milo: "I moved the notice!" Nia: "Now each paper cutout has a place." Finn: "It fits our model, not proven history."';
+ }else if(v.conflict){
+  reaction.dataset.beat='overlap';
+  reaction.textContent='Finn: "They are on top of each other!" Milo: "I can move one." Nia: "Try a different PAPER spot."';
+ }else if(v.firstConflict){
+  reaction.dataset.beat='trying-again';
+  reaction.textContent='Nia: "You changed the model. Compare again to see what happened." Finn: "We can still undo it."';
+ }else{
+  reaction.dataset.beat='waiting';
+  reaction.textContent='Nia: "What could fit?" Finn: "Place two pretend cutouts and compare."';
+ }
 }
 function renderClue(){
  const panel=$('clue-panel');panel.hidden=!linkedClueSource;
