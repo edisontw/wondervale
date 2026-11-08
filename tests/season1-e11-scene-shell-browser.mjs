@@ -92,6 +92,17 @@ async function journey(page,label,shots){
   for(const cell of route)await press(page,'Walk visitor to '+cell);
   await press(page,'Check visitor at place');
  }
+ // A new walk draws footsteps; retracing withdraws them without erasing earlier visits.
+ await press(page,'Walk NOW · quiet reader');
+ assert.equal(await page.locator('#visitor-walk-board [data-trail="true"]').count(),1);
+ await press(page,'Walk visitor to 1,1');
+ assert.equal(await page.locator('#visitor-walk-board [data-trail="true"]').count(),2);
+ assert.match(await page.locator('#visitor-walk-board [aria-label="Walk visitor to 1,1"]').innerText(),/step 1/);
+ await press(page,'Retrace one visitor step');
+ assert.equal(await page.locator('#visitor-walk-board [data-trail="true"]').count(),1);
+ assert.equal(await page.locator('#visitor-walk-board [aria-label="Walk visitor to 1,1"]').getAttribute('data-trail'),'false');
+ await press(page,'Walk visitor to 1,1');
+ assert.equal(await page.locator('#visitor-walk-board [data-trail="true"]').count(),2);
  assert.match(await page.locator('#visitor-walk-chronicle').innerText(),
   /FIRST quiet RETRY, group PASS → NOW quiet PASS, group PASS/);
  assert.match(await page.locator('#visitor-walk-chronicle').innerText(),/UNKNOWN/);
