@@ -50,11 +50,12 @@ function button(host,label,action,disabled=false,pressed=false){
   if(pressed)b.setAttribute('aria-pressed','true');
   b.addEventListener('click',()=>act(action));host.append(b);return b;
 }
-function edgeLine(host,a,b,classes){
+function edgeLine(host,a,b,classes,gapLabel=null){
   const w=host.clientWidth,h=host.clientHeight;
   const x1=coords[a][0]*w/100,y1=coords[a][1]*h/100;
   const x2=coords[b][0]*w/100,y2=coords[b][1]*h/100;
   const line=document.createElement('div');line.className='edge '+classes;
+  if(gapLabel){line.setAttribute('role','img');line.setAttribute('aria-label','PAPER sketch gap: '+gapLabel);}
   line.style.left=x1+'px';line.style.top=y1+'px';
   line.style.width=Math.hypot(x2-x1,y2-y1)+'px';
   line.style.transform='rotate('+Math.atan2(y2-y1,x2-x1)+'rad)';
@@ -68,8 +69,9 @@ function world(){const s=story(),v=view(state);
   const closed=document.createElement('span');closed.className='closed-label';
   closed.textContent='UPPER HILL CLOSED — NO ENTRY';host.append(closed);
   for(const e of SAFE_EDGES){
-    edgeLine(host,e.a,e.b,(notes||!s.previewComplete)&&s.surveyedEdges.includes(e.id)?
-      'surveyed '+((notes||!s.previewComplete)&&s.markedEdges.includes(e.id)?'marked':''):'');
+    const gap=!s.previewComplete&&s.routeResult&&!s.routeResult.complete&&s.routeResult.nextGap===e.id;
+    edgeLine(host,e.a,e.b,((notes||!s.previewComplete)&&s.surveyedEdges.includes(e.id)?
+      'surveyed '+((notes||!s.previewComplete)&&s.markedEdges.includes(e.id)?'marked':''):'')+(gap?' gap':''),gap?edgeNames[e.id]:null);
   }
   edgeLine(host,'fence_view',CLOSED_NODE,'closed');
   const closedNode=document.createElement('span');closedNode.className='closed-node';
