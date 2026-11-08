@@ -28,15 +28,19 @@ try{
    assert.match(await page.locator('#maybe').innerText(),/resting \(MAYBE\)/);
    await hit('walk','quiet_corner');await hit('hear','quiet');
    await hit('place','quiet:shared');
+   assert.equal(await page.locator('#live-needs-board [data-slot="shared"][data-occupied="true"]').count(),1);
    await hit('walk','meeting_edge');await hit('hear','activity');
    assert.equal(await page.locator('#story-reaction').getAttribute('data-beat'),'two-voices');
    await hit('place','activity:shared');
+   assert.equal(await page.locator('#live-needs-board [data-conflict="true"]').count(),1);
    assert.match(await page.locator('#parent-needs').innerText(),/Whose need/);
    assert.equal(await b('review-tradeoff').isDisabled(),true);
    await hit('test-one-slot');
    assert.equal(await page.locator('#story-reaction').getAttribute('data-beat'),'one-slot-trial');
    assert.match(await page.locator('#feedback').innerText(),/one shared spot/i);
    await hit('place','quiet:left');await hit('place','activity:right');
+   assert.equal(await page.locator('#live-needs-board [data-conflict="true"]').count(),0);
+   assert.equal(await page.locator('#live-needs-board [data-occupied="true"]').count(),2);
    assert.match(await page.locator('#needs').innerText(),/left/);
    await hit('walk','notice_wall');await hit('inspect','holes');
    assert.match(await page.locator('#parent-evidence').innerText(),/more than one use/);
@@ -90,6 +94,7 @@ try{
    assert.ok(g.scroll<=g.width+1,JSON.stringify({size,g}));
    for(const x of g.buttons)assert.ok(x.w>=43.5&&x.h>=43.5,JSON.stringify(x));
    await page.locator('#restart').click();
+   assert.equal(await page.locator('#live-needs-board [data-occupied="true"]').count(),0);
    assert.equal(await page.locator('#story-reaction').getAttribute('data-beat'),'arrival');
    assert.match(await page.locator('#stage').innerText(),/opening/);
    assert.equal(await page.locator('#paper-comparison').isVisible(),false);

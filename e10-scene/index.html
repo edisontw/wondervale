@@ -142,6 +142,7 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <section class="panel"><h2>4. Try a reversible needs board</h2>
 <p>First put BOTH paper cards in one shared slot and test it. Then move a card and compare. No permanent design.</p>
 <div id="need-actions" class="controls"></div>
+<div id="live-needs-board" class="compare-board" aria-label="Current simulated PAPER needs board" aria-live="polite"></div>
 <div class="controls"><button data-action="test-one-slot">Test both cards in one spot</button>
 <button data-action="review-tradeoff">Compare the two needs</button></div>
 <p id="parent-needs" class="paper" hidden></p>
@@ -491,6 +492,15 @@ function render(){
  const needs=$('need-actions');needs.replaceChildren();
  for(const needId of Object.keys(NEEDS))for(const slot of SLOTS)
   add(needs,'place',needId+':'+slot,'Paper '+needId+' → '+slot);
+ const live=$('live-needs-board');live.replaceChildren();
+ for(const [slot,title] of [['left','Left'],['shared','Shared'],['right','Right']]){
+  const cards=v.needs.filter(n=>n.slot===slot).map(n=>n.role);
+  const tile=document.createElement('div');tile.className='compare-slot';
+  tile.dataset.slot=slot;tile.dataset.occupied=String(cards.length>0);tile.dataset.conflict=String(cards.length>1);
+  const label=document.createElement('strong');label.textContent=title+' PAPER slot';
+  const body=document.createElement('span');body.textContent=cards.join(' + ')||'Empty';
+  tile.append(label,body);live.append(tile);
+ }
  $('seen').textContent=v.observations.map(x=>x.text).join(' / ')||'Not inspected yet.';
  $('maybe').textContent=v.hypotheses.map(x=>x.traceId+': '+x.useTag+' (MAYBE)').join(' / ')||'No idea yet.';
  $('needs').textContent=v.needs.map(x=>x.role+': '+x.want+' → '+(x.slot||'unplaced')).join(' / ')||'Not heard yet.';
