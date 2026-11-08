@@ -127,3 +127,19 @@ test('route review requires observed second-user passage, not just two Milo insp
  assert.equal(can(s,w('other-start')),false);
  assert.deepEqual(view(s).canonicalEvents,[]);
 });
+
+test('Finn response follows earned model, traveler and water review; forged progress is rejected',()=>{
+ let s=fresh();assert.equal(view(s).earnedFinnResponse,null);
+ s=complete();assert.match(view(s).earnedFinnResponse,/first shortcut worked for Milo/);
+ for(const x of [w('start'),w('move','crossing'),w('inspect','crossing'),w('other-start'),w('other-step'),w('other-step')])s=go(s,x);
+ assert.match(view(s).earnedFinnResponse,/traveler got through.*check the water/);
+ for(const edit of [x=>x.walkthrough.phase='reviewed',x=>x.walkthrough.checked.push('water-edge'),x=>x.walkthrough.otherPassed=false]){
+  const bad=structuredClone(s);edit(bad);assert.equal(restore(bad),null);assert.equal(view(bad),null);
+ }
+ for(const x of [w('move','water-edge'),w('inspect','water-edge'),w('move','steps-base')])s=go(s,x);
+ assert.match(view(s).earnedFinnResponse,/check the water/);
+ s=go(s,w('review'));assert.match(view(s).earnedFinnResponse,/traveler AND the water.*room for everyone/);
+ assert.deepEqual(replay(s.history),s);assert.equal(view(restore(structuredClone(s))).earnedFinnResponse,view(s).earnedFinnResponse);
+ assert.deepEqual(view(s).canonicalEvents,[]);assert.deepEqual(view(s).rights,[]);assert.equal(view(s).northHillClosed,true);
+ s=go(s,n('restart'));assert.equal(view(s).earnedFinnResponse,null);
+});
