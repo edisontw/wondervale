@@ -35,8 +35,12 @@ export function paperReturnRoute(snapshot,steps=[],upstream=null){
  let feedback='Milo: "Which PAPER stop shall we visit first?"';
  if(steps.length){
   if(at==='market')feedback='Finn: "This detour does not reach the two stops. We can walk back."';
-  else if(at==='garden')feedback='Milo: "We can check the garden PAPER change here."';
-  else if(at==='map_room')feedback='Nia: "Look at the model table. Is the path still clear?"';
+  else if(at==='garden')feedback=gardenEarned?
+   'Milo: "We can check the garden PAPER change here."':
+   'Milo: "We have no checked garden PAPER change in this visit yet."';
+  else if(at==='map_room')feedback=stationEarned?
+   'Nia: "Look at the model table. Is the path still clear?"':
+   'Nia: "We have no checked Map Room PAPER table in this visit yet."';
   else feedback=complete?
    'Milo: "We visited both model changes and came back. The real way is still UNKNOWN."':
    'Milo: "We are back, but we have not checked both model stops. Try again."';
