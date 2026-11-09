@@ -144,7 +144,8 @@ try{
    assert.match(await page.locator('#chronicle').innerText(),/E10 NOT UNLOCKED/);
    await page.locator('#e08-return').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
-   assert.match(await page.locator('#e09-callback').innerText(),/E09 PAPER return/);
+   assert.match(await page.locator('#e09-callback').innerText(),/Finn: We kept 19 PAPER survey steps.*hill stays CLOSED/);
+   assert.equal(await page.locator('#steps-world').getAttribute('data-hill-return'),'unverified');
    assert.match(page.url(),/paper-memory-station-garden-shortcut-steps-hill=/);
    await page.locator('#e09-transfer').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E09 finished'));
@@ -153,7 +154,8 @@ try{
    assert.match(await page.locator('#stage').innerText(),/E09 opening/);
    await page.locator('#e08-return').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
-   assert.match(await page.locator('#e09-callback').innerText(),/0 recorded model steps/);
+   assert.match(await page.locator('#e09-callback').innerText(),/Finn: We kept 0 PAPER survey steps.*hill stays CLOSED/);
+   assert.equal(await page.locator('#steps-world').getAttribute('data-hill-return'),'unverified');
    await page.locator('#e07-return').click();
    await page.waitForFunction(()=>document.querySelector('#route-feedback')?.textContent.includes('reviewed'));
    assert.match(await page.locator('#e08-paper-callback').innerText(),/two lower-model viewpoints/);
