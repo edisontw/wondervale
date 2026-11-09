@@ -299,7 +299,11 @@ function visitorWalk(){
   model.stage.toUpperCase()+' · '+titles[model.role]+' at '+model.position+
   ' · '+model.steps+' steps · '+model.blocked+' safe blocked tries.':
   'Choose a visitor to start at the model entrance.';
- $('visitor-walk-feedback').textContent=model.feedback;
+ const selectedCheck=model.stage&&model.role&&model.visits[model.stage+':'+model.role];
+ $('visitor-walk-feedback').textContent=model.feedback+(selectedCheck?
+  (selectedCheck.passed?
+   ' Nia: I can see this PAPER visitor reached the place. Milo, can we check another need?':
+   ' Finn: This PAPER route needs another try. Milo, retrace and change the model.'):'');
  const controls=$('visitor-walk-controls');controls.replaceChildren();
  button(controls,'Retrace one visitor step',()=>{
   roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'retrace'});

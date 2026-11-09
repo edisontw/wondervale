@@ -93,7 +93,9 @@ async function journey(page,label,shots){
   await press(page,'Check visitor at place');
   if(stage==='NOW'&&role==='quiet reader'){
    assert.equal(await page.locator('#visitor-walk-board [data-checked="pass"]').count(),1);
+   assert.match(await page.locator('#visitor-walk-feedback').innerText(),/Nia: I can see this PAPER visitor reached the place/);
    await press(page,'Undo last visitor check');
+   assert.doesNotMatch(await page.locator('#visitor-walk-feedback').innerText(),/Nia: I can see this PAPER visitor reached the place/);
    assert.equal(await page.locator('#visitor-walk-board [data-checked="pass"]').count(),0);
    assert.match(await page.locator('#visitor-walk-results').innerText(),/NOW Quiet reader: not walked/);
    await press(page,'Check visitor at place');
@@ -103,6 +105,7 @@ async function journey(page,label,shots){
  // Checked PAPER visitor destinations visibly follow replayed check actions, not trial previews.
  await press(page,'Walk FIRST · quiet reader');
  assert.equal(await page.locator('#visitor-walk-board [data-checked="retry"]').count(),1);
+ assert.match(await page.locator('#visitor-walk-feedback').innerText(),/Finn: This PAPER route needs another try/);
  await press(page,'Walk NOW · quiet reader');
  assert.equal(await page.locator('#visitor-walk-board [data-checked="pass"]').count(),1);
  assert.match(await page.locator('#visitor-walk-board [data-checked="pass"]').innerText(),/PAPER checked/);
