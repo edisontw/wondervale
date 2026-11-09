@@ -74,6 +74,13 @@ try{
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
    assert.match(await page.locator('#e09-callback').innerText(),/Nia: Milo.*revised PAPER questions.*CLOSED/);
    assert.equal(await page.locator('#steps-world').getAttribute('data-hill-return'),'revised');
+   assert.equal(await page.locator('#map [data-hill-question="light"]').count(),1);
+   assert.equal(await page.locator('#map [data-hill-question="view"]').count(),1);
+   await page.locator('[data-hill-question="light"]').last().click();
+   assert.match(await page.locator('#hill-question-detail').innerText(),/fence-view LIGHT question/);
+   assert.equal(await page.locator('#map [data-selected="true"]').count(),1);
+   await page.locator('button[data-hill-question="view"]').click();
+   assert.match(await page.locator('#hill-question-detail').innerText(),/overlook VIEWPOINT question/);
    await page.locator('#e09-transfer').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E09 finished'));
    assert.match(await page.locator('#survey-summary').innerText(),/Milo walked 4 model edges/);
@@ -89,6 +96,9 @@ try{
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
    assert.match(await page.locator('#e09-callback').innerText(),/Finn:.*not matched both safe future questions/);
    assert.equal(await page.locator('#steps-world').getAttribute('data-hill-return'),'unverified');
+   assert.equal(await page.locator('#map [data-hill-question="light"]').count(),0);
+   assert.equal(await page.locator('#map [data-hill-question="view"]').count(),0);
+   assert.equal(await page.locator('#hill-question-panel').isVisible(),false);
    await hit('restart');
    assert.equal(await page.locator('#e09-transfer').isVisible(),false);
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['paper-sentinel']);

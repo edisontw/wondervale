@@ -23,7 +23,7 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 .live-viewfinder[data-lit=false]{background:#d8dedf}
 .map{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:2px;background:#c3d0d2;padding:.25rem;border-radius:.4rem}
 .cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;background:#f7faf8;font-size:clamp(.7rem,1.8vw,.95rem);font-weight:700}
-.cell[data-here=true]{background:#f3d99d}.cell[data-marker=true]{background:#b5d3db}.cell[data-dark=true]{background:#d8dedf}
+.cell[data-here=true]{background:#f3d99d}.cell[data-marker=true]{background:#b5d3db}.cell[data-dark=true]{background:#d8dedf}.cell[data-hill-question=light],.cell[data-hill-question=view]{background:#e9d8f1;border:2px solid #75558a}.cell[data-selected=true]{outline:3px solid #75558a;outline-offset:-3px}[data-hill-question][aria-pressed=true]{background:#e9d8f1;border-color:#75558a}
 .shadow-map{display:block;width:min(100%,420px);height:auto;background:#f4f7f5;border:1px solid #9ab3b7;border-radius:.4rem}[data-shadow][aria-pressed=true]{background:#d8e9df;border-color:#35634d}
 .connector-grid{grid-template-columns:repeat(8,minmax(0,1fr))}.connector-grid .cell[data-connector=true]{background:#d8e9df}.connector-grid .cell[data-conflict=true]{background:#efc9b9}
 [data-active=true].connector-grid{outline:3px solid #98641b;outline-offset:2px}.approach-map{display:block;width:min(100%,360px);height:auto;background:#f4f7f5;border:1px solid #9ab3b7;border-radius:.4rem;margin:.5rem 0}[data-approach][aria-pressed=true]{background:#d8e9df;border-color:#35634d}
@@ -43,7 +43,10 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <div class="columns"><section class="panel"><h2>Inspect and try two lower lamps</h2><div id="inspect-controls" class="controls"></div><div id="lamp-controls" class="controls"></div><p id="lamp-state" class="paper" role="status"></p><p id="parent" class="paper"></p></section>
 <section class="panel"><h2>Observe and compare</h2><p>Look through Milo's PAPER viewfinder while walking. Three fixed marks can appear together from HERE and apart from THERE.</p><svg id="live-viewfinder" class="live-viewfinder" viewBox="0 0 320 150" role="img" aria-label="Dim synthetic PAPER viewfinder"></svg><p id="live-view-note" class="paper" role="status"></p><div id="observe-controls" class="controls"></div><p id="first" class="paper"></p><p id="second" class="paper"></p><p id="comparison" class="paper" role="status"></p></section></div>
 <div class="columns"><section class="panel"><h2>Synthetic fixed-marker plan</h2><div id="map" class="map" role="img" aria-label="Synthetic fixed markers and safe viewpoint"></div>
-<p>A, B, C = fixed marks · M = Milo · no upper-hill walking. Pale marks without both lamps are not usable evidence.</p></section>
+<p>A, B, C = fixed marks · M = Milo · no upper-hill walking. Pale marks without both lamps are not usable evidence.</p>
+<div id="hill-question-panel" hidden><p>Two E09 child-revised questions now appear as ?L and ?V on this synthetic plan. Inspect one; these positions are NOT real geography.</p>
+<div class="controls"><button type="button" data-hill-question="light">Inspect ?L PAPER question</button><button type="button" data-hill-question="view">Inspect ?V PAPER question</button></div>
+<p id="hill-question-detail" class="paper" role="status"></p></div></section>
 <section class="panel"><h2>PAPER Chronicle and next question</h2><p id="note" class="paper" role="status"></p><p id="hook" class="paper"></p></section></div></section>
 <section id="trace-panel" class="panel" hidden><h2>Revisit what Milo saw</h2>
 <p>The same three PAPER marks stay in place. Trace the lines from the first or second safe viewpoint, then overlay both. The lower model lamps are not real wiring.</p>
