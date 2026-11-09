@@ -16,6 +16,7 @@ const hillIncoming=lantern?null:decodeHillTransfer(location.hash);
 const incoming=lantern||hillIncoming||decodeStepsTransfer(location.hash);
 let state=incoming?.e08||fresh(),linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
 let linkedE09=memoryHill?.e09||hillIncoming?.e09||null;
+let selectedHillQuestion=null; // UI focus only; never a replay/approval flag.
 let approach={layout:'first',view:'first',pins:[]},shadow=freshShadow();
 const linkedE04=lantern?.e04||null,linkedE05=lantern?.e05||null;
 const $=id=>document.getElementById(id);
@@ -48,7 +49,7 @@ const groups={'walk-controls':rows.slice(0,4),'inspect-controls':rows.slice(4,9)
  'trace-controls':rows.slice(14,17),'nav-controls':rows.slice(17)};
 for(const [host,items] of Object.entries(groups))for(const [key,label,action] of items){
  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
- b.addEventListener('click',()=>{if(action.scene==='nav'&&action.type==='restart'){linkedE09=null;approach={layout:'first',view:'first',pins:[]};shadow=freshShadow();}state=dispatch(state,action);render();});$(host).append(b);
+ b.addEventListener('click',()=>{if(action.scene==='nav'&&action.type==='restart'){linkedE09=null;selectedHillQuestion=null;approach={layout:'first',view:'first',pins:[]};shadow=freshShadow();}state=dispatch(state,action);render();});$(host).append(b);
 }
 for(const button of document.querySelectorAll('[data-approach]')){
  button.addEventListener('click',()=>{
@@ -112,13 +113,20 @@ function drawShadow(){
  }
 }
 const spread=o=>o?o.viewpoint.replaceAll('-',' ')+' · fixed marks A/B/C · apparent spread '+o.spreadDegrees.toFixed(1)+'°':'Not observed yet';
+for(const button of document.querySelectorAll('[data-hill-question]'))button.addEventListener('click',()=>{
+ selectedHillQuestion=button.dataset.hillQuestion;render();
+});
 function draw(v){
  const root=$('map');root.replaceChildren();const p=VIEWPOINTS[v.milo],marks=new Map(MARKERS.map((m,i)=>[m.x+','+m.y,'ABC'[i]]));
  for(let y=0;y<6;y++)for(let x=0;x<9;x++){
   const id=x+','+y,m=marks.get(id),here=p.x===x&&p.y===y,el=document.createElement('div');
   el.className='cell';el.dataset.here=String(here);el.dataset.marker=String(!!m);
   el.dataset.dark=String(!!m&&!(v.lights['lower-a']&&v.lights['lower-b']));
-  el.textContent=here?'M':m||'·';root.append(el);
+  const question=x===1&&y===1?'light':x===7&&y===4?'view':null;
+  const earned=question&&$('steps-world').dataset.hillReturn==='revised';
+  el.dataset.hillQuestion=earned?question:'';
+  el.dataset.selected=String(!!earned&&selectedHillQuestion===question);
+  el.textContent=here?'M':earned?(question==='light'?'?L':'?V'):m||'·';root.append(el);
  }
  root.setAttribute('aria-label','Synthetic fixed markers A B C, Milo at '+v.milo.replaceAll('-',' ')+
   ', lower lamp A '+(v.lights['lower-a']?'on':'off')+', lower lamp B '+(v.lights['lower-b']?'on':'off'));
@@ -277,6 +285,15 @@ function render(){
   hillNotes.sightlineBoard.placements.light==='fence_view'&&
   hillNotes.sightlineBoard.placements.view==='overlook';
  $('steps-world').dataset.hillReturn=earnedQuestions?'revised':'unverified';
+ if(!earnedQuestions)selectedHillQuestion=null;
+ $('hill-question-panel').hidden=!earnedQuestions;
+ for(const button of document.querySelectorAll('[data-hill-question]')){
+  button.setAttribute('aria-pressed',String(earnedQuestions&&selectedHillQuestion===button.dataset.hillQuestion));
+ }
+ $('hill-question-detail').textContent=!earnedQuestions?'No verified PAPER question locations yet.':
+  selectedHillQuestion==='light'?'Milo checks ?L: the E09 fence-view LIGHT question. Nia: This is a question, not a safe light or an approved route.':
+  selectedHillQuestion==='view'?'Milo checks ?V: the E09 overlook VIEWPOINT question. Finn: We can return to E09 and revise it; North Hill stays CLOSED.':
+  'Milo can inspect ?L or ?V on this synthetic plan, then return to E09 to revise the question.';
  $('e09-callback').textContent=earnedQuestions?
   'Nia: Milo, your revised PAPER questions connect the safe fence lookout and overlook. The marks on our Steps model stay fixed; the hill remains CLOSED. We can revisit and change those questions.':
   hillNotes?'Finn: We kept '+linkedE09.history.length+
