@@ -309,6 +309,12 @@ function visitorWalk(){
   roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'check'});
   sharedUseHistory=[];visitorWalk();
  },!model.stage||model.steps<1);
+ // Withdraw only the most recent check; replay restores all earlier visitor evidence.
+ button(controls,'Undo last visitor check',()=>{
+  if(roleWalkHistory.at(-1)?.type!=='check')return;
+  roleWalkHistory=roleWalkHistory.slice(0,-1);
+  sharedUseHistory=[];visitorWalk();
+ },roleWalkHistory.at(-1)?.type!=='check');
  button(controls,'Restart visitor rehearsal',()=>{roleWalkHistory=[];sharedUseHistory=[];visitorWalk();},!roleWalkHistory.length);
  $('visitor-walk-results').textContent=['first','now'].flatMap(stage=>
   USERS.map(role=>{
