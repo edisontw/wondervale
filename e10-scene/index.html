@@ -159,7 +159,7 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <button id="restart">Restart story</button></div>
 <p id="hook" class="paper" role="status"></p>
 </section></div>
-<section id="paper-comparison" class="panel" hidden>
+<section id="e11-need-recheck" class="panel" hidden data-matched="false"><h2>E11 → E10: Test a visitor need again</h2><p>After Milo tests both fictional E11 visitors, choose a visitor and try its question in an E10 PAPER slot. A mismatch is safe to revise. Neither model proves real access.</p><div class="controls"><button id="recheck-reader" type="button">Try quiet reader</button><button id="recheck-group" type="button">Try activity group</button></div><div id="recheck-slots" class="controls"></div><p id="recheck-result" class="paper" role="status" aria-live="polite">Choose a visitor, then a PAPER slot.</p></section><section id="paper-comparison" class="panel" hidden>
 <h2>6. See what Milo changed — FIRST / NOW</h2>
 <p>FIRST is the shared-slot PAPER test Milo actually tried, not the historical past. NOW is his revised model. No real layout is approved.</p>
 <div class="controls"><button id="compare-first" type="button" aria-pressed="false">FIRST: test the overlap</button>
@@ -183,6 +183,7 @@ import {decodeUnnamedTransfer,encodeUnnamedTransfer} from '../authoring-labs/e09
 import {decodeMemoryCourtyard,encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
 import {decodeLoopTransfer,encodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
 import {fresh as freshE11} from '../engine/s01e11-authoring-prototype.mjs';
+import {source as e11RecheckSource,check as checkE11Need,SLOTS as RECHECK_SLOTS} from './e11-need-recheck.mjs';
 const loop=decodeLoopTransfer(location.hash);
 const incoming=loop||decodeMemoryCourtyard(location.hash)||decodeUnnamedTransfer(location.hash);
 let state=incoming?.e10||fresh(),screen='courtyard',comparisonLayer='now';
@@ -191,6 +192,7 @@ const linkedE09=upstream?.e09||null,linkedE08=upstream?.e08||null;
 const linkedE07=upstream?.e07||null,linkedE06=upstream?.e06||null;
 const linkedE04=upstream?.e04||null,linkedE05=upstream?.e05||null;
 let linkedE11=loop?.e11||null;
+let recheckRole=null,recheckSlot=null;
 let linkedMarkerTrial=loop?.markerTrial||null;
 const linkedHillWorld=hillWorld(linkedE09);
 const linkedClueSource=clueSource(linkedE08,linkedE09);
@@ -463,6 +465,28 @@ function renderStoryReaction(v){
  $('story-reaction-line').textContent=line;
  $('story-reaction-evidence').textContent=evidence;
 }
+function renderE11NeedRecheck(){
+ const panel=$('e11-need-recheck'),source=e11RecheckSource(state,linkedE11);
+ panel.hidden=!source||screen!=='courtyard';
+ if(!source)return;
+ for(const [id,role] of [['recheck-reader','quiet_reader'],['recheck-group','activity_group']])
+  $(id).setAttribute('aria-pressed',String(recheckRole===role));
+ const host=$('recheck-slots');host.replaceChildren();
+ for(const slot of RECHECK_SLOTS){
+  const b=document.createElement('button');b.type='button';
+  b.textContent='Try '+slot+' PAPER slot';b.dataset.recheckSlot=slot;
+  b.disabled=!recheckRole;b.setAttribute('aria-pressed',String(recheckSlot===slot));
+  b.addEventListener('click',()=>{recheckSlot=slot;renderE11NeedRecheck();});
+  host.append(b);
+ }
+ const result=recheckRole&&recheckSlot?checkE11Need(state,linkedE11,recheckRole,recheckSlot):null;
+ panel.dataset.matched=String(!!result?.matched);
+ $('recheck-result').textContent=result?
+  (result.matched?'Milo found a PAPER match. ':'Milo can revise this PAPER try. ')+result.message:
+  'Choose a visitor, then a PAPER slot. E11 tests: reader '+
+  (source.tests.quiet_reader.passed?'PASS':'RETRY')+', group '+
+  (source.tests.activity_group.passed?'PASS':'RETRY')+'.';
+}
 function render(){
  const v=view(state);
  renderStoryReaction(v);
@@ -530,6 +554,7 @@ function render(){
   ' · Revision: '+(v.changedAfterTest?'tried':'not yet');
  $('hook').textContent=v.paperNote;
  drawComparison(v);
+  renderE11NeedRecheck();
  renderHillWorld();
  renderClue();
  renderQuestion();
@@ -599,6 +624,8 @@ $('use-stage-reset').addEventListener('click',()=>{
 $('ground-provenance-reset').addEventListener('click',()=>{
  groundTrial=freshGroundTrial();renderGround();
 });
-$('restart').addEventListener('click',()=>{useTrial=freshUseTrial();groundTrial=freshGroundTrial();state=fresh();linkedE11=null;linkedMarkerTrial=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
+for(const [id,role] of [['recheck-reader','quiet_reader'],['recheck-group','activity_group']])
+ $(id).addEventListener('click',()=>{recheckRole=role;recheckSlot=null;renderE11NeedRecheck();});
+$('restart').addEventListener('click',()=>{recheckRole=null;recheckSlot=null;useTrial=freshUseTrial();groundTrial=freshGroundTrial();state=fresh();linkedE11=null;linkedMarkerTrial=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
 render();
 </script></main></body></html>

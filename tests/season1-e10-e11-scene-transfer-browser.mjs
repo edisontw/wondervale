@@ -68,6 +68,17 @@ try{
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    assert.match(await page.locator('#stage').innerText(),/finished/);
    assert.equal(await page.locator('#paper-comparison').isVisible(),true);
+   assert.equal(await page.locator('#e11-need-recheck').isVisible(),true);
+   await page.locator('#recheck-reader').click();
+   await page.locator('[data-recheck-slot="shared"]').click();
+   assert.equal(await page.locator('#e11-need-recheck').getAttribute('data-matched'),'false');
+   await page.locator('[data-recheck-slot="left"]').click();
+   assert.equal(await page.locator('#e11-need-recheck').getAttribute('data-matched'),'true');
+   await page.locator('#recheck-group').click();
+   await page.locator('[data-recheck-slot="right"]').click();
+   assert.equal(await page.locator('#e11-need-recheck').getAttribute('data-matched'),'true');
+   assert.match(await page.locator('#recheck-result').innerText(),/PAPER models only/);
+
    assert.equal(await page.locator('#use-staging').getAttribute('data-revised'),'true',
     'E10 return retains only replayed child revision');
    await page.locator('#e11-paper').click();
