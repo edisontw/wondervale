@@ -91,6 +91,14 @@ async function journey(page,label,shots){
   await press(page,'Walk '+stage+' · '+role);
   for(const cell of route)await press(page,'Walk visitor to '+cell);
   await press(page,'Check visitor at place');
+  if(stage==='NOW'&&role==='quiet reader'){
+   assert.equal(await page.locator('#visitor-walk-board [data-checked="pass"]').count(),1);
+   await press(page,'Undo last visitor check');
+   assert.equal(await page.locator('#visitor-walk-board [data-checked="pass"]').count(),0);
+   assert.match(await page.locator('#visitor-walk-results').innerText(),/NOW Quiet reader: not walked/);
+   await press(page,'Check visitor at place');
+   assert.equal(await page.locator('#visitor-walk-board [data-checked="pass"]').count(),1);
+  }
  }
  // Checked PAPER visitor destinations visibly follow replayed check actions, not trial previews.
  await press(page,'Walk FIRST · quiet reader');
