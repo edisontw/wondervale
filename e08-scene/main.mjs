@@ -9,7 +9,7 @@ import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08
 import {decodeMemoryLantern,encodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
 import {decodeMemoryHill,encodeMemoryHill} from '../authoring-labs/e04-e09-scene-transfer.mjs';
-import {fresh as freshE09} from '../e09-scene/scene-model.mjs';
+import {fresh as freshE09,view as viewE09} from '../e09-scene/scene-model.mjs';
 const memoryHill=decodeMemoryHill(location.hash);
 const lantern=memoryHill||decodeMemoryLantern(location.hash);
 const hillIncoming=lantern?null:decodeHillTransfer(location.hash);
@@ -272,8 +272,15 @@ function render(){
   linkedE04?encodeMemoryHill(linkedE04,linkedE05,linkedE06,linkedE07,state,linkedE09||freshE09()):
   encodeHillTransfer(state,linkedE09||freshE09(),linkedE07,linkedE06));
  hill.hidden=!hillFragment;if(hillFragment)hill.href='../e09-scene/'+hillFragment;
- $('e09-callback').textContent=linkedE09&&v.lowerLightsPaperOn?
-  'E09 PAPER return: '+linkedE09.history.length+' recorded model steps; upper hill remains CLOSED.':
+ const hillNotes=linkedE09&&v.lowerLightsPaperOn?viewE09(linkedE09):null;
+ const earnedQuestions=hillNotes?.sightlineBoard.compared&&
+  hillNotes.sightlineBoard.placements.light==='fence_view'&&
+  hillNotes.sightlineBoard.placements.view==='overlook';
+ $('steps-world').dataset.hillReturn=earnedQuestions?'revised':'unverified';
+ $('e09-callback').textContent=earnedQuestions?
+  'Nia: Milo, your revised PAPER questions connect the safe fence lookout and overlook. The marks on our Steps model stay fixed; the hill remains CLOSED. We can revisit and change those questions.':
+  hillNotes?'Finn: We kept '+linkedE09.history.length+
+   ' PAPER survey steps, but have not matched both safe future questions. Let us try again; the hill stays CLOSED.':
   'The safe hill survey is a separate PAPER rehearsal, not a production unlock.';
  if(s.previewComplete){drawTrace(s,v.reviewMode);
   $('trace-detail').textContent=v.reviewMode==='first'?'FROM HERE: '+spread(s.firstView):
