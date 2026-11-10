@@ -1,4 +1,4 @@
-import {fresh,dispatch,can,view} from './scene-model.mjs';
+import {fresh,dispatch,can,view,rewind} from './scene-model.mjs';
 import {MARKERS,VIEWPOINTS} from '../engine/s01e08-authoring-prototype.mjs';
 import {view as viewE07} from '../e07-scene/scene-model.mjs';
 import {connectorWorld} from './connector-world.mjs';
@@ -42,6 +42,7 @@ const rows=[
  ['trace-both','Overlay both PAPER views',n('trace-both')],
  ['connector','Review Finn\'s PAPER connector',n('connector')],
  ['steps','Return to lower Steps',n('steps')],
+ ['undo','Undo last PAPER action',null],
  ['restart','Restart E08 PAPER model',n('restart')]
 ];
 const groups={'walk-controls':rows.slice(0,4),'inspect-controls':rows.slice(4,9),
@@ -49,7 +50,7 @@ const groups={'walk-controls':rows.slice(0,4),'inspect-controls':rows.slice(4,9)
  'trace-controls':rows.slice(14,17),'nav-controls':rows.slice(17)};
 for(const [host,items] of Object.entries(groups))for(const [key,label,action] of items){
  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
- b.addEventListener('click',()=>{if(action.scene==='nav'&&action.type==='restart'){linkedE09=null;selectedHillQuestion=null;approach={layout:'first',view:'first',pins:[]};shadow=freshShadow();}state=dispatch(state,action);render();});$(host).append(b);
+ b.addEventListener('click',()=>{if(key==='undo'){const previous=rewind(state);if(previous){state=previous;linkedE09=null;selectedHillQuestion=null;approach={layout:'first',view:'first',pins:[]};shadow=freshShadow();}render();return;}if(action.scene==='nav'&&action.type==='restart'){linkedE09=null;selectedHillQuestion=null;approach={layout:'first',view:'first',pins:[]};shadow=freshShadow();}state=dispatch(state,action);render();});$(host).append(b);
 }
 for(const button of document.querySelectorAll('[data-approach]')){
  button.addEventListener('click',()=>{
@@ -307,7 +308,7 @@ function render(){
  $('note').textContent=s.paperNote;
  $('hook').textContent=v.lowerLightsPaperOn?'Next question: survey North Hill from a safe place. E09 NOT UNLOCKED.':'The service plate date and source are UNKNOWN. No E09 unlock.';
  draw(s);drawLiveView(s);drawShadow();drawConnectorCallback();drawApproach(approachFrame(linkedE07,state,approach.layout,approach.view));
- for(const [key,,action] of rows)document.querySelector('[data-key="'+key+'"]').disabled=!can(state,action);
+ for(const [key,,action] of rows)document.querySelector('[data-key="'+key+'"]').disabled=key==='undo'?!state.history.length:!can(state,action);
  for(const el of document.querySelectorAll('[data-anchor]'))el.dataset.here=String(el.dataset.anchor===s.milo);
 }
 render();
