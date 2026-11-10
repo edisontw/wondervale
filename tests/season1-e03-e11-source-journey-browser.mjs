@@ -248,6 +248,14 @@ try{
    await press('Inspect Lower Garden PAPER change');
    assert.match(await page.locator('#world-atlas-observation').innerText(),/PAPER sprout/);
    assert.doesNotMatch(await page.locator('#world-atlas-chronicle').innerText(),/Common/);
+   await press('Revise NOW shared-use PAPER check');
+   assert.match(await page.locator('#shared-use-note').innerText(),/pending/);
+   assert.equal(await page.locator('#world-atlas').isVisible(),false,'revision withdraws stale atlas');
+   await press('BLOCKED PAPER water channel');
+   await press('Record NOW PAPER check');
+   await press('Compare shared-use PAPER changes');
+   assert.match(await page.locator('#shared-use-note').innerText(),/NOW 3\/3 rain marks, 2 overlaps/);
+   assert.equal(await page.locator('#world-atlas').isVisible(),true,'retested NOW restores earned atlas');
    await press('Restart shared-use PAPER checks');
    assert.match(await page.locator('#shared-use-note').innerText(),/pending/);
    assert.equal(await page.locator('#world-atlas').isVisible(),false,'reset withdraws atlas');
