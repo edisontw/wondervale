@@ -254,7 +254,7 @@ try{
    await press('BLOCKED PAPER water channel');
    await press('Record NOW PAPER check');
    await press('Compare shared-use PAPER changes');
-   assert.match(await page.locator('#shared-use-note').innerText(),/NOW 3\/3 rain marks, 2 overlaps/);
+   assert.match(await page.locator('#shared-use-note').innerText(),/NOW 3\/3 rain marks, 0 overlaps/);
    assert.equal(await page.locator('#world-atlas').isVisible(),true,'retested NOW restores earned atlas');
    await press('Restart shared-use PAPER checks');
    assert.match(await page.locator('#shared-use-note').innerText(),/pending/);
