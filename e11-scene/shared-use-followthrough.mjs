@@ -46,6 +46,10 @@ export function paperSharedUse(e11,visitorHistory,upstream,history=[]){
     if(!first||now)return null;
     now=snapshot(source,phase,channel);
    }
+  }else if(exact(action,['type'])&&action.type==='revise-now'){
+   // Keep the child-tested FIRST evidence; withdraw NOW and its derived comparison.
+   if(!first||!now||!compared)return null;
+   phase='now';now=null;compared=false;
   }else if(exact(action,['type'])&&action.type==='compare'){
    if(!first||!now||compared)return null;
    compared=true;
