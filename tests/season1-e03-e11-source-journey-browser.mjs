@@ -283,6 +283,20 @@ try{
    assert.match(await page.locator('#return-route-station').innerText(),/PAPER table by wall/);
    assert.match(await page.locator('#return-route-station').innerText(),/Two marks aligned on COPY/);
    assert.doesNotMatch(await page.locator('#return-route-station').innerText(),/NOT VERIFIED/);
+   // E05-earned Map Room: child tests a blocked table, revises and undoes.
+   await press('Walk and test PAPER path');
+   assert.match(await page.locator('#return-route-station').innerText(),/Nia:.*blocks our model path/);
+   await press('Revise PAPER table trial');
+   await press('Place PAPER table by wall');
+   // Keyboard activation is required in the mobile landscape and desktop journeys.
+   const testButton=page.getByRole('button',{name:'Walk and test PAPER path',exact:true});
+   await testButton.focus();await page.keyboard.press('Enter');
+   assert.match(await page.locator('#return-route-station').innerText(),/PAPER MODEL ONLY: Milo retested a clear Map Room walkway/);
+   await press('Undo last PAPER table action');
+   assert.match(await page.locator('#return-route-station').innerText(),/PAPER MODEL PENDING/);
+   await press('Walk and test PAPER path');
+   assert.match(await page.locator('#return-route-station').innerText(),/PAPER MODEL ONLY/);
+   assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
    await press('Return to Garden PAPER stop');
    await press('Return to Square PAPER start');
    assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
