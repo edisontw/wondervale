@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {fresh,dispatch,restore,projection} from '../engine/s01e11-authoring-prototype.mjs';
+import {fresh,dispatch,replay,restore,projection} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperRevisit} from '../e11-scene/revisit-model.mjs';
 import {paperLoopVisual} from '../e11-scene/loop-visual.mjs';
 import {paperE10NeedsRevisit} from '../e11-scene/e10-needs-revisit.mjs';
@@ -199,4 +199,56 @@ test('E10 strictly replay-earned FIRST/NOW needs become visible E11 model slots 
  assert.equal(paperE10NeedsRevisit({...earned,rights:['approved']}),null);
  assert.equal(paperE10NeedsRevisit({...earned,e10:{...earned.e10,nameRevealed:true}}),null);
  assert.equal(paperE10NeedsRevisit(E10.dispatch(earned,{type:'reset'})),null);
+});
+
+test('one-action PAPER rewind withdraws story review and loop check without forged world growth',()=>{
+ let s=fresh();
+ const action=a=>{const n=dispatch(s,a);assert.notDeepEqual(n,s);s=n;};
+ const rewind=snapshot=>replay(snapshot.history.slice(0,-1));
+ assert.deepEqual(rewind(s),fresh(),'empty history has nothing to undo');
+ for(const a of [
+  {type:'place',tokenId:'access',cells:['1,1','1,2']},
+  {type:'place',tokenId:'quiet',cells:['0,1']},
+  {type:'place',tokenId:'activity',cells:['0,2']},
+  {type:'test-user',userId:'quiet_reader'},
+  {type:'test-user',userId:'activity_group'},
+  {type:'snapshot-trial'},
+  {type:'place',tokenId:'activity',cells:['2,1']},
+  {type:'test-user',userId:'quiet_reader'},
+  {type:'test-user',userId:'activity_group'},
+  {type:'snapshot-trial'},
+  {type:'compare-trials',first:'trial-1',second:'trial-2'},
+  {type:'cite-earlier',discoveryId:'e09_closure'},
+  {type:'add-loop-edge',edgeId:'square-market'},
+  {type:'add-loop-edge',edgeId:'market-common'},
+  {type:'add-loop-edge',edgeId:'common-square'},
+  {type:'check-loop'},
+  {type:'review-preview'}
+ ])action(a);
+ assert.equal(s.reviewed,true);
+ assert.equal(s.loopChecked,true);
+ const before=s.history.length;
+ const unreviewed=rewind(s);
+ assert.equal(unreviewed.history.length,before-1);
+ assert.equal(unreviewed.reviewed,false);
+ assert.equal(unreviewed.loopChecked,true);
+ assert.equal(restore(unreviewed)?.reviewed,false);
+ const unchecked=rewind(unreviewed);
+ assert.equal(unchecked.loopChecked,false);
+ assert.deepEqual(unchecked.loopEdges,['square-market','market-common','common-square']);
+ const withoutLastLink=rewind(unchecked);
+ assert.deepEqual(withoutLastLink.loopEdges,['square-market','market-common']);
+ const withoutCompare=replay(s.history.slice(0,10));
+ assert.equal(withoutCompare.trials.length,2);
+ assert.equal(withoutCompare.comparison,null);
+ const withoutSecondTrial=rewind(withoutCompare);
+ assert.equal(withoutSecondTrial.trials.length,1);
+ assert.equal(withoutSecondTrial.tests.quiet_reader.passed,true);
+ assert.deepEqual(projection(unreviewed).canonicalEvents,[]);
+ assert.deepEqual(projection(unchecked).unlocks,[]);
+ assert.equal(projection(withoutSecondTrial).finished,false);
+ assert.equal(replay([...s.history,{type:'undo'}]),null,'forged undo cannot enter strict reducer');
+ assert.equal(restore({...unreviewed,rights:['approved']}),null);
+ assert.equal(restore({...unreviewed,canonicalEvents:['place_opened']}),null);
+ assert.deepEqual(dispatch(unreviewed,{type:'reset'}),fresh());
 });
