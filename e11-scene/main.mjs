@@ -1,6 +1,6 @@
 // E11 independent PAPER scene. Reuses the strict fictional reducer; never unlocks production.
 import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
-  fresh,dispatch,projection} from '../engine/s01e11-authoring-prototype.mjs';
+  fresh,dispatch,replay,projection} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperRevisit} from './revisit-model.mjs';
 import {paperRoleWalk,dispatchRoleWalk} from './role-walk.mjs';
 import {paperSharedUse,dispatchSharedUse} from './shared-use-followthrough.mjs';
@@ -44,7 +44,18 @@ function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
-function act(action){returnSteps=[];clearReflection();markerTrial=freshFutureMarker();roleWalkHistory=[];sharedUseHistory=[];atlasStage='now';atlasFocus='garden';state=dispatch(state,action);render();}
+function clearDependentPaperViews(){
+ returnSteps=[];clearReflection();markerTrial=freshFutureMarker();
+ roleWalkHistory=[];sharedUseHistory=[];atlasStage='now';atlasFocus='garden';
+}
+function act(action){clearDependentPaperViews();state=dispatch(state,action);render();}
+function undoModelAction(){
+ if(!state.history.length)return;
+ // Reconstruct prior state from valid child actions, not by editing derived flags.
+ const prior=replay(state.history.slice(0,-1));
+ if(!prior)return;
+ clearDependentPaperViews();state=prior;render();
+}
 function button(host,name,handler,disabled=false,pressed=false){
  const b=document.createElement('button');b.type='button';b.textContent=name;b.disabled=disabled;
  if(pressed)b.setAttribute('aria-pressed','true');
@@ -746,6 +757,7 @@ function render(){
  $('e11-back').hidden=screen!=='callback';
  $('e10-callback').disabled=!state.reviewed||screen==='callback';
  $('story-line').textContent=paperE11Story(state);
+ $('undo-paper').disabled=!state.history.length;
  controls();board();tests();comparison();map();drawPaperLoop();review();worldRevisit();visitorWalk();returnRoute();reflection();
 }
 $('access').addEventListener('click',()=>act({type:'place',tokenId:'access',cells:['1,1','1,2']}));
@@ -757,5 +769,6 @@ $('loop-now').addEventListener('click',()=>{mapView='now';drawPaperLoop();});
 $('begin').addEventListener('click',()=>{begun=true;render();});
 $('e10-callback').addEventListener('click',()=>{if(state.reviewed){screen='callback';render();}});
 $('e11-back').addEventListener('click',()=>{screen='trial';render();});
+$('undo-paper').addEventListener('click',undoModelAction);
 $('restart').addEventListener('click',()=>{tool='walk';begun=false;screen='trial';revisitFocus='quiet_reader';roleCell=null;mapView='now';clearPlan();act({type:'reset'});});
 render();
