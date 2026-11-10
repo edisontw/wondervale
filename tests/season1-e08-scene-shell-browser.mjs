@@ -40,7 +40,7 @@ try{
    assert.equal(await b('finish').isDisabled(),true);
    await hit('inspect-plate');await hit('finish');
    await hit('undo');
-   assert.match(await page.locator('#stage').innerText(),/review/);
+   assert.match(await page.locator('#stage').innerText(),/source-check/);
    assert.equal(await b('finish').isDisabled(),false);
    await hit('finish');
    assert.match(await page.locator('#note').innerText(),/UNKNOWN/);
