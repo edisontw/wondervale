@@ -146,6 +146,25 @@ test('missing or forged upstream and visitor evidence fail closed, retries do no
  assert.equal(paperSharedUse(e11,h,upstream,[{type:'record'},{type:'choose',phase:'now',channel:'open'},{type:'record'},{type:'revise-now'}]),null);
  assert.equal(paperSharedUse(e11,h,upstream,[{type:'record'},{type:'choose',phase:'now',channel:'open'},{type:'record'},{type:'compare'},{type:'revise-now',rights:true}]),null);
  assert.equal(paperSharedUse(e11,h,upstream,Array(9).fill({type:'record'})),null);
+ // A valid, bounded revision must reach its final comparison in the full browser path.
+ let bounded=[];
+ for(const a of [{type:'choose',phase:'first',channel:'blocked'},
+  {type:'record'},{type:'choose',phase:'now',channel:'blocked'},
+  {type:'choose',phase:'now',channel:'open'},{type:'record'},{type:'compare'},
+  {type:'revise-now'},{type:'choose',phase:'now',channel:'blocked'},
+  {type:'record'},{type:'compare'}]){
+  const next=dispatchSharedUse(e11,h,upstream,bounded,a);
+  assert.equal(next.length,bounded.length+1,'valid child revision is not truncated');
+  bounded=next;
+ }
+ assert.equal(paperSharedUse(e11,h,upstream,bounded).compared,true);
+ while(bounded.length<12)bounded=dispatchSharedUse(e11,h,upstream,bounded,
+  {type:'choose',phase:'now',channel:'blocked'});
+ assert.equal(bounded.length,12);
+ assert.deepEqual(dispatchSharedUse(e11,h,upstream,bounded,
+  {type:'choose',phase:'now',channel:'open'}),bounded,'history stays bounded');
+ assert.equal(paperSharedUse(e11,h,upstream,[...bounded,
+  {type:'choose',phase:'now',channel:'open'}]),null,'oversize replay fails closed');
  let actions=dispatchSharedUse(e11,h,upstream,[],{type:'record'});
  assert.equal(actions.length,1);
  assert.deepEqual(dispatchSharedUse(e11,h,upstream,actions,{type:'record'}),actions);
