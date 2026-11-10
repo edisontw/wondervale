@@ -58,6 +58,12 @@ async function journey(page,label,shots){
  assert.match(await page.locator('#loop-visual-status').innerText(),/North Hill CLOSED/);
  assert.equal(await btn(page,'Cell 0,3').isDisabled(),true);
  assert.equal(await btn(page,'Review NONCANONICAL finale').isDisabled(),true);
+ assert.equal(await btn(page,'Undo last model action').isDisabled(),true);
+ await press(page,'Place access strip (two middle cells)');
+ assert.equal(await btn(page,'Undo last model action').isEnabled(),true);
+ await press(page,'Undo last model action');
+ assert.equal(await btn(page,'Place access strip (two middle cells)').isEnabled(),true);
+ assert.equal(await btn(page,'Undo last model action').isDisabled(),true);
  await press(page,'Place access strip (two middle cells)');
  await press(page,'Place quiet seat');await press(page,'Cell 0,1');
  await press(page,'Place activity area');await press(page,'Cell 0,2');
@@ -197,6 +203,13 @@ async function journey(page,label,shots){
  await press(page,'Remove link: square ↔ garden');
  assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),3);
  await press(page,'Check the current loop');
+ await press(page,'Review NONCANONICAL finale');
+ assert.match(await page.locator('#hook').innerText(),/unnamed place is NOT OPEN/);
+ await press(page,'Undo last model action');
+ assert.equal(await page.locator('#hook').isVisible(),false,'review consequence was withdrawn');
+ assert.match(await page.locator('#chronicle').innerText(),/model review pending/);
+ assert.equal(await page.locator('#loop-visual').getAttribute('data-reviewed'),'false');
+ assert.equal(await btn(page,'Review NONCANONICAL finale').isEnabled(),true);
  await press(page,'Review NONCANONICAL finale');
  assert.match(await page.locator('#hook').innerText(),/unnamed place is NOT OPEN/);
  assert.match(await page.locator('#hook').innerText(),/Season 1 is NOT COMPLETE/);
@@ -344,6 +357,9 @@ try{
   await btn(page,'Place quiet seat').focus();await page.keyboard.press('Space');
   await btn(page,'Cell 0,1').focus();await page.keyboard.press('Enter');
   assert.match(await page.locator('#grid').innerText(),/Quiet/);
+  await btn(page,'Undo last model action').focus();await page.keyboard.press('Enter');
+  assert.doesNotMatch(await page.locator('#grid').innerText(),/Quiet/);
+  assert.equal(await btn(page,'Place quiet seat').isEnabled(),true);
   records.push({label:'keyboard',passed:true});
  }finally{await ctx.close();}
  assert.deepEqual(errors,[],'no page/console errors');
