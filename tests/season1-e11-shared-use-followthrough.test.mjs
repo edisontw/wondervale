@@ -94,6 +94,23 @@ test('E11 child compares FIRST blocked and NOW open with two replay-verified ear
  assert.equal(view.now.overlaps,0);
  assert.equal(view.changed,true);
  assert.equal(view.compared,true);
+ // A child can reconsider NOW without erasing the FIRST trial or claiming real work.
+ act({type:'revise-now'});
+ let revised=paperSharedUse(e11,h,upstream,actions);
+ assert.ok(revised.first);
+ assert.equal(revised.now,null);
+ assert.equal(revised.compared,false);
+ assert.match(revised.chronicle,/pending/);
+ act({type:'choose',phase:'now',channel:'blocked'});
+ act({type:'record'});act({type:'compare'});
+ revised=paperSharedUse(e11,h,upstream,actions);
+ assert.equal(revised.now.overlaps,2);
+ assert.equal(revised.changed,false);
+ assert.equal(revised.compared,true);
+ assert.equal(revised.canonicalEvents.length,0);
+ assert.equal(revised.realAccessApproved,false);
+ // Compare the original first revision separately, without changing the replay evidence.
+ view=paperSharedUse(e11,h,upstream,actions.slice(0,4));
  assert.match(view.chronicle,/FIRST 3\/3 rain marks, 2 connector overlap cells; NOW 1\/3 rain marks, 0 overlaps/);
  assert.match(view.chronicle,/INDEPENDENT PAPER checks/);
  assert.match(view.chronicle,/UNKNOWN/);
@@ -123,6 +140,10 @@ test('missing or forged upstream and visitor evidence fail closed, retries do no
  assert.equal(paperSharedUse(e11,h,upstream,[{type:'choose',phase:'now',channel:'fake'}]),null);
  assert.equal(paperSharedUse(e11,h,upstream,[{type:'choose',phase:'now',channel:'open'},{type:'record'}]),null);
  assert.equal(paperSharedUse(e11,h,upstream,[{type:'compare'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'revise-now'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'record'},{type:'revise-now'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'record'},{type:'choose',phase:'now',channel:'open'},{type:'record'},{type:'revise-now'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'record'},{type:'choose',phase:'now',channel:'open'},{type:'record'},{type:'compare'},{type:'revise-now',rights:true}]),null);
  assert.equal(paperSharedUse(e11,h,upstream,Array(9).fill({type:'record'})),null);
  let actions=dispatchSharedUse(e11,h,upstream,[],{type:'record'});
  assert.equal(actions.length,1);
