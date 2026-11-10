@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as E11 from '../engine/s01e11-authoring-prototype.mjs';
 import * as E05 from '../e05-scene/scene-model.mjs';
 import * as E06 from '../e06-scene/scene-model.mjs';
+import * as E07 from '../e07-scene/scene-model.mjs';
 import {paperReturnRoute,PAPER_WALK} from '../e11-scene/return-route.mjs';
 import {paperReturnReflection} from '../e11-scene/return-reflection.mjs';
 import {paperReflectionWorld} from '../e11-scene/reflection-world.mjs';
@@ -36,7 +37,7 @@ test('Milo safely tries a wrong PAPER turn, retraces, visits both model stops an
  assert.deepEqual(PAPER_WALK.market,['square']);
  assert.equal(paperReturnRoute(E11.fresh()),null);
  const first=paperReturnRoute(s);
- assert.deepEqual(first.choices,['market','garden']);
+ assert.deepEqual(first.choices,['market','garden','connector']);
  assert.equal(first.complete,false);
  const steps=['market','square','garden','map_room','garden','square'];
  const walk=paperReturnRoute(s,steps);
@@ -240,4 +241,23 @@ test('Milo moves a PAPER future-check marker; wrong stop, removal and reset cann
  assert.equal(paperFollowUpMap(s,steps,null,{...sorted,route:'paper'},'route','survey','square'),null);
  assert.equal(paperFollowUpMap({...s,rights:['approved']},steps,null,sorted,'route','survey','square'),null);
  assert.equal(paperFollowUpMap(E11.dispatch(s,{type:'reset'}),steps,null,sorted,'route','survey','square'),null);
+});
+
+test('Milo can revisit E07 PAPER crossing, see Finn respond, and undo without claiming real access',()=>{
+ const s=reviewed(),e07=E07.fresh();
+ const at=paperReturnRoute(s,['connector'],{e07});
+ assert.equal(at.at,'connector');
+ assert.equal(at.crossingEarned,false);
+ assert.match(at.feedback,/Finn:.*not checked another traveler/);
+ assert.match(at.connectorNote,/NOT VERIFIED/);
+ assert.equal(at.realRouteOpen,false);
+ assert.equal(at.historicHillClosed,true);
+ assert.deepEqual(at.canonicalEvents,[]);
+ assert.equal(paperReturnRoute(s,['connector','square'],{e07}).complete,false);
+ assert.equal(paperReturnRoute(s,[],{e07}).connectorNote,null,'undo removes the visit');
+ assert.equal(paperReturnRoute(s,['connector','garden'],{e07}),null,'no teleport from crossing');
+ const forged=structuredClone(e07);
+ forged.walkthrough.phase='reviewed';forged.walkthrough.otherPassed=true;
+ assert.equal(paperReturnRoute(s,['connector'],{e07:forged}).crossingEarned,false);
+ assert.equal(paperReturnRoute(E11.fresh(),['connector'],{e07}),null);
 });

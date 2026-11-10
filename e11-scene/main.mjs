@@ -501,7 +501,7 @@ function returnRoute(){
   ' · visited: '+(model.visited.map(id=>WALK_LABELS[id]).join(' + ')||'none')+
   ' · returned with both stops: '+(model.complete?'YES, PAPER ONLY':'not yet')+'.';
  const map=$('return-route-map');map.replaceChildren();
- for(const id of ['square','market','garden','map_room']){
+ for(const id of ['square','market','garden','map_room','connector']){
   const stop=document.createElement('div');stop.className='route-stop';
   stop.dataset.place=id;stop.dataset.here=String(model.at===id);
   stop.dataset.visited=String(model.visited.includes(id));
@@ -515,9 +515,12 @@ function returnRoute(){
   'Garden stop not visited. No earlier growth is claimed.';
  $('return-route-station').textContent=model.stationNote||
   'Map Room stop not visited. No earlier room change is claimed.';
+ $('return-route-feedback').textContent=model.feedback+(model.connectorNote?' '+model.connectorNote:'');
  const host=$('return-route-controls');host.replaceChildren();
  const labels={
   'square:market':'Try Market PAPER detour',
+  'square:connector':'Visit shared crossing PAPER stop',
+  'connector:square':'Return to Square PAPER start',
   'square:garden':'Visit Garden PAPER stop',
   'market:square':'Return to Square PAPER start',
   'garden:square':'Return to Square PAPER start',
