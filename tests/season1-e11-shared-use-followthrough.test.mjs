@@ -94,6 +94,24 @@ test('E11 child compares FIRST blocked and NOW open with two replay-verified ear
  assert.equal(view.now.overlaps,0);
  assert.equal(view.changed,true);
  assert.equal(view.compared,true);
+ // A child can reconsider NOW without erasing the FIRST trial or claiming real work.
+ act({type:'revise-now'});
+ let revised=paperSharedUse(e11,h,upstream,actions);
+ assert.ok(revised.first);
+ assert.equal(revised.now,null);
+ assert.equal(revised.compared,false);
+ assert.match(revised.chronicle,/pending/);
+ act({type:'choose',phase:'now',channel:'blocked'});
+ act({type:'record'});act({type:'compare'});
+ revised=paperSharedUse(e11,h,upstream,actions);
+ assert.equal(revised.now.overlaps,0);
+ assert.equal(revised.now.catchment,3);
+ assert.equal(revised.changed,true);
+ assert.equal(revised.compared,true);
+ assert.equal(revised.canonicalEvents.length,0);
+ assert.equal(revised.realAccessApproved,false);
+ // Compare the original first revision separately, without changing the replay evidence.
+ view=paperSharedUse(e11,h,upstream,actions.slice(0,4));
  assert.match(view.chronicle,/FIRST 3\/3 rain marks, 2 connector overlap cells; NOW 1\/3 rain marks, 0 overlaps/);
  assert.match(view.chronicle,/INDEPENDENT PAPER checks/);
  assert.match(view.chronicle,/UNKNOWN/);
@@ -104,7 +122,7 @@ test('E11 child compares FIRST blocked and NOW open with two replay-verified ear
  assert.equal(view.persistentSave,false);
  assert.deepEqual(paperSharedUse(e11,h,{
   e06:E06.replay(upstream.e06.history),e07:E07.replay(upstream.e07.history)
- },actions),view);
+ },actions),revised);
 });
 test('missing or forged upstream and visitor evidence fail closed, retries do not grant rights',()=>{
  const e11=layout(),h=walked(e11),upstream={e06:gardens(),e07:connector()};
@@ -123,7 +141,30 @@ test('missing or forged upstream and visitor evidence fail closed, retries do no
  assert.equal(paperSharedUse(e11,h,upstream,[{type:'choose',phase:'now',channel:'fake'}]),null);
  assert.equal(paperSharedUse(e11,h,upstream,[{type:'choose',phase:'now',channel:'open'},{type:'record'}]),null);
  assert.equal(paperSharedUse(e11,h,upstream,[{type:'compare'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'revise-now'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'record'},{type:'revise-now'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'record'},{type:'choose',phase:'now',channel:'open'},{type:'record'},{type:'revise-now'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'record'},{type:'choose',phase:'now',channel:'open'},{type:'record'},{type:'compare'},{type:'revise-now',rights:true}]),null);
  assert.equal(paperSharedUse(e11,h,upstream,Array(9).fill({type:'record'})),null);
+ // A valid, bounded revision must reach its final comparison in the full browser path.
+ let bounded=[];
+ for(const a of [{type:'choose',phase:'first',channel:'blocked'},
+  {type:'record'},{type:'choose',phase:'now',channel:'blocked'},
+  {type:'choose',phase:'now',channel:'open'},{type:'record'},{type:'compare'},
+  {type:'revise-now'},{type:'choose',phase:'now',channel:'blocked'},
+  {type:'record'},{type:'compare'}]){
+  const next=dispatchSharedUse(e11,h,upstream,bounded,a);
+  assert.equal(next.length,bounded.length+1,'valid child revision is not truncated');
+  bounded=next;
+ }
+ assert.equal(paperSharedUse(e11,h,upstream,bounded).compared,true);
+ while(bounded.length<12)bounded=dispatchSharedUse(e11,h,upstream,bounded,
+  {type:'choose',phase:'now',channel:'blocked'});
+ assert.equal(bounded.length,12);
+ assert.deepEqual(dispatchSharedUse(e11,h,upstream,bounded,
+  {type:'choose',phase:'now',channel:'open'}),bounded,'history stays bounded');
+ assert.equal(paperSharedUse(e11,h,upstream,[...bounded,
+  {type:'choose',phase:'now',channel:'open'}]),null,'oversize replay fails closed');
  let actions=dispatchSharedUse(e11,h,upstream,[],{type:'record'});
  assert.equal(actions.length,1);
  assert.deepEqual(dispatchSharedUse(e11,h,upstream,actions,{type:'record'}),actions);
