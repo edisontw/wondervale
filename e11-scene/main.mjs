@@ -386,6 +386,10 @@ function sharedUseView(){
   sharedUseHistory=dispatchSharedUse(state,roleWalkHistory,upstream,sharedUseHistory,
    {type:'compare'});sharedUseView();
  },!model.first||!model.now||model.compared);
+ button(controls,'Revise NOW shared-use PAPER check',()=>{
+  sharedUseHistory=dispatchSharedUse(state,roleWalkHistory,upstream,sharedUseHistory,
+   {type:'revise-now'});sharedUseView();
+ },!model.compared);
  button(controls,'Restart shared-use PAPER checks',()=>{
   sharedUseHistory=[];sharedUseView();
  },!sharedUseHistory.length);
