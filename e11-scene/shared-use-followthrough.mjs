@@ -4,7 +4,8 @@
 import {paperRoleWalk} from './role-walk.mjs';
 import {runoffChoice} from '../e07-scene/garden-connector-whatif.mjs';
 
-const CHANNELS=['open','blocked'],PHASES=['first','now'],MAX=8;
+// Bounded replay allows a full FIRST/NOW comparison plus one child revision and retest.
+const CHANNELS=['open','blocked'],PHASES=['first','now'],MAX=12;
 const exact=(a,keys)=>a&&typeof a==='object'&&!Array.isArray(a)&&
  Object.keys(a).sort().join(',')===keys.slice().sort().join(',');
 function evidence(e11,visitorHistory,upstream){
