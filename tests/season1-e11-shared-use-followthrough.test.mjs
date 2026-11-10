@@ -121,7 +121,7 @@ test('E11 child compares FIRST blocked and NOW open with two replay-verified ear
  assert.equal(view.persistentSave,false);
  assert.deepEqual(paperSharedUse(e11,h,{
   e06:E06.replay(upstream.e06.history),e07:E07.replay(upstream.e07.history)
- },actions),view);
+ },actions),revised);
 });
 test('missing or forged upstream and visitor evidence fail closed, retries do not grant rights',()=>{
  const e11=layout(),h=walked(e11),upstream={e06:gardens(),e07:connector()};
