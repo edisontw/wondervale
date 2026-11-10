@@ -219,6 +219,12 @@ async function journey(page,label,shots){
  assert.equal(await page.locator('#return-route').isVisible(),true);
  assert.match(await page.locator('#return-route-result').innerText(),/Not complete/);
  assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'square');
+ await press(page,'Visit shared crossing PAPER stop');
+ assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'connector');
+ assert.match(await page.locator('#return-route-feedback').innerText(),/Finn:.*not checked another traveler/);
+ assert.match(await page.locator('#return-route-feedback').innerText(),/E07 shared crossing NOT VERIFIED/);
+ await press(page,'Undo last PAPER step');
+ assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'square');
  await press(page,'Try Market PAPER detour');
  assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'market');
  assert.match(await page.locator('#return-route-feedback').innerText(),/walk back/);
