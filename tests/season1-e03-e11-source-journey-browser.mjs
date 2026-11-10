@@ -279,9 +279,8 @@ try{
    assert.match(await page.locator('#return-route-garden').innerText(),/possible PAPER sprout/);
    assert.doesNotMatch(await page.locator('#return-route-garden').innerText(),/NOT VERIFIED/);
    await press('Visit Map Room PAPER stop');
-   assert.match(await page.locator('#return-route-station').innerText(),/E05 child-earned PAPER/);
-   assert.match(await page.locator('#return-route-station').innerText(),/PAPER table by wall/);
-   assert.match(await page.locator('#return-route-station').innerText(),/Two marks aligned on COPY/);
+   assert.match(await page.locator('#return-route-station').innerText(),/PAPER MODEL PENDING/);
+   assert.match(await page.locator('#return-route-station').innerText(),/Place the PAPER table, then walk the model path/);
    assert.doesNotMatch(await page.locator('#return-route-station').innerText(),/NOT VERIFIED/);
    // E05-earned Map Room: child tests a blocked table, revises and undoes.
    await press('Walk and test PAPER path');
