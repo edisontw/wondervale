@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {fresh,dispatch,can,replay,restore,view,MAX_ACTIONS} from '../e08-scene/scene-model.mjs';
+import {fresh,dispatch,can,replay,restore,view,rewind,MAX_ACTIONS} from '../e08-scene/scene-model.mjs';
 const a=(type,key,value)=>({scene:'story',action:key?{type,[key]:value}:{type}}),n=type=>({scene:'nav',type});
 const go=(s,x)=>{assert.equal(can(s,x),true,JSON.stringify(x));return dispatch(s,x);};
 function complete(){let s=fresh();for(const x of [
@@ -94,5 +94,22 @@ test('restart always works at history cap and resets action budget',()=>{
  assert.equal(can(s,n(view(s).screen==='steps'?'connector':'steps')),false);
  s=go(s,n('restart'));assert.deepEqual(s,fresh());
  for(let i=0;i<3;i++)s=go(s,n('restart'));
+ assert.deepEqual(s,fresh());
+});
+test('E08 child rewinds one verified action; earned view and cross-scene eligibility withdraw safely',()=>{
+ assert.equal(rewind(fresh()),null);
+ let s=complete();
+ assert.equal(view(s).lowerLightsPaperOn,true);
+ const before=s.history.length;
+ s=rewind(s);
+ assert.equal(s.history.length,before-1);
+ assert.equal(view(s).lowerLightsPaperOn,false);
+ assert.equal(can(s,a('confirm-preview')),true);
+ assert.deepEqual(replay(s.history),s);
+ s=go(s,a('confirm-preview'));
+ assert.equal(view(s).lowerLightsPaperOn,true);
+ const bad=structuredClone(s);bad.rights.push('north-hill');
+ assert.equal(rewind(bad),null);
+ while(s.history.length)s=rewind(s);
  assert.deepEqual(s,fresh());
 });
