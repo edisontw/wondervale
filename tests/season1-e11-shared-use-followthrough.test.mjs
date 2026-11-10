@@ -104,8 +104,9 @@ test('E11 child compares FIRST blocked and NOW open with two replay-verified ear
  act({type:'choose',phase:'now',channel:'blocked'});
  act({type:'record'});act({type:'compare'});
  revised=paperSharedUse(e11,h,upstream,actions);
- assert.equal(revised.now.overlaps,2);
- assert.equal(revised.changed,false);
+ assert.equal(revised.now.overlaps,0);
+ assert.equal(revised.now.catchment,3);
+ assert.equal(revised.changed,true);
  assert.equal(revised.compared,true);
  assert.equal(revised.canonicalEvents.length,0);
  assert.equal(revised.realAccessApproved,false);
