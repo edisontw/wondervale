@@ -128,7 +128,8 @@ try{
    for(const key of ['walk-channel','inspect-channel','walk-workbench','test-milo',
     'test-resident','test-water','place-water','test-milo','test-resident','test-water',
     'place-upper','test-water','test-milo','test-resident','compare','finish',
-    'walk-start','walk-crossing','walk-check-crossing','walk-water','walk-check-water',
+    'walk-start','walk-crossing','walk-check-crossing','other-start','other-step','other-step',
+    'walk-water','walk-check-water',
     'walk-base','walk-review'])await e07(key);
    assert.equal(await page.locator('#e08-transfer').isVisible(),true);
    await page.locator('#e08-transfer').click();
