@@ -259,6 +259,23 @@ try{
    await press('Inspect Lower Garden PAPER change');
    assert.match(await page.locator('#world-atlas-observation').innerText(),/PAPER sprout/);
    assert.doesNotMatch(await page.locator('#world-atlas-chronicle').innerText(),/Common/);
+   // Real child-earned Atlas repair: FIRST is not the revised NOW claim.
+   const repairHost=page.locator('#world-atlas-repair');
+   await repairHost.waitFor({state:'visible'});
+   await press('Place FIRST Lower Garden model claim');
+   const atlasTest=page.getByRole('button',{name:'Test PAPER atlas claim',exact:true});
+   await atlasTest.focus();await page.keyboard.press('Enter');
+   assert.match(await repairHost.innerText(),/Try NOW/);
+   assert.equal(await repairHost.locator('[data-atlas-repair="changed"]').count(),0);
+   await press('Undo PAPER atlas repair');
+   await press('Place NOW Lower Garden model claim');
+   await atlasTest.focus();await page.keyboard.press('Enter');
+   assert.match(await repairHost.innerText(),/PAPER ATLAS REPAIR/);
+   assert.match(await repairHost.locator('[data-atlas-repair="changed"]').innerText(),/Lower Garden/);
+   await press('Undo PAPER atlas repair');
+   assert.equal(await repairHost.locator('[data-atlas-repair="changed"]').count(),0);
+   await press('Restart PAPER atlas repair');
+   assert.doesNotMatch(await repairHost.innerText(),/PAPER ATLAS REPAIR/);
    await press('Revise NOW shared-use PAPER check');
    assert.match(await page.locator('#shared-use-note').innerText(),/pending/);
    assert.equal(await page.locator('#world-atlas').isVisible(),false,'revision withdraws stale atlas');
