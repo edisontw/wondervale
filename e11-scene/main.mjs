@@ -458,7 +458,7 @@ function worldAtlas(){
     linkedE10,linkedUseTrial,atlasRepairHistory,action);worldAtlas();
   };
   if(!repair.checked)for(const place of repair.places)for(const phase of ['first','now'])
-   button(host,'Place '+phase.toUpperCase()+' '+place+' model claim',
+   button(host,'Place '+phase.toUpperCase()+' '+place.label+' model claim',
     ()=>apply({type:'place',place:place.id,phase}),false,
     repair.place===place.id&&repair.phase===phase);
   button(host,'Test PAPER atlas claim',()=>apply({type:'test'}),!repair.place||repair.checked);
