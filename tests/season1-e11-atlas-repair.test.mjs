@@ -31,3 +31,13 @@ test('atlas repair rejects malformed or forged PAPER histories before any source
   {type:'place',place:'common',phase:'now'}])
   assert.deepEqual(dispatchAtlasRepair(...source,h,action),h);
 });
+
+
+test('atlas dispatch fails closed for malformed histories and bounded event limits',()=>{
+ const source=[null,[],null,[],null,null];
+ for(const history of [null,{},'invalid',24])
+  assert.equal(dispatchAtlasRepair(...source,history,{type:'test'}),history);
+ const full=Array.from({length:24},()=>({type:'test'}));
+ assert.equal(dispatchAtlasRepair(...source,full,{type:'test'}),full);
+ assert.deepEqual(dispatchAtlasRepair(...source,[],[{type:'test'}]),[]);
+});
