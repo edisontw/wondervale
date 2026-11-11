@@ -231,6 +231,16 @@ try{
     /FIRST 3\/3 rain marks, 2 connector overlap cells; NOW 1\/3 rain marks, 0 overlaps/);
    assert.match(await page.locator('#shared-use-note').innerText(),/UNKNOWN/);
    assert.doesNotMatch(await page.locator('#shared-use-note').innerText(),/\bCommon\b/);
+    await press('Move PAPER quiet to right');
+    await press('Ask both PAPER visitors');
+    assert.match(await page.locator('#e10-needs-retest').innerText(),/Both visitors need this spot/);
+    await press('Revise PAPER needs trial');
+    await press('Move PAPER quiet to left');
+    const needsButton=page.getByRole('button',{name:'Ask both PAPER visitors',exact:true});
+    await needsButton.focus();await page.keyboard.press('Enter');
+    assert.match(await page.locator('#e10-needs-retest').innerText(),/Milo renegotiated two simulated needs/);
+    await press('Undo last PAPER needs action');
+    assert.match(await page.locator('#e10-needs-retest').innerText(),/PAPER CHRONICLE PENDING/);
    // Strictly earned E06/E07/E10 + four E11 visitor walks + two shared checks.
    await page.locator('#world-atlas').waitFor({state:'visible'});
    assert.equal(await page.locator('#world-atlas-places .atlas-place').count(),3);
