@@ -13,3 +13,21 @@ test('atlas repair cannot be forged without strict three-source child replay',()
  assert.equal(paperAtlasRepair({},[],{},[],{},null,
   Array.from({length:25},()=>({type:'test'}))),null);
 });
+
+test('atlas repair rejects malformed or forged PAPER histories before any source grant',()=>{
+ const source=[null,[],null,[],null,null];
+ for(const actions of [
+  [{type:'place',place:'common',phase:'now'}],
+  [{type:'place',place:'north_hill',phase:'now'}],
+  [{type:'place',place:'garden',phase:'future'}],
+  [{type:'place',place:'garden',phase:'now',rights:['approved']}],
+  [{type:'test'}],
+  [{type:'test',realRouteOpen:true}],
+  [{type:'place',place:'garden',phase:'now'},{type:'test'},{type:'test'}],
+  Array.from({length:25},()=>({type:'test'}))
+ ])assert.equal(paperAtlasRepair(...source,actions),null);
+ const h=[];
+ for(const action of [null,[],{type:'grant-unlock'},{type:'test'},
+  {type:'place',place:'common',phase:'now'}])
+  assert.deepEqual(dispatchAtlasRepair(...source,h,action),h);
+});
