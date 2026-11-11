@@ -8,7 +8,7 @@ export function paperAtlasRepair(e11,walk,upstream,shared,e10,useTrial,history=[
  let place=null,phase=null,checked=false,accepted=false;
  for(const a of history){
   if(!a||typeof a!=='object'||Object.keys(a).sort().join(',')!==
-    (a.type==='place'?'place,phase':a.type==='test'?'type':'')||
+    (a.type==='place'?'phase,place,type':a.type==='test'?'type':'')||
     (a.type==='place'&&(!ids.has(a.place)||!choices.has(a.phase)||checked))||
     (a.type==='test'&&(!place||checked)))return null;
   if(a.type==='place'){place=a.place;phase=a.phase;}
