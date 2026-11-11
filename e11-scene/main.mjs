@@ -10,6 +10,7 @@ import {paperE11Story} from './story-reactions.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
 import {paperReturnRoute,WALK_LABELS} from './return-route.mjs';
 import {paperTableRetest,dispatchTableRetest} from './map-room-retest.mjs';
+import {paperCrossingRetest,dispatchCrossingRetest} from './crossing-retest.mjs';
 import {paperReturnReflection} from './return-reflection.mjs';
 import {paperReflectionWorld} from './reflection-world.mjs';
 import {paperReflectionFollowUp} from './reflection-follow-up.mjs';
@@ -41,13 +42,14 @@ let markerTrial=incoming?.markerTrial||freshFutureMarker();
 let roleWalkHistory=[];
 let sharedUseHistory=[];
 let tableRetestHistory=[];
+let crossingRetestHistory=[];
 let atlasStage='now',atlasFocus='garden';
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
 function clearDependentPaperViews(){
- returnSteps=[];tableRetestHistory=[];clearReflection();markerTrial=freshFutureMarker();
+ returnSteps=[];tableRetestHistory=[];crossingRetestHistory=[];clearReflection();markerTrial=freshFutureMarker();
  roleWalkHistory=[];sharedUseHistory=[];atlasStage='now';atlasFocus='garden';
 }
 function act(action){clearDependentPaperViews();state=dispatch(state,action);render();}
@@ -530,8 +532,27 @@ function returnRoute(){
   'map_room:garden':'Return to Garden PAPER stop'
  };
  for(const to of model.choices)
-  button(host,labels[model.at+':'+to],()=>{returnSteps=[...returnSteps,to];tableRetestHistory=[];clearReflection();returnRoute();reflection();},
+  button(host,labels[model.at+':'+to],()=>{returnSteps=[...returnSteps,to];tableRetestHistory=[];crossingRetestHistory=[];clearReflection();returnRoute();reflection();},
    returnSteps.length>=24);
+ if(model.at==='connector'&&model.crossingEarned){
+  const trial=paperCrossingRetest(state,returnSteps,upstream,crossingRetestHistory);
+  if(trial){
+   for(const width of ['narrow','shared'])
+    button(host,'Place '+width+' PAPER crossing',()=>{
+     crossingRetestHistory=dispatchCrossingRetest(state,returnSteps,upstream,crossingRetestHistory,{type:'place',width});returnRoute();
+    },trial.tested,trial.width===width);
+   button(host,'Test another traveler at PAPER crossing',()=>{
+    crossingRetestHistory=dispatchCrossingRetest(state,returnSteps,upstream,crossingRetestHistory,{type:'test'});returnRoute();
+   },trial.tested);
+   button(host,'Revise PAPER crossing trial',()=>{
+    crossingRetestHistory=dispatchCrossingRetest(state,returnSteps,upstream,crossingRetestHistory,{type:'revise'});returnRoute();
+   },!trial.tested);
+   button(host,'Undo last PAPER crossing action',()=>{
+    crossingRetestHistory=crossingRetestHistory.slice(0,-1);returnRoute();
+   },!crossingRetestHistory.length);
+   $('return-route-feedback').textContent=trial.feedback+' '+trial.chronicle;
+  }
+ }
  if(model.at==='map_room'&&model.stationEarned){
   const trial=paperTableRetest(state,returnSteps,upstream,tableRetestHistory);
   if(trial){
@@ -555,9 +576,9 @@ function returnRoute(){
   }
  }
  button(host,'Undo last PAPER step',()=>{
-  returnSteps=returnSteps.slice(0,-1);tableRetestHistory=[];clearReflection();returnRoute();reflection();
+  returnSteps=returnSteps.slice(0,-1);tableRetestHistory=[];crossingRetestHistory=[];clearReflection();returnRoute();reflection();
  },!returnSteps.length);
- button(host,'Restart PAPER return route',()=>{returnSteps=[];tableRetestHistory=[];clearReflection();returnRoute();reflection();},!returnSteps.length);
+ button(host,'Restart PAPER return route',()=>{returnSteps=[];tableRetestHistory=[];crossingRetestHistory=[];clearReflection();returnRoute();reflection();},!returnSteps.length);
  $('return-route-result').textContent=model.complete?
   'PAPER route tested: both stops visited and Milo returned. No real route, Common access or official unlock.':
   'Not complete. Milo must visit both model stops and return to Square; a wrong turn is safe.';
