@@ -5,6 +5,7 @@ import {paperRevisit} from './revisit-model.mjs';
 import {paperRoleWalk,dispatchRoleWalk} from './role-walk.mjs';
 import {paperSharedUse,dispatchSharedUse} from './shared-use-followthrough.mjs';
 import {paperWorldAtlas} from './world-atlas.mjs';
+import {paperAtlasRepair,dispatchAtlasRepair} from './atlas-repair.mjs';
 import {paperLoopVisual} from './loop-visual.mjs';
 import {paperE11Story} from './story-reactions.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
@@ -45,7 +46,7 @@ let sharedUseHistory=[];
 let tableRetestHistory=[];
 let crossingRetestHistory=[];
 let needsRetestHistory=[];
-let atlasStage='now',atlasFocus='garden';
+let atlasStage='now',atlasFocus='garden',atlasRepairHistory=[];
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
@@ -53,7 +54,7 @@ const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
 function clearDependentPaperViews(){
  needsRetestHistory=[];
  returnSteps=[];tableRetestHistory=[];crossingRetestHistory=[];clearReflection();markerTrial=freshFutureMarker();
- roleWalkHistory=[];sharedUseHistory=[];atlasStage='now';atlasFocus='garden';
+ roleWalkHistory=[];sharedUseHistory=[];atlasRepairHistory=[];atlasStage='now';atlasFocus='garden';
 }
 function act(action){clearDependentPaperViews();state=dispatch(state,action);render();}
 function undoModelAction(){
@@ -278,7 +279,7 @@ function visitorWalk(){
  ]){
   button(choices,'Walk '+label,()=>{
    roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'choose',stage,role});
-   sharedUseHistory=[];visitorWalk();
+   sharedUseHistory=[];atlasRepairHistory=[];visitorWalk();
   },false,model.stage===stage&&model.role===role);
  }
  const board=$('visitor-walk-board');board.replaceChildren();
@@ -356,7 +357,7 @@ function sharedUseView(){
  const choose=(phase,channel)=>{
   sharedUseHistory=dispatchSharedUse(state,roleWalkHistory,upstream,sharedUseHistory,
    {type:'choose',phase,channel});
-  sharedUseView();
+  atlasRepairHistory=[];sharedUseView();
  };
  for(const phase of ['first','now'])
   button(choices,phase.toUpperCase()+' connector',()=>choose(phase,model.channel),
@@ -442,6 +443,38 @@ function worldAtlas(){
   atlasStage.toUpperCase()+' · '+focused.label+'. '+focused.detail+
   ' Milo can switch the view or inspect another PAPER place.';
  $('world-atlas-chronicle').textContent=model.chronicle;
+
+ const repair=paperAtlasRepair(state,roleWalkHistory,upstream,sharedUseHistory,
+  linkedE10,linkedUseTrial,atlasRepairHistory);
+ const host=$('world-atlas-repair')||document.createElement('div');
+ if(!host.id){host.id='world-atlas-repair';panel.append(host);}
+ host.replaceChildren();
+ if(repair){
+  const note=document.createElement('p');note.setAttribute('aria-live','polite');
+  note.textContent=repair.feedback+(repair.chronicle?' '+repair.chronicle:'');
+  host.append(note);
+  const apply=action=>{
+   atlasRepairHistory=dispatchAtlasRepair(state,roleWalkHistory,upstream,sharedUseHistory,
+    linkedE10,linkedUseTrial,atlasRepairHistory,action);worldAtlas();
+  };
+  if(!repair.checked)for(const place of repair.places)for(const phase of ['first','now'])
+   button(host,'Place '+phase.toUpperCase()+' '+place.label+' model claim',
+    ()=>apply({type:'place',place:place.id,phase}),false,
+    repair.place===place.id&&repair.phase===phase);
+  button(host,'Test PAPER atlas claim',()=>apply({type:'test'}),!repair.place||repair.checked);
+  button(host,'Undo PAPER atlas repair',()=>{
+   atlasRepairHistory=atlasRepairHistory.slice(0,-1);worldAtlas();
+  },!atlasRepairHistory.length);
+  button(host,'Restart PAPER atlas repair',()=>{atlasRepairHistory=[];worldAtlas();},
+   !atlasRepairHistory.length);
+  if(repair.visibleClaim){
+   const changed=document.createElement('p');changed.dataset.atlasRepair='changed';
+   changed.textContent='CHANGED PAPER NOTE: '+repair.visibleClaim.label+
+    ' — '+repair.visibleClaim.title+'. '+repair.visibleClaim.detail;
+   host.append(changed);
+  }
+ }
+
 }
 
 function verificationPlan(){
