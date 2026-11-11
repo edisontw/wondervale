@@ -15,6 +15,7 @@ import {paperReturnReflection} from './return-reflection.mjs';
 import {paperReflectionWorld} from './reflection-world.mjs';
 import {paperReflectionFollowUp} from './reflection-follow-up.mjs';
 import {paperFollowUpMap,PAPER_CHECK_STOPS} from './follow-up-map.mjs';
+import {paperNeedsRetest,dispatchNeedsRetest} from './needs-retest.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
 import {paperE10UseRevisit} from './e10-use-revisit.mjs';
 import {paperHillTraceRevisit,PAPER_FUTURE_STOPS,freshFutureMarker,restoreFutureMarker,dispatchFutureMarker,paperFutureCheckDialogue,paperFutureMarkerChronicle} from './hill-trace-revisit.mjs';
@@ -43,12 +44,14 @@ let roleWalkHistory=[];
 let sharedUseHistory=[];
 let tableRetestHistory=[];
 let crossingRetestHistory=[];
+let needsRetestHistory=[];
 let atlasStage='now',atlasFocus='garden';
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
 function clearDependentPaperViews(){
+ needsRetestHistory=[];
  returnSteps=[];tableRetestHistory=[];crossingRetestHistory=[];clearReflection();markerTrial=freshFutureMarker();
  roleWalkHistory=[];sharedUseHistory=[];atlasStage='now';atlasFocus='garden';
 }
@@ -729,6 +732,24 @@ function e10NeedsWorld(){
  $('e10-needs-result').textContent='FIRST: '+(atlas.firstConflict?'1 tested PAPER overlap':'no overlap')+
   ' → NOW: '+(atlas.nowConflict?'overlap':'0 overlaps after Milo moved a card')+
   '. The two simulated needs remain visible. Source, consent and real access UNKNOWN; North Hill CLOSED.';
+ needsRetestView();
+}
+function needsRetestView(){
+ const panel=$('e10-needs-world');
+ let host=$('e10-needs-retest');
+ if(!host){host=document.createElement('div');host.id='e10-needs-retest';panel.append(host);}
+ host.replaceChildren();
+ const trial=paperNeedsRetest(linkedE10,needsRetestHistory);
+ if(!trial)return;
+ const status=document.createElement('p');status.setAttribute('aria-live','polite');
+ status.textContent='NEW PAPER trial: Quiet '+trial.quiet+' / Activity '+trial.activity+'. '+trial.feedback+' '+trial.chronicle;
+ host.append(status);
+ const apply=a=>{needsRetestHistory=dispatchNeedsRetest(linkedE10,needsRetestHistory,a);needsRetestView();};
+ for(const role of ['quiet','activity'])for(const slot of ['left','shared','right'])
+  button(host,'Move PAPER '+role+' to '+slot,()=>apply({type:'place',role,slot}),trial.tested);
+ button(host,'Ask both PAPER visitors',()=>apply({type:'test'}),trial.tested||!trial.moved);
+ button(host,'Revise PAPER needs trial',()=>apply({type:'revise'}),!trial.tested);
+ button(host,'Undo last PAPER needs action',()=>{needsRetestHistory=needsRetestHistory.slice(0,-1);needsRetestView();},!needsRetestHistory.length);
 }
 function e10UseWorld(){
  const atlas=paperE10UseRevisit(linkedE10,linkedUseTrial);
