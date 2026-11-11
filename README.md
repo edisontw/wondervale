@@ -47,7 +47,7 @@ World/character state is derived from an event/progress ledger rather than being
 
 ## Current work sequence
 
-**Current next-work handoff (2026-10-19, E03 cart appearance correction):** PR #105's display-envelope audit found four potential L-path overlaps between Milo's carried tea cart and painted unloading cargo. A scoped E03-only CSS update makes the cart 185% × 50% of Milo's actor frame at 60% top (formerly 240% × 66% at 38%), keeping wheel/handle detail recognizable while avoiding the approximate central cargo silhouette in both directions. Build `20261019-e03-cart-clearance1`. Regression enforces zero *conservative 2D display-envelope* cargo crossings plus small nonzero margin and captured browser screenshots; this is NOT cart wheel/turn/yaw, real painted road, fence, phone or full Gate 3 PASS. Routes, story/EFL, C01/E01/E02, scene bytes, save and audio remain locked. Next: owner visual/device check of tea-cart size/position, then S/N floor/occlusion and actual cart-turn geometry.
+**Current development entry (2026-11-06):** read [the compact current status](docs/CURRENT_STATUS.md), [the twelve-scene delivery plan](docs/SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29.md) and [the focused project index](docs/PROJECT_INDEX.md). E01/E02 accepted scope and E03 story/art are protected; E04 source/rights/art remains an Owner Gate; E05–E11 isolated PAPER play is **not** canonical release. Next active independent scene: E10 child-driven two-view question/revision. Historic E03 cart appearance QA is retained in [the status archive](docs/archive/CURRENT_STATUS_HISTORY_THROUGH_2026-11-06.md); physical wheel/turn clearance [#109](https://github.com/edisontw/wondervale/issues/109) remains open.
 
 
 1. Core trio — **locked**
