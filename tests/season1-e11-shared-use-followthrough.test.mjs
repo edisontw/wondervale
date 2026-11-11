@@ -229,3 +229,47 @@ test('E11 three-place FIRST/NOW PAPER atlas is child-earned and source-bound',()
  assert.equal(paperWorldAtlas(e11,h,u,actions,{...e10,rights:['open']}),null);
  assert.equal(paperWorldAtlas(e11,h,u,actions,e10,{rights:['open']}),null);
 });
+
+test('E11 atlas claim repair earns NOW from E06/E07/E10, survives JSON replay and fails closed on reset',async()=>{
+ const {paperAtlasRepair,dispatchAtlasRepair}=await import('../e11-scene/atlas-repair.mjs');
+ const e11=layout(),visitors=walked(e11),upstream={e06:gardens(),e07:connector()},e10=courtyard();
+ let shared=[];
+ for(const a of [{type:'record'},{type:'choose',phase:'now',channel:'open'},
+  {type:'record'},{type:'compare'}])
+  shared=dispatchSharedUse(e11,visitors,upstream,shared,a);
+ const source=[e11,visitors,upstream,shared,e10,null];
+ let history=[];
+ const place={type:'place',place:'connector',phase:'first'};
+ history=dispatchAtlasRepair(...source,history,place);
+ assert.equal(history.length,1);
+ history=dispatchAtlasRepair(...source,history,{type:'test'});
+ let view=paperAtlasRepair(...source,history);
+ assert.equal(view.checked,true);
+ assert.equal(view.accepted,false);
+ assert.equal(view.chronicle,null);
+ assert.match(view.feedback,/FIRST/);
+ assert.deepEqual(dispatchAtlasRepair(...source,history,{type:'test'}),history);
+ history=history.slice(0,-1); // Undo test, then change FIRST to NOW
+ history=[]; // Restart
+ history=dispatchAtlasRepair(...source,history,{type:'place',place:'connector',phase:'now'});
+ history=dispatchAtlasRepair(...source,history,{type:'test'});
+ view=paperAtlasRepair(...source,history);
+ assert.equal(view.accepted,true);
+ assert.match(view.chronicle,/PAPER ATLAS REPAIR/);
+ assert.match(view.visibleClaim.title,/0 connector overlap/);
+ assert.deepEqual(view.canonicalEvents,[]);
+ assert.deepEqual(view.unlocks,[]);
+ assert.equal(view.realRouteOpen,false);
+ assert.equal(view.persistentSave,false);
+ const replayed=source.map((s,i)=>i===2?{
+  e06:E06.replay(s.e06.history),e07:E07.replay(s.e07.history)
+ }:i===4?E10.replay(s.history):s);
+ assert.deepEqual(paperAtlasRepair(...replayed,JSON.parse(JSON.stringify(history))),view);
+ assert.equal(paperAtlasRepair(...source,[]).checked,false);
+ assert.equal(paperAtlasRepair(e11,visitors,{...upstream,e06:E06.fresh()},shared,e10,null,history),null);
+ assert.equal(paperAtlasRepair(e11,visitors,{...upstream,e07:E07.fresh()},shared,e10,null,history),null);
+ assert.equal(paperAtlasRepair(e11,visitors,upstream,shared,E10.fresh(),null,history),null);
+ assert.equal(paperAtlasRepair(E11.dispatch(e11,{type:'reset'}),visitors,upstream,shared,e10,null,history),null);
+ assert.equal(paperAtlasRepair(...source,[...history,{type:'grant-unlock'}]),null);
+ assert.equal(paperAtlasRepair(...source,[{type:'place',place:'north_hill',phase:'now'}]),null);
+});
