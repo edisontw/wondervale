@@ -30,7 +30,9 @@ export function paperAtlasRepair(e11,walk,upstream,shared,e10,useTrial,history=[
   commonRevealed:false};
 }
 export function dispatchAtlasRepair(e11,walk,upstream,shared,e10,useTrial,history,action){
- if(!action||typeof action!=='object'||!['place','test'].includes(action.type))return history;
+ if(!Array.isArray(history)||history.length>=24||
+    !action||typeof action!=='object'||Array.isArray(action)||
+    !['place','test'].includes(action.type))return history;
  const next=[...history,action];
  return paperAtlasRepair(e11,walk,upstream,shared,e10,useTrial,next)?next:history;
 }
