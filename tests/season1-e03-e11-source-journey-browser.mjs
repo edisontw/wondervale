@@ -299,6 +299,22 @@ try{
    await press('Return to Garden PAPER stop');
    await press('Return to Square PAPER start');
    assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
+   // E07-earned connector: test another traveler, revise, keyboard retest and undo.
+   await press('Visit shared crossing PAPER stop');
+   assert.match(await page.locator('#return-route-feedback').innerText(),/Choose a PAPER crossing width/);
+   await press('Test another traveler at PAPER crossing');
+   assert.match(await page.locator('#return-route-feedback').innerText(),/Finn:.*stops the other traveler/);
+   await press('Revise PAPER crossing trial');
+   await press('Place shared PAPER crossing');
+   const crossingButton=page.getByRole('button',{name:'Test another traveler at PAPER crossing',exact:true});
+   await crossingButton.focus();await page.keyboard.press('Enter');
+   assert.match(await page.locator('#return-route-feedback').innerText(),/PAPER CHRONICLE: Milo retested/);
+   await press('Undo last PAPER crossing action');
+   assert.match(await page.locator('#return-route-feedback').innerText(),/PAPER CHRONICLE PENDING/);
+   await press('Test another traveler at PAPER crossing');
+   await press('Return to Square PAPER start');
+   assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
+
    // These two observations must be earned in this same E05→E06→E11 browser
    // journey, not injected as pre-completed E11 fixture state. A PAPER model
    // observation is distinct from a claim about actual planting or public access.
