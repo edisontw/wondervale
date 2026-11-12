@@ -42,3 +42,20 @@ export function dispatchEvidence(history,action){
  const next=[...history,action];
  return replayEvidence(next)?next:history;
 }
+
+
+// Rebuild E05 from child events; a supplied snapshot or an E11 card is never provenance.
+export async function replayEarnedEvidence(e05History,e11History=[]){
+ const E05=await import('../e05-scene/scene-model.mjs');
+ const earned=E05.replay(e05History);
+ const source=earned&&E05.view(earned);
+ if(!source||source.stage!=='review'||source.mapRoomPaperVisible!==true||
+    source.productionEntryReady!==false||source.stationRecordsApproved!==false||
+    source.foyerAccessApproved!==false||source.e06Unlocked!==false||
+    source.canonicalEvents.length||source.unlocks.length)return null;
+ const result=replayEvidence(e11History);
+ return result?{...result,e05PaperReplayed:true,
+  sourceApproved:false,realAccessApproved:false,
+  chronicle:result.chronicle?result.chronicle+
+   ' E05 PAPER Map Room replayed; its MOCK records remain UNKNOWN.':null}:null;
+}
