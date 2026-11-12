@@ -13,7 +13,8 @@ try {
     if(label==='keyboard'){await first.focus();await page.keyboard.press('Enter')}else await first.click();
     await page.getByRole('button',{name:'Active builder → second'}).click();
     await page.locator('#test').click();
-    await page.getByText('PAPER Chronicle: Two imagined visitors take turns.',{exact:false}).waitFor();
+    await page.getByText('PAPER Chronicle: Quiet reading first, active building second.',{exact:false}).waitFor();
+    assert.match(await page.locator('#feedback').innerText(),/quiet reader goes first/);
     await page.locator('#undo').click();
     assert.match(await page.locator('#note').innerText(),/No PAPER note/);
     await page.getByRole('button',{name:'Quiet reader → second'}).click();
