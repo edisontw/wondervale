@@ -33,7 +33,7 @@ try {
   assert.equal(await pick.isDisabled(),true,'forged E05 must remain locked');
   await page.locator('#source').setInputFiles({name:'earned.json',mimeType:'application/json',buffer:Buffer.from(earnedJSON)});
   await page.getByText('E05 PAPER Map Room replayed').waitFor();
-  assert.equal(await pick.isEnabled(),true);
+  await page.waitForFunction(()=>!document.querySelector('#cards button')?.disabled);
   if(label==='keyboard'){await pick.focus();await page.keyboard.press('Enter');}
   else await pick.click();
   await page.getByRole('button',{name:'Rest idea'}).click();
