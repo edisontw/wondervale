@@ -13,6 +13,7 @@ try {
     const response=await page.goto('http://127.0.0.1:4173/e11-scene/visitor-turns.html');
     assert.equal(response?.status(),200);
     assert.equal(await page.locator('#test').isDisabled(),true);
+    assert.match(await page.locator('#world-board').innerText(),/Not tested/);
     assert.equal(await page.getByRole('button',{name:'Quiet reader → first'}).isDisabled(),true);
     await page.locator('#e10-file').setInputFiles(upload([{type:'finish-paper'}]));
     await page.getByText('Visitor turns are locked.',{exact:false}).waitFor();
@@ -24,14 +25,20 @@ try {
     await page.getByRole('button',{name:'Active builder → second'}).click();
     await page.locator('#test').click();
     await page.getByText('PAPER Chronicle: Quiet reading first, active building second.',{exact:false}).waitFor();
+    assert.match(await page.locator('#world-first').innerText(),/Quiet reading corner/);
+    assert.match(await page.locator('#world-second').innerText(),/Building table/);
+    assert.equal(await page.locator('#world-first').evaluate(el=>el.classList.contains('confirmed')),true);
     assert.match(await page.locator('#feedback').innerText(),/quiet reader goes first/);
     await page.locator('#undo').click();
     assert.match(await page.locator('#note').innerText(),/No PAPER note/);
+    assert.match(await page.locator('#world-first').innerText(),/Not tested/);
+    assert.equal(await page.locator('#world-first').evaluate(el=>el.classList.contains('confirmed')),false);
     await page.getByRole('button',{name:'Quiet reader → second'}).click();
     assert.equal(await page.locator('#test').isDisabled(),true);
     await page.locator('#restart').click();
     assert.equal(await page.locator('#test').isDisabled(),true);
     assert.equal(await page.locator('#first').innerText(),'Empty');
+    assert.match(await page.locator('#world-second').innerText(),/Not tested/);
     assert.equal(await page.getByRole('button',{name:'Quiet reader → first'}).isDisabled(),true);
     await page.locator('#e10-file').setInputFiles(upload(e10.history));
     await page.getByText('E10 PAPER history verified.',{exact:false}).waitFor();
