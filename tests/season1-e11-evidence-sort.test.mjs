@@ -26,3 +26,17 @@ test('forged cards, extra fields, skipped tests and invalid histories fail close
  assert.equal(replayEvidence(new Array(17).fill({type:'pick',card:'paper-mark'})),null);
  assert.equal(replayEvidence({history:[]}),null);
 });
+
+test('changing the paper clue invalidates a previously selected model and test',()=>{
+ let h=[];const act=a=>{h=dispatchEvidence(h,a);};
+ act({type:'pick',card:'paper-mark'});act({type:'model',target:'path'});act({type:'test'});
+ assert.equal(replayEvidence(h).fits,true);
+ act({type:'pick',card:'paper-seat'});
+ assert.equal(replayEvidence(h).model,null);
+ assert.equal(replayEvidence(h).chronicle,null);
+ assert.deepEqual(dispatchEvidence(h,{type:'test'}),h);
+ act({type:'model',target:'rest'});act({type:'test'});
+ assert.equal(replayEvidence(h).fits,true);
+ assert.deepEqual(replayEvidence(JSON.parse(JSON.stringify(h))),replayEvidence(h));
+ h=h.slice(0,-1);assert.equal(replayEvidence(h).chronicle,null);
+});
