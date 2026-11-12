@@ -15,7 +15,7 @@ export function replayEvidence(history=[]){
   if(!a||Array.isArray(a)||typeof a!=='object')return null;
   if(a.type==='pick'){
    if(!same(Object.keys(a).sort(),['card','type'])||!ids.has(a.card))return null;
-   picked=a.card;checked=false;
+   picked=a.card;model=null;checked=false;
   }else if(a.type==='model'){
    if(!same(Object.keys(a).sort(),['target','type'])||!targets.has(a.target)||!picked)return null;
    model=a.target;checked=false;
