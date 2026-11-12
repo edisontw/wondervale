@@ -29,7 +29,7 @@ try {
   const pick=page.getByRole('button',{name:/Paper arrow/});
   assert.equal(await pick.isDisabled(),true,'must fail closed without E05');
   await page.locator('#source').setInputFiles({name:'forged.json',mimeType:'application/json',buffer:Buffer.from('[{"scene":"nav","type":"to-review","admin":true}]')});
-  assert.match(await page.locator('#source-status').innerText(),/rejected/);
+  await page.getByText('E05 source rejected. PAPER table locked.').waitFor();
   assert.equal(await pick.isDisabled(),true,'forged E05 must remain locked');
   await page.locator('#source').setInputFiles({name:'earned.json',mimeType:'application/json',buffer:Buffer.from(earnedJSON)});
   await page.getByText('E05 PAPER Map Room replayed').waitFor();
