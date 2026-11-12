@@ -24,9 +24,13 @@ export function replayTurns(events) {
   const conflict = places.first && places.second && places.first === places.second;
   return {
     places, checked, ready:!!places.first && !!places.second && !conflict,
-    feedback: checked ? 'Nia: We can take turns. Finn: I can wait and try again.' :
+    feedback: checked ? (places.first === 'quiet-reader' ?
+      'Nia: The quiet reader goes first. Finn: I will set up after the reading turn.' :
+      'Finn: The active builder goes first. Nia: We will leave a quiet turn afterward.') :
       'Nia: Who goes first? Finn: Try a different order.',
-    note: checked ? 'PAPER Chronicle: Two imagined visitors take turns. No real place or permission changed.' : null
+    note: checked ? (places.first === 'quiet-reader' ?
+      'PAPER Chronicle: Quiet reading first, active building second. No real place or permission changed.' :
+      'PAPER Chronicle: Active building first, quiet reading second. No real place or permission changed.') : null
   };
 }
 export function dispatchTurns(events, event) {
