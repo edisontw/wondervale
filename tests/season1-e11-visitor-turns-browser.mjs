@@ -36,6 +36,13 @@ try {
     await page.locator('#e10-file').setInputFiles(upload(e10.history));
     await page.getByText('E10 PAPER history verified.',{exact:false}).waitFor();
     assert.equal(await page.getByRole('button',{name:'Quiet reader → first'}).isEnabled(),true);
+    // Simulate an in-flight file read: Restart must invalidate its late completion.
+    await page.evaluate(() => { const original=File.prototype.text; File.prototype.text=async function(){await new Promise(resolve=>setTimeout(resolve,150));return original.call(this)}; });
+    await page.locator('#e10-file').setInputFiles(upload(e10.history));
+    await page.locator('#restart').click();
+    await page.waitForTimeout(220);
+    assert.equal(await page.getByRole('button',{name:'Quiet reader → first'}).isDisabled(),true);
+    assert.match(await page.locator('#source-status').innerText(),/locked/);
     assert.deepEqual(errors,[]);
     await context.close();
   }
