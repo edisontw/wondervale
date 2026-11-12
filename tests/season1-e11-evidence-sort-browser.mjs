@@ -49,6 +49,7 @@ try {
   await page.waitForFunction(()=>document.querySelector('#result')?.textContent.includes('No PAPER note yet'));
   assert.match(await page.locator('#result').innerText(),/No PAPER note yet/);
   await page.getByRole('button',{name:'Restart'}).click();
+  await page.waitForFunction(()=>document.querySelector('#test')?.disabled===true && document.querySelector('#undo')?.disabled===true);
   assert.equal(await page.getByRole('button',{name:'Test my idea'}).isDisabled(),true);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'horizontal overflow');
   assert.deepEqual(errors,[]);
