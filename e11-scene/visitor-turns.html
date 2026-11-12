@@ -2,19 +2,22 @@
 <title>Wondervale E11 — PAPER Visitor Turns</title>
 <style>:root{font-family:system-ui,sans-serif;background:#f1f3ed;color:#203d35}*{box-sizing:border-box}main{max-width:720px;margin:auto;padding:1rem}section{background:white;border:1px solid #9caea1;border-radius:.6rem;padding:1rem;margin:.6rem 0}button{font:inherit;min-height:44px;min-width:44px;margin:.2rem;padding:.55rem;border:2px solid #57766a;border-radius:.4rem;background:#f6faf5;color:inherit}button:focus-visible{outline:3px solid #b27626}button:disabled{opacity:.5}.slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}.slot{background:#e4eee4;border-radius:.5rem;padding:.8rem;min-height:90px}#note{background:#f6edcd;padding:.7rem;min-height:3rem}@media(orientation:landscape) and (max-height:450px){main{max-width:960px;padding:.4rem}section{padding:.5rem;margin:.3rem 0}}</style></head><body><main>
 <h1>Milo's PAPER Visitor Turns</h1><p>Imaginary E11 rehearsal only. No real visitors, Common identity, land access, safety claim, or Canon Chronicle.</p>
-<section><h2>1. Choose who visits</h2><p>Move each visitor to a turn. Try both orders.</p>
+<section><h2>1. Bring your E10 PAPER choices</h2><label for="e10-file">E10 child event history (JSON)</label> <input id="e10-file" type="file" accept=".json,application/json"><p id="source-status" role="status" aria-live="polite">Bring your E10 history to begin. No real access is granted.</p></section>
+<section><h2>2. Choose who visits</h2><p>Move each visitor to a turn. Try both orders.</p>
 <div class="slots"><div class="slot">First: <strong id="first">Empty</strong></div><div class="slot">Second: <strong id="second">Empty</strong></div></div>
 <div id="choices"></div></section>
-<section><h2>2. Test and change</h2><button id="test">Try the turns</button><button id="undo">Undo</button><button id="restart">Restart</button>
+<section><h2>3. Test and change</h2><button id="test">Try the turns</button><button id="undo">Undo</button><button id="restart">Restart</button>
 <p id="feedback" role="status" aria-live="polite"></p><div id="note" role="status" aria-live="polite">No PAPER note yet.</div></section>
 <script type="module">
-import {VISITORS,SLOTS,replayTurns,dispatchTurns} from './visitor-turns.mjs';
-let history=[];const el=id=>document.getElementById(id);
+import {VISITORS,SLOTS} from './visitor-turns.mjs';
+import {replayEarnedVisitorTurns,dispatchEarnedVisitorTurns} from './earned-visitor-turns.mjs';
+let history=[],source=[],sourceEpoch=0;const el=id=>document.getElementById(id);
 const names={'quiet-reader':'Quiet reader','active-builder':'Active builder'};
-function render(){const s=replayTurns(history);for(const slot of SLOTS)el(slot).textContent=s.places[slot]?names[s.places[slot]]:'Empty';
-el('choices').replaceChildren();for(const visitor of VISITORS)for(const slot of SLOTS){const b=document.createElement('button');b.type='button';b.textContent=names[visitor]+' → '+slot;b.setAttribute('aria-pressed',String(s.places[slot]===visitor));b.addEventListener('click',()=>{history=dispatchTurns(history,{type:'place',visitor,slot});render()});el('choices').append(b)}
-el('test').disabled=!s.ready||s.checked;el('undo').disabled=!history.length;el('feedback').textContent=s.feedback;el('note').textContent=s.note||'No PAPER note yet. You can change your mind.'}
-el('test').addEventListener('click',()=>{history=dispatchTurns(history,{type:'test'});render()});
+function render(){const s=replayEarnedVisitorTurns(source,history);const earned=!!s;el('source-status').textContent=earned?'E10 PAPER history verified. Try your visitor turns.':'E10 history missing or not earned. Visitor turns are locked.';for(const slot of SLOTS)el(slot).textContent=s?.places[slot]?names[s.places[slot]]:'Empty';
+el('choices').replaceChildren();for(const visitor of VISITORS)for(const slot of SLOTS){const b=document.createElement('button');b.type='button';b.textContent=names[visitor]+' → '+slot;b.setAttribute('aria-pressed',String(s?.places[slot]===visitor));b.disabled=!earned;b.addEventListener('click',()=>{const next=dispatchEarnedVisitorTurns(source,history,{type:'place',visitor,slot});if(next)history=next;render()});el('choices').append(b)}
+el('test').disabled=!s?.ready||s.checked;el('undo').disabled=!earned||!history.length;el('feedback').textContent=s?.feedback||'Nia: Bring your E10 choices first.';el('note').textContent=s?.note||'No PAPER note yet. You can change your mind.'}
+el('test').addEventListener('click',()=>{const next=dispatchEarnedVisitorTurns(source,history,{type:'test'});if(next)history=next;render()});
 el('undo').addEventListener('click',()=>{history=history.slice(0,-1);render()});
-el('restart').addEventListener('click',()=>{history=[];render()});render();
+el('restart').addEventListener('click',()=>{history=[];source=[];sourceEpoch++;el('e10-file').value='';render()});
+el('e10-file').addEventListener('change',async()=>{source=[];history=[];const epoch=++sourceEpoch;render();const file=el('e10-file').files?.[0];if(!file)return;try{if(file.size>65536)throw Error('large');const text=await file.text();if(epoch!==sourceEpoch)return;const parsed=JSON.parse(text);const events=Array.isArray(parsed)?parsed:parsed?.history;if(!Array.isArray(events))throw Error('format');source=events; if(!replayEarnedVisitorTurns(source,[]))source=[];}catch{if(epoch!==sourceEpoch)return;source=[];}if(epoch===sourceEpoch)render()});render();
 </script></main></body></html>
