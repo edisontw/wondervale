@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Milo's PAPER Evidence Table</title><style>
+:root{font-family:system-ui,sans-serif;color:#243d39;background:#f1f1e9}*{box-sizing:border-box}main{max-width:720px;margin:auto;padding:1rem}section{background:white;border:1px solid #9eaea3;border-radius:.7rem;padding:1rem;margin:.6rem 0}button{font:inherit;min-height:44px;padding:.6rem;margin:.2rem;border:2px solid #53746c;border-radius:.4rem;background:#f5faf6}button:focus-visible{outline:3px solid #a56815}button[aria-pressed=true]{background:#cde9d7}p{line-height:1.5}.warning{background:#fff0c7}#result{min-height:4rem;background:#e3efe4;padding:.6rem;border-radius:.4rem}@media(orientation:landscape) and (max-height:450px){main{max-width:900px}section{padding:.5rem;margin:.3rem 0}}
+</style></head><body><main><h1>Milo's PAPER Evidence Table</h1><p class="warning">Independent E05→E11 PAPER rehearsal. Invented cards only; NOT E04 history, a real map, permission, canonical Chronicle, or a Common reveal.</p>
+<section><h2>E05 PAPER source</h2><p>Load your E05 child-event JSON to replay the PAPER Map Room. No file is uploaded or saved. Without a valid E05 replay, this table stays locked.</p><input id="source" type="file" accept=".json,application/json"><p id="source-status" role="status" aria-live="polite">E05 source not loaded.</p></section><section><h2>1. Pick a clue</h2><div id="cards"></div></section><section><h2>2. Try a model</h2><div id="models"></div><button id="test" type="button">Test my idea</button><button id="undo" type="button">Undo</button><button id="restart" type="button">Restart</button></section><section><h2>Nia's response</h2><p id="feedback" role="status" aria-live="polite"></p><div id="result" role="status" aria-live="polite">No PAPER note yet.</div></section>
+<script type="module">
+import {CARDS,replayEarnedEvidence,dispatchEvidence} from './evidence-sort.mjs';
+let history=[],sourceHistory=null,revision=0;const el=id=>document.getElementById(id);
+function add(host,label,action,pressed){const b=document.createElement('button');b.type='button';b.textContent=label;b.setAttribute('aria-pressed',String(pressed));b.disabled=!sourceHistory;b.addEventListener('click',()=>{history=dispatchEvidence(history,action);render()});host.append(b)}
+async function render(){const version=++revision;const s=sourceHistory?await replayEarnedEvidence(sourceHistory,history):null;if(version!==revision)return;
+el('cards').replaceChildren();for(const c of CARDS)add(el('cards'),c.label+' — '+c.detail,{type:'pick',card:c.id},s?.picked===c.id);
+el('models').replaceChildren();for(const [id,name] of [['path','Path idea'],['rest','Rest idea']])add(el('models'),name,{type:'model',target:id},s?.model===id);
+el('test').disabled=!s?.picked||!s?.model||s.checked;el('undo').disabled=!s||!history.length;
+el('feedback').textContent=s?.feedback||'Nia: “Finish the E05 PAPER Map Room first.”';
+el('result').textContent=s?.chronicle||'No PAPER note yet. You can change your mind.'}
+el('source').addEventListener('change',async()=>{sourceHistory=null;history=[];const file=el('source').files?.[0];
+try{if(!file||file.size>100000)throw Error('Invalid file');const data=JSON.parse(await file.text());if(!Array.isArray(data)||!await replayEarnedEvidence(data))throw Error('Invalid E05 history');sourceHistory=data;el('source-status').textContent='E05 PAPER Map Room replayed. No real access or Canon rights.'}
+catch{el('source-status').textContent='E05 source rejected. PAPER table locked.'}render()});
+el('test').addEventListener('click',()=>{history=dispatchEvidence(history,{type:'test'});render()});
+el('undo').addEventListener('click',()=>{history=history.slice(0,-1);render()});
+el('restart').addEventListener('click',()=>{history=[];render()});render();
+</script></main></body></html>
