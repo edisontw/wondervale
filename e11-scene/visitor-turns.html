@@ -11,13 +11,13 @@
 <script type="module">
 import {VISITORS,SLOTS} from './visitor-turns.mjs';
 import {replayEarnedVisitorTurns,dispatchEarnedVisitorTurns} from './earned-visitor-turns.mjs';
-let history=[],source=[];const el=id=>document.getElementById(id);
+let history=[],source=[],sourceEpoch=0;const el=id=>document.getElementById(id);
 const names={'quiet-reader':'Quiet reader','active-builder':'Active builder'};
 function render(){const s=replayEarnedVisitorTurns(source,history);const earned=!!s;el('source-status').textContent=earned?'E10 PAPER history verified. Try your visitor turns.':'E10 history missing or not earned. Visitor turns are locked.';for(const slot of SLOTS)el(slot).textContent=s?.places[slot]?names[s.places[slot]]:'Empty';
 el('choices').replaceChildren();for(const visitor of VISITORS)for(const slot of SLOTS){const b=document.createElement('button');b.type='button';b.textContent=names[visitor]+' → '+slot;b.setAttribute('aria-pressed',String(s?.places[slot]===visitor));b.disabled=!earned;b.addEventListener('click',()=>{const next=dispatchEarnedVisitorTurns(source,history,{type:'place',visitor,slot});if(next)history=next;render()});el('choices').append(b)}
 el('test').disabled=!s?.ready||s.checked;el('undo').disabled=!earned||!history.length;el('feedback').textContent=s?.feedback||'Nia: Bring your E10 choices first.';el('note').textContent=s?.note||'No PAPER note yet. You can change your mind.'}
 el('test').addEventListener('click',()=>{const next=dispatchEarnedVisitorTurns(source,history,{type:'test'});if(next)history=next;render()});
 el('undo').addEventListener('click',()=>{history=history.slice(0,-1);render()});
-el('restart').addEventListener('click',()=>{history=[];source=[];el('e10-file').value='';render()});
-el('e10-file').addEventListener('change',async()=>{source=[];history=[];render();const file=el('e10-file').files?.[0];if(!file)return;try{if(file.size>65536)throw Error('large');const parsed=JSON.parse(await file.text());const events=Array.isArray(parsed)?parsed:parsed?.history;if(!Array.isArray(events))throw Error('format');source=events; if(!replayEarnedVisitorTurns(source,[]))source=[];}catch{source=[];}render()});render();
+el('restart').addEventListener('click',()=>{history=[];source=[];sourceEpoch++;el('e10-file').value='';render()});
+el('e10-file').addEventListener('change',async()=>{source=[];history=[];const epoch=++sourceEpoch;render();const file=el('e10-file').files?.[0];if(!file)return;try{if(file.size>65536)throw Error('large');const text=await file.text();if(epoch!==sourceEpoch)return;const parsed=JSON.parse(text);const events=Array.isArray(parsed)?parsed:parsed?.history;if(!Array.isArray(events))throw Error('format');source=events; if(!replayEarnedVisitorTurns(source,[]))source=[];}catch{if(epoch!==sourceEpoch)return;source=[];}if(epoch===sourceEpoch)render()});render();
 </script></main></body></html>
