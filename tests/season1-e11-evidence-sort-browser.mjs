@@ -38,15 +38,15 @@ try {
   else await pick.click();
   await page.getByRole('button',{name:'Rest idea'}).click();
   await page.getByRole('button',{name:'Test my idea'}).click();
-  await page.locator('#feedback').getByText(/change your model/).waitFor();
+  await page.waitForFunction(()=>document.querySelector('#feedback')?.textContent.includes('change your model'));
   assert.match(await page.locator('#feedback').innerText(),/change your model/);
   assert.match(await page.locator('#result').innerText(),/No PAPER note yet/);
   await page.getByRole('button',{name:'Path idea'}).click();
   await page.getByRole('button',{name:'Test my idea'}).click();
-  await page.locator('#result').getByText(/PAPER NOTE/).waitFor();
+  await page.waitForFunction(()=>document.querySelector('#result')?.textContent.includes('PAPER NOTE'));
   assert.match(await page.locator('#result').innerText(),/PAPER NOTE/);assert.match(await page.locator('#result').innerText(),/MOCK records remain UNKNOWN/);
   await page.getByRole('button',{name:'Undo'}).click();
-  await page.locator('#result').getByText(/No PAPER note yet/).waitFor();
+  await page.waitForFunction(()=>document.querySelector('#result')?.textContent.includes('No PAPER note yet'));
   assert.match(await page.locator('#result').innerText(),/No PAPER note yet/);
   await page.getByRole('button',{name:'Restart'}).click();
   assert.equal(await page.getByRole('button',{name:'Test my idea'}).isDisabled(),true);
