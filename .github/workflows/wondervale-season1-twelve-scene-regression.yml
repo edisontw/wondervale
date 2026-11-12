@@ -154,6 +154,7 @@ jobs:
             tests/season1-e11-scene-shell.test.mjs \
             tests/season1-e11-evidence-sort.test.mjs \
             tests/season1-e11-visitor-turns.test.mjs \
+            tests/season1-e11-earned-visitor-turns.test.mjs \
             tests/season1-arc1-hill-unnamed-loop-handoff.test.mjs
       - name: Install pinned Chromium
         run: |
