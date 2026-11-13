@@ -2,17 +2,18 @@
 <title>Wondervale — Two Needs PAPER Trial</title>
 <style>body{font:clamp(17px,2.4vw,23px) system-ui;background:#f6f1e7;color:#23342d;margin:1rem}main{max-width:850px;margin:auto}button{font:inherit;padding:.55rem;margin:.25rem;min-height:48px}button:focus-visible{outline:4px solid #154d83}.board{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.zone{border:3px solid #456d5a;border-radius:12px;padding:1rem;min-height:105px;background:white}#response,#chronicle{min-height:2rem} @media(max-width:500px){.board{gap:.4rem}.zone{padding:.5rem}}</style>
 <main><h1>Milo's Two Needs Trial</h1><p>PAPER only. Help Nia read and Finn make things. Try, listen, and change your idea.</p>
-<div class="board"><section class="zone"><h2>Near</h2><output id="near">Empty</output></section><section class="zone"><h2>Far</h2><output id="far">Empty</output></section></div>
+<label for="e10-file">E10 PAPER history (JSON)</label><input id="e10-file" type="file" accept=".json,application/json"><p id="source-status" role="status">Bring E10 PAPER choices first.</p><div class="board"><section class="zone"><h2>Near</h2><output id="near">Empty</output></section><section class="zone"><h2>Far</h2><output id="far">Empty</output></section></div>
 <p>Place an idea:</p><div><button data-need="making" data-zone="near">Make near</button><button data-need="making" data-zone="far">Make far</button><button data-need="quiet" data-zone="near">Read near</button><button data-need="quiet" data-zone="far">Read far</button></div>
 <div><button id="try">Try both</button><button id="undo">Undo</button><button id="restart">Restart</button></div>
 <p id="response" role="status"></p><p id="chronicle" aria-live="polite"></p><p>These are imaginary spaces, not real permissions or safety decisions.</p></main>
 <script type="module">
-import {addZoneEvent,replayZones} from './two-needs-zones.mjs';
-let events=[];
-const show=()=>{const s=replayZones(events);for(const z of ['near','far'])document.getElementById(z).textContent=s.zones[z] === 'quiet'?'Reading':s.zones[z] === 'making'?'Making':'Empty';document.getElementById('try').disabled=!s.ready;document.getElementById('undo').disabled=!events.length;document.getElementById('response').textContent=s.response;document.getElementById('chronicle').textContent=s.chronicle||'';};
-document.querySelectorAll('[data-need]').forEach(b=>b.addEventListener('click',()=>{events=addZoneEvent(events,{type:'place',need:b.dataset.need,zone:b.dataset.zone});show();}));
-document.getElementById('try').addEventListener('click',()=>{events=addZoneEvent(events,{type:'try'});show();});
+import {replayEarnedZones,dispatchEarnedZones} from './e10-earned-two-needs.mjs';
+let events=[],source=[],epoch=0;
+const show=()=>{const s=replayEarnedZones(source,events);document.getElementById('source-status').textContent=s?'E10 PAPER needs verified.':'E10 PAPER history missing or incomplete. Trial locked.';document.querySelectorAll('[data-need]').forEach(b=>b.disabled=!s);for(const z of ['near','far'])document.getElementById(z).textContent=s?.zones[z] === 'quiet'?'Reading':s?.zones[z] === 'making'?'Making':'Empty';document.getElementById('try').disabled=!s?.ready;document.getElementById('undo').disabled=!s||!events.length;document.getElementById('response').textContent=s?.response||'Nia: Bring your E10 choices first.';document.getElementById('chronicle').textContent=s?.chronicle||'';};
+document.querySelectorAll('[data-need]').forEach(b=>b.addEventListener('click',()=>{const next=dispatchEarnedZones(source,events,{type:'place',need:b.dataset.need,zone:b.dataset.zone});if(next)events=next;show();}));
+document.getElementById('try').addEventListener('click',()=>{const next=dispatchEarnedZones(source,events,{type:'try'});if(next)events=next;show();});
 document.getElementById('undo').addEventListener('click',()=>{events=events.slice(0,-1);show();});
-document.getElementById('restart').addEventListener('click',()=>{events=[];show();});
+document.getElementById('restart').addEventListener('click',()=>{events=[];source=[];epoch++;document.getElementById('e10-file').value='';show();});
+document.getElementById('e10-file').addEventListener('change',async e=>{const token=++epoch;try{const file=e.target.files?.[0];if(!file)return;const value=JSON.parse(await file.text());if(token!==epoch)return;source=Array.isArray(value)?value:[];events=[];}catch{if(token!==epoch)return;source=[];events=[];}show();});
 show();
 </script></html>
