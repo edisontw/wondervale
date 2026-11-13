@@ -1,0 +1,25 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>E05-earned E11 PAPER Map Room</title>
+<style>body{font:1.05rem system-ui;background:#edf4ed;color:#173b31;margin:0}main{max-width:760px;margin:auto;padding:1rem}button,input{font:inherit;min-height:48px;margin:.25rem;padding:.55rem}button:focus-visible,input:focus-visible{outline:3px solid #ad6925}.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.25rem;background:white;border:2px solid #537965;padding:.7rem}.cell{min-height:44px;background:#d4e9d7;text-align:center;padding:.5rem .1rem}.cell.table{background:#e9cfa0}.cell.blocked{background:#eea5a0}@media(orientation:landscape) and (max-height:450px){main{max-width:950px;padding:.3rem}.cell{min-height:30px}}</style>
+<main><h1>Milo's PAPER Map Room trial</h1><p>Imaginary model only. No real station access, rights, Common opening or Canon.</p>
+<label for="source">Load completed E05 PAPER event history JSON</label><input id="source" type="file" accept=".json,application/json">
+<p id="source-status" role="status" aria-live="polite">E05 PAPER review required.</p>
+<div><button id="center">Put table in path</button><button id="side">Move table beside path</button><button id="test">Let a visitor walk</button><button id="undo">Undo</button><button id="restart">Restart</button></div>
+<div class="board" id="board" aria-label="PAPER Map Room model"></div>
+<p id="world" role="status" aria-live="polite">Not tested</p><p id="feedback" role="status" aria-live="polite"></p><p id="chronicle" role="status" aria-live="polite"></p>
+<script type="module">
+import {earnedE05,replayLayout,dispatchLayout} from './e05-earned-layout-trial.mjs';
+let source=null,history=[],epoch=0;const el=id=>document.getElementById(id);
+function render(){const earned=source!==null&&earnedE05(source);const s=earned?replayLayout(source,history):null;
+el('source-status').textContent=earned?'E05 PAPER review verified. Try the model.':'E05 PAPER review required.';
+const cells=Array.from({length:20},(_,i)=>{const path=i%5===2;const table=s&&(s.table==='center'? [7,12,17].includes(i):[5,10,15].includes(i));return '<div class="cell'+(table?' table':'')+(table&&path?' blocked':'')+'">'+(table?'Table':path?'Path':'·')+'</div>';});
+el('board').innerHTML=cells.join('');el('world').textContent=s?.world||'Not tested';el('feedback').textContent=s?.feedback||'';el('chronicle').textContent=s?.chronicle||'No PAPER Chronicle yet.';
+for(const id of ['center','side','test'])el(id).disabled=!s||(id==='test'&&s.tested);
+el('undo').disabled=!s||!history.length;}
+el('source').onchange=async()=>{const token=++epoch,file=el('source').files?.[0];source=null;history=[];render();if(!file)return;
+try{const raw=JSON.parse(await file.text());if(token!==epoch)return;source=Array.isArray(raw)?raw:null;render();}
+catch{if(token===epoch){source=null;history=[];render();}}};
+for(const position of ['center','side'])el(position).onclick=()=>{history=dispatchLayout(source,history,{type:'place',position});render();};
+el('test').onclick=()=>{history=dispatchLayout(source,history,{type:'test'});render();};
+el('undo').onclick=()=>{history=history.slice(0,-1);render();};
+el('restart').onclick=()=>{++epoch;source=null;history=[];el('source').value='';render();};render();
+</script></main></html>
