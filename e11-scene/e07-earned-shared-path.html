@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>E07-earned E11 PAPER Path</title>
+<style>body{font:1.1rem system-ui;background:#edf4ed;color:#173b31;margin:0}main{max-width:760px;margin:auto;padding:1rem}button,input{font:inherit;min-height:48px;margin:.3rem;padding:.5rem}button:focus-visible,input:focus-visible{outline:3px solid #ad6925}.board{display:flex;gap:1rem;align-items:center;background:white;border:2px solid #537965;padding:1rem;min-height:100px}#path{padding:1rem;background:#d4e9d7;min-width:100px}#path.shared{min-width:220px}@media(orientation:landscape) and (max-height:450px){main{max-width:950px;padding:.3rem}}</style>
+<main><h1>Milo's E07-earned PAPER Path</h1><p>Imaginary route only. No real access, rights, Common opening, or Canon change.</p>
+<label for="source">Load E07 PAPER event history JSON</label><input id="source" type="file" accept=".json,application/json">
+<p id="source-status" role="status" aria-live="polite">E07 route review required.</p>
+<div><button id="narrow">Place narrow path</button><button id="shared">Place shared path</button><button id="test">Let second traveler try</button><button id="undo">Undo</button><button id="restart">Restart</button></div>
+<div class="board" aria-label="PAPER path world board"><span>Milo</span><div id="path">Narrow model</div><span id="traveler">Not tested</span></div>
+<p id="feedback" role="status" aria-live="polite"></p><p id="chronicle" role="status" aria-live="polite"></p>
+<script type="module">
+import {earnedE07,replayEarnedPath,dispatchEarnedPath} from './e07-earned-shared-path.mjs';
+let source=null,history=[],epoch=0;const el=id=>document.getElementById(id);
+function render(){const earned=source!==null&&earnedE07(source);const s=earned?replayEarnedPath(source,history):null;
+el('source-status').textContent=earned?'E07 PAPER review verified. Try and revise.':'E07 route review required.';
+el('path').textContent=s?.width==='shared'?'Shared model':'Narrow model';el('path').classList.toggle('shared',s?.width==='shared');
+el('traveler').textContent=s?.world||'Not tested';el('feedback').textContent=s?.feedback||'';
+el('chronicle').textContent=s?.chronicle||'No PAPER Chronicle yet.';
+for(const id of ['narrow','shared','test'])el(id).disabled=!s||(id==='test'&&s.tested);
+el('undo').disabled=!s||!history.length;}
+el('source').onchange=async()=>{const token=++epoch;const file=el('source').files?.[0];source=null;history=[];render();if(!file)return;
+try{const raw=JSON.parse(await file.text());if(token!==epoch)return;source=Array.isArray(raw)?raw:null;history=[];render();}
+catch{if(token===epoch){source=null;history=[];render();}}};
+for(const width of ['narrow','shared'])el(width).onclick=()=>{const next=dispatchEarnedPath(source,history,{type:'place',width});if(next){history=next;render();}};
+el('test').onclick=()=>{const next=dispatchEarnedPath(source,history,{type:'test'});if(next){history=next;render();}};
+el('undo').onclick=()=>{if(history.length){history=history.slice(0,-1);render();}};
+el('restart').onclick=()=>{++epoch;source=null;history=[];el('source').value='';render();};render();
+</script></main>
