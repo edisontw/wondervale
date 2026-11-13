@@ -7,6 +7,7 @@ on:
       - 'tests/season1-e11-evidence-sort*'
       - 'tests/season1-e11-visitor-turns*'
       - 'tests/season1-e11-shared-path*'
+      - 'tests/season1-e11-e07-earned*'
       - 'tests/season1-e10-e11-scene-transfer*'
       - 'tests/season1-e10-e11-use-revisit.test.mjs'
       - 'tests/season1-e10-e11-hill-trace*'
@@ -158,6 +159,7 @@ jobs:
             tests/season1-e11-visitor-turns.test.mjs \
             tests/season1-e11-earned-visitor-turns.test.mjs \
             tests/season1-e11-shared-path.test.mjs \
+            tests/season1-e11-e07-earned-bridge.test.mjs \
             tests/season1-arc1-hill-unnamed-loop-handoff.test.mjs
       - name: Install pinned Chromium
         run: |
@@ -192,6 +194,7 @@ jobs:
           node tests/season1-e11-evidence-sort-browser.mjs
           node tests/season1-e11-visitor-turns-browser.mjs
           node tests/season1-e11-shared-path-browser.mjs
+          node tests/season1-e11-e07-earned-browser.mjs
           node tests/season1-arc1-hill-unnamed-loop-handoff-browser.mjs
       - name: Upload paper-only browser evidence
         if: always()
