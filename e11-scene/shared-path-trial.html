@@ -1,0 +1,16 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wondervale PAPER Shared Path</title>
+<style>body{font:1.1rem system-ui;background:#edf4ed;color:#173b31;margin:0}main{max-width:680px;margin:auto;padding:1rem}button{min-height:48px;padding:.7rem;margin:.25rem;border:2px solid #376d58;border-radius:.5rem;background:white;color:inherit}button:focus-visible{outline:3px solid #ad6925}.board{display:flex;gap:1rem;align-items:center;min-height:110px;padding:1rem;border:3px solid #537965;border-radius:.7rem;background:#fff}#path{min-width:100px;padding:1rem;background:#d4e9d7;border-radius:.4rem}#path.shared{min-width:220px}#feedback,#chronicle{min-height:2.5rem}@media(orientation:landscape) and (max-height:450px){main{max-width:950px;padding:.3rem}}</style>
+<main><h1>Milo's PAPER Shared Path</h1><p>Imaginary two-traveler trial. Not a real path, permission, Common opening, or Canon event.</p>
+<p>Help Finn test a narrow path. Listen to Nia and try making room.</p>
+<div><button id="narrow">Place narrow path</button><button id="shared">Place shared path</button><button id="test">Let second traveler try</button><button id="undo">Undo</button><button id="restart">Restart</button></div>
+<div class="board" aria-label="PAPER path world board"><span>Milo</span><div id="path">Narrow model</div><span id="traveler">Other traveler: waiting</span></div>
+<p id="feedback" role="status" aria-live="polite"></p><p id="chronicle" role="status" aria-live="polite"></p>
+<script type="module">
+import {replayPath,dispatchPath} from './shared-path-trial.mjs';
+let history=[];const el=id=>document.getElementById(id);
+function render(){const s=replayPath(history);el('path').textContent=s.width==='shared'?'Shared model':'Narrow model';el('path').classList.toggle('shared',s.width==='shared');el('traveler').textContent=s.world;el('feedback').textContent=s.feedback;el('chronicle').textContent=s.chronicle||'No PAPER Chronicle yet.';el('test').disabled=s.tested;el('undo').disabled=!history.length;}
+for(const width of ['narrow','shared'])el(width).onclick=()=>{history=dispatchPath(history,{type:'place',width});render()};
+el('test').onclick=()=>{history=dispatchPath(history,{type:'test'});render()};
+el('undo').onclick=()=>{history=history.slice(0,-1);render()};
+el('restart').onclick=()=>{history=[];render()};render();
+</script></main></html>
