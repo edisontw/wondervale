@@ -8,7 +8,9 @@
 <p id="response" role="status"></p><p id="chronicle" aria-live="polite"></p><p>These are imaginary spaces, not real permissions or safety decisions.</p></main>
 <script type="module">
 import {replayEarnedZones,dispatchEarnedZones} from './e10-earned-two-needs.mjs';
-let events=[],source=[],epoch=0;
+import {decodeE10Handoff} from './e10-direct-handoff.mjs';
+let events=[],source=decodeE10Handoff(location.hash)||[],epoch=0;
+if(source.length)history.replaceState(null,'',location.pathname+location.search);
 const show=()=>{const s=replayEarnedZones(source,events);document.getElementById('source-status').textContent=s?'E10 PAPER needs verified.':'E10 PAPER history missing or incomplete. Trial locked.';document.querySelectorAll('[data-need]').forEach(b=>b.disabled=!s);for(const z of ['near','far'])document.getElementById(z).textContent=s?.zones[z] === 'quiet'?'Reading':s?.zones[z] === 'making'?'Making':'Empty';document.getElementById('try').disabled=!s?.ready;document.getElementById('undo').disabled=!s||!events.length;document.getElementById('response').textContent=s?.response||'Nia: Bring your E10 choices first.';document.getElementById('chronicle').textContent=s?.chronicle||'';};
 document.querySelectorAll('[data-need]').forEach(b=>b.addEventListener('click',()=>{const next=dispatchEarnedZones(source,events,{type:'place',need:b.dataset.need,zone:b.dataset.zone});if(next)events=next;show();}));
 document.getElementById('try').addEventListener('click',()=>{const next=dispatchEarnedZones(source,events,{type:'try'});if(next)events=next;show();});
