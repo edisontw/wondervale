@@ -22,7 +22,18 @@ try {
    assert.equal(await page.locator('[data-need="quiet"]').first().isDisabled(),true);
    await page.goto(base+'/e11-scene/two-needs-zones.html'+packet);
    await page.waitForLoadState('load');
-   const diagnostic=await page.evaluate(()=>({status:document.querySelector('#source-status')?.textContent,disabled:document.querySelector('[data-need="quiet"]')?.disabled,hash:location.hash.length}));
+   const diagnostic=await page.evaluate(async()=>{
+    const [{decodeE10Handoff},{replayEarnedZones},{replay:replayE10},{paperE10NeedsRevisit}]=await Promise.all([
+      import('/e11-scene/e10-direct-handoff.mjs'),import('/e11-scene/e10-earned-two-needs.mjs'),
+      import('/authoring-labs/unnamed-story-model.mjs'),import('/e11-scene/e10-needs-revisit.mjs')]);
+    const raw=location.hash,decoded=decodeE10Handoff(raw);
+    let parsed=null,source=null,needs=null,earned=null,decodeError=null;
+    try{const value=raw.split('=')[1]||'';parsed=JSON.parse(atob(value.replace(/-/g,'+').replace(/_/g,'/')));source=replayE10(parsed);needs=source?paperE10NeedsRevisit(source):null;earned=replayEarnedZones(parsed,[]);}catch(e){decodeError=String(e);}
+    return {status:document.querySelector('#source-status')?.textContent,
+      disabled:document.querySelector('[data-need="quiet"]')?.disabled,hash:raw.length,
+      decoded:!!decoded,parsed:Array.isArray(parsed)?parsed.length:null,
+      replay:!!source,needs:!!needs,earned:!!earned,decodeError};
+   });
    assert.equal(diagnostic.disabled,false,JSON.stringify({label,diagnostic,errors}));
    assert.match(await page.locator('#source-status').innerText(),/verified/);
    assert.equal(new URL(page.url()).hash,'','accepted packet must be cleared from URL');
