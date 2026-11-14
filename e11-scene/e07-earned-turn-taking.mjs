@@ -14,7 +14,8 @@ export function earnedTurnTaking(e07History, e11Events) {
       !evidence.story?.previewComplete ||
       evidence.canonicalEvents.length || evidence.unlocks.length ||
       evidence.rights.length || evidence.realAccessApproved) return null;
-  const downstream=replayTurns(e11Events);
+  let downstream;
+  try { downstream=replayTurns(e11Events); } catch { return null; }
   return {
     ...downstream,
     e07PaperReviewed:true,
