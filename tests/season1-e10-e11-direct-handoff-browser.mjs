@@ -20,6 +20,9 @@ try {
    page.on('pageerror',e=>errors.push(e.message));
    await page.goto(base+'/e11-scene/two-needs-zones.html#e10-paper=@@');
    assert.equal(await page.locator('[data-need="quiet"]').first().isDisabled(),true);
+   // A fragment-only navigation on the same document does not rerun module initialization.
+   // Navigate through the upstream scene, as a real E10 -> E11 child journey does.
+   await page.goto(base+'/e10-scene/');
    await page.goto(base+'/e11-scene/two-needs-zones.html'+packet);
    await page.waitForLoadState('load');
    const diagnostic=await page.evaluate(async()=>{
