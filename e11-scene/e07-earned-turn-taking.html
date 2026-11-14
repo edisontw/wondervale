@@ -7,6 +7,7 @@
 <small>North Hill CLOSED. Common UNKNOWN. No real rights, resident consent, safety or Canon unlock.</small></main>
 <script type="module">
 import {earnedTurnTaking} from './e07-earned-turn-taking.mjs';
+import {decodeE07Handoff} from './e07-direct-handoff.mjs';
 let source=null,events=[];const $=id=>document.getElementById(id);
 function render(){const s=source?earnedTurnTaking(source,events):null,ok=!!s;
 for(const k of ['read','build','share']){$(k).disabled=!ok;$(k).setAttribute('aria-pressed',String(ok&&s.choice===k));}
@@ -20,5 +21,8 @@ $('source').onchange=async()=>{source=null;events=[];try{const f=$('source').fil
 for(const k of ['read','build','share'])$(k).onclick=()=>act({type:'choose',choice:k});
 $('try').onclick=()=>act({type:'try'});$('next').onclick=()=>act({type:'switch'});
 $('undo').onclick=()=>{if(events.length){events=events.slice(0,-1);render();}};
-$('restart').onclick=()=>{source=null;events=[];$('source').value='';render();};render();
+$('restart').onclick=()=>{source=null;events=[];$('source').value='';render();};
+const incoming=decodeE07Handoff(location.hash);
+if(incoming){source=incoming;history.replaceState(null,'',location.pathname+location.search);}
+render();
 </script></html>
