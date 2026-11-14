@@ -1,3 +1,4 @@
+import {encodeE07Handoff} from '../e11-scene/e07-direct-handoff.mjs';
 import {gardenCareWorld} from './garden-world.mjs';
 import {earnedStepsViews} from './steps-revisit.mjs';
 import {runoffChoice} from './garden-connector-whatif.mjs';
@@ -188,6 +189,9 @@ function render(){
   'No E06 PAPER care record in this independent visit; the lower pocket remains unbuilt.';
  drawGardenWorld();
  drawGardenFlow();
+ const e11Fragment=encodeE07Handoff(state.history);
+ const e11Link=$('e11-turn-transfer');e11Link.hidden=!e11Fragment;
+ if(e11Fragment)e11Link.href='../e11-scene/e07-earned-turn-taking.html'+e11Fragment;
  const stepsFragment=linkedE04?
   encodeMemoryLantern(linkedE04,linkedE05,linkedE06,state,linkedE08):
   encodeStepsTransfer(state,linkedE08,linkedE06);
