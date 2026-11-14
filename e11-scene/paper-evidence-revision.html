@@ -1,22 +1,25 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Milo's clue model — PAPER</title>
 <style>*{box-sizing:border-box}body{margin:0;background:#f5eedf;color:#24364a;font:18px system-ui}main{max-width:780px;margin:auto;padding:12px}button{font:inherit;min-height:44px;margin:4px;padding:8px;border:2px solid #526578;border-radius:8px;background:white}button:focus-visible{outline:3px solid #b60}button[aria-pressed=true]{background:#d3eafa}#model{border:3px solid #526578;border-radius:12px;padding:20px;min-height:85px;background:#eee}#model.two-trace-model{background:linear-gradient(90deg,#d8e6fa 50%,#f8e2ac 50%)}#chronicle{padding:12px;background:#e9e0c8;overflow-wrap:anywhere}</style>
 <main><h1>Milo's clue model — PAPER</h1><p>Look at two pretend clues. Try a model. Change your mind!</p>
-<button id="inspect">Look at clues</button><p id="clues">Clues are covered.</p>
+<label for="source">E05 PAPER event history (JSON)</label><input id="source" type="file" accept=".json,application/json"><p id="source-status" role="status">E05 PAPER review required.</p>
+<button id="inspect" disabled>Look at clues</button><p id="clues">Clues are covered.</p>
 <div role="group" aria-label="Choose a clue"><button id="old-map" disabled>Old map</button><button id="new-mark" disabled>New mark</button><button id="both" disabled>Both clues</button></div>
 <button id="try" disabled>Try model</button><button id="undo" disabled>Undo</button><button id="restart">Restart</button>
 <section id="model" role="status">The model is blank.</section><p id="nia"></p><p id="finn"></p><p id="chronicle">No PAPER Chronicle yet.</p>
-<small>Fictional evidence only. No E05 source provenance, real history, rights, safety, Common identity or Canon unlock. North Hill CLOSED.</small></main>
+<small>Fictional evidence only. E05 replay-validated PAPER only; no real history, rights, safety, Common identity or Canon unlock. North Hill CLOSED.</small></main>
 <script type="module">
-import {replayEvidence} from './paper-evidence-revision.mjs';
-let events=[];const $=id=>document.getElementById(id);
-function render(){const s=replayEvidence(events);$('inspect').disabled=s.observed;$('clues').textContent=s.observed?'Pretend old map: a line. Pretend new mark: a dot. Which should our model show?':'Clues are covered.';
-for(const id of ['old-map','new-mark','both']){$(id).disabled=!s.observed;$(id).setAttribute('aria-pressed',String(s.selected===id));}
-$('try').disabled=!s.selected;$('undo').disabled=!events.length;
-$('model').className=s.model;$('model').textContent=({unmarked:'The model is blank.','old-only-model':'Model: one old line.','new-only-model':'Model: one new dot.','two-trace-model':'Model: old line + new dot.'})[s.model];
-$('nia').textContent=s.model==='unmarked'?'':s.nia;$('finn').textContent=s.model==='unmarked'?'':s.finn;
-$('chronicle').textContent=s.chronicle.at(-1)||'No PAPER Chronicle yet.';}
-function act(e){const candidate=[...events,e];if(replayEvidence(candidate)){events=candidate;render();}}
+import {replayEarnedEvidence} from './e05-earned-evidence-revision.mjs';
+let source=null,events=[];const $=id=>document.getElementById(id);
+const state=history=>source?replayEarnedEvidence(source,history):null;
+function render(){const s=state(events),ok=!!s;$('inspect').disabled=!ok||s.observed;$('source-status').textContent=ok?'E05 PAPER review verified.':'E05 PAPER review required.';$('clues').textContent=ok&&s.observed?'Pretend old map: a line. Pretend new mark: a dot. Which should our model show?':'Clues are covered.';
+for(const id of ['old-map','new-mark','both']){$(id).disabled=!ok||!s.observed;$(id).setAttribute('aria-pressed',String(ok&&s.selected===id));}
+$('try').disabled=!ok||!s.selected;$('undo').disabled=!ok||!events.length;
+$('model').className=ok?s.model:'unmarked';$('model').textContent=({unmarked:'The model is blank.','old-only-model':'Model: one old line.','new-only-model':'Model: one new dot.','two-trace-model':'Model: old line + new dot.'})[ok?s.model:'unmarked'];
+$('nia').textContent=!ok||s.model==='unmarked'?'':s.nia;$('finn').textContent=!ok||s.model==='unmarked'?'':s.finn;
+$('chronicle').textContent=ok?s.chronicle.at(-1)||'No PAPER Chronicle yet.':'No PAPER Chronicle yet.';}
+function act(e){if(!source)return;const candidate=[...events,e];if(state(candidate)){events=candidate;render();}}
+$('source').onchange=async()=>{source=null;events=[];try{const f=$('source').files[0];if(!f||f.size>50000)throw Error('size');const data=JSON.parse(await f.text());if(replayEarnedEvidence(data,[]))source=data;}catch{}render();};
 $('inspect').onclick=()=>act({type:'inspect'});
 for(const id of ['old-map','new-mark','both'])$(id).onclick=()=>act({type:'choose',option:id});
-$('try').onclick=()=>act({type:'try'});$('undo').onclick=()=>{events.pop();render();};$('restart').onclick=()=>{events=[];render();};render();
+$('try').onclick=()=>act({type:'try'});$('undo').onclick=()=>{events.pop();render();};$('restart').onclick=()=>{source=null;events=[];$('source').value='';render();};render();
 </script></html>
