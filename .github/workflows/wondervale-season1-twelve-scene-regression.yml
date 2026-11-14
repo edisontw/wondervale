@@ -14,6 +14,7 @@ on:
       - 'tests/season1-e11-two-needs-zones*'
       - 'tests/season1-e11-e10-earned-two-needs*'
       - 'tests/season1-e11-e07-earned*'
+      - 'tests/season1-e07-e11-earned*'
       - 'tests/season1-e11-e05-earned*'
       - 'tests/season1-e10-e11-scene-transfer*'
       - 'tests/season1-e10-e11-use-revisit.test.mjs'
@@ -169,7 +170,7 @@ jobs:
             tests/season1-e11-paper-notice-repair.test.mjs tests/season1-e11-paper-listening-lantern.test.mjs tests/season1-e11-paper-turn-taking.test.mjs tests/season1-e11-paper-turn-switch.test.mjs \
             tests/season1-e11-shared-path.test.mjs \
             tests/season1-e11-two-needs-zones.test.mjs tests/season1-e11-e10-earned-two-needs.test.mjs \
-            tests/season1-e11-e07-earned-bridge.test.mjs tests/season1-e11-e05-earned-layout.test.mjs \
+            tests/season1-e11-e07-earned-bridge.test.mjs tests/season1-e07-e11-earned-turn-taking.test.mjs tests/season1-e11-e05-earned-layout.test.mjs \
             tests/season1-arc1-hill-unnamed-loop-handoff.test.mjs
       - name: Install pinned Chromium
         run: |
@@ -210,6 +211,7 @@ jobs:
           node tests/season1-e11-shared-path-browser.mjs
           node tests/season1-e11-two-needs-zones-browser.mjs
           node tests/season1-e11-e07-earned-browser.mjs
+          node tests/season1-e07-e11-earned-turn-taking-browser.mjs
           node tests/season1-e11-e05-earned-layout-browser.mjs
           node tests/season1-arc1-hill-unnamed-loop-handoff-browser.mjs
       - name: Upload paper-only browser evidence
