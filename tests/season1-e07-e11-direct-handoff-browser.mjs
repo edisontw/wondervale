@@ -27,7 +27,7 @@ for(const [name,viewport,touch] of [['landscape',{width:844,height:390},true],['
  await page.locator('#next').focus();await page.keyboard.press('Enter');
  assert.match(await page.locator('#world').innerText(),/Nia reads/);
  await page.locator('#undo').click();
- assert.match(await page.locator('#world').innerText(),/Finn builds/);
+ assert.match(await page.locator('#world').innerText(),/paper timer alternates reading and building turns/i);
  await page.locator('#restart').focus();await page.keyboard.press('Enter');
  assert.equal(await page.locator('#share').isDisabled(),true);
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,name);
