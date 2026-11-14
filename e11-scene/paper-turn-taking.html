@@ -3,14 +3,14 @@
 <style>*{box-sizing:border-box}body{margin:0;background:#f7f0df;color:#20354b;font:18px system-ui}main{max-width:850px;margin:auto;padding:12px}button{font:inherit;min-height:48px;padding:8px 14px;margin:4px;border:2px solid #456;border-radius:9px;background:white}button:focus-visible{outline:3px solid #b60}button[aria-pressed=true]{background:#d3ecf0}#world{min-height:110px;border:3px solid #60788b;border-radius:14px;padding:18px;background:#e6e5dd}#world.share{background:linear-gradient(90deg,#d5e7fa 50%,#fce8b8 50%)}#world.build{background:#fce8b8}#world.read{background:#d5e7fa}#nia,#finn,#chronicle{min-height:40px;padding:8px}#chronicle{background:#eee4d0}</style>
 <main><h1>Milo's Turn-Taking Trial</h1><p>Imaginary PAPER story: two friends need the same table. Choose who goes first, try it, listen, and change the plan.</p>
 <div role="group" aria-label="Milo chooses a plan"><button id="read">Read first</button><button id="build">Build first</button><button id="share">Take turns</button></div>
-<button id="try">Try</button><button id="undo">Undo</button><button id="restart">Restart</button>
+<button id="try">Try</button><button id="next" disabled>Next turn</button><button id="undo">Undo</button><button id="restart">Restart</button>
 <section id="world" role="status" aria-label="Visible paper table"></section><p id="nia"></p><p id="finn"></p><p id="chronicle" aria-label="PAPER Chronicle"></p>
 <p><small>Fictional practice only. No real residents, access rights, Common identity, physical safety or Canon outcome.</small></p></main>
 <script type="module">
 import {replayTurns,turnAction,turnUndo} from './paper-turn-taking.mjs';
 let events=[];const $=id=>document.getElementById(id);
-function render(){const s=replayTurns(events);for(const k of ['read','build','share'])$(k).setAttribute('aria-pressed',String(s.choice===k));$('world').className=s.tested?s.choice:'';$('world').textContent=s.world;$('nia').textContent=s.nia;$('finn').textContent=s.finn;$('chronicle').textContent=s.chronicle;$('undo').disabled=!events.length}
+function render(){const s=replayTurns(events);for(const k of ['read','build','share'])$(k).setAttribute('aria-pressed',String(s.choice===k));$('world').className=s.tested?s.choice:'';$('world').textContent=s.world;$('nia').textContent=s.nia;$('finn').textContent=s.finn;$('chronicle').textContent=s.chronicle;$('next').disabled=!s.canSwitch;$('undo').disabled=!events.length}
 function act(e){events=turnAction(events,e);render()}
 for(const k of ['read','build','share'])$(k).onclick=()=>act({type:'choose',choice:k});
-$('try').onclick=()=>act({type:'try'});$('undo').onclick=()=>{events=turnUndo(events);render()};$('restart').onclick=()=>{events=[];render()};render();
+$('try').onclick=()=>act({type:'try'});$('next').onclick=()=>act({type:'switch'});$('undo').onclick=()=>{events=turnUndo(events);render()};$('restart').onclick=()=>{events=[];render()};render();
 </script></html>
