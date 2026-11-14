@@ -21,7 +21,9 @@ try {
    await page.goto(base+'/e11-scene/two-needs-zones.html#e10-paper=@@');
    assert.equal(await page.locator('[data-need="quiet"]').first().isDisabled(),true);
    await page.goto(base+'/e11-scene/two-needs-zones.html'+packet);
-   await page.waitForFunction(()=>document.querySelector('[data-need="quiet"]')?.disabled===false);
+   await page.waitForLoadState('load');
+   const diagnostic=await page.evaluate(()=>({status:document.querySelector('#source-status')?.textContent,disabled:document.querySelector('[data-need="quiet"]')?.disabled,hash:location.hash.length}));
+   assert.equal(diagnostic.disabled,false,JSON.stringify({label,diagnostic,errors}));
    assert.match(await page.locator('#source-status').innerText(),/verified/);
    assert.equal(new URL(page.url()).hash,'','accepted packet must be cleared from URL');
    await page.locator('[data-need="quiet"][data-zone="near"]').click();
