@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>E07 to E11 PAPER table</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#f6efdf;color:#24364a;font:18px system-ui}main{max-width:820px;margin:auto;padding:12px}button,input{font:inherit;min-height:44px;max-width:100%}button{margin:4px;padding:8px;border:2px solid #536778;border-radius:8px;background:white}button:focus-visible,input:focus-visible{outline:3px solid #b60}button[aria-pressed=true]{background:#d3eafa}#world{padding:14px;min-height:80px;border:3px solid #536778;border-radius:12px;background:#e5e3da}#world.share{background:linear-gradient(90deg,#d5e7fa 50%,#fce8b8 50%)}#chronicle{background:#eae1c9;padding:10px}p{overflow-wrap:anywhere}</style>
+<main><h1>Milo checks our turns — PAPER</h1><p>Review the other traveler in E07, then try a fair E11 table plan. Imaginary model only.</p><label for="source">E07 PAPER event history (JSON)</label> <input id="source" type="file" accept=".json,application/json"><p id="source-status" role="status">E07 PAPER review required.</p>
+<div role="group" aria-label="Milo chooses a table plan"><button id="read" disabled>Read first</button><button id="build" disabled>Build first</button><button id="share" disabled>Take turns</button></div>
+<button id="try" disabled>Try</button><button id="next" disabled>Next turn</button><button id="undo" disabled>Undo</button><button id="restart">Restart</button>
+<section id="world" role="status"></section><p id="nia"></p><p id="finn"></p><p id="feedback"></p><p id="chronicle"></p>
+<small>North Hill CLOSED. Common UNKNOWN. No real rights, resident consent, safety or Canon unlock.</small></main>
+<script type="module">
+import {earnedTurnTaking} from './e07-earned-turn-taking.mjs';
+let source=null,events=[];const $=id=>document.getElementById(id);
+function render(){const s=source?earnedTurnTaking(source,events):null,ok=!!s;
+for(const k of ['read','build','share']){$(k).disabled=!ok;$(k).setAttribute('aria-pressed',String(ok&&s.choice===k));}
+$('try').disabled=!ok;$('next').disabled=!ok||!s.canSwitch;$('undo').disabled=!ok||!events.length;
+$('source-status').textContent=ok?'E07 PAPER review verified.':'E07 PAPER review required.';
+$('world').className=ok&&s.tested?s.choice:'';$('world').textContent=ok?s.world:'The model table is waiting for E07 review.';
+$('nia').textContent=ok?s.nia:'';$('finn').textContent=ok?s.finn:'';$('feedback').textContent=ok?s.crossEpisodeFeedback:'';
+$('chronicle').textContent=ok&&s.chronicle?s.chronicle:'No PAPER Chronicle yet.';}
+function act(event){if(!source)return;const candidate=[...events,event];if(earnedTurnTaking(source,candidate)){events=candidate;render();}}
+$('source').onchange=async()=>{source=null;events=[];try{const f=$('source').files[0];if(!f||f.size>50000)throw Error('size');const data=JSON.parse(await f.text());if(earnedTurnTaking(data,[]))source=data;}catch{}render();};
+for(const k of ['read','build','share'])$(k).onclick=()=>act({type:'choose',choice:k});
+$('try').onclick=()=>act({type:'try'});$('next').onclick=()=>act({type:'switch'});
+$('undo').onclick=()=>{if(events.length){events=events.slice(0,-1);render();}};
+$('restart').onclick=()=>{source=null;events=[];$('source').value='';render();};render();
+</script></html>
