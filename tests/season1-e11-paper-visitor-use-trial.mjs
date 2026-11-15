@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import {fresh,replay,apply,undo,outcome} from '../e11-scene/paper-visitor-use-trial.mjs';
+let s=fresh();s=apply(s,{type:'layout',value:'quiet'});s=apply(s,{type:'visit',value:'reader'});s=apply(s,{type:'visit',value:'maker'});
+assert.equal(outcome(s).fit,false);
+s=apply(s,{type:'layout',value:'turns'});assert.deepEqual(s.visits,[]);
+s=apply(s,{type:'visit',value:'reader'});s=apply(s,{type:'visit',value:'maker'});
+assert.equal(outcome(s).fit,true);assert.deepEqual(replay(s.history),s);
+s=undo(s);assert.equal(outcome(s).fit,false);
+assert.equal(replay([{type:'visit',value:'reader'}]),null);
+assert.equal(replay([{type:'layout',value:'turns',rights:true}]),null);
+assert.equal(replay([{type:'layout',value:'common_open'}]),null);
+assert.equal(replay([{type:'layout',value:'turns'},{type:'visit',value:'reader'},{type:'visit',value:'reader'}]),null);
+assert.equal(replay(Array(25).fill({type:'layout',value:'turns'})),null);
+assert.deepEqual(fresh().history,[]);
+console.log('E11 visitor use PAPER strict replay, undo, reset and forgery PASS');
