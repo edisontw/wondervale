@@ -26,15 +26,21 @@ import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
 import {encodeLoopTransfer,decodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
 import {paperChronicle} from '../authoring-labs/e03-e11-paper-chronicle.mjs';
 import {decodeE07Handoff} from './e07-direct-handoff.mjs';
+import {decodeE05Handoff} from './e05-direct-handoff.mjs';
 const $=id=>document.getElementById(id);
 const titles={quiet:'Quiet seat',activity:'Activity area',access:'Access strip',
  quiet_reader:'Quiet reader',activity_group:'Activity group',
  e03_delivery:'E03 delivery',e06_drainage:'E06 water',e07_user_impact:'E07 shared use',
  e09_closure:'E09 closed hill',e10_needs:'E10 needs'};
 const toolNames={walk:'Walk Milo',quiet:'Place quiet seat',activity:'Place activity area'};
-const e07Earned=decodeE07Handoff(location.hash);
-const incoming=e07Earned?null:decodeLoopTransfer(location.hash);
-if(e07Earned)history.replaceState(null,'',location.pathname+location.search);
+const e05Earned=decodeE05Handoff(location.hash);
+const e07Earned=e05Earned?null:decodeE07Handoff(location.hash);
+const incoming=e05Earned||e07Earned?null:decodeLoopTransfer(location.hash);
+if(e07Earned||e05Earned)history.replaceState(null,'',location.pathname+location.search);
+const e05Status=document.getElementById('e05-earned-context');
+if(e05Status)e05Status.textContent=e05Earned?
+ 'Milo tried a PAPER Map Room. The table now leaves a clear path. Nia asks: who else needs space? Finn asks: can we test another plan? Try the E11 layout below. PAPER only; no station access, real route, or official Chronicle.':
+ 'No child-checked E05 PAPER Map Room linked. A model is not real station permission.';
 const e07Status=document.getElementById('e07-earned-context');
 if(e07Status)e07Status.textContent=e07Earned?
  'Milo checked Finn’s revised PAPER crossing for another traveler and water. Nia asks: who needs quiet here? Finn asks: who needs room? Try a new E11 plan below. This is not a real route, permission, official Chronicle or E11 unlock.':
