@@ -1,0 +1,21 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>E11 PAPER visitor use trial</title><style>
+:root{font-family:system-ui,sans-serif;background:#f1f4ed;color:#263d35}main{max-width:720px;margin:auto;padding:1rem}section{background:white;border-radius:.7rem;padding:1rem;margin:.7rem 0}button{font:inherit;min-height:48px;padding:.6rem;margin:.25rem;border:2px solid #47735f;border-radius:.5rem;background:white}button:focus-visible{outline:3px solid #a65e17}button[aria-pressed=true]{background:#d2eacb}.stage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem}.stage>div{padding:.7rem;border:2px dashed #71907e;border-radius:.5rem;min-height:80px}#chronicle{white-space:pre-line}@media(max-width:550px){.stage{grid-template-columns:1fr}.stage>div{min-height:42px}}
+</style></head><body><main><h1>E11 · Try the PAPER space</h1><p>FICTIONAL PAPER ONLY. No real visitors, permissions, geography, Common opening or canonical Chronicle. North Hill CLOSED.</p><p><a href="./">Back to E11</a></p><section><h2>Milo places a plan</h2><p>Choose a plan. Invite Nia's reader and Finn's maker. Watch what changes. You can try again.</p><div id="plans"></div><div class="stage"><div id="place">Paper plan: none</div><div id="reader-spot">Reader: waiting</div><div id="maker-spot">Maker: waiting</div></div><p id="reaction" role="status" aria-live="polite"></p><button id="reader">Invite reader</button><button id="maker">Invite maker</button></section><section><h2>FIRST → NOW · PAPER Chronicle</h2><p id="chronicle" aria-live="polite"></p><button id="undo">Undo</button><button id="reset">Restart</button></section><script type="module">
+import {fresh,apply,undo,outcome} from './paper-visitor-use-trial.mjs';
+let s=fresh();const $=id=>document.getElementById(id);
+function render(){
+ const plans=$('plans');plans.replaceChildren();
+ for(const [id,name] of [['quiet','Quiet only'],['work','Making only'],['turns','Take turns']]){
+ const b=document.createElement('button');b.textContent=name;b.setAttribute('aria-pressed',String(s.layout===id));b.addEventListener('click',()=>{s=apply(s,{type:'layout',value:id});render()});plans.append(b);
+ }
+ $('place').textContent='Paper plan: '+(s.layout??'none');
+ $('reader-spot').textContent='Reader: '+(s.visits.includes('reader')?(s.layout==='work'?'needs quiet':'reading'):'waiting');
+ $('maker-spot').textContent='Maker: '+(s.visits.includes('maker')?(s.layout==='quiet'?'needs room':'making'):'waiting');
+ for(const id of ['reader','maker'])$(id).disabled=!s.layout||s.visits.includes(id);
+ $('reaction').textContent=s.feedback+' '+outcome(s).text;
+ $('chronicle').textContent='FIRST: empty paper space.\nNOW: '+(s.layout??'no plan')+'; visitors: '+(s.visits.join(' + ')||'none')+'. '+outcome(s).text;
+ $('undo').disabled=!s.history.length;
+}
+for(const id of ['reader','maker'])$(id).addEventListener('click',()=>{s=apply(s,{type:'visit',value:id});render()});
+$('undo').addEventListener('click',()=>{s=undo(s);render()});$('reset').addEventListener('click',()=>{s=fresh();render()});render();
+</script></main></body></html>
