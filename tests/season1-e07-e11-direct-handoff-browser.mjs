@@ -16,6 +16,11 @@ for(const [name,viewport,touch] of [['landscape',{width:844,height:390},true],['
  await page.goto(base+'e11-scene/e07-earned-turn-taking.html#e07-paper=invalid');
  assert.equal(await page.locator('#share').isDisabled(),true);
  await page.goto(base+'e07-scene/');
+ await page.goto(base+'e11-scene/'+fragment);
+ assert.match(await page.locator('#e07-earned-context').innerText(),/Milo checked Finn/);
+ assert.equal(new URL(page.url()).hash,'');
+ assert.match(await page.locator('#story-line').innerText(),/Milo must try/);
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,name);
  await page.goto(base+'e11-scene/e07-earned-turn-taking.html'+fragment);
  assert.match(await page.locator('#source-status').innerText(),/verified/);
  assert.equal(await page.locator('#share').isEnabled(),true);
