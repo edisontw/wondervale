@@ -178,7 +178,7 @@ jobs:
             tests/season1-e11-two-needs-token-trial.mjs \
             tests/season1-e11-two-needs-zones.test.mjs tests/season1-e11-e10-earned-two-needs.test.mjs \
             tests/season1-e07-e11-direct-handoff.mjs \
-            tests/season1-e11-e07-earned-bridge.test.mjs tests/season1-e07-e11-earned-turn-taking.test.mjs tests/season1-e11-e05-earned-layout.test.mjs \
+            tests/season1-e11-e07-earned-bridge.test.mjs tests/season1-e07-e11-earned-turn-taking.test.mjs tests/season1-e11-e05-earned-layout.test.mjs tests/season1-e05-e11-direct-handoff.test.mjs \
             tests/season1-arc1-hill-unnamed-loop-handoff.test.mjs
       - name: Install pinned Chromium
         run: |
@@ -225,6 +225,7 @@ jobs:
           node tests/season1-e07-e11-earned-turn-taking-browser.mjs
           node tests/season1-e07-e11-direct-handoff-browser.mjs
           node tests/season1-e11-e05-earned-layout-browser.mjs
+          node tests/season1-e05-e11-direct-handoff-browser.mjs
           node tests/season1-arc1-hill-unnamed-loop-handoff-browser.mjs
       - name: Upload paper-only browser evidence
         if: always()

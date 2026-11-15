@@ -1,5 +1,6 @@
 // E05 isolated future scene shell: reuses strict station and mock-source reducers.
 import {fresh,dispatch,can,view} from './scene-model.mjs';
+import {encodeE05Handoff} from '../e11-scene/e05-direct-handoff.mjs';
 import {projectReplicaBoard} from './replica-visual.mjs';
 import {projectMapRoomLayout} from './layout-visual.mjs';
 import * as GardenReturn from './garden-return-model.mjs';
@@ -175,6 +176,9 @@ function render(){
  const fragment=earned&&(linkedE04?memoryFragment:earned),link=$('e06-paper');
   link.hidden=!fragment;
   if(fragment)link.href='../e06-scene/'+fragment;
+  const e11Handoff=encodeE05Handoff(state.history),e11Link=$('e11-earned-paper');
+  e11Link.hidden=!e11Handoff;
+  if(e11Handoff)e11Link.href='../e11-scene/'+e11Handoff;
   $('parent').textContent=v.parentCue?'Optional parent cue: '+v.parentCue:'Parent: allow Milo to observe and try first.';
   $('guard').textContent='Production E05 LOCKED · E04 canonical completion absent · access/source approval absent · E06 NOT UNLOCKED';
   for(const b of document.querySelectorAll('button[data-scene]')){
