@@ -1,0 +1,19 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>E11 PAPER — Two needs, one token</title><style>
+:root{font-family:system-ui,sans-serif;color:#263e37;background:#f2f3eb}main{max-width:680px;margin:auto;padding:1rem}button{font:inherit;min-height:48px;min-width:48px;margin:.25rem;padding:.6rem;border:2px solid #47735f;border-radius:.5rem;background:white}button:focus-visible{outline:3px solid #ac681e}button[aria-pressed=true]{background:#c9e9d6}section{padding:1rem;background:white;border-radius:.6rem;margin:.6rem 0}.board{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem}.slot{min-height:95px;border:2px dashed #759283;border-radius:.5rem;padding:.4rem;text-align:center}.slot[data-active=true]{background:#f8dea9;border-style:solid}#chronicle{white-space:pre-line} @media(max-width:560px){.board{grid-template-columns:1fr}.slot{min-height:65px}} </style></head>
+<body><main><h1>E11 · Two needs, one PAPER space</h1><p>FICTIONAL PAPER ONLY. No real residents, rights, geography, Common opening, canonical Chronicle, or production unlock. North Hill CLOSED.</p><p><a href="./">Back to E11</a></p>
+<section><h2>Milo moves one paper piece</h2><p>Nia: "A reader needs quiet." Finn: "A maker needs room." Try a spot, check both, and revise.</p><div class="board" id="board"></div><p id="reaction" aria-live="polite"></p><button id="reader">Check reader</button><button id="maker">Check maker</button></section>
+<section><h2>FIRST → NOW · PAPER Chronicle</h2><p id="chronicle" role="status" aria-live="polite"></p><button id="undo">Undo</button><button id="reset">Restart</button></section>
+<script type="module">
+import {OPTIONS,fresh,apply,undo,result} from './two-needs-token-trial.mjs';
+let state=fresh();const $=id=>document.getElementById(id);
+function render(){
+ const board=$('board');board.replaceChildren();
+ for(const id of OPTIONS){const b=document.createElement('button');b.className='slot';b.dataset.active=String(state.choice===id);b.setAttribute('aria-pressed',String(state.choice===id));b.textContent=({reading:'Quiet corner',making:'Making corner',shared:'Shared turns'}[id]);b.addEventListener('click',()=>{state=apply(state,{type:'place',value:id});render();});board.append(b);}
+ for(const id of ['reader','maker'])$(id).disabled=!state.choice||state.checks.includes(id);
+ const r=result(state);$('reaction').textContent=state.feedback+' '+r.text;
+ $('chronicle').textContent='FIRST: no piece placed.\nNOW: '+(state.choice||'not placed')+'; checks: '+(state.checks.join(' + ')||'none')+'. '+(r.fit?'Both PAPER needs considered.':'Milo can change the plan.');
+ $('undo').disabled=!state.history.length;
+}
+for(const id of ['reader','maker'])$(id).addEventListener('click',()=>{state=apply(state,{type:'check',value:id});render();});
+$('undo').addEventListener('click',()=>{state=undo(state);render();});$('reset').addEventListener('click',()=>{state=fresh();render();});render();
+</script></main></body></html>
