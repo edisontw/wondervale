@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {fresh,apply,undo,replay,result} from '../e11-scene/two-needs-token-trial.mjs';
+let s=fresh();s=apply(s,{type:'place',value:'reading'});s=apply(s,{type:'check',value:'reader'});s=apply(s,{type:'check',value:'maker'});
+assert.equal(result(s).fit,false);
+s=apply(s,{type:'place',value:'shared'});assert.equal(s.checks.length,0);
+s=apply(s,{type:'check',value:'reader'});s=apply(s,{type:'check',value:'maker'});
+assert.equal(result(s).fit,true);assert.deepEqual(replay(s.history),s);
+s=undo(s);assert.equal(result(s).fit,false);
+assert.equal(replay([{type:'place',value:'shared',rights:true}]),null);
+assert.equal(replay([{type:'check',value:'reader'}]),null);
+assert.equal(replay([{type:'place',value:'real_common'}]),null);
+assert.equal(replay(Array(31).fill({type:'place',value:'shared'})),null);
+assert.deepEqual(fresh().history,[]);
+console.log('E11 PAPER two-needs token replay, revision, undo, reset, forgery PASS');
