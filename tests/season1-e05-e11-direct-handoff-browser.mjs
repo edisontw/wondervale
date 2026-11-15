@@ -12,6 +12,8 @@ try{
   await page.goto('http://127.0.0.1:4173/e11-scene/#e05-paper=invalid');
   assert.match(await page.locator('#e05-earned-context').innerText(),/No child-checked/);
   await page.goto('http://127.0.0.1:4173/e11-scene/'+hash);
+  // Hash-only navigation does not rerun the scene module; reload to test a fresh entry.
+  await page.reload();
   assert.match(await page.locator('#e05-earned-context').innerText(),/Milo tried a PAPER Map Room/);
   assert.equal(new URL(page.url()).hash,'');
   assert.match(await page.locator('#e05-earned-context').innerText(),/no station access/i);
