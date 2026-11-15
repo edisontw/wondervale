@@ -13,6 +13,8 @@ for(const [name,viewport,touch] of [['landscape',{width:844,height:390},true],['
  const context=await browser.newContext({viewport,hasTouch:touch,isMobile:touch}),page=await context.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  const base='http://127.0.0.1:4173/';
+ await page.goto(base+'e11-scene/#e07-paper=invalid');
+ assert.match(await page.locator('#e07-earned-context').innerText(),/No E07 child-checked/);
  await page.goto(base+'e11-scene/e07-earned-turn-taking.html#e07-paper=invalid');
  assert.equal(await page.locator('#share').isDisabled(),true);
  await page.goto(base+'e07-scene/');
