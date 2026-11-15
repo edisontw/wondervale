@@ -9,14 +9,14 @@ Use this procedure for every substantial new Wondervale work session.
    - `README.md`
    - `docs/PROJECT_INDEX.md`
    - `docs/WORK_SEQUENCE.md`
-   - `docs/OPEN_DECISIONS.md`
-3. Identify the exact workstream and current development stage.
-4. From `PROJECT_INDEX.md`, read only the task-specific source files needed.
+   - `docs/CURRENT_STATUS.md` (**compact active source**, not archived status)
+3. For Season 1 read `docs/SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29.md`; locate **only relevant** `docs/OPEN_DECISIONS.md` sections, not the entire decision diary.
+4. Identify one workstream and from the index read only the current Episode spec/source/tests and necessary continuity files.
 5. Treat GitHub `main` as authoritative. A SHA or summary in a handoff prompt is only a hint until verified.
 
 ## Context budget
 
-Default initial read budget: **maximum 8 repository documents total**, including the four startup files above.
+Default initial read budget: **maximum 8 repository documents total**, including the four core startup files above. Include the Season 1 delivery plan and **relevant decision sections** only if this task needs them. The preserved `docs/archive/CURRENT_STATUS_HISTORY_THROUGH_2026-11-06.md` is not a default startup file.
 
 If a specific information gap remains, a second pass may read **up to 3 additional directly relevant documents**.
 
@@ -73,7 +73,9 @@ Read first:
 - README.md
 - docs/PROJECT_INDEX.md
 - docs/WORK_SEQUENCE.md
-- docs/OPEN_DECISIONS.md
+- docs/CURRENT_STATUS.md
+- docs/SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29.md
+- docs/OPEN_DECISIONS.md (only relevant sections)
 - <task-specific files>
 
 Do not change:

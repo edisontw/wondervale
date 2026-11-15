@@ -1,0 +1,38 @@
+# Local/build-only artifacts. Production art and checked-in test fixtures stay tracked.
+node_modules/
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+*.log
+*.log.*
+*.tmp
+*.temp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# Python caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local editor settings and confidential environment overrides
+.vscode/
+.idea/
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Local tool/run scratch. Do not ignore approved art or source candidates.
+.cache/
+.tmp/
+tmp/
+temp/
