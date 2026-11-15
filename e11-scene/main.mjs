@@ -25,13 +25,20 @@ import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verificatio
 import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
 import {encodeLoopTransfer,decodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
 import {paperChronicle} from '../authoring-labs/e03-e11-paper-chronicle.mjs';
+import {decodeE07Handoff} from './e07-direct-handoff.mjs';
 const $=id=>document.getElementById(id);
 const titles={quiet:'Quiet seat',activity:'Activity area',access:'Access strip',
  quiet_reader:'Quiet reader',activity_group:'Activity group',
  e03_delivery:'E03 delivery',e06_drainage:'E06 water',e07_user_impact:'E07 shared use',
  e09_closure:'E09 closed hill',e10_needs:'E10 needs'};
 const toolNames={walk:'Walk Milo',quiet:'Place quiet seat',activity:'Place activity area'};
-const incoming=decodeLoopTransfer(location.hash);
+const e07Earned=decodeE07Handoff(location.hash);
+const incoming=e07Earned?null:decodeLoopTransfer(location.hash);
+if(e07Earned)history.replaceState(null,'',location.pathname+location.search);
+const e07Status=document.getElementById('e07-earned-context');
+if(e07Status)e07Status.textContent=e07Earned?
+ 'Milo checked Finn’s revised PAPER crossing for another traveler and water. Nia asks: who needs quiet here? Finn asks: who needs room? Try a new E11 plan below. This is not a real route, permission, official Chronicle or E11 unlock.':
+ 'No E07 child-checked PAPER crossing linked. Finn’s proposal is not evidence of a built route.';
 const linkedE10=incoming?.e10||null,upstream=incoming?.upstream||null;
 const linkedQuestionTrial=incoming?.questionTrial||null;
 const linkedUseTrial=incoming?.useTrial||null;

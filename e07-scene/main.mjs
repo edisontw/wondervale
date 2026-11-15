@@ -191,6 +191,8 @@ function render(){
  drawGardenFlow();
  const e11Fragment=encodeE07Handoff(state.history);
  const e11Link=$('e11-turn-transfer');e11Link.hidden=!e11Fragment;
+ const mainLink=$('e11-main-transfer');mainLink.hidden=!e11Fragment;
+ if(e11Fragment)mainLink.href='../e11-scene/'+e11Fragment;
  if(e11Fragment)e11Link.href='../e11-scene/e07-earned-turn-taking.html'+e11Fragment;
  const stepsFragment=linkedE04?
   encodeMemoryLantern(linkedE04,linkedE05,linkedE06,state,linkedE08):

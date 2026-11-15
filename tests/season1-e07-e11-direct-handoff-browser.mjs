@@ -13,9 +13,16 @@ for(const [name,viewport,touch] of [['landscape',{width:844,height:390},true],['
  const context=await browser.newContext({viewport,hasTouch:touch,isMobile:touch}),page=await context.newPage(),errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  const base='http://127.0.0.1:4173/';
+ await page.goto(base+'e11-scene/#e07-paper=invalid');
+ assert.match(await page.locator('#e07-earned-context').innerText(),/No E07 child-checked/);
  await page.goto(base+'e11-scene/e07-earned-turn-taking.html#e07-paper=invalid');
  assert.equal(await page.locator('#share').isDisabled(),true);
  await page.goto(base+'e07-scene/');
+ await page.goto(base+'e11-scene/'+fragment);
+ assert.match(await page.locator('#e07-earned-context').innerText(),/Milo checked Finn/);
+ assert.equal(new URL(page.url()).hash,'');
+ assert.match(await page.locator('#story-line').innerText(),/Try a layout, then walk the path/);
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,name);
  await page.goto(base+'e11-scene/e07-earned-turn-taking.html'+fragment);
  assert.match(await page.locator('#source-status').innerText(),/verified/);
  assert.equal(await page.locator('#share').isEnabled(),true);
