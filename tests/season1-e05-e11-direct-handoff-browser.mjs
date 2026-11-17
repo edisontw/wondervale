@@ -17,6 +17,19 @@ try{
   assert.match(await page.locator('#e05-earned-context').innerText(),/Milo tried a PAPER Map Room/);
   assert.equal(new URL(page.url()).hash,'');
   assert.match(await page.locator('#e05-earned-context').innerText(),/no station access/i);
+  await page.locator('#begin').click();
+  assert.equal(await page.locator('#world-atlas').isVisible(),true);
+  assert.equal(await page.locator('[data-source="e05"]').getAttribute('data-status'),'verified');
+  assert.equal(await page.locator('[data-source="e07"]').getAttribute('data-status'),'missing');
+  assert.equal(await page.locator('#world-atlas-stages').isVisible(),false);
+  assert.equal(await page.locator('#world-atlas-repair').count(),0);
+  await page.locator('#restart').focus();await page.keyboard.press('Enter');
+  assert.equal(await page.locator('[data-source="e05"]').getAttribute('data-status'),'verified',
+   'E11 restart does not forge or erase the already checked upstream PAPER handoff');
+  await page.reload();
+  await page.locator('#begin').click();
+  assert.equal(await page.locator('#world-atlas').isVisible(),false,
+   'consumed URL fragment is never persisted across reload');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,name);
   await page.locator('#restart').focus();await page.keyboard.press('Enter');
   assert.deepEqual(errors,[],name);
