@@ -445,11 +445,11 @@ function worldAtlas(){
  $('world-atlas-partial').textContent=sourceView.partialChronicle;
  for(const id of ['world-atlas-stages','world-atlas-places',
   'world-atlas-observation','world-atlas-chronicle'])$(id).hidden=!model;
- const repair=$('world-atlas-repair');
- if(repair)repair.hidden=!model;
+ const existingRepair=$('world-atlas-repair');
+ if(existingRepair)existingRepair.hidden=!model;
  if(!model){
   atlasRepairHistory=[];
-  if(repair)repair.replaceChildren();
+  if(existingRepair)existingRepair.replaceChildren();
   return;
  }
  const stages=$('world-atlas-stages');stages.replaceChildren();
