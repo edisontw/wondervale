@@ -4,6 +4,10 @@ import {paperSharedUse} from './shared-use-followthrough.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
 import {paperE10UseRevisit} from './e10-use-revisit.mjs';
+import {view as viewE05} from '../e05-scene/scene-model.mjs';
+import {view as viewE07} from '../e07-scene/scene-model.mjs';
+import {earnedE05} from './e05-earned-layout-trial.mjs';
+import {earnedTurnTaking} from './e07-earned-turn-taking.mjs';
 
 export const PAPER_ATLAS_PLACES=Object.freeze([
  {id:'garden',label:'Lower Garden'},
@@ -58,6 +62,48 @@ export function paperWorldAtlas(e11,visitorHistory,upstream,sharedHistory,e10,us
    'Real history, people, water, access, permissions and place identity UNKNOWN.',
   sourceApproved:false,realRouteOpen:false,realAccessApproved:false,
   actualPlanting:false,commonRevealed:false,
+  canonicalEvents:[],unlocks:[],persistentSave:false
+ };
+}
+
+/** Read-only partial PAPER world-state projection, never real approval.
+ * E05 is optional to the existing three-place Atlas / Repair contract.
+ */
+export function paperWorldAtlasSources(e11,visitors,upstream,sharedHistory,e10,
+ useTrial=null,e05History=null,e07History=null){
+ const source05=upstream?.e05,source07=upstream?.e07;
+ const ok05=!!(earnedE05(e05History)||
+  (source05&&viewE05(source05)&&earnedE05(source05.history)));
+ const garden=paperGardenRevisit(upstream?.e06),ok06=!!garden?.lower.compared;
+ const ok07=!!(earnedTurnTaking(e07History,[])||
+  (source07&&viewE07(source07)&&earnedTurnTaking(source07.history,[])));
+ const ok10=!!paperE10NeedsRevisit(e10);
+ const sources=[
+  {id:'e05',label:'E05 Map Room',status:ok05?'verified':'missing',
+   note:ok05?'Milo checked the PAPER Map Room; station access remains UNKNOWN.':
+    'No replay-verified E05 Map Room review.'},
+  {id:'e06',label:'E06 Lower Garden',status:ok06?'verified':'missing',
+   note:ok06?garden.lower.note:'No replay-verified Lower Garden comparison.'},
+  {id:'e07',label:'E07 connector',status:ok07?'verified':'missing',
+   note:ok07?'Milo checked a PAPER crossing for another traveler and water.':
+    'No replay-verified connector and traveler review.'},
+  {id:'e10',label:'E10 two needs',status:ok10?'verified':'missing',
+   note:ok10?'Milo separated two simulated needs after a PAPER test.':
+    'No replay-verified E10 needs comparison.'}
+ ];
+ const partial=sources.filter(s=>s.status==='verified').map(
+  ({id,label,note})=>({id,label,note}));
+ const atlas=paperWorldAtlas(e11,visitors,upstream,sharedHistory,e10,useTrial);
+ return {
+  sources,partial,verifiedCount:partial.length,visible:partial.length>0,atlas,
+  partialChronicle:'PAPER CHRONICLE — '+partial.length+'/4 child-replayed sources verified. '+
+   (partial.length?partial.map(s=>s.label+': '+s.note).join(' '):
+    'No verified PAPER source.')+
+   (atlas?' Full FIRST/NOW model earned.':
+    ' Full FIRST/NOW Atlas and Repair remain unearned.')+
+   ' North Hill CLOSED; unnamed place UNKNOWN. No real world change or official unlock.',
+  paperOnly:true,sourceApproved:false,realRouteOpen:false,
+  realAccessApproved:false,actualPlanting:false,commonRevealed:false,
   canonicalEvents:[],unlocks:[],persistentSave:false
  };
 }

@@ -4,7 +4,7 @@ import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
 import {paperRevisit} from './revisit-model.mjs';
 import {paperRoleWalk,dispatchRoleWalk} from './role-walk.mjs';
 import {paperSharedUse,dispatchSharedUse} from './shared-use-followthrough.mjs';
-import {paperWorldAtlas} from './world-atlas.mjs';
+import {paperWorldAtlasSources} from './world-atlas.mjs';
 import {paperAtlasRepair,dispatchAtlasRepair} from './atlas-repair.mjs';
 import {paperLoopVisual} from './loop-visual.mjs';
 import {paperE11Story} from './story-reactions.mjs';
@@ -282,7 +282,7 @@ function miniBoard(host,trial,focus,stage){
 function visitorWalk(){
  const model=paperRoleWalk(state,roleWalkHistory),panel=$('visitor-walk');
  panel.hidden=!model;
- if(!model)return;
+ if(!model){worldAtlas();return;}
  const choices=$('visitor-walk-choices');choices.replaceChildren();
  for(const [stage,role,label] of [
   ['first','quiet_reader','FIRST · quiet reader'],
@@ -432,10 +432,27 @@ function sharedUseView(){
 
 
 function worldAtlas(){
- const model=paperWorldAtlas(state,roleWalkHistory,upstream,sharedUseHistory,
-  linkedE10,linkedUseTrial);
+ const sourceView=paperWorldAtlasSources(state,roleWalkHistory,upstream,sharedUseHistory,
+  linkedE10,linkedUseTrial,e05Earned,e07Earned),model=sourceView.atlas;
  const panel=$('world-atlas');panel.hidden=!model;
- if(!model)return;
+ $('world-atlas-source-panel').hidden=!sourceView.visible;
+ const sourceList=$('world-atlas-sources');sourceList.replaceChildren();
+ for(const source of sourceView.sources){
+  const row=document.createElement('p');row.className='status';
+  row.dataset.source=source.id;row.dataset.status=source.status;
+  row.textContent=source.label+': '+source.status+' PAPER replay. '+source.note;
+  sourceList.append(row);
+ }
+ $('world-atlas-partial').textContent=sourceView.partialChronicle;
+ for(const id of ['world-atlas-stages','world-atlas-places',
+  'world-atlas-observation','world-atlas-chronicle'])$(id).hidden=!model;
+ const existingRepair=$('world-atlas-repair');
+ if(existingRepair)existingRepair.hidden=!model;
+ if(!model){
+  atlasRepairHistory=[];
+  if(existingRepair)existingRepair.replaceChildren();
+  return;
+ }
  const stages=$('world-atlas-stages');stages.replaceChildren();
  for(const phase of ['first','now'])
   button(stages,'Show '+phase.toUpperCase()+' three-place PAPER world',
