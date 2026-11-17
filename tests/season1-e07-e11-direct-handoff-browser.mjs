@@ -21,7 +21,9 @@ for(const [name,viewport,touch] of [['landscape',{width:844,height:390},true],['
  await page.goto(base+'e11-scene/'+fragment);
  assert.match(await page.locator('#e07-earned-context').innerText(),/Milo checked Finn/);
  await page.locator('#begin').click();
- assert.equal(await page.locator('#world-atlas').isVisible(),true);
+ assert.equal(await page.locator('#world-atlas-source-panel').isVisible(),true);
+ assert.equal(await page.locator('#world-atlas').isVisible(),false,
+  'E07 alone cannot display the complete FIRST/NOW atlas');
  assert.equal(await page.locator('[data-source="e07"]').getAttribute('data-status'),'verified');
  assert.equal(await page.locator('[data-source="e10"]').getAttribute('data-status'),'missing');
  assert.equal(await page.locator('#world-atlas-stages').isVisible(),false);

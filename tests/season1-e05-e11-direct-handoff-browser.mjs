@@ -18,7 +18,9 @@ try{
   assert.equal(new URL(page.url()).hash,'');
   assert.match(await page.locator('#e05-earned-context').innerText(),/no station access/i);
   await page.locator('#begin').click();
-  assert.equal(await page.locator('#world-atlas').isVisible(),true);
+  assert.equal(await page.locator('#world-atlas-source-panel').isVisible(),true);
+  assert.equal(await page.locator('#world-atlas').isVisible(),false,
+   'one source cannot display a complete FIRST/NOW atlas');
   assert.equal(await page.locator('[data-source="e05"]').getAttribute('data-status'),'verified');
   assert.equal(await page.locator('[data-source="e07"]').getAttribute('data-status'),'missing');
   assert.equal(await page.locator('#world-atlas-stages').isVisible(),false);

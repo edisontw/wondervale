@@ -434,7 +434,8 @@ function sharedUseView(){
 function worldAtlas(){
  const sourceView=paperWorldAtlasSources(state,roleWalkHistory,upstream,sharedUseHistory,
   linkedE10,linkedUseTrial,e05Earned,e07Earned),model=sourceView.atlas;
- const panel=$('world-atlas');panel.hidden=!sourceView.visible;
+ const panel=$('world-atlas');panel.hidden=!model;
+ $('world-atlas-source-panel').hidden=!sourceView.visible;
  const sourceList=$('world-atlas-sources');sourceList.replaceChildren();
  for(const source of sourceView.sources){
   const row=document.createElement('p');row.className='status';
