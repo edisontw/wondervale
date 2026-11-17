@@ -308,3 +308,47 @@ test('partial Atlas sources are replay-verified and cannot forge world completio
  assert.equal(paperWorldAtlasSources(e11,h,upstream,checks,e10).verifiedCount,3);
  assert.equal(paperWorldAtlasSources(E11.dispatch(e11,{type:'reset'}),[],upstream,[],e10).atlas,null);
 });
+
+
+test('E11 source notebook revokes independently on reset, clear and JSON reload',()=>{
+ const e11=layout(),e06=gardens(),e07=connector(),e10=courtyard();
+ const full={e06,e07};
+ const status=(u,t)=>paperWorldAtlasSources(e11,[],u,[],t);
+ const verified=status(full,e10);
+ assert.deepEqual(verified.sources.map(s=>s.status),
+  ['missing','verified','verified','verified']);
+ assert.equal(verified.verifiedCount,3);
+ assert.equal(verified.atlas,null);
+ // A reset in one upstream scene must not preserve its previous notebook credit.
+ const resetGarden=status({...full,e06:E06.fresh()},e10);
+ assert.deepEqual(resetGarden.sources.map(s=>s.status),
+  ['missing','missing','verified','verified']);
+ assert.equal(resetGarden.verifiedCount,2);
+ assert.equal(resetGarden.atlas,null);
+ assert.deepEqual(resetGarden.unlocks,[]);
+ assert.deepEqual(resetGarden.canonicalEvents,[]);
+ const resetConnector=status({...full,e07:E07.fresh()},e10);
+ assert.deepEqual(resetConnector.sources.map(s=>s.status),
+  ['missing','verified','missing','verified']);
+ assert.equal(resetConnector.verifiedCount,2);
+ const resetNeeds=status(full,E10.fresh());
+ assert.deepEqual(resetNeeds.sources.map(s=>s.status),
+  ['missing','verified','verified','missing']);
+ assert.equal(resetNeeds.verifiedCount,2);
+ // Clearing one source and then reloading cannot resurrect stale verification.
+ const cleared=status({e07},null);
+ assert.deepEqual(cleared.sources.map(s=>s.status),
+  ['missing','missing','verified','missing']);
+ assert.equal(cleared.verifiedCount,1);
+ const reloaded=status({
+  e06:E06.replay(JSON.parse(JSON.stringify(e06.history))),
+  e07:E07.replay(JSON.parse(JSON.stringify(e07.history)))
+ },E10.replay(JSON.parse(JSON.stringify(e10.history))));
+ assert.deepEqual(reloaded,verified);
+ const reloadCleared=status({e07:E07.replay(JSON.parse(JSON.stringify(e07.history)))},null);
+ assert.deepEqual(reloadCleared,cleared);
+ assert.equal(reloadCleared.atlas,null);
+ assert.equal(reloadCleared.realRouteOpen,false);
+ assert.equal(reloadCleared.commonRevealed,false);
+ assert.equal(reloadCleared.persistentSave,false);
+});

@@ -7,6 +7,7 @@ on:
       - 'tests/season1-e11-evidence-sort*'
       - 'tests/season1-e11-visitor-turns*'
       - 'tests/season1-e11-shared-path*'
+      - 'tests/season1-e11-shared-use-followthrough.test.mjs'
       - 'tests/season1-e11-paper-notice-repair*'
       - 'tests/season1-e11-paper-listening-lantern*'
       - 'tests/season1-e11-paper-turn-taking*'
@@ -40,6 +41,7 @@ on:
     paths:
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
       - 'tests/season1-e11-shared-path*'
+      - 'tests/season1-e11-shared-use-followthrough.test.mjs'
       - 'tests/season1-e11-paper-evidence-revision*'
       - 'tests/season1-e11-two-needs-zones*'
       - 'tests/season1-e10-e11-scene-transfer*'
@@ -175,6 +177,7 @@ jobs:
             tests/season1-e11-earned-visitor-turns.test.mjs \
             tests/season1-e11-paper-notice-repair.test.mjs tests/season1-e11-paper-listening-lantern.test.mjs tests/season1-e11-paper-turn-taking.test.mjs tests/season1-e11-paper-turn-switch.test.mjs tests/season1-e11-paper-evidence-revision.test.mjs tests/season1-e05-e11-earned-evidence-revision.test.mjs \
             tests/season1-e11-shared-path.test.mjs \
+            tests/season1-e11-shared-use-followthrough.test.mjs \
             tests/season1-e11-two-needs-token-trial.mjs \
             tests/season1-e11-two-needs-zones.test.mjs tests/season1-e11-e10-earned-two-needs.test.mjs \
             tests/season1-e07-e11-direct-handoff.mjs \
