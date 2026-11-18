@@ -280,15 +280,22 @@ test('partial Atlas sources are replay-verified and cannot forge world completio
  const empty=project(null,null);
  assert.equal(empty.visible,false);assert.equal(empty.atlas,null);
  assert.deepEqual(empty.sources.map(x=>x.status),Array(4).fill('missing'));
+ assert.deepEqual(empty.echoes.map(x=>x.changed),Array(4).fill(false));
  const garden=project({e06},null);
  assert.deepEqual(garden.sources.map(x=>x.status),['missing','verified','missing','missing']);
  assert.equal(garden.atlas,null);
+ assert.equal(garden.echoes[1].changed,true);
+ assert.match(garden.echoes[1].now,/PAPER sprout/);
+ assert.equal(garden.echoes[0].changed,false);
  const crossing=project({e07},null);
  assert.deepEqual(crossing.sources.map(x=>x.status),['missing','missing','verified','missing']);
  const needs=project(null,e10);
  assert.deepEqual(needs.sources.map(x=>x.status),['missing','missing','missing','verified']);
  const partial=project({e06,e07},e10);
  assert.equal(partial.verifiedCount,3);
+ assert.deepEqual(partial.echoes.map(x=>x.changed),[false,true,true,true]);
+ assert.match(partial.echoes[2].now,/traveler and water/);
+ assert.match(partial.echoes[3].now,/separate PAPER slots/);
  assert.equal(partial.atlas,null,'verified upstream sources cannot finish E11');
  assert.match(partial.partialChronicle,/remain unearned/);
  assert.deepEqual(partial.canonicalEvents,[]);
@@ -296,7 +303,9 @@ test('partial Atlas sources are replay-verified and cannot forge world completio
  assert.equal(partial.realRouteOpen,false);
  assert.equal(partial.commonRevealed,false);
  assert.equal(partial.persistentSave,false);
- assert.equal(project({e06:{...e06,rights:['approved']},e07},e10).sources[1].status,'missing');
+ const forgedGarden=project({e06:{...e06,rights:['approved']},e07},e10);
+ assert.equal(forgedGarden.sources[1].status,'missing');
+ assert.equal(forgedGarden.echoes[1].changed,false);
  assert.equal(project({e06,e07:{...e07,rights:['approved']}},e10).sources[2].status,'missing');
  assert.equal(project({e06:E06.fresh(),e07:E07.fresh()},E10.fresh()).verifiedCount,0);
  assert.equal(project({e06,e07},{...e10,rights:['approved']}).sources[3].status,'missing');
@@ -319,11 +328,15 @@ test('E11 source notebook revokes independently on reset, clear and JSON reload'
   ['missing','verified','verified','verified']);
  assert.equal(verified.verifiedCount,3);
  assert.equal(verified.atlas,null);
+ assert.deepEqual(verified.echoes.map(x=>x.changed),[false,true,true,true]);
  // A reset in one upstream scene must not preserve its previous notebook credit.
  const resetGarden=status({...full,e06:E06.fresh()},e10);
  assert.deepEqual(resetGarden.sources.map(s=>s.status),
   ['missing','missing','verified','verified']);
  assert.equal(resetGarden.verifiedCount,2);
+ assert.equal(resetGarden.echoes[1].changed,false);
+ assert.match(resetGarden.echoes[1].now,/No child-earned/);
+ assert.equal(resetGarden.echoes[2].changed,true);
  assert.equal(resetGarden.atlas,null);
  assert.deepEqual(resetGarden.unlocks,[]);
  assert.deepEqual(resetGarden.canonicalEvents,[]);
@@ -331,15 +344,18 @@ test('E11 source notebook revokes independently on reset, clear and JSON reload'
  assert.deepEqual(resetConnector.sources.map(s=>s.status),
   ['missing','verified','missing','verified']);
  assert.equal(resetConnector.verifiedCount,2);
+ assert.equal(resetConnector.echoes[2].changed,false);
  const resetNeeds=status(full,E10.fresh());
  assert.deepEqual(resetNeeds.sources.map(s=>s.status),
   ['missing','verified','verified','missing']);
  assert.equal(resetNeeds.verifiedCount,2);
+ assert.equal(resetNeeds.echoes[3].changed,false);
  // Clearing one source and then reloading cannot resurrect stale verification.
  const cleared=status({e07},null);
  assert.deepEqual(cleared.sources.map(s=>s.status),
   ['missing','missing','verified','missing']);
  assert.equal(cleared.verifiedCount,1);
+ assert.deepEqual(cleared.echoes.map(x=>x.changed),[false,false,true,false]);
  const reloaded=status({
   e06:E06.replay(JSON.parse(JSON.stringify(e06.history))),
   e07:E07.replay(JSON.parse(JSON.stringify(e07.history)))
@@ -347,6 +363,7 @@ test('E11 source notebook revokes independently on reset, clear and JSON reload'
  assert.deepEqual(reloaded,verified);
  const reloadCleared=status({e07:E07.replay(JSON.parse(JSON.stringify(e07.history)))},null);
  assert.deepEqual(reloadCleared,cleared);
+ assert.deepEqual(reloadCleared.echoes.map(x=>x.changed),[false,false,true,false]);
  assert.equal(reloadCleared.atlas,null);
  assert.equal(reloadCleared.realRouteOpen,false);
  assert.equal(reloadCleared.commonRevealed,false);

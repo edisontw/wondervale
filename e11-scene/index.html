@@ -46,6 +46,11 @@ button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
 .paper-flow-cell{display:flex;align-items:center;justify-content:center;min-width:0;min-height:30px;background:#e3eee9;border:1px solid #9cafa6;border-radius:.2rem;font-size:.8rem;font-weight:650}
 .paper-flow-cell[data-conflict=true]{background:#f4c2aa;border-color:#9a503b}
 
+.world-echo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem;margin:.5rem 0}
+.world-echo-card{min-width:0;padding:.55rem;border:2px dashed #8fa49b;border-radius:.55rem;background:#f5f1e8;overflow-wrap:anywhere}
+.world-echo-card[data-status=verified]{border-style:solid;border-color:#57806c;background:#e4efe7}
+.world-echo-card p{margin:.3rem 0;font-size:.9rem}
+@media(max-width:700px){.world-echo-grid{grid-template-columns:1fr}}
 .atlas-places{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin:.5rem 0}
 .atlas-place{display:flex;flex-direction:column;justify-content:center;gap:.3rem;min-width:0;min-height:94px;background:#f4f1e6;border-style:dashed;overflow-wrap:anywhere}
 .atlas-place small{display:block;font-size:.8rem;color:#344a41}
@@ -139,6 +144,10 @@ small{color:#50655e}
 <p>Nia: "We can keep one checked PAPER note without pretending we finished the whole map." A verified source means a child-replayed model, not real evidence, access, permission or a completed chapter.</p>
 <div id="world-atlas-sources" role="group" aria-label="Replay-verified PAPER sources; missing sources stay missing"></div>
 <p id="world-atlas-partial" class="status" aria-live="polite"></p>
+<h3>Look again · Milo's PAPER world changed</h3>
+<p>FIRST is a question. NOW only changes when Milo's earlier PAPER experiment is replay-verified. Missing checks stay missing. These are separate model memories, not connected places or real work.</p>
+<div id="world-atlas-echo" class="world-echo-grid" role="group" aria-label="Replay-verified earlier PAPER world changes"></div>
+<small>North Hill CLOSED; unnamed place UNKNOWN. No real planting, paths, rights, official Chronicle or unlock.</small>
 </section>
 <section id="revisit" class="panel" hidden>
 <h2>Child-earned world revisit — FIRST / NOW</h2>

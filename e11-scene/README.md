@@ -5,6 +5,20 @@ All grid cells, user needs, town links and earlier labels are **fictional fixtur
 
 Run `node --test tests/s01e11-authoring-prototype.test.mjs tests/season1-e11-scene-shell.test.mjs`. With the repository served on port 4173 and Playwright Chromium installed, run `node tests/season1-e11-scene-shell-browser.mjs`. Four viewports, keyboard, failed/revised user trial, loop retry, read-only E10 callback, reset/reload, storage and geometry are covered by the dedicated workflow.
 
+## Replay-verified earlier-world echoes (PAPER only)
+
+The E11 source notebook shows four compact FIRST/NOW world-memory cards.
+Only strict E05/E06/E07/E10 child-replayed sources paint a changed NOW card;
+missing, reset or forged sources remain NOT CHECKED. These are read-only
+projections, not another mini-game or an E11 completion. A valid one-source
+E05 or E07 visit may show one change without unlocking the Atlas/Repair.
+E11 restart preserves earlier verified model work; consumed one-use direct
+handoff fragments do not persist on reload. Revoking an upstream source
+withdraws only its own card. No real route, planting, site permissions,
+Common identity, official Chronicle, saved progress or unlock.
+Node reset/replay/anti-forgery and Chromium mobile landscape, keyboard,
+plus linked E03-E11 journey are the associated regression checks.
+
 ## Child-earned FIRST/NOW world revisit
 
 After Milo saves two tested layouts and compares them, the scene shows **two separate 3×4 paper boards** reconstructed from strict replay: FIRST's conflicting placement and NOW's revised placement. The child can trace the quiet reader or activity group and see each simulated user's recorded RETRY/PASS outcome. The selected focus survives a read-only E10 PAPER callback; reset/reload clears it. Only after the child reviews the fictional model does the revisit list the checked contemporary model loop and synthetic earlier-clue label. A changed layout invalidates the comparison; forged snapshots cannot supply a world change. North Hill and the unnamed place remain closed, with no rights, canonical Chronicle or production unlock.

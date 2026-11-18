@@ -194,6 +194,14 @@ try{
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
    const press=async name=>page.getByRole('button',{name,exact:true}).click();
    await press('Begin the PAPER trial');
+   assert.equal(await page.locator('#world-atlas-echo .world-echo-card').count(),4);
+   for(const id of ['e06','e07','e10'])
+    assert.equal(await page.locator('[data-echo-source="'+id+'"]').getAttribute('data-status'),
+     'verified',id+' must be strictly replayed');
+   assert.match(await page.locator('[data-echo-source="e06"]').innerText(),/PAPER sprout/);
+   assert.match(await page.locator('[data-echo-source="e07"]').innerText(),/traveler and water/);
+   assert.equal(await page.locator('#world-atlas').isVisible(),false,
+    'read-only source changes must not unlock the full E11 Atlas');
    await press('Place access strip (two middle cells)');
    await press('Place quiet seat');await press('Cell 0,1');
    await press('Place activity area');await press('Cell 0,2');
@@ -287,6 +295,8 @@ try{
    await press('Restart shared-use PAPER checks');
    assert.match(await page.locator('#shared-use-note').innerText(),/pending/);
    assert.equal(await page.locator('#world-atlas').isVisible(),false,'reset withdraws atlas');
+   assert.equal(await page.locator('[data-echo-source="e06"]').getAttribute('data-status'),'verified',
+    'restarting E11 shared-use must not erase actual earlier PAPER work');
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
 
    // E05 -> E06 -> E11 is one real child-operated Chromium journey, not a

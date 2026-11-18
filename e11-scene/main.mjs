@@ -444,6 +444,18 @@ function worldAtlas(){
   sourceList.append(row);
  }
  $('world-atlas-partial').textContent=sourceView.partialChronicle;
+ // Earlier PAPER changes follow strict replay; raw completion flags cannot
+ // turn an unverified source into an earned visual change.
+ const echoHost=$('world-atlas-echo');echoHost.replaceChildren();
+ for(const echo of sourceView.echoes){
+  const card=document.createElement('div');card.className='world-echo-card';
+  card.dataset.echoSource=echo.id;card.dataset.status=echo.status;
+  const heading=document.createElement('strong');
+  heading.textContent=echo.label+' · '+(echo.changed?'PAPER CHANGED':'NOT CHECKED');
+  const first=document.createElement('p');first.textContent=echo.first;
+  const now=document.createElement('p');now.textContent=echo.now;
+  card.append(heading,first,now);echoHost.append(card);
+ }
  for(const id of ['world-atlas-stages','world-atlas-places',
   'world-atlas-observation','world-atlas-chronicle'])$(id).hidden=!model;
  const existingRepair=$('world-atlas-repair');

@@ -23,15 +23,25 @@ try{
    'one source cannot display a complete FIRST/NOW atlas');
   assert.equal(await page.locator('[data-source="e05"]').getAttribute('data-status'),'verified');
   assert.equal(await page.locator('[data-source="e07"]').getAttribute('data-status'),'missing');
+  const echoes=page.locator('#world-atlas-echo .world-echo-card');
+  assert.equal(await echoes.count(),4,'each source has a visible FIRST/NOW paper memory');
+  assert.equal(await page.locator('[data-echo-source="e05"]').getAttribute('data-status'),'verified');
+  assert.match(await page.locator('[data-echo-source="e05"]').innerText(),/clearer PAPER Map Room/);
+  assert.equal(await page.locator('[data-echo-source="e07"]').getAttribute('data-status'),'missing');
+  assert.match(await page.locator('[data-echo-source="e07"]').innerText(),/No child-earned/);
+  assert.match(await page.locator('#world-atlas-partial').innerText(),/Full FIRST\/NOW Atlas and Repair remain unearned/);
   assert.equal(await page.locator('#world-atlas-stages').isVisible(),false);
   assert.equal(await page.locator('#world-atlas-repair').count(),0);
   await page.locator('#restart').focus();await page.keyboard.press('Enter');
   assert.equal(await page.locator('[data-source="e05"]').getAttribute('data-status'),'verified',
    'E11 restart does not forge or erase the already checked upstream PAPER handoff');
+  assert.equal(await page.locator('[data-echo-source="e05"]').getAttribute('data-status'),'verified');
   await page.reload();
   await page.locator('#begin').click();
   assert.equal(await page.locator('#world-atlas').isVisible(),false,
    'consumed URL fragment is never persisted across reload');
+  assert.equal(await page.locator('#world-atlas-source-panel').isVisible(),false,
+   'consumed fragment cannot retain a source echo after reload');
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,name);
   await page.locator('#restart').focus();await page.keyboard.press('Enter');
   assert.deepEqual(errors,[],name);
