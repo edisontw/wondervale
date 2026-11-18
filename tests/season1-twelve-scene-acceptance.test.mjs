@@ -66,7 +66,8 @@ test('E04 remains an explicit approval barrier; synthetic E05–E11 never mint r
  }
  for(const path of ['scripts/package_static.py','scripts/package_e02.py','scripts/package_e03.py']){
   const source=file(path);
-  for(const forbidden of ['e05-scene/','e06-scene/','e07-scene/','e08-scene/','e09-scene/','e10-scene/','e11-scene/','arc1-hill-unnamed-loop-handoff.html']){
+  for(const forbidden of ['e05-scene/','e06-scene/','e07-scene/','e08-scene/','e09-scene/','e10-scene/','e11-scene/','arc1-hill-unnamed-loop-handoff.html',
+   'engine/s01e04-production-checkpoint.mjs','engine/s01e05-production-entry.mjs']){
    assert.equal(source.includes("'"+forbidden),false,path+' must not include '+forbidden);
   }
  }
@@ -80,7 +81,7 @@ test('write machine-readable scene inventory without falsely claiming browser, d
   canonicalScenes:3,paperOnlyScenes:8,blockedScenes:1,
   scenes:slots.map(s=>({...s,productionAccepted:false,ownerAccepted:false})),
   paperHandoffs:handoffAudit(),
-  productionEndToEnd:'NOT AVAILABLE — E04 canonical checkpoint and E05-E11 production transitions missing',
+  productionEndToEnd:'NOT AVAILABLE — E04 source approval and production runtime, E05 foyer access and later production transitions are pending',
   chromium:'NOT RUN BY THIS NODE TEST — see workflow job conclusions',
   mn4Deployment:'NOT RUN',https:'NOT RUN',rollback:'NOT RUN',
   ownerGate:'OPEN',seasonComplete:false

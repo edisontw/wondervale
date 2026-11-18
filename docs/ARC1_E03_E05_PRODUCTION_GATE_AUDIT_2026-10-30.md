@@ -2,7 +2,13 @@
 
 **Audit baseline:** GitHub `main` `8815e90e3d7a62c40549ba80e038031dcc54270c` on 2026-10-30. This is a **gate inventory**, not a claim of Season 1 acceptance. Recheck the live SHA and Actions before merging or releasing.
 
-## What actually connects
+## Production checkpoint contract
+
+- An E04 checkpoint uses `E04_KEY`, schema 1, version `s01e04-production-v1`, mode `canonical`, the exact pack fingerprint, and a bounded chronological action history. Replay reconstructs inspection, timeline placement and correction, evidence-based explanation, the Chronicle visit, and Finish. Changes to source content invalidate the checkpoint even when its revision label is unchanged.
+- The E05 gate checks current E02/E03 replay, then restores E04 against a repository-owned source pack approved in [PR #114](https://github.com/edisontw/wondervale/pull/114) or its approved successor. E04 completion comes from the replay. E05 entry additionally requires a separate approval scoped to its public foyer.
+- Both approval slots are empty. The read-only PAPER source check shows why E05 is locked. Production saves, official Chronicle writing, a player-facing E05 route, and packaging still require the approved content and a playable integration.
+
+## 2026-10-30 baseline
 
 1. **E02 → E03:** canonical E02 completion is replay-validated by the existing E03 prerequisite. E03 completion is independently restored from its legal action history, including both sincere station/garden memories, the marker and Chronicle. The approved Market story and artwork are unchanged.
 2. **E03 → E04:** `engine/s01e04-handoff.mjs` already returns a read-only source handoff after genuine E02/E03 completion. `engine/s01e04-authoring-entry.mjs` can open an isolated chronology **draft**; `engine/s01e04-chronology.mjs` supports only `draft_preview` and `historical_replay`. Completing that draft does not create a canonical E04 save or finish event. PR #114 remains draft and Owner-gated.

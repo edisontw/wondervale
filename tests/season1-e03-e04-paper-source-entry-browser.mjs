@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {canonicalCheckpoints} from './fixtures/season1-e03-canonical.mjs';
+import {E04_KEY} from '../engine/s01e04-handoff.mjs';
 const base=process.env.TEST_BASE_URL||'http://127.0.0.1:4173';
 const {e02,e03}=canonicalCheckpoints();
 const E02='wondervale-s01e02-progress-v1',E03='wondervale-s01e03-progress-v1';
@@ -32,6 +33,14 @@ try{
    assert.match(await page.locator('#source-list').innerText(),/S01E03-RESIDENT-001/);
    assert.match(await page.locator('#source-list').innerText(),/UNKNOWN/);
    assert.match(await page.locator('#production-boundary').innerText(),/Canonical E04: CLOSED/);
+   assert.match(await page.locator('#e05-blocker').innerText(),/E04 sources await approval/);
+   await page.evaluate(key=>localStorage.setItem(key,JSON.stringify({
+    ready:true, mode:'canonical', phase:'completed', unlocks:['s01e05']
+   })),E04_KEY);
+   await page.reload();
+   await page.waitForFunction(()=>document.querySelector('#gate-status')?.dataset.gate==='verified');
+   assert.equal(await page.locator('#e05-blocker').isVisible(),true);
+   assert.match(await page.locator('#production-boundary').innerText(),/E05 unlock: NOT issued/);
    const before=await page.evaluate(()=>Object.fromEntries(Object.entries(localStorage)));
    // Same-tab reset cannot use a stale visible link to claim verified E03.
    await page.evaluate(E03=>localStorage.removeItem(E03),E03);
@@ -39,6 +48,7 @@ try{
    assert.ok(page.url().endsWith('/authoring-labs/e03-e04-paper-source-entry.html'));
    assert.equal(await page.locator('#gate-status').getAttribute('data-gate'),'blocked');
    assert.equal(await page.locator('#paper-entry').isVisible(),false);
+   assert.equal(await page.locator('#e05-blocker').isVisible(),false);
    await page.evaluate(({E03,e03})=>localStorage.setItem(E03,JSON.stringify(e03)),{E03,e03});
    await page.locator('#refresh').click();
    assert.equal(await page.locator('#gate-status').getAttribute('data-gate'),'verified');
