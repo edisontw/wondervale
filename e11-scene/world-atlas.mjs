@@ -91,11 +91,26 @@ export function paperWorldAtlasSources(e11,visitors,upstream,sharedHistory,e10,
    note:ok10?'Milo separated two simulated needs after a PAPER test.':
     'No replay-verified E10 needs comparison.'}
  ];
+ // Read-only FIRST/NOW PAPER echoes, never connected geography or real work.
+ // These notes derive ONLY from the strict per-source replay decisions.
+ const echoNow=Object.freeze({
+  e05:'NOW · Milo found a clearer PAPER Map Room table path.',
+  e06:'NOW · A PAPER sprout replaces a removable Lower Garden marker.',
+  e07:'NOW · Milo retested a PAPER crossing for another traveler and water.',
+  e10:'NOW · Two simulated needs use separate PAPER slots after Milo checked them.'
+ });
+ const echoes=sources.map(source=>({
+  id:source.id,label:source.label,status:source.status,
+  first:'FIRST · Milo has a question, not a checked world change.',
+  now:source.status==='verified'?echoNow[source.id]:
+   'NOW · No child-earned PAPER change verified yet.',
+  changed:source.status==='verified'
+ }));
  const partial=sources.filter(s=>s.status==='verified').map(
   ({id,label,note})=>({id,label,note}));
  const atlas=paperWorldAtlas(e11,visitors,upstream,sharedHistory,e10,useTrial);
  return {
-  sources,partial,verifiedCount:partial.length,visible:partial.length>0,atlas,
+  sources,partial,echoes,verifiedCount:partial.length,visible:partial.length>0,atlas,
   partialChronicle:'PAPER CHRONICLE — '+partial.length+'/4 child-replayed sources verified. '+
    (partial.length?partial.map(s=>s.label+': '+s.note).join(' '):
     'No verified PAPER source.')+
