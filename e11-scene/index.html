@@ -51,6 +51,17 @@ button[aria-pressed=true]{background:#cde9d7;border-color:#246342}
 .world-echo-card[data-status=verified]{border-style:solid;border-color:#57806c;background:#e4efe7}
 .world-echo-card p{margin:.3rem 0;font-size:.9rem}
 @media(max-width:700px){.world-echo-grid{grid-template-columns:1fr}}
+.return-models{margin:.5rem 0;padding:.45rem .55rem;background:#edf1e8;border:1px solid #9eafa2;border-radius:.5rem}
+.return-models p{margin:.35rem 0 0}
+.return-models button:not([hidden]){display:inline-flex;align-items:center;gap:.45rem}
+.return-model-mark{position:relative;flex:none;width:1.65rem;height:1.15rem;background:#f6e6bd;border:1px solid #7c7056;border-radius:.2rem}
+.return-model-mark::before,.return-model-mark::after{content:"";position:absolute;border-radius:.1rem;background:#587b68}
+[data-return-model=e05] .return-model-mark::before{inset:.15rem .82rem .15rem .16rem}
+[data-return-model=e05] .return-model-mark::after{inset:.48rem .14rem .48rem .89rem;background:#90733d}
+[data-return-model=e07] .return-model-mark::before{inset:.2rem .13rem .62rem .13rem}
+[data-return-model=e07] .return-model-mark::after{inset:.62rem .13rem .2rem .13rem;background:#34708b}
+[data-return-model=e10] .return-model-mark::before{inset:.19rem .9rem .19rem .13rem}
+[data-return-model=e10] .return-model-mark::after{inset:.19rem .13rem .19rem .9rem;background:#a2633f}
 .atlas-places{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin:.5rem 0}
 .atlas-place{display:flex;flex-direction:column;justify-content:center;gap:.3rem;min-width:0;min-height:94px;background:#f4f1e6;border-style:dashed;overflow-wrap:anywhere}
 .atlas-place small{display:block;font-size:.8rem;color:#344a41}
@@ -105,6 +116,14 @@ small{color:#50655e}
 <section class="panel"><h2>New child PAPER negotiation</h2><p>Milo can move a fictional shared-space token, check Nia and Finn’s two needs, revise the choice, and Undo or Restart. This independent exercise does not unlock E11 or record canonical history.</p><p><a href="./two-needs-token-trial.html">Try the two-needs PAPER token</a></p></section>
 <section class="panel"><h2>Story trigger — two needs, one space</h2>
 <p id="story-line" aria-live="polite">Finn wants a quick new line. Nia asks who else needs the space. Milo must try a reversible PAPER plan before deciding.</p>
+<div id="return-models" class="return-models" role="group" aria-label="Milo's earlier PAPER models" hidden>
+<div class="controls">
+<button type="button" data-return-model="e05" hidden><span class="return-model-mark" aria-hidden="true"></span>Map Room table</button>
+<button type="button" data-return-model="e07" hidden><span class="return-model-mark" aria-hidden="true"></span>Crossing and water</button>
+<button type="button" data-return-model="e10" hidden><span class="return-model-mark" aria-hidden="true"></span>Quiet and activity spots</button>
+</div>
+<p id="return-model-line" role="status"></p>
+</div>
 <p id="e07-earned-context" class="status" role="status">No E07 child-checked PAPER crossing linked. Finn’s proposal is not evidence of a built route.</p>
 <p id="e10-linked-context" class="status" role="status">No E10 PAPER investigation linked. Direct E11 authoring proves no prior completion.</p>
 <p id="e04-e05-context" class="status" role="status" hidden>E04/E05 PAPER provenance not linked. No real historical source is established.</p>

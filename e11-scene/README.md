@@ -19,6 +19,17 @@ Common identity, official Chronicle, saved progress or unlock.
 Node reset/replay/anti-forgery and Chromium mobile landscape, keyboard,
 plus linked E03-E11 journey are the associated regression checks.
 
+At the shared-space trial opening, Milo can inspect the earlier Map Room
+table, crossing and water, or quiet and activity spots. Each piece uses the
+same verified source as its notebook card. Nia or Finn connects the earlier
+test to the current visitors. Link arrivals from E10 lead with the two spots
+when present. Looking at a piece only changes the current dialogue; it
+does not write a Chronicle entry or place any token on the E11 board.
+An E11-only restart retains still-verified upstream pieces. A fresh entry
+after upstream reset or after a consumed direct-link reload removes the
+missing piece and its dialogue. The E05 handoff, E10 round-trip, and full
+E03–E11 browser journeys cover those boundaries and keyboard selection.
+
 ## Child-earned FIRST/NOW world revisit
 
 After Milo saves two tested layouts and compares them, the scene shows **two separate 3×4 paper boards** reconstructed from strict replay: FIRST's conflicting placement and NOW's revised placement. The child can trace the quiet reader or activity group and see each simulated user's recorded RETRY/PASS outcome. The selected focus survives a read-only E10 PAPER callback; reset/reload clears it. Only after the child reviews the fictional model does the revisit list the checked contemporary model loop and synthetic earlier-clue label. A changed layout invalidates the comparison; forged snapshots cannot supply a world change. North Hill and the unnamed place remain closed, with no rights, canonical Chronicle or production unlock.
