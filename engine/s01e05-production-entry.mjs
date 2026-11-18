@@ -1,36 +1,24 @@
-// Fail-closed Arc 1 production boundary: E03 completion is NOT E04 completion.
-// E04 currently has an authoring-only chronology, not a canonical event ledger.
-// Never infer E05 production eligibility from an E04 draft, a synthetic pack,
-// a finished E05 paper model, a caller-supplied flag, or a copied event array.
 import {e04Handoff} from './s01e04-handoff.mjs';
+import {E04_COMPLETION_EVENT,verifyE04Checkpoint} from './s01e04-production-checkpoint.mjs';
 
-export const E05_ENTRY_GATE_VERSION = 's01e05-production-entry-pending-e04-v1';
+export const E05_ENTRY_GATE_VERSION = 's01e05-production-entry-v2';
 
-/**
- * Read-only, non-authorizing production gate.
- * The third argument is intentionally ignored: no currently available E04
- * checkpoint has a canonical replay/restore contract. A future implementation
- * must replace this guard with a verified E04 event replay and dedicated tests
- * before it can ever return ready:true.
- */
-export function e05ProductionHandoff(e02Save, e03Save, _e04Candidate = null) {
+// A separately reviewed, repository-owned approval for the E05 public foyer.
+const PUBLIC_FOYER_APPROVAL=null;
+
+/** Read-only projection. Each check is repeated against the current saves on entry. */
+export function e05ProductionHandoff(e02Save, e03Save, e04Save = null) {
   const upstream = e04Handoff(e02Save, e03Save);
-  if (!upstream.ready) {
-    return {
-      ready: false,
-      reason: upstream.reason,
-      e03CanonicalComplete: false,
-      e04CanonicalComplete: false,
-      canonicalEvents: [],
-      unlocks: []
-    };
-  }
+  const e04Reason = upstream.ready ? verifyE04Checkpoint(e04Save) : upstream.reason;
+  const e04Complete = e04Reason===null;
+  const foyerApproved = PUBLIC_FOYER_APPROVAL?.scope==='public-foyer';
+  const reason = e04Reason ?? (foyerApproved ? null : 'e05-foyer-access-unapproved');
   return {
-    ready: false,
-    reason: 'e04-canonical-checkpoint-unavailable',
-    e03CanonicalComplete: true,
-    e04CanonicalComplete: false,
-    canonicalEvents: [],
-    unlocks: []
+    ready: reason===null,
+    reason,
+    e03CanonicalComplete: upstream.ready,
+    e04CanonicalComplete: e04Complete,
+    canonicalEvents: e04Complete ? [E04_COMPLETION_EVENT] : [],
+    unlocks: reason===null ? ['s01e05'] : []
   };
 }

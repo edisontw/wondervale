@@ -36,6 +36,7 @@ li{margin:.6rem 0;line-height:1.5}small{line-height:1.5}a{color:#214f45}
 <section aria-label="Production boundary">
 <h2>What remains closed</h2>
 <p id="production-boundary">Canonical E04: CLOSED. Official Chronicle and E05 unlock: NOT issued. No historical date, site permission, new art, deployment or family acceptance is claimed.</p>
+<p id="e05-blocker" hidden>E05 stays locked while the E04 sources await approval.</p>
 <p><small>The E04 PAPER worktable can also be opened directly as an isolated lab. That does not grant source eligibility. A reset or replacement of E02/E03 progress revokes this page's verified status at the next check or attempted entry.</small></p>
 </section>
 <script type="module">
@@ -60,6 +61,7 @@ function render(){
     :(reasons[gate.reason]||'Earlier chapter progress could not be verified.');
   $('verified').hidden=!gate.ready;
   $('blocked').hidden=gate.ready;
+  $('e05-blocker').hidden=gate.e05Reason!=='e04-canonical-checkpoint-unavailable';
   $('blocked-help').textContent=gate.ready?'':(reasons[gate.reason]||'Finish the earlier chapters first.');
   $('source-list').replaceChildren();
   if(gate.ready){
