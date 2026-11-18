@@ -11,12 +11,16 @@ try{
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto('http://127.0.0.1:4173/e11-scene/#e05-paper=invalid');
   assert.match(await page.locator('#e05-earned-context').innerText(),/No child-checked/);
+  assert.equal(await page.locator('#return-models').isVisible(),false);
   await page.goto('http://127.0.0.1:4173/e11-scene/'+hash);
   // Hash-only navigation does not rerun the scene module; reload to test a fresh entry.
   await page.reload();
   assert.match(await page.locator('#e05-earned-context').innerText(),/Milo tried a PAPER Map Room/);
   assert.equal(new URL(page.url()).hash,'');
   assert.match(await page.locator('#e05-earned-context').innerText(),/no station access/i);
+  assert.equal(await page.getByRole('button',{name:'Map Room table'}).isVisible(),true);
+  assert.equal(await page.locator('#return-models button:visible').count(),1);
+  assert.match(await page.locator('#return-model-line').innerText(),/Nia: You moved the table/);
   await page.locator('#begin').click();
   assert.equal(await page.locator('#world-atlas-source-panel').isVisible(),true);
   assert.equal(await page.locator('#world-atlas').isVisible(),false,
@@ -38,6 +42,8 @@ try{
   assert.equal(await page.locator('[data-echo-source="e05"]').getAttribute('data-status'),'verified');
   await page.reload();
   await page.locator('#begin').click();
+  assert.equal(await page.locator('#return-models').isVisible(),false);
+  assert.equal(await page.locator('#return-model-line').textContent(),'');
   assert.equal(await page.locator('#world-atlas').isVisible(),false,
    'consumed URL fragment is never persisted across reload');
   assert.equal(await page.locator('#world-atlas-source-panel').isVisible(),false,

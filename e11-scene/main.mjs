@@ -60,6 +60,25 @@ let tableRetestHistory=[];
 let crossingRetestHistory=[];
 let needsRetestHistory=[];
 let atlasStage='now',atlasFocus='garden',atlasRepairHistory=[];
+const returnModelLines={
+ e05:'Nia: You moved the table and left a way through. Can both visitors get to their spots here?',
+ e07:'Finn: We left room for a traveler and for water. Where can both visitors get through here?',
+ e10:'Nia: You made two spots. Finn: Let’s see if one person can read while the other group plays.'
+};
+const returnModelButtons=[...$('return-models').querySelectorAll('button')];
+let selectedReturnModel=null;
+function showReturnModel(id){
+ selectedReturnModel=id;
+ for(const button of returnModelButtons)
+  button.setAttribute('aria-pressed',String(button.dataset.returnModel===id));
+ const line=$('return-model-line');
+ const dialogue=returnModelLines[id]||'';
+ if(line.textContent!==dialogue)line.textContent=dialogue;
+}
+for(const button of returnModelButtons)
+ button.addEventListener('click',()=>{
+  if(!button.hidden)showReturnModel(button.dataset.returnModel);
+ });
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
@@ -434,6 +453,13 @@ function sharedUseView(){
 function worldAtlas(){
  const sourceView=paperWorldAtlasSources(state,roleWalkHistory,upstream,sharedUseHistory,
   linkedE10,linkedUseTrial,e05Earned,e07Earned),model=sourceView.atlas;
+ // Carry only replay-verified models into the opening of the current trial.
+ const returns=sourceView.partial.map(source=>source.id).filter(id=>Object.hasOwn(returnModelLines,id));
+ for(const button of returnModelButtons)
+  button.hidden=!returns.includes(button.dataset.returnModel);
+ $('return-models').hidden=!returns.length;
+ if(!returns.includes(selectedReturnModel))
+  showReturnModel(returns.includes('e10')?'e10':returns[0]??null);
  const panel=$('world-atlas');panel.hidden=!model;
  $('world-atlas-source-panel').hidden=!sourceView.visible;
  const sourceList=$('world-atlas-sources');sourceList.replaceChildren();

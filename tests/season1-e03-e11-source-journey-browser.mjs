@@ -192,8 +192,16 @@ try{
    for(const limit of ['UNKNOWN','MOCK','CLOSED'])assert.ok(chronicle.includes(limit),limit);
    assert.match(await page.locator('#e03-paper-source').innerText(),/NOT verified/);
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
+   const crossing=page.getByRole('button',{name:'Crossing and water',exact:true});
+   const needs=page.getByRole('button',{name:'Quiet and activity spots',exact:true});
+   assert.equal(await needs.getAttribute('aria-pressed'),'true','E10 is the arrival model');
+   await crossing.focus();await page.keyboard.press('Enter');
+   assert.equal(await crossing.getAttribute('aria-pressed'),'true');
+   assert.equal(await needs.getAttribute('aria-pressed'),'false');
+   assert.match(await page.locator('#return-model-line').innerText(),/Finn: We left room for a traveler and for water/);
    const press=async name=>page.getByRole('button',{name,exact:true}).click();
    await press('Begin the PAPER trial');
+   assert.equal(await crossing.getAttribute('aria-pressed'),'true');
    assert.equal(await page.locator('#world-atlas-echo .world-echo-card').count(),4);
    for(const id of ['e06','e07','e10'])
     assert.equal(await page.locator('[data-echo-source="'+id+'"]').getAttribute('data-status'),
