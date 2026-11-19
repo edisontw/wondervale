@@ -231,6 +231,7 @@ try{
  }
  const {ctx,p}=await open();
  assert.equal(await p.getByText('MARKET LANE →',{exact:true}).count(),0);
+ assert.equal(await p.getByRole('link',{name:'Continue to Market Lane'}).count(),0,'E03 link stays hidden before E02 completion');
  await action(p,'Begin Riverside adventure');
   assert.equal(await p.locator('#world').getAttribute('data-view'),'r0','Opening dialogue must already show Riverside');
   assert.equal(await p.locator('img.backdrop').evaluate(async img=>{await img.decode();return img.naturalWidth;}),1672);
@@ -308,6 +309,20 @@ try{
  assert.equal(await p.locator('#completed-review').isVisible(),false);
  await p.screenshot({path:'test-results/e02-desktop-complete.png',fullPage:true});
  passed('E02-C02','Complete and restore four deduplicated E02 canonical events');
+ // A real same-origin chapter link must preserve canonical E02 completion and unlock E03.
+ const finishedE02=await saved(p);
+ const nextLink=p.getByRole('link',{name:'Continue to Market Lane',exact:true});
+ assert.equal(await nextLink.getAttribute('href'),'../e03/');
+ await nextLink.click();
+ await p.waitForURL('**/e03/');
+ assert.equal(await p.getByRole('heading',{name:'Three Deliveries, One Wrong Turn'}).count(),1);
+ assert.equal(await p.getByRole('button',{name:'Begin Market Lane adventure'}).count(),1,'E03 must be canonically unlocked, not preview-only');
+ assert.deepEqual(await p.evaluate(()=>JSON.parse(localStorage.getItem('wondervale-s01e02-progress-v1'))),finishedE02,'E03 entry may not change E02 saved checkpoint');
+ assert.deepEqual(await p.evaluate(()=>JSON.parse(localStorage.getItem('wondervale-progress-v1')).ledger),fakeE01.ledger,'E03 entry must preserve E01');
+ assert.equal(await p.evaluate(()=>localStorage.getItem('wondervale-s01e03-progress-v1')),null,'Merely entering E03 may not create a save');
+ await p.goto(base+'/e02/',{waitUntil:'networkidle'});
+ assert.equal(await p.getByRole('heading',{name:'Chapter complete'}).count(),1,'Returning to E02 must retain completed state');
+ passed('E02-E03-REAL-LINK','Completed E02 navigates to canonically unlocked E03 without changing E01/E02 or creating E03 progress');
  await ctx.close();
  // E02 previously tested only portrait widths and allowed page-length phone
  // layouts. Exercise the actual ~568x320 CSS viewport of the owner's iPhone
@@ -492,6 +507,7 @@ try{
    assert.ok(finishedReading.finish&&finishedReading.finish.height>=44&&finishedReading.finish.bottom<=height+3,
     'Finish stays visible without page scrolling '+JSON.stringify(finishedReading));
    await phone.getByRole('button',{name:'Finish this chapter'}).tap();
+   assert.equal(await phone.getByRole('link',{name:'Continue to Market Lane'}).count(),1,'Mobile completed chapter exposes E03 handoff');
    assert.equal((await saved(phone)).phase,'completed');
    assert.equal((await saved(phone)).ledger.filter(x=>x==='episode_completed:s01e02').length,1);
    await phone.reload({waitUntil:'networkidle'});
