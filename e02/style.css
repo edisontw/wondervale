@@ -432,13 +432,15 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
 .completed-review>p{font:14px/1.4 system-ui}
 .completed-next{color:#4e5f55}
 .completed-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.completed-actions button{min-height:44px}
+ .completed-actions button{min-height:44px}
+.completed-actions .next-episode{display:inline-flex;align-items:center;justify-content:center;min-height:44px;border:1px solid #385f50;border-radius:12px;background:#385f50;color:#fff;padding:10px 14px;text-decoration:none;font:600 15px/1.2 system-ui;text-align:center;touch-action:manipulation}
+.completed-actions .next-episode:hover{background:#264b3d}
 @media(max-width:750px){
  .child.phase-completed .completed-review .chronicle-evidence{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
  .child.phase-completed .completed-review .chronicle-evidence img{max-height:160px}
  .child.phase-completed .completed-review h3{font-size:17px}
  .child.phase-completed .completed-actions{gap:5px}
- .child.phase-completed .completed-actions button{flex:0 1 auto;font:600 13px/1.2 system-ui;white-space:normal}
+ .child.phase-completed .completed-actions button,.child.phase-completed .completed-actions .next-episode{flex:0 1 auto;font:600 13px/1.2 system-ui;white-space:normal}
 }
 @media(orientation:landscape) and (max-height:420px) and (max-width:760px) and (pointer:coarse){
  .outer .child.phase-completed{
@@ -463,9 +465,12 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
  .outer .child.phase-completed .completed-review>p{margin:2px 0;font:12px/1.2 system-ui}
  .outer .child.phase-completed .completed-next{flex:0 0 auto;margin:0;font:12px/1.2 system-ui}
  .outer .child.phase-completed .completed-actions{
-  display:flex;flex:0 0 49px;min-height:49px;align-items:center;
-  gap:6px;justify-content:flex-end;border-top:1px solid #ddd0b5}
- .outer .child.phase-completed .completed-actions button{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  flex:0 0 49px;min-height:49px;align-items:center;
+  gap:6px;border-top:1px solid #ddd0b5}
+ .outer .child.phase-completed .completed-actions>*{min-width:0}
+ .outer .child.phase-completed .completed-actions button,
+ .outer .child.phase-completed .completed-actions .next-episode{
   flex:0 1 auto;min-height:44px;height:44px;margin:0;padding:4px 10px;
   font:600 13px/1.15 system-ui}
  .outer.phone-parent-open .child.phase-completed{display:none}
