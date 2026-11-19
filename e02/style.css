@@ -465,8 +465,10 @@ a{color:#275b59}header{display:flex;align-items:center;justify-content:space-bet
  .outer .child.phase-completed .completed-review>p{margin:2px 0;font:12px/1.2 system-ui}
  .outer .child.phase-completed .completed-next{flex:0 0 auto;margin:0;font:12px/1.2 system-ui}
  .outer .child.phase-completed .completed-actions{
-  display:flex;flex:0 0 49px;min-height:49px;align-items:center;
-  gap:6px;justify-content:flex-end;border-top:1px solid #ddd0b5}
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  flex:0 0 49px;min-height:49px;align-items:center;
+  gap:6px;border-top:1px solid #ddd0b5}
+ .outer .child.phase-completed .completed-actions>*{min-width:0}
  .outer .child.phase-completed .completed-actions button,
  .outer .child.phase-completed .completed-actions .next-episode{
   flex:0 1 auto;min-height:44px;height:44px;margin:0;padding:4px 10px;
