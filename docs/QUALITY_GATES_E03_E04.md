@@ -23,6 +23,12 @@
 
 Do not create a duplicate Issue for a bug already tracked by PR #107. Refer to the current issue/PR at the time of work; priorities can be changed with new evidence.
 
+### #109 diagnostic regression evidence (2026-11-19)
+
+GitHub Actions verified the `main` push for `600ff0c3a370af20df765f52759feec806575d82` (PR #367). The [E03 engineering run](https://github.com/edisontw/wondervale/actions/runs/44506721924/job/135500141827) passed the Node suite including the polygon boundary-contact cases, the swept display-envelope audit, and packaged desktop/touch Chromium. The [E01 runtime run](https://github.com/edisontw/wondervale/actions/runs/44506721360/job/135500140585) passed its core and Chromium regression steps.
+
+Physical clearance remains open. The next evidence needs a perspective-registered L-route map of walkable paving and solid obstacles, plus a turning model for the swept wheel, cart body and handle. Compare both route directions under that model and record minimum clearance at each turn. The loaded return is an engineering check because canonical delivery clears the cart at T.
+
 ## 2. E03 Gate 3 exit: engineering and learning
 
 **All are required for a claim of full E03 Gate 3; do not infer them from a single L-path browser run.**
