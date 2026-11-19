@@ -51,6 +51,19 @@ Distances use the shortest Euclidean distance from the route node to a segment o
 
 Next, prioritize `fork → ramp0 → T`: distinguish the painted curb's ground contact from its raised lip and the stall planting's base from its overhang. Complete the outer pavement boundary, then register a ground-plane model and compare swept wheel, body and handle margins in both directions. #109 remains open. The existing E03 Node route, cart and S/N suites passed 18/18 on the survey source commit `d2d3445376d5ca6101ece6c17078697fd5a97525`.
 
+### #109 fork-to-tea ground-contact review (2026-11-19)
+
+A magnified overlay of the same M0 artwork separates two visible curb faces along `fork (1085,731) → ramp0 (1160,644)`. Approximate source-pixel traces:
+
+- Curb lip: `(1060,715) (1095,703) (1120,692) (1147,675)`
+- Curb toe (pavement contact): `(1060,722) (1095,710) (1120,700) (1149,681)`
+
+Segment intersection puts the centerline at the toe near `(1107,705)` and at the lip near `(1118,693)` in the forward direction. The reverse path crosses the same pair in reverse order. Both traces indicate a crossing under the visual interpretation of this curb. The previous point distances at fork and ramp0 cannot show the crossing between nodes.
+
+On `ramp0 → T`, foreground foliage conceals the pavement and the stall's base near the destination. Keep that part of the ground boundary unknown. The earlier 5 px value is relative to the foliage silhouette. The single painted view supplies neither a ground distance scale nor the cart's physical dimensions or turning radius, so no swept clearance is assigned.
+
+Keep #109 open. Review a tea-only approach that stays on the visible outside paving, with the interaction endpoint on exposed pavement before the stall occlusion. Preserve the shared bookstall route and existing delivery requirements. Verify the revised centerline against both curb traces before modeling wheels, body and handle. Existing E03 Node route, cart and S/N suites passed 18/18 on the surveyed runtime.
+
 ## 2. E03 Gate 3 exit: engineering and learning
 
 **All are required for a claim of full E03 Gate 3; do not infer them from a single L-path browser run.**
