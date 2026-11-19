@@ -514,6 +514,12 @@ try{
    assert.equal((await saved(phone)).phase,'completed');
    await phone.getByRole('button',{name:'Review the Chronicle'}).tap();
    await checkCompletedReview(phone,width,height);
+   if(width>height){
+    const nextButton=await phone.getByRole('link',{name:'Continue to Market Lane'}).evaluate(el=>{
+     const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height,viewport:innerHeight};
+    });
+    assert.ok(nextButton.height>=44&&nextButton.bottom<=height+3,'Market Lane link stays reachable in short phone landscape '+JSON.stringify(nextButton));
+   }
    assert.equal(await phone.evaluate(()=>document.activeElement?.dataset?.a),'show-chronicle',
     'After expanding Chronicle, keyboard focus remains on toggle');
    assert.equal((await saved(phone)).ledger.filter(x=>x==='episode_completed:s01e02').length,1);
