@@ -31,10 +31,37 @@ function overlap(a,b){
  if(a.some(p=>inside(p,b))||b.some(p=>inside(p,a)))return true;
  for(let i=0;i<a.length;i++)for(let j=0;j<b.length;j++){
   const p=a[i],q=a[(i+1)%a.length],r=b[j],s=b[(j+1)%b.length];
-  if(cross(p,q,r)*cross(p,q,s)<0&&cross(r,s,p)*cross(r,s,q)<0)return true;
+  const c1=cross(p,q,r),c2=cross(p,q,s),c3=cross(r,s,p),c4=cross(r,s,q);
+  const onSegment=(u,v,t)=>t[0]>=Math.min(u[0],v[0])&&
+   t[0]<=Math.max(u[0],v[0])&&t[1]>=Math.min(u[1],v[1])&&
+   t[1]<=Math.max(u[1],v[1]);
+  if(c1*c2<0&&c3*c4<0)return true;
+  if((c1===0&&onSegment(p,q,r))||(c2===0&&onSegment(p,q,s))||
+     (c3===0&&onSegment(r,s,p))||(c4===0&&onSegment(r,s,q)))return true;
  }
  return false;
 }
+test('E03 diagnostic polygon boundary contact is not missed',()=>{
+ const square=(x,y,size=10)=>[[x,y],[x+size,y],[x+size,y+size],[x,y+size]];
+ const a=square(0,0);
+ const cases=[
+  ['separated',square(11,11),false],
+  ['interior intersection',square(5,5),true],
+  ['upper-left corner',square(-10,-10),true],
+  ['lower-right corner',square(10,10),true],
+  ['upper-right corner',square(10,-10),true],
+  ['lower-left corner',square(-10,10),true],
+  ['shared vertical edge',square(10,0),true],
+  ['identical',square(0,0),true],
+  ['contained',square(2,2,2),true],
+  ['one-micro-unit gap',square(10.000001,0),false]
+ ];
+ for(const [name,other,expected] of cases){
+  assert.equal(overlap(a,other),expected,name);
+  assert.equal(overlap(other,a),expected,name+' (reverse)');
+ }
+});
+
 function cartPoly([x,y],style,degrees=0){
  const h=actorHeight([x,y]),w=h*spriteBox.width/spriteBox.height;
  const left=x-w/2+style.left*w,top=y-h+style.top*h;
