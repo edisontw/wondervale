@@ -4,6 +4,8 @@ on:
     paths:
       - 'e05-scene/**'
       - 'tests/season1-e05-scene-shell*'
+      - 'tests/season1-e05-storage-entry.test.mjs'
+      - 'engine/s01e05-production-entry.mjs'
       - 'tests/e05-review-revisit.test.mjs'
       - '.github/workflows/wondervale-e05-scene-shell.yml'
   push:
@@ -11,6 +13,8 @@ on:
     paths:
       - 'e05-scene/**'
       - 'tests/season1-e05-scene-shell*'
+      - 'tests/season1-e05-storage-entry.test.mjs'
+      - 'engine/s01e05-production-entry.mjs'
       - '.github/workflows/wondervale-e05-scene-shell.yml'
 permissions:
   contents: read
@@ -25,10 +29,11 @@ jobs:
           node-version: '24'
       - name: Syntax and strict E05 scene / source / replica Node regression
         run: |
+          node --check engine/s01e05-production-entry.mjs
           node --check e05-scene/scene-model.mjs
           node --check e05-scene/main.mjs
           node --check tests/season1-e05-scene-shell-browser.mjs
-          node --test tests/season1-e05-scene-shell.test.mjs tests/season1-station-story.test.mjs tests/season1-station-sources.test.mjs tests/s01e05-authoring-prototype.test.mjs tests/e05-review-revisit.test.mjs
+          node --test tests/season1-e05-storage-entry.test.mjs tests/season1-e05-scene-shell.test.mjs tests/season1-station-story.test.mjs tests/season1-station-sources.test.mjs tests/s01e05-authoring-prototype.test.mjs tests/e05-review-revisit.test.mjs
       - name: Fail if noncanonical E05 shell enters production packaging
         run: |
           if grep -R -n 'e05-scene\|station-sources-model\|station-story-model' scripts/compile_episode.py scripts/package_static.py scripts/package_e02.py scripts/package_e03.py; then
