@@ -14,6 +14,18 @@ test('canonical prerequisite uses actual E02 checkpoint validation, not two fabr
  assert.equal(e02Ready(null),false);assert.equal(e02Ready({ledger:['episode_completed:s01e02','s01e02_market_lane_marker_recorded']}),false);
  const s=realE02();assert.equal(e02Ready(s),true);s.revised=false;assert.equal(e02Ready(s),false);
 });
+test('upper-right ramp follows screenshot lane without moving the tea-cart route',()=>{
+ // Owner screenshot visual-blocking fix (source-image 1672x941 coordinates).
+ assert.deepEqual(['ramp0','ramp1','ramp2','ramp3','B'].map(k=>places[k]),
+  [[1160,644],[1245,535],[1333,428],[1406,342],[1432,305]]);
+ const books=route('H','B','books');
+ assert.deepEqual(books.slice(-5),['ramp0','ramp1','ramp2','ramp3','B']);
+ assert.deepEqual(route('B','H','books'),books.toReversed());
+ assert.deepEqual(route('H','T','tea_cart'),['H','west','bend','front','east','fork','ramp0','T'],
+  'the uphill visual adjustment must not redirect the loaded tea cart');
+ assert.deepEqual(places.T,[1370,656],'preserve tea-stall destination');
+});
+
 test('visible graph is bidirectional and cargo-specific; no inferred S/N through-route or direct crate crossing',()=>{
  for(const to of ['B','T','F'])for(const load of ['none','books','tea_cart','flowers']){const p=route('H',to,load);assert.ok(p.length>1);assert.deepEqual(route(to,'H',load),p.toReversed());}
  assert.equal(route('H','arch','tea_cart').length,0);assert.equal(route('H','arch','flowers').length,0);assert.ok(route('H','arch').length);
