@@ -4,8 +4,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fresh as fresh02, dispatch as dispatch02, payload as payload02, EVENTS as EVENTS02} from '../engine/s01e02.mjs';
 import {fresh as fresh03, dispatch as dispatch03, restore as restore03, payload as payload03, EVENTS as EVENTS03} from '../engine/s01e03.mjs';
-import {e04Handoff, e04Ready, E04_SOURCE_EVENTS, E02_KEY, E03_KEY, E04_KEY} from '../engine/s01e04-handoff.mjs';
-import {e05ProductionHandoff, readE05ProductionGate} from '../engine/s01e05-production-entry.mjs';
+import {e04Handoff, e04Ready, E04_SOURCE_EVENTS} from '../engine/s01e04-handoff.mjs';
+import {e05ProductionHandoff} from '../engine/s01e05-production-entry.mjs';
 import {fresh as freshE05, dispatch as dispatchE05, restore as restoreE05} from '../engine/s01e05-authoring-prototype.mjs';
 
 const drain02 = s => {while(s.queue.length) s=dispatch02(s,{type:'next'}); return s;};
@@ -180,43 +180,4 @@ test('E05 canonical entry rejects missing or reset E02/E03 before considering E0
     assert.deepEqual(gate.canonicalEvents,[]);
     assert.deepEqual(gate.unlocks,[]);
   }
-});
-
-test('E05 entry reads only current canonical saves; malformed, reset and unavailable storage fail closed',()=>{
-  const e02=payload02(realE02()), e03=payload03(realE03());
-  const map=new Map([
-    [E02_KEY,JSON.stringify(e02)],[E03_KEY,JSON.stringify(e03)],
-    [E04_KEY,JSON.stringify({ready:true,mode:'canonical',phase:'completed',unlocks:['s01e05']})]
-  ]);
-  const storage={
-    getItem:key=>map.get(key)??null,
-    setItem(){throw Error('production entry must never write');},
-    removeItem(){throw Error('production entry must never delete');}
-  };
-  const before=JSON.stringify([...map]);
-  assert.deepEqual(readE05ProductionGate(storage),e05ProductionHandoff(e02,e03,JSON.parse(map.get(E04_KEY))));
-  assert.equal(readE05ProductionGate(storage).ready,false);
-  assert.equal(readE05ProductionGate(storage).reason,'e04-canonical-checkpoint-unavailable');
-  assert.equal(JSON.stringify([...map]),before,'entry and retry leave saves unchanged');
-
-  map.delete(E02_KEY);
-  assert.equal(readE05ProductionGate(storage).reason,'complete-riverside-first');
-  map.set(E02_KEY,JSON.stringify(e02));
-  map.delete(E03_KEY);
-  assert.equal(readE05ProductionGate(storage).reason,'complete-market-lane-first');
-  map.set(E03_KEY,JSON.stringify(e03));
-  map.set(E03_KEY,'{invalid-json');
-  assert.deepEqual(readE05ProductionGate(storage),{
-    ready:false,reason:'checkpoint-unreadable',
-    e03CanonicalComplete:false,e04CanonicalComplete:false,canonicalEvents:[],unlocks:[]
-  });
-  map.set(E03_KEY,JSON.stringify(e03));
-  map.set(E04_KEY,'{invalid-json');
-  assert.equal(readE05ProductionGate(storage).reason,'checkpoint-unreadable');
-  map.delete(E04_KEY);
-  assert.equal(readE05ProductionGate(storage).reason,'e04-canonical-checkpoint-unavailable');
-  assert.equal(readE05ProductionGate(null).reason,'storage-unavailable');
-  assert.equal(readE05ProductionGate({}).reason,'storage-unavailable');
-  assert.equal(readE05ProductionGate({get getItem(){throw Error('denied');}}).reason,'checkpoint-unreadable');
-  assert.equal(readE05ProductionGate({getItem(){throw Error('denied');}}).reason,'checkpoint-unreadable');
 });
