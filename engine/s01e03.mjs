@@ -7,7 +7,10 @@ export const EVENTS={books:'s01e03_delivery_book_delivered',revision:'s01e03_car
 export const e02Ready=save=>{const s=restoreE02(save),p=projectE02(s);return s.phase==='completed'&&s.chronicleSeen&&p.completed&&p.market;};
 // Source-image pixels, feet on visible paving. No river/bridge foreground edge.
 // Never advertise unmeasured corridor width: centerline viability is not swept-cart clearance.
-export const places={H:[275,656],west:[350,691],bend:[470,747],front:[670,788],east:[880,790],fork:[1085,731],archApproach:[946,664],arch:[847,573],ramp0:[1160,644],ramp1:[1190,535],ramp2:[1285,428],ramp3:[1394,342],B:[1432,305],T:[1370,656],flowerTurn:[950,870],F:[1040,885],stone:[1125,708]};
+// Owner screenshot 2026-11-20: place the uphill bookstall walkers farther right on
+// the painted right-hand lane. Only ramp1..ramp3 move; shared ramp0, tea T and
+// all other delivery nodes remain unchanged. This is visual blocking, NOT physical cart clearance.
+export const places={H:[275,656],west:[350,691],bend:[470,747],front:[670,788],east:[880,790],fork:[1085,731],archApproach:[946,664],arch:[847,573],ramp0:[1160,644],ramp1:[1245,535],ramp2:[1333,428],ramp3:[1406,342],B:[1432,305],T:[1370,656],flowerTurn:[950,870],F:[1040,885],stone:[1125,708]};
 export const edges=[['H','west'],['west','bend'],['bend','front'],['front','east'],['east','fork'],['fork','ramp0'],['ramp0','ramp1'],['ramp1','ramp2'],['ramp2','ramp3'],['ramp3','B'],['ramp0','T'],['east','flowerTurn'],['flowerTurn','F'],['fork','stone'],['fork','archApproach'],['archApproach','arch']].map(([a,b])=>({a,b,walk:true,cart:!['arch','archApproach','stone'].includes(a)&&!['arch','archApproach','stone'].includes(b),steady:!['arch','archApproach'].includes(a)&&!['arch','archApproach'].includes(b),clearance:null}));
 export const destinations={books:'B',tea:'T',flowers:'F'};
 export const restricted={S:{label:'Steps',cart:false,steady:false,crop:[390,120,530,255]},N:{label:'Narrow arcade',cart:false,steady:false,crop:[660,340,380,320]}};
