@@ -1,4 +1,4 @@
-import {e04Handoff} from './s01e04-handoff.mjs';
+import {e04Handoff,E02_KEY,E03_KEY,E04_KEY} from './s01e04-handoff.mjs';
 import {E04_COMPLETION_EVENT,verifyE04Checkpoint} from './s01e04-production-checkpoint.mjs';
 
 export const E05_ENTRY_GATE_VERSION = 's01e05-production-entry-v2';
@@ -21,4 +21,26 @@ export function e05ProductionHandoff(e02Save, e03Save, e04Save = null) {
     canonicalEvents: e04Complete ? [E04_COMPLETION_EVENT] : [],
     unlocks: reason===null ? ['s01e05'] : []
   };
+}
+
+/**
+ * Recheck all three canonical saves at the moment of attempted E05 entry.
+ * Drafts and URL-fragment PAPER histories are never eligible. This adapter
+ * reads only; it does not persist, grant foyer access or mint episode events.
+ */
+export function readE05ProductionGate(storage) {
+  const blocked = reason => ({
+    ready:false,reason,e03CanonicalComplete:false,e04CanonicalComplete:false,
+    canonicalEvents:[],unlocks:[]
+  });
+  try {
+    if (typeof storage?.getItem !== 'function') return blocked('storage-unavailable');
+    const read = key => {
+      const raw=storage.getItem(key);
+      return raw===null ? null : JSON.parse(raw);
+    };
+    return e05ProductionHandoff(read(E02_KEY),read(E03_KEY),read(E04_KEY));
+  } catch {
+    return blocked('checkpoint-unreadable');
+  }
 }
