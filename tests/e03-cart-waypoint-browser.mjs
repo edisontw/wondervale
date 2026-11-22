@@ -120,7 +120,19 @@ try {
        const r=cart.getBoundingClientRect(),wr=world.getBoundingClientRect();
        const x=parseFloat(actor.style.getPropertyValue('--x'))*16.72;
        const y=parseFloat(actor.dataset.footY);
-       window.__e03CartTrace.push({x,y,cartLeft:r.left,cartRight:r.right,
+       // Record *actual rendered* wheel/handle feature centers from the live
+       // SVG transform, not the earlier theoretical fixed-size cart rectangle.
+       // Back-project client pixels into the unchanged 1672x941 painting plane.
+       // This is image-plane motion evidence, not physical steering or clearance.
+       const svg=cart.querySelector('svg'),matrix=svg?.getScreenCTM();
+       if(!matrix)return;
+       const source=(sx,sy)=>{
+        const q=new DOMPoint(sx,sy).matrixTransform(matrix);
+        return [Number(((q.x-wr.left)*1672/wr.width).toFixed(2)),
+         Number(((q.y-wr.top)*941/wr.height).toFixed(2))];
+       };
+       const wheels=[source(47,58),source(91,58)],handle=source(9,18);
+       window.__e03CartTrace.push({x,y,wheels,handle,cartLeft:r.left,cartRight:r.right,
         cartWidth:r.width,cartHeight:r.height,worldLeft:wr.left,worldRight:wr.right});
       }
       requestAnimationFrame(capture);
@@ -144,15 +156,32 @@ try {
      'Actual cart/actor motion must remain finite');
     assert.ok(trace.every(v=>v.cartLeft>=v.worldLeft-2&&v.cartRight<=v.worldRight+2),
      'Actual moving cart must not clip outside the scene at '+w+'x'+h+' '+sample.direction);
+    const finitePoint=p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite);
+    assert.ok(trace.every(v=>v.wheels?.length===2&&v.wheels.every(finitePoint)&&finitePoint(v.handle)),
+     'Missing real SVG wheel/handle source-pixel positions at '+w+'x'+h);
+    assert.ok(trace.every(v=>v.wheels[1][0]>v.wheels[0][0]),
+     'Actual no-yaw cart should preserve wheel ordering in the rendered plane');
+    const travelPx=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+    assert.ok(travelPx(trace[0].wheels[0],trace.at(-1).wheels[0])>100,
+     'Live left wheel must move along the real loaded-cart path');
     for(const turn of sample.turns){
      const [tx,ty]=placesE03[turn];
      assert.ok(trace.some(v=>Math.abs(v.x-tx)<16&&Math.abs(v.y-ty)<16),
       'Missing live cart turn '+turn+' '+sample.direction);
     }
+    await writeFile('test-results/e03-cart-live-feature-tracks-'+w+'x'+h+'.json',JSON.stringify({
+     viewport:[w,h],sourceImage:[1672,941],direction:sample.direction,
+     coordinateSystem:'actual rendered SVG wheel and handle centers back-projected into source-image pixels',
+     featureModel:'wheel centers (47,58)/(91,58), handle point (9,18) in SVG viewBox 132x72',
+     limitation:'Screen-plane feature points only; no verified pavement/solid obstacle, wheel radius, steering angle or physical swept clearance',
+     frames:trace.map(v=>({foot:[v.x,v.y],wheels:v.wheels,handle:v.handle}))
+    },null,2)+'\n');
     report.push({label:'cart-live-'+w+'x'+h+'-'+sample.direction,
      frames:trace.length,turns:sample.turns,
      xRange:[Math.min(...trace.map(v=>v.x)),Math.max(...trace.map(v=>v.x))],
-     physicalClearance:'OPEN: actual screen-space RAF; no yaw, wheel tracks, or certified pavement'});
+     featureStart:{wheels:trace[0].wheels,handle:trace[0].handle},
+     featureEnd:{wheels:trace.at(-1).wheels,handle:trace.at(-1).handle},
+     physicalClearance:'OPEN: actual SVG wheel/handle image-plane paths, not steered wheel tracks, yaw, verified paving or solid clearance'});
    }
    assert.deepEqual(await p.evaluate(({E01,E02})=>[localStorage.getItem(E01),localStorage.getItem(E02)],{E01,E02}),before,
     'Live cart motion must not alter E01/E02 saves');
