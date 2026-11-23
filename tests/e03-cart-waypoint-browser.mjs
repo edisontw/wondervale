@@ -39,6 +39,7 @@ try {
   assert.equal(s.position,'H');
   s=dispatchE03(s,{type:'take-route',route:'L'});
   assert.deepEqual(s.travel,routeE03('H','T','tea_cart').slice(1));
+  const motionStart=payloadE03(s);
   const checkpoints={};
   while(s.travel.length){
    const to=s.travel[0];
@@ -93,7 +94,8 @@ try {
   // phase. Reverse cart travel exists as a graph/diagnostic probe, not a
   // playable loaded-cart return. Do not fabricate a saved reverse cart state.
   const motionCases=[
-   {direction:'forward',checkpoint:checkpoints.front,end:'T',turns:['east','ramp0']}
+   {direction:'forward',checkpoint:motionStart,end:'T',
+    turns:['west','bend','front','east','fork','ramp0']}
   ];
   for(const [w,h] of [[320,740],[568,320],[1366,900]]){
    const {ctx,p}=await open(w,h,true);
@@ -132,7 +134,7 @@ try {
          Number(((q.y-wr.top)*941/wr.height).toFixed(2))];
        };
        const wheels=[source(47,58),source(91,58)],handle=source(9,18);
-       window.__e03CartTrace.push({x,y,wheels,handle,cartLeft:r.left,cartRight:r.right,
+       window.__e03CartTrace.push({frameIndex:window.__e03CartTrace.length,x,y,wheels,handle,cartLeft:r.left,cartRight:r.right,
         cartWidth:r.width,cartHeight:r.height,worldLeft:wr.left,worldRight:wr.right});
       }
       requestAnimationFrame(capture);
@@ -152,6 +154,8 @@ try {
     },{KEY,end:sample.end},{timeout:18000});
     const trace=await p.evaluate(()=>{window.__e03CartSampling=false;return window.__e03CartTrace;});
     assert.ok(trace.length>=12,'Expected multiple real animation frames at '+w+'x'+h+' '+sample.direction);
+    assert.ok(trace.every((frame,index)=>frame.frameIndex===index),
+     'Live feature frames must have a contiguous sequence at '+w+'x'+h);
     assert.ok(trace.every(v=>Number.isFinite(v.x)&&Number.isFinite(v.y)&&v.cartWidth>0&&v.cartHeight>0),
      'Actual cart/actor motion must remain finite');
     assert.ok(trace.every(v=>v.cartLeft>=v.worldLeft-2&&v.cartRight<=v.worldRight+2),
@@ -174,7 +178,7 @@ try {
      coordinateSystem:'actual rendered SVG wheel and handle centers back-projected into source-image pixels',
      featureModel:'wheel centers (47,58)/(91,58), handle point (9,18) in SVG viewBox 132x72',
      limitation:'Screen-plane feature points only; no verified pavement/solid obstacle, wheel radius, steering angle or physical swept clearance',
-     frames:trace.map(v=>({foot:[v.x,v.y],wheels:v.wheels,handle:v.handle}))
+     frames:trace.map(v=>({frameIndex:v.frameIndex,foot:[v.x,v.y],wheels:v.wheels,handle:v.handle}))
     },null,2)+'\n');
     report.push({label:'cart-live-'+w+'x'+h+'-'+sample.direction,
      frames:trace.length,turns:sample.turns,
