@@ -62,12 +62,18 @@ test('polygon containment, overlap and boundary contact handle concave boundarie
   const bridgesConcavity = [[1, 5], [5, 5], [3, 1]];
   assert.equal(bridgesConcavity.every(vertex => pointInPolygon(vertex, concave) !== 'outside'), true);
   assert.equal(polygonContainsPolygon(concave, bridgesConcavity), false);
+  assert.equal(polygonContainsPolygon(concave, square(0, 0, 6)), false,
+    'candidate edges must be split at shared vertices to detect a bridged concave exclusion');
+  assert.equal(polygonContainsPolygon(concave, [[0, 0], [6, 0], [6, 2], [0, 2]]), true,
+    'boundary-aligned containment remains valid');
 });
 
 test('polyline boundary distance is continuous and detects interior traversal', () => {
   const region = square(0, 0, 10);
   assert.equal(polylineToPolygonBoundaryDistance([[-2, 5], [12, 5]], region).distance, 0);
   assert.equal(continuousPolylineAgainstPolygon([[-2, 5], [12, 5]], region).classification, 'overlap');
+  assert.equal(continuousPolylineAgainstPolygon([[-1, -1], [11, 11]], region).classification, 'overlap',
+    'crossing through polygon vertices still traverses its interior');
   assert.equal(continuousPolylineAgainstPolygon([[-2, 0], [0, 0]], region).classification, 'contact');
   assert.equal(continuousPolylineAgainstPolygon([[0, 0], [10, 10]], region).classification, 'overlap');
   assert.equal(continuousPolylineAgainstPolygon([[-1, 1], [1, -1]], region).classification, 'contact');

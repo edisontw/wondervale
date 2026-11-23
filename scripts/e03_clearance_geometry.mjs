@@ -197,10 +197,21 @@ export function polygonContainsPolygon(containerValue, candidateValue) {
   for (let i = 0; i < candidate.length; i++) {
     const a = candidate[i];
     const b = candidate[(i + 1) % candidate.length];
+    const edgeLength = distance(a, b);
+    const fractionTolerance = GEOMETRY_EPSILON / Math.max(1, edgeLength);
+    const events = [0, 1];
     for (let j = 0; j < container.length; j++) {
       const c = container[j];
       const d = container[(j + 1) % container.length];
-      if (properSegmentIntersection(a, b, c, d)) return false;
+      events.push(...segmentIntersectionFractions(a, b, c, d));
+    }
+    const ordered = events.sort((left, right) => left - right).filter((value, index, values) =>
+      index === 0 || value - values[index - 1] > fractionTolerance);
+    for (let event = 0; event < ordered.length - 1; event++) {
+      const fraction = (ordered[event] + ordered[event + 1]) / 2;
+      const middle = [a[0] + (b[0] - a[0]) * fraction,
+        a[1] + (b[1] - a[1]) * fraction];
+      if (pointInPolygon(middle, container) === 'outside') return false;
     }
   }
   return true;
