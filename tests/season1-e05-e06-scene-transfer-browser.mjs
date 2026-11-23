@@ -107,6 +107,18 @@ try{
    assert.equal(await page.locator('#lower-scene').isVisible(),true);
    assert.match(await page.locator('#tray').innerText(),/3 run/);
    assert.deepEqual(await page.evaluate(()=>Object.entries(localStorage)),[['e05-e06-sentinel','keep']]);
+   // Browser history must replay only the earned PAPER URL, without storage writes.
+   await page.goBack();
+   await page.waitForURL('**/e05-scene/#paper-station-garden=*');
+   await page.locator('#garden-return').waitFor({state:'visible'});
+   assert.match(await page.locator('#guard').innerText(),/E06 NOT UNLOCKED/);
+   assert.deepEqual(await page.evaluate(()=>Object.entries(localStorage)),[['e05-e06-sentinel','keep']]);
+   await page.goForward();
+   await page.waitForURL(earnedUrl);
+   await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('Lower Garden'));
+   assert.equal(await page.locator('#lower-scene').isVisible(),true);
+   assert.match(await page.locator('#tray').innerText(),/3 run/);
+   assert.deepEqual(await page.evaluate(()=>Object.entries(localStorage)),[['e05-e06-sentinel','keep']]);
    const size=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(size.scroll<=size.w+1,JSON.stringify({viewport,size}));
    assert.deepEqual(errors,[]);
