@@ -3,6 +3,8 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'tests/season1-e05-e06-scene-transfer*'
+      - 'authoring-labs/e05-e06-scene-transfer.mjs'
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
       - 'tests/season1-e11-evidence-sort*'
       - 'tests/season1-e11-visitor-turns*'
@@ -39,6 +41,8 @@ on:
   push:
     branches: [main]
     paths:
+      - 'tests/season1-e05-e06-scene-transfer*'
+      - 'authoring-labs/e05-e06-scene-transfer.mjs'
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
       - 'tests/season1-e11-shared-path*'
       - 'tests/season1-e11-shared-use-followthrough.test.mjs'
@@ -157,6 +161,7 @@ jobs:
             tests/season1-handoff-contract.test.mjs \
             tests/season1-chain-continuity.test.mjs \
             tests/season1-e05-scene-shell.test.mjs \
+            tests/season1-e05-e06-scene-transfer.test.mjs \
             tests/season1-e06-scene-shell.test.mjs \
             tests/season1-e07-scene-shell.test.mjs \
             tests/season1-e08-scene-shell.test.mjs \
@@ -202,6 +207,7 @@ jobs:
           if [ "$ready" -ne 1 ]; then cat /tmp/s1-paper-server.log; exit 1; fi
           node tests/season1-e05-scene-shell-browser.mjs
           node tests/season1-e06-scene-shell-browser.mjs
+          node tests/season1-e05-e06-scene-transfer-browser.mjs
           node tests/season1-e07-scene-shell-browser.mjs
           node tests/season1-e08-scene-shell-browser.mjs
           node tests/season1-e07-e08-scene-transfer-browser.mjs
