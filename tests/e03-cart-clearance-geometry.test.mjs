@@ -69,6 +69,9 @@ test('polyline boundary distance is continuous and detects interior traversal', 
   assert.equal(polylineToPolygonBoundaryDistance([[-2, 5], [12, 5]], region).distance, 0);
   assert.equal(continuousPolylineAgainstPolygon([[-2, 5], [12, 5]], region).classification, 'overlap');
   assert.equal(continuousPolylineAgainstPolygon([[-2, 0], [0, 0]], region).classification, 'contact');
+  assert.equal(continuousPolylineAgainstPolygon([[0, 0], [10, 10]], region).classification, 'overlap');
+  assert.equal(continuousPolylineAgainstPolygon([[-1, 1], [1, -1]], region).classification, 'contact');
+  assert.equal(continuousPolylineAgainstPolygon([[-2, 0], [12, 0]], region).classification, 'contact');
   assert.equal(continuousPolylineAgainstPolygon([[-2, -2], [-1, -1]], region).classification, 'separated');
   assert.equal(polygonBoundaryDistance([5, 5], region).distance, 5);
 });

@@ -222,12 +222,63 @@ export function polygonsOverlap(firstValue, secondValue) {
     pointInPolygon(second[0], first) !== 'outside';
 }
 
+function segmentIntersectionFractions(start, end, edgeStart, edgeEnd) {
+  const route = [end[0] - start[0], end[1] - start[1]];
+  const edge = [edgeEnd[0] - edgeStart[0], edgeEnd[1] - edgeStart[1]];
+  const offset = [edgeStart[0] - start[0], edgeStart[1] - start[1]];
+  const routeLength = Math.hypot(route[0], route[1]);
+  const edgeLength = Math.hypot(edge[0], edge[1]);
+  const tolerance = GEOMETRY_EPSILON * Math.max(1, routeLength, edgeLength);
+  const denominator = route[0] * edge[1] - route[1] * edge[0];
+  if (Math.abs(denominator) > tolerance) {
+    const routeFraction = (offset[0] * edge[1] - offset[1] * edge[0]) / denominator;
+    const edgeFraction = (offset[0] * route[1] - offset[1] * route[0]) / denominator;
+    const fractionTolerance = GEOMETRY_EPSILON / Math.max(1, routeLength);
+    if (routeFraction >= -fractionTolerance && routeFraction <= 1 + fractionTolerance &&
+        edgeFraction >= -GEOMETRY_EPSILON / Math.max(1, edgeLength) &&
+        edgeFraction <= 1 + GEOMETRY_EPSILON / Math.max(1, edgeLength)) {
+      return [Math.max(0, Math.min(1, routeFraction))];
+    }
+    return [];
+  }
+
+  if (Math.abs(cross(start, end, edgeStart)) > tolerance) {
+    const fractions = [];
+    if (pointOnSegment(start, edgeStart, edgeEnd)) fractions.push(0);
+    if (pointOnSegment(end, edgeStart, edgeEnd)) fractions.push(1);
+    return fractions;
+  }
+
+  const routeLengthSquared = route[0] * route[0] + route[1] * route[1];
+  if (routeLengthSquared === 0) return pointOnSegment(start, edgeStart, edgeEnd) ? [0] : [];
+  const startFraction = (offset[0] * route[0] + offset[1] * route[1]) / routeLengthSquared;
+  const endOffset = [edgeEnd[0] - start[0], edgeEnd[1] - start[1]];
+  const endFraction = (endOffset[0] * route[0] + endOffset[1] * route[1]) / routeLengthSquared;
+  const low = Math.max(0, Math.min(startFraction, endFraction));
+  const high = Math.min(1, Math.max(startFraction, endFraction));
+  const fractionTolerance = GEOMETRY_EPSILON / Math.max(1, routeLength);
+  if (low <= high + fractionTolerance) {
+    return [Math.max(0, Math.min(1, low)), Math.max(0, Math.min(1, high))];
+  }
+  return [];
+}
+
 function segmentCrossesPolygonInterior(start, end, boundary) {
   if (pointInPolygon(start, boundary) === 'inside' ||
       pointInPolygon(end, boundary) === 'inside') return true;
+  const intersections = [0, 1];
   for (let index = 0; index < boundary.length; index++) {
-    if (properSegmentIntersection(start, end, boundary[index],
-      boundary[(index + 1) % boundary.length])) return true;
+    intersections.push(...segmentIntersectionFractions(start, end, boundary[index],
+      boundary[(index + 1) % boundary.length]));
+  }
+  const fractionTolerance = GEOMETRY_EPSILON / Math.max(1, distance(start, end));
+  const events = [...intersections].sort((a, b) => a - b).filter((value, index, values) =>
+    index === 0 || value - values[index - 1] > fractionTolerance);
+  for (let index = 0; index < events.length - 1; index++) {
+    const fraction = (events[index] + events[index + 1]) / 2;
+    const middle = [start[0] + (end[0] - start[0]) * fraction,
+      start[1] + (end[1] - start[1]) * fraction];
+    if (pointInPolygon(middle, boundary) === 'inside') return true;
   }
   return false;
 }
