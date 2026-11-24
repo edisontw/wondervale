@@ -1,6 +1,6 @@
 # Wondervale — Current Status
 
-**Consolidated:** 2026-11-06 · **Authority:** latest GitHub `main`, not any SHA copied into a handoff.
+**Consolidated:** 2026-11-24 · **Authority:** latest GitHub `main`, not any SHA copied into a handoff.
 **Purpose:** a short, actively maintained development status, **not** a per-commit diary. The complete prior 249,562-character status is preserved in [the lossless history archive](archive/CURRENT_STATUS_HISTORY_THROUGH_2026-11-06.md), including all earlier PRs, CI links and approval qualifications.
 
 ## Current production boundary
@@ -20,8 +20,8 @@
 | 03 | E03 Market Lane | L-route gameplay; canonical delivery story | Actual cart turning/wheel clearance [#109](https://github.com/edisontw/wondervale/issues/109), S/N geometry and final Gate 3 |
 | 04 | E04 memories/timeline | Noncanonical source/chronology lab | `blocked-design`: genuine Owner-approved E04 source packet / Canon |
 | 05 | E05 Station/Map Room | Isolated replayable PAPER scene | No canonical E04 handoff or approved real station source/art |
-| 06 | E06 Current Garden | Isolated replayable PAPER scene | No approved real garden chronology/terrain |
-| 07 | E06 Lower Garden | Isolated replayable PAPER garden pocket | No real planting permission/growth |
+| 06 | E06 Current Garden | Spatial rain tray; visible water result comes from a completed model run | No approved real garden chronology/terrain or canonical entry |
+| 07 | E06 Lower Garden | Distinct water/path/pocket zones; chosen marker and checked conflicts shown in the scene | No real planting permission/growth, care authority or canonical entry |
 | 08 | E07 connector | Isolated replayable PAPER shared-route test | No approved physical route/drainage/access |
 | 09 | E08 Lantern Steps | Isolated replayable PAPER two-view/light model | No real lighting, source or site rights |
 | 10 | E09 Closed Hill | Isolated replayable PAPER safe survey | Real hill CLOSED; no approved geometry/access |
@@ -32,15 +32,16 @@ The inventory proves **3 existing episode experiences + 1 blocked E04 + 8 PAPER 
 
 ## Recent verified delivery / next unique task
 
-- **2026-11-06:** [PR #302](https://github.com/edisontw/wondervale/pull/302) merged E09 child-earned Milo/Nia/Finn PAPER responses and a strict-replay-derived Chronicle. PR head `2ca1d6a4954e79988c209039190228bcf54cdfb8`, merge `f2a2bd954f50192e9e784c242e1b805cf7a1f5e8`. PR-head E09 Node/four-viewport Chromium, E09→E10 handoff, E04–E06, E01 and twelve-scene paper/canonical boundary Actions passed; post-merge CI must be checked independently. No production Canon or deployment.
-- **2026-11-06:** [E10 child-view question contract](E10_PAPER_COURTYARD_CHILD_QUESTION_CONTRACT_2026-11-06.md) committed as *documentation-only* at `6a04b360215b043f2d508ce98617707058a9e914`. It has **no** implementation or Node/Chromium PASS claim.
-- **Next single playable task:** implement E10 child-operated two-view PAPER courtyard question/revision, earned Nia/Finn responses and strict-replay notebook, with clear-first vs revised paths and exact-head Node/Chromium/Actions. No E04 source inventions, Common reveal or canonical unlock.
+- **2026-11-24:** [PR #376](https://github.com/edisontw/wondervale/pull/376) added a child-operated spatial rain tray to E06 Current Garden. Completed reducer snapshots drive the visible water route and catchment; unrun settings do not appear as observed evidence. It merged from `c237ebbda7faa989c5b1a954219295fb451a0600` at `9cda31c3d9ee212359a4edaa654f56a035fa71d0`. See [engineering QA](../content/season-01/s01e06/SPATIAL_MODEL_ENGINEERING_QA_20261124.md).
+- **2026-11-24:** [PR #377](https://github.com/edisontw/wondervale/pull/377) added Lower Garden runoff/path/pocket regions, child-positioned marker feedback, visible checked conflicts and an observed-vs-possible two-garden comparison. It merged at `a654037ec8f4e4c95c498661edcd70f62c79eb68`. All five merged-main workflows, six jobs and 72 steps passed: [E06 shell](https://github.com/edisontw/wondervale/actions/runs/45392718332), [twelve-scene regression](https://github.com/edisontw/wondervale/actions/runs/45392718272), [E01](https://github.com/edisontw/wondervale/actions/runs/45392718335), [E05→E06](https://github.com/edisontw/wondervale/actions/runs/45392718229) and [E04→E05→E06](https://github.com/edisontw/wondervale/actions/runs/45392718326). See [spatial-feedback QA](../content/season-01/s01e06/LOWER_GARDEN_SPATIAL_FEEDBACK_QA_20261124.md).
+- **Next unique task:** conduct a supervised child/family usability review on real phone screens. Check whether the child understands water/path feedback, can place and move the marker, and distinguishes observed Current Garden state from the possible PAPER pocket. This is not yet family acceptance or real-site evidence.
+- **Current `main`:** `a654037ec8f4e4c95c498661edcd70f62c79eb68`.
 
 ## Outstanding blockers and validation
 
 1. **`blocked-design` Owner Gate, one consolidated batch:** E04 attributed historical cards/time relationship; actual site rights/safety and painterly composition. Do not repeatedly ask separate micro-approvals.
 2. **E03 physical limitation:** issue #109 proves actual cart/wheel/corner clearance remains open despite model clearance checks.
-3. **Release/device:** latest E05–E11 PAPER work is not MN4 deployment; HTTPS/rollback and broader family-device acceptance must be explicitly verified before promotion.
+3. **Release/device:** E05–E11 PAPER work is not MN4 deployment; HTTPS/rollback and broader family-device acceptance must be explicitly verified before promotion. The next E06 usability review requires actual child/family participants and phone screens; browser viewport checks do not substitute for it.
 
 ## Maintenance rules
 

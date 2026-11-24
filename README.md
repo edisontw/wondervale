@@ -47,7 +47,7 @@ World/character state is derived from an event/progress ledger rather than being
 
 ## Current work sequence
 
-**Current development entry (2026-11-06):** read [the compact current status](docs/CURRENT_STATUS.md), [the twelve-scene delivery plan](docs/SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29.md) and [the focused project index](docs/PROJECT_INDEX.md). E01/E02 accepted scope and E03 story/art are protected; E04 source/rights/art remains an Owner Gate; E05–E11 isolated PAPER play is **not** canonical release. Next active independent scene: E10 child-driven two-view question/revision. Historic E03 cart appearance QA is retained in [the status archive](docs/archive/CURRENT_STATUS_HISTORY_THROUGH_2026-11-06.md); physical wheel/turn clearance [#109](https://github.com/edisontw/wondervale/issues/109) remains open.
+**Current development entry (2026-11-24):** GitHub `main` is `a654037ec8f4e4c95c498661edcd70f62c79eb68`. Read [the compact current status](docs/CURRENT_STATUS.md), [the twelve-scene delivery plan](docs/SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29.md) and [the focused project index](docs/PROJECT_INDEX.md). E06 Current and Lower Garden spatial feedback is integrated as noncanonical PAPER work; real E06 geography, planting/care rights, production and family acceptance remain open. Next: supervised child/family phone usability review. The 2026-11-06 status history and audit links are preserved in [the archive](docs/archive/CURRENT_STATUS_HISTORY_THROUGH_2026-11-06.md); E03 physical wheel/turn clearance [#109](https://github.com/edisontw/wondervale/issues/109) remains open.
 
 
 1. Core trio — **locked**
