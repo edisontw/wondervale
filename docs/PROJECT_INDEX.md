@@ -1,6 +1,6 @@
 # Wondervale — Project Index
 
-**Active handoff (2026-11-24):** [CURRENT_STATUS](CURRENT_STATUS.md) is the concise current development ledger; [SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29](SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29.md) sets the twelve substantial playable scenes across eleven episodes. GitHub's latest `main` always supersedes dated handoffs. E06 Current and Lower Garden spatial feedback is integrated as PAPER. **Next:** supervised child/family usability review on real phone screens; it does not approve real geography, care rights, Canon or production art.
+**Active handoff (2026-11-24):** [CURRENT_STATUS](CURRENT_STATUS.md) is the concise current development ledger; [SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29](SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29.md) sets the twelve substantial playable scenes across eleven episodes. GitHub's latest `main` always supersedes dated handoffs. E06 Current/Lower Garden and E07 connector spatial feedback is integrated as PAPER. **Next:** supervised child/family usability review on real phone screens across E06/E07; it does not approve real geography, care rights, Canon or production art.
 
 ## Read only what the current task needs
 
