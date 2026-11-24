@@ -1,6 +1,6 @@
 # E06 Current Garden Spatial Water Model — Engineering QA
 
-**Status:** local engineering checks PASS on branch `codex/e06-spatial-flow`, based on `c237ebbda7faa989c5b1a954219295fb451a0600`. PR and GitHub Actions verification are pending. This record does not approve Gate 1, production content, real geography, or planting.
+**Status:** PR #376 is merged to `main` as `9cda31c3d9ee212359a4edaa654f56a035fa71d0`. Its branch head was `d7d001d1ad88e22b020dfda348c1b5831326262d`, based on starting `main` `c237ebbda7faa989c5b1a954219295fb451a0600`. All PR-head and merged-main Actions checks passed. This record does not approve Gate 1, production content, real geography, or planting.
 
 ## Runtime change
 
@@ -29,6 +29,12 @@
 
 These are engineering screenshots of synthetic diagrams, not scene art or owner acceptance.
 
+## GitHub CI verification (2026-11-24)
+
+The PR head ran six successful workflows and seven successful jobs (88 successful steps): [E06 scene shell #45386571534](https://github.com/edisontw/wondervale/actions/runs/45386571534), [E05–E06 transfer #45386571580](https://github.com/edisontw/wondervale/actions/runs/45386571580), [E04–E05–E06 transfer #45386571540](https://github.com/edisontw/wondervale/actions/runs/45386571540), [E02 playable slice #45386571562](https://github.com/edisontw/wondervale/actions/runs/45386571562), [E01 runtime #45386571548](https://github.com/edisontw/wondervale/actions/runs/45386571548), and [twelve-scene regression #45386571623](https://github.com/edisontw/wondervale/actions/runs/45386571623). The latter has two jobs: `paper-continuity` and `canonical-boundary`.
+
+After the squash merge, five workflows ran on merged `main` `9cda31c3d9ee212359a4edaa654f56a035fa71d0`; all six jobs and 72 steps passed: [E06 shell #45387585037](https://github.com/edisontw/wondervale/actions/runs/45387585037), [E05–E06 transfer #45387585095](https://github.com/edisontw/wondervale/actions/runs/45387585095), [E04–E05–E06 transfer #45387585055](https://github.com/edisontw/wondervale/actions/runs/45387585055), [E01 runtime #45387585066](https://github.com/edisontw/wondervale/actions/runs/45387585066), and [twelve-scene regression #45387585179](https://github.com/edisontw/wondervale/actions/runs/45387585179). That regression's `paper-continuity` and `canonical-boundary` jobs both passed.
+
 ## Owner and production gates remain open
 
 - PAPER has no canonical event, save, Chronicle claim, rights grant, E06/E07 production unlock, or MN4 deployment.
@@ -37,4 +43,4 @@ These are engineering screenshots of synthetic diagrams, not scene art or owner 
 
 ## Next focused engineering task
 
-After PR CI passes and this Current Garden change is integrated, make a separate focused PR for Lower Garden spatial feedback: visually distinguish runoff channel, shared footpath and raised pocket; show temporary markers at their selected positions; and display actual checked water/path conflicts while retaining a correct pocket and the existing NOW/POSSIBLE revisit contract.
+The Lower Garden spatial-feedback follow-on is recorded separately in [Lower Garden engineering QA](LOWER_GARDEN_SPATIAL_FEEDBACK_QA_20261124.md). After that independent delivery integrates, the next bounded task is a supervised child/family usability review of both PAPER spaces on real phone screens; record comprehension and navigation feedback without promoting synthetic geography, rights or growth.
