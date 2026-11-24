@@ -32,3 +32,7 @@ A strictly replay-verified, child-finished E07 connector walk now renders two **
 ## E08 PAPER shadow-screen controlled experiment (2026-11-02)
 
 After Milo completes the existing lower-lamp/two-view story, a separate child-operated **synthetic shadow screen** appears. Milo moves the screen NEAR/FAR, selects a model lamp A/B, and records projected A/B/C shadows calculated from fixed marker coordinates. Two observations made with the **same lamp** and different screen distances can be compared; changing both lamp and screen does not isolate a cause. Undo, clear and restart are nonpunitive, replay-verified and in-memory; E08 restart clears this trial. No real electrical operation, historical route proof, production Chronicle/unlock, storage, or release is implied. Node anti-forgery and four-viewport Chromium checks are in the E08 scene workflow.
+
+## Direct lower-viewpoint interaction
+
+The three visible lower viewpoint targets are native buttons (minimum 44 CSS px). Tap a reachable next place to move Milo; current and nonadjacent targets cannot dispatch a walk. The live viewfinder is beside the movement controls and changes only from the existing replay-validated story state. The named walk controls remain available. The four-viewport browser journey exercises direct clicks, keyboard movement, nonadjacent blocking, changed apparent spacing and reset. This does not change real geography, model lighting rules, canonical state or approval gates.
