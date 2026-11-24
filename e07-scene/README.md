@@ -2,11 +2,17 @@
 
 Scene 08 of the 12-scene delivery, not a new episode or canonical release. Serve the repository root on port 4173 and open /e07-scene/.
 
-The child walks Milo through linked anchors, inspects the shared path and water route, tests Finn's FIRST connector for Milo, another traveler and water, sees the model conflicts, tries a partially blocked revision, moves a piece, retests all three and compares FIRST/NOW. Finn learns without blame. After completing the PAPER proposal, a read-only two-garden callback is revisitable; returning preserves the proposal, restarting clears E07 PAPER state only.
+The child walks Milo through linked anchors, inspects the shared path and water route, tests Finn's FIRST connector for Milo, another traveler and water, and sees the model conflicts. During revision, the 8×7 board exposes direct tap targets on the shared-path and water overlaps plus upper/lower detours. Each target snaps through the existing legal `place` action; named keyboard buttons remain available, with no precision dragging. The child can inspect a partially blocked revision, retest all three uses and compare FIRST/NOW. Finn learns without blame. After completing the PAPER proposal, a read-only two-garden callback is revisitable; returning preserves the proposal, restarting clears E07 PAPER state only.
 
 The existing E07 strict story reducer and occupancy model are reused. The new wrapper guards navigation, strict replay and anti-forgery; no E06 completion or rights can be fabricated. Current Garden remains healthy, Lower Garden unbuilt, North Hill CLOSED and Lantern Steps lights OFF. No historical date, real geometry, permission, canonical Chronicle/unlock, localStorage, production package, approved art or MN4 release.
 
 Verification: run Node tests/season1-e07-scene-shell.test.mjs and existing E07 tests; with Chromium and static server run tests/season1-e07-scene-shell-browser.mjs. Production still requires E04 genuine chronology, E05/E06 entry, actual site/access/other-user/drainage evidence, painterly media, production ledger, MN4 HTTPS/rollback and family acceptance.
+
+## Direct spatial placement (2026-11-24)
+
+The 8×7 synthetic board now offers four tap-to-snap targets after the first three-user test: P× and W× move the connector off the corresponding overlap; ↑ and ↓ try the upper and lower detours. Each target calls the same existing `place` action and `can`/strict-replay path as the named controls. The named buttons remain available for keyboard use; no drag, new progress flag or production state was added.
+
+Local evidence: the E07 Node regression set passed 38 tests; the E07 scene-shell Chromium flow passed at 1366×900, 568×320, 667×375 and 390×844, including mouse placement, keyboard activation, conflict retest, revisits and restart. [390×844 browser capture](../docs/evidence/e07-spatial-placement/e07-spatial-placement-390x844.png) shows the synthetic board after baseline tests; it is not production art or real-site evidence.
 
 ## Child-walked revised PAPER route (2026-10-31)
 

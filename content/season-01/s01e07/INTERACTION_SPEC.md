@@ -41,6 +41,8 @@ The baseline demonstrates **Milo success but a real side effect**. The model sho
 - `channel-clear-path-blocked`: preserves water but blocks shared passage.
 These are fixture states for tests; child UI should be a **spatial piece-placement surface**, not a dropdown asking “Which answer is correct?” A future geometry model may admit multiple valid layouts. The engine should accept any layout that satisfies constraints rather than hard-code one approved site.
 
+**Current authoring-surface binding:** on the synthetic 8×7 board, tapping the shared-path overlap selects `path-clear-water-blocked`, tapping the water overlap selects `channel-clear-path-blocked`, and tapping the upper/lower detour targets selects `side-offset`/`lower-offset`. Each is the existing bounded `place` action guarded by `can` and replay; the named buttons remain as keyboard-accessible alternatives. These tap targets are UI shortcuts to the listed synthetic snaps, not free-form real-site geometry. No drag is required.
+
 ## 3. Interaction state and deterministic actions
 
 **Proposed authoring state:**

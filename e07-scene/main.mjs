@@ -67,13 +67,32 @@ for(const [host,items] of Object.entries(groups))for(const [key,label,action] of
 }
 const names={milo:'Milo',resident:'Traveler',water:'Water'};
 const results=t=>['milo','resident','water'].map(k=>names[k]+': '+(t[k]?(t[k].pass?'PASS':'BLOCKED'):'NOT TESTED')).join(' · ');
-function draw(layout){
+const placementTargets=new Map([
+ ['3,2',{value:'path-clear-water-blocked',symbol:'P×',label:'Move the connector away from the shared path. Then test the water route.'}],
+ ['4,4',{value:'channel-clear-path-blocked',symbol:'W×',label:'Move the connector away from the water route. Then test the shared path.'}],
+ ['2,1',{value:'side-offset',symbol:'↑',label:'Try the longer upper detour, then test all three uses.'}],
+ ['2,5',{value:'lower-offset',symbol:'↓',label:'Try the longer lower detour, then test all three uses.'}]
+]);
+function draw(layout,snapshot){
  const root=$('board');root.replaceChildren();const C=new Set(layout.footprint),P=new Set(layout.traces.resident.path),W=new Set(layout.traces.water.path);
- let conflicts=0;
- for(let y=0;y<7;y++)for(let x=0;x<8;x++){const id=x+','+y,c=C.has(id),p=P.has(id),w=W.has(id),el=document.createElement('div');
- el.className='cell';el.dataset.conflict=String(c&&(p||w));if(c&&(p||w))conflicts++;
- el.textContent=c&&(p||w)?'X':c?'C':p?'P':w?'W':'·';root.append(el);}
- root.setAttribute('aria-label','Synthetic connector grid, '+conflicts+' overlap cells');
+ let conflicts=0,activeTargets=0;
+ for(let y=0;y<7;y++)for(let x=0;x<8;x++){
+  const id=x+','+y,c=C.has(id),p=P.has(id),w=W.has(id),target=placementTargets.get(id),
+   action=target&&a('place',target.value),enabled=!!(action&&can(snapshot,action)),
+   el=document.createElement(enabled?'button':'div');
+  el.className='cell';el.dataset.conflict=String(c&&(p||w));el.dataset.cell=id;
+  if(c&&(p||w))conflicts++;
+  if(enabled){
+   el.type='button';el.classList.add('placement-target');el.dataset.placementTarget=target.value;
+   el.setAttribute('aria-label',target.label);el.title=target.label;activeTargets++;
+   el.addEventListener('click',()=>{state=dispatch(state,action);render();});
+  }else{
+   el.setAttribute('aria-hidden','true');
+  }
+  el.textContent=enabled?target.symbol:c&&(p||w)?'X':c?'C':p?'P':w?'W':'·';root.append(el);
+ }
+ root.setAttribute('aria-label','Synthetic connector board. Current layout '+layout.layout+
+  '; '+conflicts+' overlap cells; '+activeTargets+' direct snap targets are available.');
 }
 function drawGardenWorld(){
  const paper=gardenCareWorld(linkedE06),panel=$('e06-world');
@@ -223,7 +242,7 @@ function render(){
  $('hook').textContent=v.walkthrough.reviewed?
   'Milo reached the PAPER Steps BASE. Lights remain OFF; E08 is NOT unlocked.':
   v.connectorPaperRevised?'Next: try walking the PAPER route to Lantern Steps BASE. Lights OFF.':'Lantern Steps not yet open.';
- draw(s.layout);
+ draw(s.layout,state);
  for(const [key,,action] of allRows)document.querySelector('[data-key="'+key+'"]').disabled=!can(state,action);
  for(const el of document.querySelectorAll('[data-anchor]'))el.dataset.here=String(el.dataset.anchor===s.milo);
 }
