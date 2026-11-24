@@ -26,6 +26,22 @@ button{font:inherit;min-height:44px;max-width:100%;padding:.5rem .7rem;border:2p
 button:disabled{opacity:.45;cursor:not-allowed}
 .playfield{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;margin:.7rem 0;padding:.6rem;border:2px solid #9cae98;border-radius:.7rem;background:linear-gradient(145deg,#d8e8d0,#f4edd6);min-width:0}
 .playfield.lower-field{background:linear-gradient(145deg,#e9e1c7,#dce7d7)}
+.lower-map-card{margin:.7rem 0;padding:.55rem;border:2px solid #98ad9a;border-radius:.6rem;background:#f8f7eb}
+.lower-map{display:block;width:100%;height:auto;aspect-ratio:5/3;border:1px solid #8ca28f;border-radius:.45rem;background:#e9efdc}
+.lower-map-ground{fill:#e6eddb}.lower-map-water{fill:none;stroke:#2388ad;stroke-width:13;stroke-dasharray:14 10;stroke-linecap:round;marker-end:url(#lower-water-arrow)}
+.lower-map-water-bypass{fill:none;stroke:#5aa4be;stroke-width:8;stroke-dasharray:8 10;stroke-linecap:round}
+.lower-map-footpath{fill:none;stroke:#c4a66e;stroke-width:39;stroke-linecap:round}.lower-map-footpath-center{fill:none;stroke:#fff9e9;stroke-width:4;stroke-dasharray:11 11}
+.lower-map-pocket{fill:#cfe0bb;stroke:#4e805b;stroke-width:4;stroke-dasharray:5 3}
+.lower-map-label{font:700 11px system-ui,sans-serif;fill:#294838}.lower-map-note{font:700 8px system-ui,sans-serif;fill:#425b4d}
+.lower-temp-marker circle{fill:#bd6028;stroke:#fffdf2;stroke-width:4}.lower-temp-marker text{font:800 17px system-ui,sans-serif;fill:#fff;text-anchor:middle;dominant-baseline:central}
+.lower-map-legend{display:flex;flex-wrap:wrap;gap:.35rem .85rem;margin:.4rem 0;font-size:.85rem}
+.lower-map-legend span{display:inline-flex;align-items:center;gap:.35rem}.lower-key{width:1.1rem;height:.45rem;border-radius:1rem;background:#2388ad}.lower-key.path{height:.7rem;background:#c4a66e}.lower-key.pocket{height:.8rem;background:#cfe0bb;border:1px dashed #4e805b}.lower-key.marker{width:.8rem;height:.8rem;border-radius:50%;background:#bd6028}
+.lower-check-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:.4rem;padding:0;margin:.45rem 0;list-style:none}
+.lower-check-results li{display:flex;flex-direction:column;gap:.25rem;min-width:0;padding:.5rem;border:2px solid #aab8a6;border-radius:.45rem;background:#f5f6ee;overflow-wrap:anywhere}
+.lower-check-results li[data-result="wet"],.lower-check-results li[data-result="wet-and-blocked"]{border-color:#3485a5;background:#e2f1f6}
+.lower-check-results li[data-result="blocks-path"],.lower-check-results li[data-result="wet-and-blocked"]{box-shadow:inset 4px 0 #bb6335}
+.lower-check-results li[data-result="clear"]{border-color:#4d8055;background:#e8f1df}
+.lower-check-results strong{font-size:.9rem}.lower-check-results span{font-size:.85rem;font-weight:700}
 .spot{min-width:0;min-height:68px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:.15rem;text-align:left;font-size:.9rem;line-height:1.3;background:#fffdf4}
 .spot[data-here=true]{outline:3px solid #345d4a;outline-offset:-5px}
 .spot[data-observed=true]{border-style:solid;background:#d8e9d0}
@@ -76,6 +92,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){.model-water{stroke-dasharray:none}}
 @media(max-width:420px){.playfield{grid-template-columns:repeat(2,minmax(0,1fr))}.spot{font-size:.82rem;padding:.4rem}}
 @media(max-width:650px){.water-model{aspect-ratio:1.55/1;min-height:230px}.water-model svg{min-height:230px}.model-channel-control{min-width:124px;min-height:54px;font-size:.8rem}.model-next-setup{max-width:57%;font-size:.7rem}.catchment-panel{min-width:112px;width:30%;font-size:.7rem}.comparison-pair{gap:.35rem}.comparison-card{padding:.35rem}.mini-source,.mini-outcome{font-size:.75rem}}
+@media(max-width:420px){.lower-map-card{padding:.35rem}.lower-map-label{font-size:15px}.lower-map-note{font-size:12px}.lower-map-legend{font-size:.76rem}.lower-check-results{grid-template-columns:1fr}.lower-check-results li{padding:.45rem}}
 @media(max-width:650px) and (orientation:portrait){.water-model{aspect-ratio:1.25/1;min-height:250px}.water-model svg{min-height:250px}.catchment-panel{min-width:114px;width:34%;bottom:7%}}
 @media(max-width:380px){.water-model{min-height:210px}.water-model svg{min-height:210px}.catchment-panel{min-width:104px;right:1%;bottom:6%;padding:.2rem}.model-channel-control{min-width:112px;padding:.25rem}.model-text{font-size:18px}}
 button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
@@ -156,9 +173,31 @@ button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
 <p id="station-map-feedback" class="paper" role="status" aria-live="polite"></p></section></section>
 <section id="lower-scene" class="panel" hidden><h2>Scene 07 · Lower Garden Pocket</h2>
 <p>This is a DIFFERENT paper place. Walk Milo to inspect water and public access. Try a marker, see what fails, move it, and keep only a small provisional plan.</p>
-<div class="diagram" aria-label="Synthetic Lower Garden model">
-<div class="tile water">Runoff trace<br>Wet in MODEL</div><div class="tile path">Public path<br>People pass</div><div class="tile water">Runoff channel<br>Keep open</div>
-<div class="tile path">Footpath<br>Do not block</div><div class="tile">Raised pocket<br>Temporary marker</div><div class="tile" id="lower-growth-tile" data-stage="paper-marker">Future growth<br>NOT APPROVED</div></div>
+<div class="lower-map-card"><strong>LOWER GARDEN · SYNTHETIC PAPER MAP</strong>
+<svg class="lower-map" id="lower-spatial-map" viewBox="0 0 500 300" role="img" aria-labelledby="lower-map-title lower-map-description" aria-describedby="lower-map-summary lower-map-legend lower-check-results" preserveAspectRatio="xMidYMid meet">
+<title id="lower-map-title">Synthetic Lower Garden model diagram</title>
+<desc id="lower-map-description">A dashed blue runoff route crosses a separate shared footpath; a green raised pocket sits beside both. An orange M marks Milo's removable paper marker. This is not real site geography.</desc>
+<defs><marker id="lower-water-arrow" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2388ad"/></marker></defs>
+<rect class="lower-map-ground" x="0" y="0" width="500" height="300" rx="18"/>
+<path class="lower-map-water" d="M35 42 C82 62 108 118 160 209 C206 233 231 257 272 278"/>
+<path class="lower-map-water-bypass" d="M160 209 C230 142 330 40 475 45"/>
+<path class="lower-map-footpath" d="M28 209 H472"/><path class="lower-map-footpath-center" d="M28 209 H472"/>
+<ellipse class="lower-map-pocket" cx="415" cy="137" rx="61" ry="48"/>
+<text class="lower-map-label" x="28" y="29">HIGH SOURCE · MODEL</text>
+<text class="lower-map-label" x="286" y="27" text-anchor="middle">WATER ROUTE · MODEL</text>
+<text class="lower-map-label" x="250" y="184" text-anchor="middle">SHARED FOOTPATH</text>
+<text class="lower-map-label" x="415" y="106" text-anchor="middle">POCKET</text>
+<text class="lower-map-note" x="18" y="290">SYNTHETIC MODEL · NOT A REAL SITE MAP</text>
+<g id="lower-temp-marker" class="lower-temp-marker" hidden><circle r="17"/><text y="1">M</text></g>
+</svg>
+<div id="lower-map-legend" class="lower-map-legend" aria-label="Synthetic map legend"><span><i class="lower-key"></i> runoff channel</span><span><i class="lower-key path"></i> shared path</span><span><i class="lower-key pocket"></i> raised pocket</span><span><i class="lower-key marker"></i> temporary marker</span></div>
+<p id="lower-map-summary" class="paper" role="status" aria-live="polite">No temporary marker placed. This paper diagram does not grant real access or planting permission.</p>
+<ul id="lower-check-results" class="lower-check-results" aria-label="Most recent completed model check at each place">
+<li id="lower-result-runoff-channel" data-site-result="runoff-channel" data-result="unchecked"><strong>Runoff channel</strong><span>Not checked yet</span></li>
+<li id="lower-result-footpath" data-site-result="footpath" data-result="unchecked"><strong>Shared footpath</strong><span>Not checked yet</span></li>
+<li id="lower-result-raised-pocket" data-site-result="raised-pocket" data-result="unchecked"><strong>Raised pocket</strong><span>Not checked yet</span></li>
+</ul></div>
+<div class="diagram" aria-label="PAPER Lower Garden outcome"><div class="tile" id="lower-growth-tile" data-stage="paper-marker">Future growth<br>NOT APPROVED</div></div>
 <div class="playfield lower-field" id="lower-playfield" aria-label="Synthetic Lower Garden: move Milo and test a planting marker">
 <button class="spot" data-spot="runoff-trace" type="button">Runoff trace</button>
 <button class="spot" data-spot="public-path" type="button">Public path</button>

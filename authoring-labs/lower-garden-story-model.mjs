@@ -117,7 +117,8 @@ export function view(snapshot){
  return {phase:s.phase,speaker,line,milo:s.garden.location,observedCurrent:[...s.garden.currentObserved],
   observedLower:[...s.garden.lowerObserved],runs:s.garden.modelRuns.map(r=>({...r})),
   modelCompared:s.garden.modelCompared,weather:s.garden.weather,channel:s.garden.channel,
-  attempts:s.attempts.map(a=>({...a})),markerSite:site,markerEffect:effect,thought:s.thought,
+  attempts:s.attempts.map(a=>({...a})),markerSite:site,markerEffect:effect,
+  markerInspected:s.garden.markerInspected,thought:s.thought,
   lowerVisited:s.garden.phase!=='current',presentGardenHealthy:true,
   parentCue:hasUnsafe(s)&&hasSafe(s)?
    'What changed when Milo moved the marker? What must we check in the real place?':null,

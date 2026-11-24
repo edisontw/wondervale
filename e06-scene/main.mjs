@@ -1,5 +1,6 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {waterModelEvidence} from './water-model-view.mjs';
+import {lowerGardenSpatialView} from './lower-garden-spatial-view.mjs';
 import * as E05 from '../e05-scene/scene-model.mjs';
 import {stationWorld} from './station-world.mjs';
 import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
@@ -124,6 +125,47 @@ function renderSpots(v){
   spot.replaceChildren(document.createTextNode(spotNames[id]),label);
  }
 }
+function renderLowerSpatial(g){
+ const model=lowerGardenSpatialView(g),map=$('lower-spatial-map'),marker=$('lower-temp-marker');
+ if(!model){
+  map.dataset.markerSite='unknown';marker.setAttribute('hidden','');
+  delete marker.dataset.site;delete marker.dataset.checked;marker.removeAttribute('transform');
+  for(const row of document.querySelectorAll('[data-site-result]')){
+   row.dataset.result='unknown';row.querySelector('span').textContent='Last completed check: result UNKNOWN';
+  }
+  $('lower-map-summary').textContent='Lower Garden model state unavailable. No site result is inferred.';
+  return;
+ }
+ map.dataset.markerSite=model.marker?.site||'none';
+ marker.toggleAttribute('hidden',!model.marker);
+ if(model.marker){
+  marker.dataset.site=model.marker.site;
+  marker.dataset.checked=String(model.marker.checked);
+  marker.setAttribute('transform','translate('+model.marker.x+' '+model.marker.y+')');
+  const zone=model.zones.find(item=>item.site===model.marker.site);
+  $('lower-map-summary').textContent='Milo’s temporary PAPER marker is at '+zone.label+'. '+
+   (model.marker.checked?'This placement has a completed MODEL check.':
+    'This placement is not checked yet.')+' This diagram does not show real access or planting permission.';
+ }else{
+  delete marker.dataset.site;delete marker.dataset.checked;
+  marker.removeAttribute('transform');
+  $('lower-map-summary').textContent='No temporary marker placed. This paper diagram does not grant real access or planting permission.';
+ }
+ for(const zone of model.zones){
+  const row=document.querySelector('[data-site-result="'+zone.site+'"]'),status=row.querySelector('span');
+  const result=zone.check?.result||'unchecked';
+  row.dataset.result=result;
+  const label={
+   unchecked:'Not checked yet',
+   wet:'Last completed check: WET · MODEL only',
+   'blocks-path':'Last completed check: BLOCKS people · MODEL only',
+   'wet-and-blocked':'Last completed check: WET + BLOCKS people · MODEL only',
+   clear:'Last completed check: water and path clear · MODEL only',
+   unknown:'Last completed check: result UNKNOWN'
+  }[result];
+  status.textContent=label;
+ }
+}
 function renderComparisonCard(id,prefix,run,side){
  const card=$(id),flow=$(prefix+'-flow');
  card.dataset.result=run.weather+'-'+run.channel;
@@ -240,6 +282,7 @@ function render(){
   $('note').textContent=v.paperChronicle;
   $('parent').textContent='Optional parent question: '+v.parentCue;
   renderSpots(v);
+  renderLowerSpatial(g);
   renderModelEvidence(g);
   const stationFragment=linkedE05&&(linkedE04?
    (lantern?(encodeMemoryLantern(linkedE04,linkedE05,state,linkedE07,linkedE08)||

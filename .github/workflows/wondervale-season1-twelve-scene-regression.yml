@@ -3,6 +3,9 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'tests/season1-e06-lower-garden-spatial-view.test.mjs'
+      - 'authoring-labs/lower-garden-story-model.mjs'
+      - 'e06-scene/**'
       - 'tests/season1-e05-e06-scene-transfer*'
       - 'authoring-labs/e05-e06-scene-transfer.mjs'
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
@@ -41,6 +44,9 @@ on:
   push:
     branches: [main]
     paths:
+      - 'tests/season1-e06-lower-garden-spatial-view.test.mjs'
+      - 'authoring-labs/lower-garden-story-model.mjs'
+      - 'e06-scene/**'
       - 'tests/season1-e05-e06-scene-transfer*'
       - 'authoring-labs/e05-e06-scene-transfer.mjs'
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
@@ -163,6 +169,7 @@ jobs:
             tests/season1-e05-scene-shell.test.mjs \
             tests/season1-e05-e06-scene-transfer.test.mjs \
             tests/season1-e06-scene-shell.test.mjs \
+            tests/season1-e06-lower-garden-spatial-view.test.mjs \
             tests/season1-e07-scene-shell.test.mjs \
             tests/season1-e08-scene-shell.test.mjs \
             tests/season1-e07-e08-scene-transfer.test.mjs \

@@ -1,6 +1,19 @@
 # E06 Current Garden Spatial Water Model — Engineering QA
 
-**Status:** local engineering checks PASS on branch `codex/e06-spatial-flow`, based on `c237ebbda7faa989c5b1a954219295fb451a0600`. PR and GitHub Actions verification are pending. This record does not approve Gate 1, production content, real geography, or planting.
+**Current status (2026-11-24):** the Current Garden water model is integrated on `main` at `9cda31c3d9ee212359a4edaa654f56a035fa71d0` through PR #376. The Lower Garden spatial-feedback follow-on is on branch `feat/e06-water-scene-integration-20261124`; local checks pass, and PR/CI verification are pending. Neither change approves Gate 1, production content, real geography, or planting.
+
+**Historical status at first delivery:** local engineering checks passed on branch `codex/e06-spatial-flow`, based on `c237ebbda7faa989c5b1b954219295fb451a0600`.
+
+## Follow-on delivery — Lower Garden spatial feedback (2026-11-24)
+
+This focused follow-on is based on the current `main` at `9cda31c3d9ee212359a4edaa654f56a035fa71d0`; the PR and its CI are pending. The lower PAPER scene now distinguishes the synthetic runoff route, shared footpath, and raised pocket; projects Milo's removable marker to its selected model site; and shows only reducer-recorded checks for water and path effects. Moving the marker clears its checked state; a completed check remains associated with its own site. The map and outcome labels explicitly remain MODEL-only.
+
+- Added a fail-closed display projection with five Node cases for empty state, marker projection, recorded outcomes, latest-per-site results, and malformed/forged input.
+- E06 focused Node regression: **6 test files passed**. Chromium journey: **PASS** at 1366×900, 568×320, and 390×844, including marker visibility, result retention, reset, revisit, storage isolation, and no horizontal overflow.
+- Review screenshots are generated under `test-results/e06-lower-spatial-feedback/`; the E06 workflow uploads them as a 14-day artifact.
+- The diagram's routes and zones are synthetic visual labels, not a measured site plan. It reports no physical clearance, public access, planting permission, or real-world safety. The raised pocket's “clear” result is only the authoring reducer's checked PAPER result.
+
+No save schema, Chronicle, unlock, production art, or physical-site claim changed. Existing Current/Lower revisit behavior and the healthy Current Garden remain intact. E04 source chronology and E05 public-entry authority remain open, and North Hill remains CLOSED.
 
 ## Runtime change
 
@@ -35,6 +48,6 @@ These are engineering screenshots of synthetic diagrams, not scene art or owner 
 - E04 chronology/source approval remains at Draft PR #114. E05 public entry, real E06 terrain, planting access, stewardship and scene art remain unapproved. North Hill remains CLOSED; Common remains UNKNOWN.
 - Chromium viewport checks do not replace physical-device, owner or family observation.
 
-## Next focused engineering task
+## Next formal scene integration gate
 
-After PR CI passes and this Current Garden change is integrated, make a separate focused PR for Lower Garden spatial feedback: visually distinguish runoff channel, shared footpath and raised pocket; show temporary markers at their selected positions; and display actual checked water/path conflicts while retaining a correct pocket and the existing NOW/POSSIBLE revisit contract.
+The E06 Current and Lower Garden PAPER models are separately testable and visually distinct. The next formal scene integration can begin once the owner supplies approved E06 site identity/topology, usable public/worker access, runoff and footpath evidence, and planting/care stewardship. Until then these are demonstrative PAPER models, not production geography or permission. E04 chronology/source approval, E05 public-entry authority, E06 site approval, and production entry remain separate gates.

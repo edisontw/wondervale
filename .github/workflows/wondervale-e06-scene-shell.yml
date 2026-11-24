@@ -4,14 +4,18 @@ on:
     paths:
       - 'e06-scene/**'
       - 'tests/season1-e06-scene-shell*'
+      - 'tests/season1-e06-lower-garden-spatial-view.test.mjs'
       - 'tests/season1-e06-e07-scene-transfer.test.mjs'
       - 'authoring-labs/e06-e07-scene-transfer.mjs'
+      - 'authoring-labs/lower-garden-story-model.mjs'
       - '.github/workflows/wondervale-e06-scene-shell.yml'
   push:
     branches: [main]
     paths:
       - 'e06-scene/**'
       - 'tests/season1-e06-scene-shell*'
+      - 'tests/season1-e06-lower-garden-spatial-view.test.mjs'
+      - 'authoring-labs/lower-garden-story-model.mjs'
       - '.github/workflows/wondervale-e06-scene-shell.yml'
 permissions:
   contents: read
@@ -28,9 +32,10 @@ jobs:
         run: |
           node --check e06-scene/scene-model.mjs
           node --check e06-scene/main.mjs
+          node --check e06-scene/lower-garden-spatial-view.mjs
           node --check authoring-labs/e06-e07-scene-transfer.mjs
           node --check tests/season1-e06-scene-shell-browser.mjs
-          node --test tests/season1-e06-scene-shell.test.mjs tests/season1-e06-scene-shell-water-view.test.mjs tests/season1-e06-e07-scene-transfer.test.mjs tests/season1-lower-garden-story.test.mjs tests/s01e06-authoring-prototype.test.mjs
+          node --test tests/season1-e06-scene-shell.test.mjs tests/season1-e06-scene-shell-water-view.test.mjs tests/season1-e06-lower-garden-spatial-view.test.mjs tests/season1-e06-e07-scene-transfer.test.mjs tests/season1-lower-garden-story.test.mjs tests/s01e06-authoring-prototype.test.mjs
       - name: Guard production packaging
         run: |
           if grep -R -n 'e06-scene' scripts/compile_episode.py scripts/package_static.py scripts/package_e02.py scripts/package_e03.py; then
@@ -53,4 +58,12 @@ jobs:
             sleep 1
           done
           if [ "$ready" -ne 1 ]; then cat /tmp/e06-scene-server.log >&2; exit 1; fi
-          node tests/season1-e06-scene-shell-browser.mjs
+          E06_SCREENSHOT_DIR=test-results/e06-lower-spatial-feedback node tests/season1-e06-scene-shell-browser.mjs
+      - name: Upload Lower Garden PAPER screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e06-lower-garden-spatial-feedback
+          path: test-results/e06-lower-spatial-feedback/*.png
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
+import {mkdir} from 'node:fs/promises';
 const base=process.env.TEST_BASE_URL||'http://127.0.0.1:4173';
+const screenshotDir=process.env.E06_SCREENSHOT_DIR||'';
+if(screenshotDir)await mkdir(screenshotDir,{recursive:true});
 const browser=await chromium.launch({headless:true});
 try{
  for(const viewport of [{width:1366,height:900},{width:568,height:320},{width:390,height:844}]){
@@ -54,15 +57,38 @@ try{
    assert.equal(await page.locator('#model-run-history .run-chip').count(),3);
    await hit('compare');await hit('enter');
    assert.equal(await page.locator('#lower-scene').isVisible(),true);
+   assert.equal(await page.locator('#lower-spatial-map').isVisible(),true);
+   assert.equal(await page.locator('#lower-spatial-map').getAttribute('data-marker-site'),'none');
+   assert.equal(await page.locator('#lower-temp-marker').isVisible(),false);
+   assert.equal(await page.locator('#lower-result-runoff-channel').getAttribute('data-result'),'unchecked');
    assert.match(await page.locator('#current-world-note').innerText(),/completed/);
    await tap('runoff-trace');await tap('public-path');await tap('public-path');
    await tap('runoff-channel');await tap('runoff-channel');await hit('check');
    assert.equal(await spot('runoff-channel').getAttribute('data-marker'),'true');
    assert.match(await spot('runoff-channel').innerText(),/WET/);
+   assert.equal(await page.locator('#lower-spatial-map').getAttribute('data-marker-site'),'runoff-channel');
+   assert.equal(await page.locator('#lower-temp-marker').isVisible(),true,
+    'the selected temporary PAPER marker is drawn at its model zone');
+   assert.equal(await page.locator('#lower-temp-marker').getAttribute('data-checked'),'true');
+   assert.equal(await page.locator('#lower-result-runoff-channel').getAttribute('data-result'),'wet');
+   assert.match(await page.locator('#lower-result-runoff-channel').innerText(),/Last completed check: WET/);
    assert.match(await page.locator('#marker').innerText(),/WET/);
+   await tap('footpath');await tap('footpath');
+   assert.equal(await page.locator('#lower-temp-marker').getAttribute('data-checked'),'false',
+    'moving the marker to a new zone does not report that unchecked placement as tested');
+   await hit('check');
+   assert.equal(await page.locator('#lower-spatial-map').getAttribute('data-marker-site'),'footpath');
+   assert.equal(await page.locator('#lower-result-footpath').getAttribute('data-result'),'blocks-path');
+   assert.match(await page.locator('#lower-result-footpath').innerText(),/BLOCKS people/);
+   assert.equal(await page.locator('#lower-result-runoff-channel').getAttribute('data-result'),'wet',
+    'a later check retains the earlier water result at its own zone');
    await tap('raised-pocket');await tap('raised-pocket');await hit('check');
    assert.equal(await spot('raised-pocket').getAttribute('data-marker'),'true');
+   assert.equal(await page.locator('#lower-spatial-map').getAttribute('data-marker-site'),'raised-pocket');
+   assert.equal(await page.locator('#lower-result-raised-pocket').getAttribute('data-result'),'clear');
+   assert.match(await page.locator('#lower-result-raised-pocket').innerText(),/water and path clear/);
    assert.match(await page.locator('#marker').innerText(),/clear/);
+   if(screenshotDir)await page.screenshot({path:screenshotDir+'/lower-spatial-'+viewport.width+'x'+viewport.height+'.png',fullPage:true});
    await hit('think');await hit('finish');
    assert.equal(await page.locator('#care-panel').isVisible(),true);
    await hit('heavy-care');await hit('test-care');
@@ -138,6 +164,8 @@ try{
    assert.equal(await page.locator('#care-panel').isVisible(),false);
    assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-marker');
    assert.equal(await spot('raised-pocket').getAttribute('data-growth'),'false');
+   assert.equal(await page.locator('#lower-spatial-map').getAttribute('data-marker-site'),'none');
+   assert.ok(await page.locator('#lower-check-results [data-result="unchecked"]').count()===3);
    assert.equal(await page.locator('#water-model').getAttribute('data-result'),'none');
    assert.equal(await page.locator('#model-comparison').isVisible(),false);
    assert.equal(await page.locator('#model-run-history-panel').isVisible(),false);
