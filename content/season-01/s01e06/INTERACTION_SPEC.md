@@ -37,6 +37,14 @@ This is a labeled, reversible **miniature tray**, not a depiction of actual hist
 - A child who starts with the more favorable model configuration can still learn: no forced wrong attempt. A child who starts with the unfavorable configuration can retry without score, damage or lost progress.
 - No need for exact hand-eye drag: tap-to-place/keyboard selection produces the same water trace; step-by-step water animation alternative for reduced motion.
 
+### Spatial model presentation contract
+
+- The tray is an in-scene schematic with a high rain source, downhill route, directly operable drain channel, bypass and low catchment. The channel target is a keyboard-focusable button placed on the route; its activation uses the existing `garden('channel', value)` action, `can`, `dispatch` and replay rules. The accessible OPEN/BLOCKED action list uses those exact same actions.
+- Keep the next-run configuration separate from observation. After weather/channel changes, the map, basin meter, run-history cards and comparison continue to describe only completed reducer `modelRuns`; the unrun configuration is labeled as the next setup.
+- Draw the last completed run from its snapshot: DRY has no flow; RAIN/OPEN sends the model's two bypass marks and one low-catchment mark; RAIN/BLOCKED sends three marks to the low catchment and none to bypass. Do not derive displayed water from the currently selected setup.
+- When both RAIN/Open and RAIN/Blocked snapshots exist, show them side by side as BEFORE/AFTER in their actual completion order. Keep weather the same so channel is the single changed model variable. Each card reports the snapshot's low-catchment and bypass counts; no run is fabricated and no completion timer grants progress.
+- Static route and collection levels remain legible under reduced motion. The schematic is synthetic engineering geometry, not approved site geography, historical flood evidence, or proof of the garden's actual relocation cause.
+
 ### Leaving Current Garden
 
 After the required observations and comparison, Milo can choose to investigate the lower site. A short line must keep uncertainty: “Water can run down. We still need to look there.” The current garden remains intact; it cannot be relocated or deleted.

@@ -37,11 +37,52 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .flow-meter{border:2px solid #7c9daf;border-radius:.4rem;overflow:hidden;height:22px;display:flex;margin:.4rem 0}
 .flow-meter span{flex:1;background:#f5f8f8;border-right:1px solid #9cb7c5}
 .flow-meter[data-level="1"] span:first-child,.flow-meter[data-level="3"] span{background:#79b7d1}
+.flow-meter[data-level="2"] span:nth-child(-n+2){background:#79b7d1}
+.water-model{position:relative;min-height:260px;aspect-ratio:2.05/1;max-height:360px;overflow:hidden;border:2px solid #78927e;border-radius:.7rem;background:linear-gradient(165deg,#eff5e9 0 27%,#e2ebd7 28% 100%);margin:.65rem 0}
+.water-model svg{display:block;width:100%;height:100%;min-height:260px}
+.model-hill{fill:none;stroke:#adbd9b;stroke-width:56;stroke-linecap:round;opacity:.58}
+.model-route{fill:none;stroke:#899c89;stroke-width:16;stroke-linecap:round;stroke-dasharray:2 1}
+.model-water{fill:none;stroke:#168bc2;stroke-width:8;stroke-linecap:round;stroke-dasharray:15 10;marker-end:url(#water-arrow);opacity:0}
+#water-model[data-result="rain-open"] .model-water-main,#water-model[data-result="rain-open"] .model-water-bypass{opacity:1}
+#water-model[data-result="rain-open"] .model-water-main{stroke-width:5}
+#water-model[data-result="rain-blocked"] .model-water-main{opacity:1;stroke-width:11}
+.model-source{fill:#fffdf2;stroke:#607e69;stroke-width:3}
+.model-basin{fill:#dce9d4;stroke:#64856a;stroke-width:4}
+.model-text{font:700 15px system-ui,sans-serif;fill:#274c3b}
+.model-small-text{font:700 12px system-ui,sans-serif;fill:#355442}
+.model-channel-control{position:absolute;z-index:2;left:50%;top:51%;transform:translate(-50%,-50%);min-width:148px;min-height:62px;padding:.35rem .55rem;background:#fff9e8;border-color:#695b34;box-shadow:0 2px 0 #8f7b46;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15}
+.model-channel-control strong{font-size:.88rem}
+.model-channel-control[aria-pressed="false"]{background:#fff0e6;border-color:#9b623d}
+.model-next-setup{position:absolute;z-index:2;left:.55rem;bottom:.4rem;max-width:58%;padding:.3rem .5rem;border-radius:.4rem;background:#fffdf0;font-size:.78rem;font-weight:700}
+.catchment-panel{position:absolute;z-index:3;right:2%;bottom:8%;width:27%;min-width:145px;padding:.3rem .4rem;border:2px solid #64856a;border-radius:.5rem;background:#fffdf0;text-align:center;font-size:.78rem;font-weight:700}
+.catchment-panel .flow-meter{height:16px;margin:.15rem 0}
+.model-legend{display:flex;flex-wrap:wrap;gap:.35rem .9rem;margin:.35rem 0;font-size:.88rem}
+.model-legend span{display:inline-flex;align-items:center;gap:.3rem}
+.legend-mark{width:1.1rem;height:.55rem;border-radius:1rem;background:#168bc2}
+.legend-land{width:1.1rem;height:.55rem;border-radius:1rem;background:#adbd9b}
+.run-history{display:flex;flex-wrap:wrap;gap:.35rem;margin:.4rem 0}
+.run-chip{border:1px solid #92aa96;border-radius:.45rem;padding:.4rem .55rem;background:#f5f7ed;font-size:.84rem}
+.comparison{border:2px solid #9bb39e;border-radius:.55rem;padding:.5rem;margin:.5rem 0;background:#f7f8ef}
+.comparison-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+.comparison-card{min-width:0;padding:.5rem;border:1px solid #9eb3a3;border-radius:.5rem;background:white}
+.comparison-card[data-result="rain-open"]{border-top:5px solid #2685a7}
+.comparison-card[data-result="rain-blocked"]{border-top:5px solid #ae7350}
+.comparison-label{font-weight:800;font-size:.95rem}
+.mini-flow{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;margin:.45rem 0}
+.mini-source,.mini-outcome{padding:.4rem;border-radius:.35rem;background:#edf2e8;font-size:.82rem}
+.mini-source{grid-column:1/-1;text-align:center;border-bottom:2px solid #168bc2}
+.mini-outcome{background:#e2f0f6}
+.mini-outcome strong{display:block;font-size:1.05rem}
+@media(prefers-reduced-motion:reduce){.model-water{stroke-dasharray:none}}
 @media(max-width:420px){.playfield{grid-template-columns:repeat(2,minmax(0,1fr))}.spot{font-size:.82rem;padding:.4rem}}
+@media(max-width:650px){.water-model{aspect-ratio:1.55/1;min-height:230px}.water-model svg{min-height:230px}.model-channel-control{min-width:124px;min-height:54px;font-size:.8rem}.model-next-setup{max-width:57%;font-size:.7rem}.catchment-panel{min-width:112px;width:30%;font-size:.7rem}.comparison-pair{gap:.35rem}.comparison-card{padding:.35rem}.mini-source,.mini-outcome{font-size:.75rem}}
+@media(max-width:650px) and (orientation:portrait){.water-model{aspect-ratio:1.25/1;min-height:250px}.water-model svg{min-height:250px}.catchment-panel{min-width:114px;width:34%;bottom:7%}}
+@media(max-width:380px){.water-model{min-height:210px}.water-model svg{min-height:210px}.catchment-panel{min-width:104px;right:1%;bottom:6%;padding:.2rem}.model-channel-control{min-width:112px;padding:.25rem}.model-text{font-size:18px}}
 button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
 .paper{background:#edf2e9;border:1px dashed #9aaf9f;border-radius:.4rem;padding:.65rem;line-height:1.5;margin:.4rem 0;overflow-wrap:anywhere}
 [hidden]{display:none!important}
 @media(max-width:650px){.station-map{grid-template-columns:1fr}.world{grid-template-columns:1fr}.diagram{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:.55rem}}
+@media(max-width:700px) and (orientation:landscape) and (max-height:450px){.water-model{aspect-ratio:2.1/1;min-height:190px}.water-model svg{min-height:190px}.catchment-panel{bottom:5%}.model-next-setup{bottom:.25rem}}
 </style></head><body><main>
 <header><h1>E06 — The Garden That Moved</h1><div>Two distinct child-controlled PAPER scenes · Current Garden / Lower Garden</div></header>
 <p class="notice"><strong>AUTHORING ONLY — NOT THE PRODUCTION GAME.</strong> Both floor plans, water flow and planting markers are synthetic. No approved site access, source chronology, planting/care permission, real growth, canonical Chronicle, E07 unlock, saved progress, or MN4 release. The healthy present garden stays. North Hill remains CLOSED.</p>
@@ -55,19 +96,55 @@ button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
 <p class="paper" aria-live="polite"><strong id="speaker"></strong>: <span id="line"></span></p>
 <p id="milo" class="paper"></p>
 <section id="current-scene" class="panel"><h2>Scene 06 · Healthy Current Garden</h2>
-<p>Walk Milo, inspect what exists NOW, then compare dry/rain water on a detachable MODEL tray. The tray cannot prove why the real garden moved.</p>
+<p>Walk Milo and inspect the healthy garden. Then try a small rain-and-drain MODEL. It shows what this synthetic model does, not why the real garden moved.</p>
 <div class="diagram" aria-label="Synthetic Current Garden model">
 <div class="tile" id="upper-bed-tile" data-stage="healthy">Healthy bed<br>NOW · unchanged</div><div class="tile">Slope<br>Higher / lower</div><div class="tile path">Shared path<br>Keep clear</div>
-<div class="tile water">MODEL tray<br>DRY / RAIN</div><div class="tile water">Channel<br>OPEN / BLOCKED</div><div class="tile">Garden stays<br>No transplant</div></div>
+<div class="tile">Garden stays<br>No transplant</div></div>
 <div class="playfield" id="current-playfield" aria-label="Synthetic Current Garden: tap a place to walk Milo, tap again to inspect">
 <button class="spot" data-spot="present-bed" type="button">Healthy bed</button>
 <button class="spot" data-spot="slope" type="button">Uphill slope</button>
 <button class="spot" data-spot="shared-path" type="button">Shared path</button>
 <button class="spot" data-spot="model-tray" type="button">MODEL tray</button>
 </div>
-<p class="paper">Tap a place to move Milo; tap it again to inspect. The MODEL tray uses the controls below. These are PAPER positions, not approved terrain.</p>
-<div id="model-catchment" class="flow-meter" data-level="0" role="meter" aria-label="Last MODEL catchment marks" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span></span><span></span><span></span></div>
-<p id="model-flow-caption" class="paper">Run the MODEL to see water.</p>
+<p class="paper">Tap a place to move Milo; tap it again to inspect. This synthetic model is not approved terrain.</p>
+<h3>Rain path · PAPER MODEL</h3>
+<div id="water-model" class="water-model" data-result="none" aria-describedby="model-flow-caption">
+<svg viewBox="0 0 600 300" role="img" aria-labelledby="water-title water-description" preserveAspectRatio="none">
+ <title id="water-title">High rain source, drain channel, bypass and low catchment</title>
+ <desc id="water-description">A synthetic hillside slopes down from the high source. The blue water paths and low basin level show only the last completed model run.</desc>
+ <defs><marker id="water-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#168bc2"/></marker></defs>
+ <path class="model-hill" d="M35 48 C155 55 200 95 300 145 S430 205 565 260"/>
+ <path class="model-route" d="M65 60 C150 75 220 120 300 150"/>
+ <path class="model-route" d="M300 150 C370 165 420 210 480 250"/>
+ <path class="model-route" d="M300 150 C365 110 445 82 548 70"/>
+ <path class="model-water model-water-main" d="M65 60 C150 75 220 120 300 150 C370 165 420 210 480 250"/>
+ <path class="model-water model-water-bypass" d="M300 150 C365 110 445 82 548 70"/>
+ <rect class="model-source" x="28" y="28" width="126" height="53" rx="12"/><text class="model-text" x="42" y="51">HIGH SOURCE</text><text class="model-small-text" x="42" y="68">rain begins here</text>
+ <ellipse class="model-basin" cx="486" cy="247" rx="78" ry="31"/>
+ <text class="model-small-text" x="430" y="46">BYPASS ROUTE</text>
+ <text id="model-bypass-label" class="model-small-text" x="427" y="65">no completed run</text>
+ <text class="model-small-text" x="218" y="205">downhill flow</text>
+</svg>
+<button id="model-channel-control" class="model-channel-control" type="button" aria-pressed="true" aria-label="Change the PAPER model drain channel">
+ <span>DRAIN CHANNEL</span><strong id="model-channel-state">OPEN</strong><span id="model-channel-hint">tap to block</span>
+</button>
+<div id="model-next-setup" class="model-next-setup">Next run: DRY · channel OPEN · not tested yet.</div>
+<div class="catchment-panel"><span>LOW CATCHMENT</span>
+ <div id="model-catchment" class="flow-meter" data-level="0" role="meter" aria-label="Water in the low catchment from the last completed run" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span></span><span></span><span></span></div>
+ <span id="model-catchment-label">0 / 3</span>
+</div>
+</div>
+<div class="model-legend" aria-label="Model map legend"><span><i class="legend-mark"></i> water in the completed run</span><span><i class="legend-land"></i> synthetic hillside</span></div>
+<p id="model-flow-caption" class="paper" role="status" aria-live="polite">No completed run yet. A changed next-run setting is not an observation.</p>
+<section id="model-comparison" class="comparison" hidden aria-label="Comparison of completed rain runs">
+ <strong>BEFORE / AFTER · same RAIN, channel changed</strong>
+ <p id="model-comparison-caption" class="paper">These are two completed runs from the model history, not real garden evidence.</p>
+ <div class="comparison-pair">
+  <article id="model-before" class="comparison-card"><div class="comparison-label" id="model-before-label"></div><div class="mini-flow" id="model-before-flow"></div></article>
+  <article id="model-after" class="comparison-card"><div class="comparison-label" id="model-after-label"></div><div class="mini-flow" id="model-after-flow"></div></article>
+ </div>
+</section>
+<section id="model-run-history-panel" class="paper" hidden aria-label="Completed model experiment history"><strong>Runs we actually tried:</strong><div id="model-run-history" class="run-history"></div></section>
 <p id="upper-observations" class="paper"></p><p id="tray" class="paper"></p>
 <div id="current-actions" class="controls"></div><section id="e05-world" class="panel" hidden aria-label="E05 station PAPER world callback" data-view="now">
 <h2>E05 station memory · FIRST / NOW</h2>

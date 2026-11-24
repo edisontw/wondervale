@@ -29,6 +29,24 @@ test('two different spaces require upper observations, rain comparison and lower
  assert.deepEqual(replay(s.history),s);
  assert.deepEqual(restore(structuredClone(s)),s);
 });
+test('an unrun setup never replaces the last completed water snapshot',()=>{
+ let s=fresh();
+ for(const a of [g('start'),g('inspect','present-bed'),g('walk','slope'),g('inspect','slope'),
+  g('walk','model-tray'),g('run')])s=doIt(s,a);
+ assert.deepEqual(view(s).garden.runs,[{weather:'dry',channel:'open',catchment:0,bypass:0,synthetic:true}]);
+ s=doIt(s,g('weather','rain'));s=doIt(s,g('channel','blocked'));
+ let evidence=view(s).garden;
+ assert.equal(evidence.weather,'rain');assert.equal(evidence.channel,'blocked');
+ assert.deepEqual(evidence.runs,[{weather:'dry',channel:'open',catchment:0,bypass:0,synthetic:true}]);
+ assert.deepEqual(replay(s.history),s);
+ s=doIt(s,g('run'));
+ evidence=view(s).garden;
+ assert.deepEqual(evidence.runs.at(-1),{weather:'rain',channel:'blocked',catchment:3,bypass:0,synthetic:true});
+ s=doIt(s,g('channel','open'));
+ assert.deepEqual(view(s).garden.runs.at(-1),{weather:'rain',channel:'blocked',catchment:3,bypass:0,synthetic:true});
+ assert.deepEqual(view(s).canonicalEvents,[]);assert.equal(view(s).historicalCause,'UNKNOWN');
+ assert.deepEqual(replay(s.history),s);
+});
 test('read-only upper revisit retains lower plan and does not mutate the rain model',()=>{
  let s=complete(),historyLength=s.history.length;
  s=doIt(s,n('to-current'));
