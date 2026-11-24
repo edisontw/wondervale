@@ -25,8 +25,12 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 .steps-sightline{position:relative;height:160px;background:repeating-linear-gradient(90deg,#eff4eb 0,#eff4eb 23%,#d1dfd1 24%,#eff4eb 25%);border:2px solid #95ab9a;border-radius:.45rem;overflow:hidden}
 .steps-mark{position:absolute;transform:translate(-50%,-50%);display:grid;place-items:center;border:2px solid #456b58;border-radius:50%;background:#fff7df;font-weight:700;width:36px;height:36px}
 .board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:2px;background:#c2d1c3;padding:.25rem;border-radius:.4rem}
+#board{width:calc(100% + 1.1rem);margin-inline:-.55rem}
 .cell{aspect-ratio:1;min-width:0;display:grid;place-items:center;background:#f8faf5;font-size:clamp(.6rem,1.6vw,.85rem);font-weight:700}.cell[data-conflict=true]{background:#edb8a4}
-[hidden]{display:none!important}@media(max-width:700px){.columns,.world{grid-template-columns:1fr}.panel{padding:.55rem}.anchors{grid-template-columns:repeat(2,minmax(0,1fr))}}
+#board .placement-target{min-width:44px;padding:0;border-style:dashed;border-color:#74591d;background:#fff1b9;color:#3f3a25;line-height:1.05}
+#board .placement-target[data-conflict=true]{border-style:solid;border-color:#974b37;background:#edb8a4}
+#board .placement-target:focus-visible{position:relative;z-index:1;outline:3px solid #a96e1d;outline-offset:1px}
+[hidden]{display:none!important}@media(max-width:700px){.columns,.world{grid-template-columns:1fr}.panel{padding:.55rem}#board{width:calc(100% + 2.5rem);margin-inline:-1.25rem}.anchors{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style></head><body><main>
 <header><h1>E07 — Finn’s Perfect Shortcut</h1><div>Scene 08 of 12 · independent child-controlled PAPER model</div></header>
 <p class="notice"><strong>AUTHORING ONLY — NOT THE PRODUCTION GAME.</strong> Synthetic model, not real paving, drainage or clearance. No verified E06 completion, construction/access permission, history, approved art, canonical Chronicle, E08 unlock, saved progress or MN4 release. North Hill CLOSED.</p>
@@ -66,7 +70,7 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <p id="milo" class="paper"></p><div id="walk-controls" class="controls"></div><p id="observed" class="paper"></p>
 <div class="columns"><section class="panel"><h2>Three model users</h2><div id="test-controls" class="controls"></div><p id="first" class="paper" role="status"></p><p id="now" class="paper" role="status"></p><p id="parent" class="paper"></p></section>
 <section class="panel"><h2>Move and compare</h2><div id="piece-controls" class="controls"></div><div id="compare-controls" class="controls"></div><p id="layout" class="paper"></p></section></div>
-<div class="columns"><section class="panel"><h2>Synthetic 8 × 7 board</h2><div id="board" class="board" role="img" aria-label="Synthetic connector board"></div><p>C = connector · P = traveler · W = water · X = overlap. No real paving is implied.</p></section>
+<div class="columns"><section class="panel"><h2>Synthetic 8 × 7 board</h2><p class="paper">Tap P× or W× to move the connector off that overlap. Tap ↑ or ↓ to try a longer detour. The model snaps into place; the named buttons below also work with a keyboard.</p><div id="board" class="board" role="group" aria-label="Synthetic connector board"></div><p>C = connector · P = shared path · W = water · X = overlap. P× and W× mark overlaps; these targets use the same legal model moves as the buttons.</p></section>
 <section class="panel"><h2>PAPER Chronicle and hook</h2><p id="note" class="paper" role="status"></p><p id="hook" class="paper"></p></section></div></section>
 <section id="route-walk" class="panel" hidden><h2>Walk the revised PAPER route</h2>
 <p>Milo can test a synthetic connector after the three-user revision. Check the shared crossing and water edge before reaching the unlit Lantern Steps BASE. The North Hill route stays CLOSED. This is not a real walkable route, construction or E08 entry.</p>

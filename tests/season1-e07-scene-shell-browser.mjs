@@ -10,6 +10,7 @@ try{
    const b=key=>page.locator('[data-key="'+key+'"]');
    const hit=async key=>{assert.equal(await b(key).isDisabled(),false,key);await b(key).click();};
    assert.match(await page.locator('.notice').innerText(),/AUTHORING ONLY/);
+   assert.equal(await page.locator('#board button[data-placement-target]').count(),0);
    assert.equal(await b('test-milo').isDisabled(),true);
    for(const k of ['start','walk-shared','inspect-shared','walk-channel','inspect-channel','walk-workbench','test-milo'])await hit(k);
    assert.match(await page.locator('#first').innerText(),/Milo: PASS/);
@@ -18,10 +19,31 @@ try{
    assert.match(await page.locator('#first').innerText(),/Traveler: BLOCKED/);
    assert.match(await page.locator('#first').innerText(),/Water: BLOCKED/);
    assert.ok(await page.locator('#board [data-conflict="true"]').count()>0);
-   await hit('place-water');for(const k of ['test-milo','test-resident','test-water'])await hit(k);
+   assert.equal(await page.locator('#board button[data-placement-target]').count(),4);
+   assert.match(await page.locator('#board button[data-cell="3,2"]').getAttribute('aria-label'),/shared path/);
+   assert.match(await page.locator('#board button[data-cell="4,4"]').getAttribute('aria-label'),/water route/);
+   for(const cell of ['3,2','4,4','2,1','2,5']){
+    const box=await page.locator('#board button[data-cell="'+cell+'"]').boundingBox();
+    assert.ok(box.width>=44&&box.height>=44,JSON.stringify({viewport,cell,box}));
+   }
+   await page.locator('#board button[data-cell="3,2"]').click();
+   assert.match(await page.locator('#layout').innerText(),/path-clear-water-blocked/);
+   assert.equal(await page.locator('#board [data-conflict="true"]').count(),1);
+   for(const k of ['test-milo','test-resident','test-water'])await hit(k);
    assert.match(await page.locator('#now').innerText(),/Water: BLOCKED/);
    assert.equal(await b('compare').isDisabled(),true);
-   await hit('place-upper');assert.match(await page.locator('#now').innerText(),/NOT TESTED/);
+   await page.locator('#board button[data-cell="4,4"]').click();
+   assert.match(await page.locator('#layout').innerText(),/channel-clear-path-blocked/);
+   assert.equal(await page.locator('#board [data-conflict="true"]').count(),1);
+   assert.match(await page.locator('#now').innerText(),/NOT TESTED/);
+   await page.locator('#board button[data-cell="2,5"]').click();
+   assert.match(await page.locator('#layout').innerText(),/lower-offset/);
+   const upper=page.locator('#board button[data-cell="2,1"]');
+   await upper.click();
+   assert.match(await page.locator('#layout').innerText(),/side-offset/);
+   assert.match(await page.locator('#now').innerText(),/NOT TESTED/);
+   await hit('place-lower');assert.match(await page.locator('#layout').innerText(),/lower-offset/);
+   await hit('place-upper');assert.match(await page.locator('#layout').innerText(),/side-offset/);
    for(const k of ['test-water','test-milo','test-resident'])await hit(k);
    assert.equal(await page.locator('#board [data-conflict="true"]').count(),0);
    await hit('compare');await hit('finish');
@@ -79,7 +101,15 @@ try{
   await p.locator('[data-key="walk-shared"]').focus();await p.keyboard.press('Space');
   assert.match(await p.locator('#milo').innerText(),/shared path/);
   await p.locator('[data-key="inspect-shared"]').focus();await p.keyboard.press('Enter');
-  assert.match(await p.locator('#observed').innerText(),/shared-path/);
+  await p.locator('[data-key="walk-channel"]').focus();await p.keyboard.press('Enter');
+  await p.locator('[data-key="inspect-channel"]').focus();await p.keyboard.press('Enter');
+  for(const k of ['walk-workbench','test-milo','test-resident','test-water']){
+   await p.locator('[data-key="'+k+'"]').focus();await p.keyboard.press('Enter');
+  }
+  const pathTarget=p.locator('#board button[data-cell="3,2"]');
+  assert.equal(await pathTarget.isEnabled(),true);
+  await pathTarget.focus();await p.keyboard.press('Enter');
+  assert.match(await p.locator('#layout').innerText(),/path-clear-water-blocked/);
  }finally{await ctx.close();}
  console.log('E07 isolated scene Chromium PASS: four viewports, keyboard, wrong-first, revisit, restart');
 }finally{await browser.close();}
