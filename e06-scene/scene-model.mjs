@@ -47,7 +47,7 @@ function apply(s,a){
       const afterCare=s.history.findLastIndex(h=>h.scene==='care'&&h.type==='compare');
       const afterReturn=s.history.findIndex((h,i)=>i>afterCare&&h.scene==='nav'&&h.type==='to-current');
       const returned=afterReturn>=0&&s.history.some((h,i)=>i>afterReturn&&h.scene==='nav'&&h.type==='to-lower');
-      if(s.screen!=='lower'||!s.care.compared||afterCare<0||!returned||s.history.some(h=>h.scene==='nav'&&h.type==='compare-gardens'))return null;
+      if(s.screen!=='lower'||!s.care.compared||afterCare<0||!returned||s.history.some((h,i)=>i>afterCare&&h.scene==='nav'&&h.type==='compare-gardens'))return null;
       return {...s};
     }
     if(a.type==='to-current'&&s.screen==='lower')return {...s,screen:'current'};
@@ -109,7 +109,8 @@ export function view(snapshot){
     if(recent.type==='compare'){speaker='Milo';line=
       'Our PAPER model changed. Real plants need care and permission.';}
   }
-  const revisitCompared=s.history.some(h=>h.scene==='nav'&&h.type==='compare-gardens');
+  const afterCare=s.history.findLastIndex(h=>h.scene==='care'&&h.type==='compare');
+  const revisitCompared=s.care.compared&&afterCare>=0&&s.history.some((h,i)=>i>afterCare&&h.scene==='nav'&&h.type==='compare-gardens');
   if(revisitCompared){speaker='Nia';line='One grows here now. One is only our PAPER idea.';}
   return {screen:s.screen,garden:g,speaker,line,revisitCompared,
     care:{choice:s.care.choice,trials:s.care.trials.map(t=>({...t})),

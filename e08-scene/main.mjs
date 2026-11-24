@@ -1,4 +1,4 @@
-import {fresh,dispatch,can,view} from './scene-model.mjs';
+import {fresh,dispatch,can,view,rewind} from './scene-model.mjs';
 import {MARKERS,VIEWPOINTS} from '../engine/s01e08-authoring-prototype.mjs';
 import {view as viewE07} from '../e07-scene/scene-model.mjs';
 import {connectorWorld} from './connector-world.mjs';
@@ -9,13 +9,14 @@ import {decodeStepsTransfer,encodeStepsTransfer} from '../authoring-labs/e07-e08
 import {decodeMemoryLantern,encodeMemoryLantern} from '../authoring-labs/e04-e08-scene-transfer.mjs';
 import {decodeHillTransfer,encodeHillTransfer} from '../authoring-labs/e08-e09-scene-transfer.mjs';
 import {decodeMemoryHill,encodeMemoryHill} from '../authoring-labs/e04-e09-scene-transfer.mjs';
-import {fresh as freshE09} from '../e09-scene/scene-model.mjs';
+import {fresh as freshE09,view as viewE09} from '../e09-scene/scene-model.mjs';
 const memoryHill=decodeMemoryHill(location.hash);
 const lantern=memoryHill||decodeMemoryLantern(location.hash);
 const hillIncoming=lantern?null:decodeHillTransfer(location.hash);
 const incoming=lantern||hillIncoming||decodeStepsTransfer(location.hash);
 let state=incoming?.e08||fresh(),linkedE07=incoming?.e07||null,linkedE06=incoming?.e06||null;
 let linkedE09=memoryHill?.e09||hillIncoming?.e09||null;
+let selectedHillQuestion=null; // UI focus only; never a replay/approval flag.
 let approach={layout:'first',view:'first',pins:[]},shadow=freshShadow();
 const linkedE04=lantern?.e04||null,linkedE05=lantern?.e05||null;
 const $=id=>document.getElementById(id);
@@ -41,6 +42,7 @@ const rows=[
  ['trace-both','Overlay both PAPER views',n('trace-both')],
  ['connector','Review Finn\'s PAPER connector',n('connector')],
  ['steps','Return to lower Steps',n('steps')],
+ ['undo','Undo last PAPER action',null],
  ['restart','Restart E08 PAPER model',n('restart')]
 ];
 const groups={'walk-controls':rows.slice(0,4),'inspect-controls':rows.slice(4,9),
@@ -48,7 +50,7 @@ const groups={'walk-controls':rows.slice(0,4),'inspect-controls':rows.slice(4,9)
  'trace-controls':rows.slice(14,17),'nav-controls':rows.slice(17)};
 for(const [host,items] of Object.entries(groups))for(const [key,label,action] of items){
  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
- b.addEventListener('click',()=>{if(action.scene==='nav'&&action.type==='restart'){linkedE09=null;approach={layout:'first',view:'first',pins:[]};shadow=freshShadow();}state=dispatch(state,action);render();});$(host).append(b);
+ b.addEventListener('click',()=>{if(key==='undo'){const previous=rewind(state);if(previous){state=previous;linkedE09=null;selectedHillQuestion=null;approach={layout:'first',view:'first',pins:[]};shadow=freshShadow();}render();return;}if(action.scene==='nav'&&action.type==='restart'){linkedE09=null;selectedHillQuestion=null;approach={layout:'first',view:'first',pins:[]};shadow=freshShadow();}state=dispatch(state,action);render();});$(host).append(b);
 }
 for(const button of document.querySelectorAll('[data-approach]')){
  button.addEventListener('click',()=>{
@@ -112,13 +114,20 @@ function drawShadow(){
  }
 }
 const spread=o=>o?o.viewpoint.replaceAll('-',' ')+' · fixed marks A/B/C · apparent spread '+o.spreadDegrees.toFixed(1)+'°':'Not observed yet';
+for(const button of document.querySelectorAll('[data-hill-question]'))button.addEventListener('click',()=>{
+ selectedHillQuestion=button.dataset.hillQuestion;render();
+});
 function draw(v){
  const root=$('map');root.replaceChildren();const p=VIEWPOINTS[v.milo],marks=new Map(MARKERS.map((m,i)=>[m.x+','+m.y,'ABC'[i]]));
  for(let y=0;y<6;y++)for(let x=0;x<9;x++){
   const id=x+','+y,m=marks.get(id),here=p.x===x&&p.y===y,el=document.createElement('div');
   el.className='cell';el.dataset.here=String(here);el.dataset.marker=String(!!m);
   el.dataset.dark=String(!!m&&!(v.lights['lower-a']&&v.lights['lower-b']));
-  el.textContent=here?'M':m||'·';root.append(el);
+  const question=x===1&&y===1?'light':x===7&&y===4?'view':null;
+  const earned=question&&$('steps-world').dataset.hillReturn==='revised';
+  el.dataset.hillQuestion=earned?question:'';
+  el.dataset.selected=String(!!earned&&selectedHillQuestion===question);
+  el.textContent=here?'M':earned?(question==='light'?'?L':'?V'):m||'·';root.append(el);
  }
  root.setAttribute('aria-label','Synthetic fixed markers A B C, Milo at '+v.milo.replaceAll('-',' ')+
   ', lower lamp A '+(v.lights['lower-a']?'on':'off')+', lower lamp B '+(v.lights['lower-b']?'on':'off'));
@@ -238,6 +247,7 @@ function drawConnectorCallback(){
   ' after Milo tested Finn\'s longer detour for Milo, another traveler and water. '+
   'The route is PAPER only; real passage, drainage and lighting are NOT approved.':
   'No child-checked E07 PAPER connector is linked to this independent E08 visit.';
+ $('connector-finn-revisit').textContent=paper?.finnRevisit||'';
 }
 
 function render(){
@@ -271,8 +281,24 @@ function render(){
   linkedE04?encodeMemoryHill(linkedE04,linkedE05,linkedE06,linkedE07,state,linkedE09||freshE09()):
   encodeHillTransfer(state,linkedE09||freshE09(),linkedE07,linkedE06));
  hill.hidden=!hillFragment;if(hillFragment)hill.href='../e09-scene/'+hillFragment;
- $('e09-callback').textContent=linkedE09&&v.lowerLightsPaperOn?
-  'E09 PAPER return: '+linkedE09.history.length+' recorded model steps; upper hill remains CLOSED.':
+ const hillNotes=linkedE09&&v.lowerLightsPaperOn?viewE09(linkedE09):null;
+ const earnedQuestions=hillNotes?.sightlineBoard.compared&&
+  hillNotes.sightlineBoard.placements.light==='fence_view'&&
+  hillNotes.sightlineBoard.placements.view==='overlook';
+ $('steps-world').dataset.hillReturn=earnedQuestions?'revised':'unverified';
+ if(!earnedQuestions)selectedHillQuestion=null;
+ $('hill-question-panel').hidden=!earnedQuestions;
+ for(const button of document.querySelectorAll('[data-hill-question]')){
+  button.setAttribute('aria-pressed',String(earnedQuestions&&selectedHillQuestion===button.dataset.hillQuestion));
+ }
+ $('hill-question-detail').textContent=!earnedQuestions?'No verified PAPER question locations yet.':
+  selectedHillQuestion==='light'?'Milo checks ?L: the E09 fence-view LIGHT question. Nia: This is a question, not a safe light or an approved route.':
+  selectedHillQuestion==='view'?'Milo checks ?V: the E09 overlook VIEWPOINT question. Finn: We can return to E09 and revise it; North Hill stays CLOSED.':
+  'Milo can inspect ?L or ?V on this synthetic plan, then return to E09 to revise the question.';
+ $('e09-callback').textContent=earnedQuestions?
+  'Nia: Milo, your revised PAPER questions connect the safe fence lookout and overlook. The marks on our Steps model stay fixed; the hill remains CLOSED. We can revisit and change those questions.':
+  hillNotes?'Finn: We kept '+linkedE09.history.length+
+   ' PAPER survey steps, but have not matched both safe future questions. Let us try again; the hill stays CLOSED.':
   'The safe hill survey is a separate PAPER rehearsal, not a production unlock.';
  if(s.previewComplete){drawTrace(s,v.reviewMode);
   $('trace-detail').textContent=v.reviewMode==='first'?'FROM HERE: '+spread(s.firstView):
@@ -282,7 +308,7 @@ function render(){
  $('note').textContent=s.paperNote;
  $('hook').textContent=v.lowerLightsPaperOn?'Next question: survey North Hill from a safe place. E09 NOT UNLOCKED.':'The service plate date and source are UNKNOWN. No E09 unlock.';
  draw(s);drawLiveView(s);drawShadow();drawConnectorCallback();drawApproach(approachFrame(linkedE07,state,approach.layout,approach.view));
- for(const [key,,action] of rows)document.querySelector('[data-key="'+key+'"]').disabled=!can(state,action);
+ for(const [key,,action] of rows)document.querySelector('[data-key="'+key+'"]').disabled=key==='undo'?!state.history.length:!can(state,action);
  for(const el of document.querySelectorAll('[data-anchor]'))el.dataset.here=String(el.dataset.anchor===s.milo);
 }
 render();

@@ -3,7 +3,27 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - 'tests/season1-e05-e06-scene-transfer*'
+      - 'authoring-labs/e05-e06-scene-transfer.mjs'
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
+      - 'tests/season1-e11-evidence-sort*'
+      - 'tests/season1-e11-visitor-turns*'
+      - 'tests/season1-e11-shared-path*'
+      - 'tests/season1-e11-shared-use-followthrough.test.mjs'
+      - 'tests/season1-e11-paper-notice-repair*'
+      - 'tests/season1-e11-paper-listening-lantern*'
+      - 'tests/season1-e11-paper-turn-taking*'
+      - 'tests/season1-e11-paper-evidence-revision*'
+      - 'tests/season1-e05-e11-earned-evidence-revision*'
+      - 'tests/season1-e11-paper-turn-switch*'
+      - 'tests/season1-e11-two-needs-token-trial*'
+      - 'tests/season1-e11-two-needs-zones*'
+      - 'tests/season1-e11-e10-earned-two-needs*'
+      - 'tests/season1-e11-e07-earned*'
+      - 'tests/season1-e07-e11-earned*'
+      - 'tests/season1-e07-e11-direct-handoff*'
+      - 'tests/season1-e11-e05-earned*'
+      - 'tests/season1-e10-e11-direct-handoff*'
       - 'tests/season1-e10-e11-scene-transfer*'
       - 'tests/season1-e10-e11-use-revisit.test.mjs'
       - 'tests/season1-e10-e11-hill-trace*'
@@ -21,7 +41,13 @@ on:
   push:
     branches: [main]
     paths:
+      - 'tests/season1-e05-e06-scene-transfer*'
+      - 'authoring-labs/e05-e06-scene-transfer.mjs'
       - 'tests/season1-twelve-scene-acceptance.test.mjs'
+      - 'tests/season1-e11-shared-path*'
+      - 'tests/season1-e11-shared-use-followthrough.test.mjs'
+      - 'tests/season1-e11-paper-evidence-revision*'
+      - 'tests/season1-e11-two-needs-zones*'
       - 'tests/season1-e10-e11-scene-transfer*'
       - 'tests/season1-e10-e11-use-revisit.test.mjs'
       - 'tests/season1-e10-e11-hill-trace*'
@@ -135,6 +161,7 @@ jobs:
             tests/season1-handoff-contract.test.mjs \
             tests/season1-chain-continuity.test.mjs \
             tests/season1-e05-scene-shell.test.mjs \
+            tests/season1-e05-e06-scene-transfer.test.mjs \
             tests/season1-e06-scene-shell.test.mjs \
             tests/season1-e07-scene-shell.test.mjs \
             tests/season1-e08-scene-shell.test.mjs \
@@ -145,11 +172,21 @@ jobs:
             tests/season1-e09-e10-scene-transfer.test.mjs \
             tests/season1-e09-e10-world-callback.test.mjs \
             tests/season1-e08-e10-clue-transfer.test.mjs \
-            tests/season1-e10-e11-scene-transfer.test.mjs tests/season1-e10-e11-use-revisit.test.mjs \
+            tests/season1-e10-e11-direct-handoff.test.mjs tests/season1-e10-e11-scene-transfer.test.mjs tests/season1-e10-e11-use-revisit.test.mjs \
             tests/season1-e04-e11-scene-transfer.test.mjs \
             tests/season1-e03-e11-paper-chronicle.test.mjs \
             tests/season1-e09-scene-shell.test.mjs \
             tests/season1-e11-scene-shell.test.mjs \
+            tests/season1-e11-evidence-sort.test.mjs \
+            tests/season1-e11-visitor-turns.test.mjs \
+            tests/season1-e11-earned-visitor-turns.test.mjs \
+            tests/season1-e11-paper-notice-repair.test.mjs tests/season1-e11-paper-listening-lantern.test.mjs tests/season1-e11-paper-turn-taking.test.mjs tests/season1-e11-paper-turn-switch.test.mjs tests/season1-e11-paper-evidence-revision.test.mjs tests/season1-e05-e11-earned-evidence-revision.test.mjs \
+            tests/season1-e11-shared-path.test.mjs \
+            tests/season1-e11-shared-use-followthrough.test.mjs \
+            tests/season1-e11-two-needs-token-trial.mjs \
+            tests/season1-e11-two-needs-zones.test.mjs tests/season1-e11-e10-earned-two-needs.test.mjs \
+            tests/season1-e07-e11-direct-handoff.mjs \
+            tests/season1-e11-e07-earned-bridge.test.mjs tests/season1-e07-e11-earned-turn-taking.test.mjs tests/season1-e11-e05-earned-layout.test.mjs tests/season1-e05-e11-direct-handoff.test.mjs \
             tests/season1-arc1-hill-unnamed-loop-handoff.test.mjs
       - name: Install pinned Chromium
         run: |
@@ -170,17 +207,34 @@ jobs:
           if [ "$ready" -ne 1 ]; then cat /tmp/s1-paper-server.log; exit 1; fi
           node tests/season1-e05-scene-shell-browser.mjs
           node tests/season1-e06-scene-shell-browser.mjs
+          node tests/season1-e05-e06-scene-transfer-browser.mjs
           node tests/season1-e07-scene-shell-browser.mjs
           node tests/season1-e08-scene-shell-browser.mjs
           node tests/season1-e07-e08-scene-transfer-browser.mjs
           node tests/season1-e08-e09-scene-transfer-browser.mjs
           node tests/season1-e09-e10-scene-transfer-browser.mjs
+          node tests/season1-e10-e11-direct-handoff-browser.mjs
           node tests/season1-e10-e11-scene-transfer-browser.mjs
           node tests/season1-e04-e11-scene-transfer-browser.mjs
           node tests/season1-e03-e11-paper-chronicle-browser.mjs
           node tests/season1-e09-scene-shell-browser.mjs
           node tests/season1-e10-scene-shell-browser.mjs
           node tests/season1-e11-scene-shell-browser.mjs
+          node tests/season1-e11-evidence-sort-browser.mjs
+          node tests/season1-e11-visitor-turns-browser.mjs
+          node tests/season1-e11-paper-notice-repair-browser.mjs
+          node tests/season1-e11-paper-listening-lantern-browser.mjs
+          node tests/season1-e11-paper-turn-taking-browser.mjs
+          node tests/season1-e11-paper-turn-switch-browser.mjs
+          node tests/season1-e11-paper-evidence-revision-browser.mjs
+          node tests/season1-e11-shared-path-browser.mjs
+          node tests/season1-e11-two-needs-token-trial-browser.mjs
+          node tests/season1-e11-two-needs-zones-browser.mjs
+          node tests/season1-e11-e07-earned-browser.mjs
+          node tests/season1-e07-e11-earned-turn-taking-browser.mjs
+          node tests/season1-e07-e11-direct-handoff-browser.mjs
+          node tests/season1-e11-e05-earned-layout-browser.mjs
+          node tests/season1-e05-e11-direct-handoff-browser.mjs
           node tests/season1-arc1-hill-unnamed-loop-handoff-browser.mjs
       - name: Upload paper-only browser evidence
         if: always()

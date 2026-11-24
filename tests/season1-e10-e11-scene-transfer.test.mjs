@@ -62,3 +62,35 @@ test('reject forged rights, source, Common, invalid upstream and tampered replay
   {...base,e11:[{type:'grant-unlock'}]}
  ])assert.equal(decodeLoopTransfer('#paper-loop='+encodeURIComponent(JSON.stringify(bad))),null);
 });
+
+test('E11 child renegotiates E10 needs with strict replay, revision, undo and reset',async()=>{
+ const {paperNeedsRetest: view,dispatchNeedsRetest: dispatch}=await import('../e11-scene/needs-retest.mjs');
+ const e10=courtyard();
+ const initial=view(e10);
+ assert.deepEqual([initial.quiet,initial.activity],['left','right']);
+ assert.equal(initial.passed,false);
+ let h=[];
+ assert.equal(dispatch(e10,h,{type:'test'}),h);
+ for(const a of [{type:'place',role:'quiet',slot:'right'},{type:'test'}])h=dispatch(e10,h,a);
+ assert.equal(view(e10,h).passed,false);
+ assert.match(view(e10,h).feedback,/Both visitors need this spot/);
+ for(const a of [{type:'revise'},{type:'place',role:'activity',slot:'left'},{type:'test'}])h=dispatch(e10,h,a);
+ const done=view(e10,h);
+ assert.equal(done.passed,true);
+ assert.match(done.chronicle,/renegotiated/);
+ assert.deepEqual(view(JSON.parse(JSON.stringify(e10)),JSON.parse(JSON.stringify(h))),done);
+ assert.deepEqual([done.canonicalEvents,done.unlocks,done.rights],[[],[],[]]);
+ assert.equal(done.realAccessApproved,false);
+ assert.equal(done.northHillClosed,true);
+ assert.equal(done.commonRevealed,false);
+ assert.equal(view(e10,h.slice(0,-1)).passed,false);
+ assert.deepEqual(view(e10,[]),initial);
+ assert.equal(view(E10.dispatch(e10,{type:'reset'}),h),null);
+ assert.equal(view({...e10,rights:['approved']},h),null);
+ assert.equal(view({...e10,history:[]},h),null);
+ for(const bad of [
+  [{type:'test'}],[{type:'revise'}],[{type:'place',role:'quiet',slot:'north_hill'}],
+  [{type:'place',role:'quiet',slot:'left',rights:['approved']}],
+  [...h,{type:'test'}],Array(25).fill({type:'test'})
+ ])assert.equal(view(e10,bad),null);
+});

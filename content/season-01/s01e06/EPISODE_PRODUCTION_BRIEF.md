@@ -132,4 +132,6 @@ Do **not** store guessed causes as historical facts. Production event emission m
 
 The accompanying [interaction spec](INTERACTION_SPEC.md) and [test matrix](INTERACTION_TEST_MATRIX.md) define a minimum isolated authoring prototype. It must show **two different navigable garden spaces** and two distinct actions (rain-model comparison, lower-pocket placement); preserve uncertainty; require real observations; support reversible tries; prevent canonical saves and E07 unlock. No claims of production PASS until actual scene art, browser/mobile QA, owner/family acceptance and integrity/deployment gates run.
 
-**Next focused implementation task:** create an isolated, synthetic-geometry E06 two-garden interaction prototype and Node tests (no production imports, no E05 canonical handoff, no E07 unlock).
+**Current isolated implementation:** the two-garden authoring shell, strict replay tests and PAPER transfer rehearsal exist; the Current Garden spatial rain model is documented in [the scene README](../../../e06-scene/README.md) and [interaction specification](INTERACTION_SPEC.md). These remain authoring-only and do not satisfy Gate 1 or production acceptance.
+
+**Next independent engineering task after Current Garden model CI passes:** improve Lower Garden spatial feedback for the runoff route, shared footpath and raised pocket, preserving marker placement and results from the reducer's actual history. Do not convert synthetic positions into real terrain or imply access/planting approval.

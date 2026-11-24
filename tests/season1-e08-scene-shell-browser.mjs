@@ -11,6 +11,7 @@ try{
    const hit=async key=>{assert.equal(await b(key).isDisabled(),false,key);await b(key).click();};
    assert.match(await page.locator('.notice').innerText(),/AUTHORING ONLY/);
    assert.match(await page.locator('.notice').innerText(),/CLOSED/);
+   assert.equal(await b('undo').isDisabled(),true);
    assert.equal(await b('observe').isDisabled(),true);
    assert.equal(await page.locator('#live-viewfinder').getAttribute('data-lit'),'false');
    assert.equal(await page.locator('#live-viewfinder [data-live-mark]').count(),0);
@@ -38,6 +39,10 @@ try{
    assert.match(await page.locator('#comparison').innerText(),/Same fixed marks/);
    assert.equal(await b('finish').isDisabled(),true);
    await hit('inspect-plate');await hit('finish');
+   await hit('undo');
+   assert.match(await page.locator('#stage').innerText(),/source-check/);
+   assert.equal(await b('finish').isDisabled(),false);
+   await hit('finish');
    assert.match(await page.locator('#note').innerText(),/UNKNOWN/);
    assert.match(await page.locator('#hook').innerText(),/NOT UNLOCKED/);
    assert.match(await page.locator('#steps-world-note').innerText(),/real lights NOT restored/);
@@ -72,6 +77,7 @@ try{
    const sz=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(sz.scroll<=sz.w+1,JSON.stringify({viewport,sz}));assert.deepEqual(errors,[]);
    await hit('restart');assert.match(await page.locator('#stage').innerText(),/opening/);
+   assert.equal(await b('undo').isDisabled(),true);
    assert.equal(await page.locator('#shadow-panel').isVisible(),false);
    assert.match(await page.locator('#lamp-state').innerText(),/OFF/);
   }finally{await context.close();}

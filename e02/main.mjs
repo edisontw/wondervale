@@ -210,8 +210,9 @@ function navigation(){
   '<div><img src="../public/art/s01e02-riverside-r1.webp" alt="Old crossing stones at Riverside"><p><strong>Then:</strong> old stones marked a crossing.</p></div>'+
   '<div><img src="../public/art/s01e02-riverside-r2.webp" alt="The missing bridge deck today"><p><strong>Now:</strong> the deck is gone.</p></div></div>'+
   '<p><strong>Unknown:</strong> why it changed. The safe overlook remains available.</p></div>'+
-  '<p class="completed-next">Next chapter: Market Lane (not yet available).</p>'+
+  '<p class="completed-next">Next chapter: Market Lane (engineering preview).</p>'+ 
   '<div class="completed-actions">'+
+  '<a class="next-episode" href="../e03/">Continue to Market Lane</a>'+
   button(ui.completedReview?'Close Chronicle review':'Review the Chronicle','show-chronicle',
    'aria-expanded="'+ui.completedReview+'" aria-controls="completed-review"')+
   button('Start E02 again','reset-prompt')+'</div></section>';

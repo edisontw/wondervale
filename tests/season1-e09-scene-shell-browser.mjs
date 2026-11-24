@@ -37,13 +37,17 @@ try{
    await hit('walk-overlook');await hit('inspect-distant_symbol');
    await hit('mark-steps_base:signpost');await hit('mark-lower_bend:overlook');
    await hit('check-route');assert.match(await page.locator('#route-status').innerText(),/gap/);
+   assert.equal(await page.locator('#scene .edge.gap').count(),1);
+   assert.match(await page.locator('#scene .edge.gap').getAttribute('aria-label'),/PAPER sketch gap/);
+   assert.equal(await page.locator('#scene .edge.closed.gap').count(),0);
    assert.equal(await b('review').isDisabled(),true);
    await hit('mark-signpost:lower_bend');await hit('check-route');
+   assert.equal(await page.locator('#scene .edge.gap').count(),0);
    assert.match(await page.locator('#route-status').innerText(),/Continuous model route/);
    await hit('compare-symbol');await hit('review');await hit('finish-preview');
    assert.match(await page.locator('#chronicle').innerText(),/NOT UNLOCKED/);
    assert.match(await page.locator('#chronicle').innerText(),/PAPER CHRONICLE/);
-   assert.match(await page.locator('#chronicle').innerText(),/connected lower MODEL route/);
+   assert.match(await page.locator('#chronicle').innerText(),/connected (?:the )?lower MODEL route/);
    assert.match(await page.locator('#hook').innerText(),/NOT UNLOCKED/);
    assert.equal(await page.locator('#survey-compare').isVisible(),true);
    assert.equal(await page.locator('#scene .edge.marked').count(),3);

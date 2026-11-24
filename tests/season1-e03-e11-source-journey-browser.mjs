@@ -128,7 +128,8 @@ try{
    for(const key of ['walk-channel','inspect-channel','walk-workbench','test-milo',
     'test-resident','test-water','place-water','test-milo','test-resident','test-water',
     'place-upper','test-water','test-milo','test-resident','compare','finish',
-    'walk-start','walk-crossing','walk-check-crossing','walk-water','walk-check-water',
+    'walk-start','walk-crossing','walk-check-crossing','other-start','other-step','other-step',
+    'walk-water','walk-check-water',
     'walk-base','walk-review'])await e07(key);
    assert.equal(await page.locator('#e08-transfer').isVisible(),true);
    await page.locator('#e08-transfer').click();
@@ -191,8 +192,24 @@ try{
    for(const limit of ['UNKNOWN','MOCK','CLOSED'])assert.ok(chronicle.includes(limit),limit);
    assert.match(await page.locator('#e03-paper-source').innerText(),/NOT verified/);
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
+   const crossing=page.getByRole('button',{name:'Crossing and water',exact:true});
+   const needs=page.getByRole('button',{name:'Quiet and activity spots',exact:true});
+   assert.equal(await needs.getAttribute('aria-pressed'),'true','E10 is the arrival model');
+   await crossing.focus();await page.keyboard.press('Enter');
+   assert.equal(await crossing.getAttribute('aria-pressed'),'true');
+   assert.equal(await needs.getAttribute('aria-pressed'),'false');
+   assert.match(await page.locator('#return-model-line').innerText(),/Finn: We left room for a traveler and for water/);
    const press=async name=>page.getByRole('button',{name,exact:true}).click();
    await press('Begin the PAPER trial');
+   assert.equal(await crossing.getAttribute('aria-pressed'),'true');
+   assert.equal(await page.locator('#world-atlas-echo .world-echo-card').count(),4);
+   for(const id of ['e06','e07','e10'])
+    assert.equal(await page.locator('[data-echo-source="'+id+'"]').getAttribute('data-status'),
+     'verified',id+' must be strictly replayed');
+   assert.match(await page.locator('[data-echo-source="e06"]').innerText(),/PAPER sprout/);
+   assert.match(await page.locator('[data-echo-source="e07"]').innerText(),/traveler and water/);
+   assert.equal(await page.locator('#world-atlas').isVisible(),false,
+    'read-only source changes must not unlock the full E11 Atlas');
    await press('Place access strip (two middle cells)');
    await press('Place quiet seat');await press('Cell 0,1');
    await press('Place activity area');await press('Cell 0,2');
@@ -230,6 +247,16 @@ try{
     /FIRST 3\/3 rain marks, 2 connector overlap cells; NOW 1\/3 rain marks, 0 overlaps/);
    assert.match(await page.locator('#shared-use-note').innerText(),/UNKNOWN/);
    assert.doesNotMatch(await page.locator('#shared-use-note').innerText(),/\bCommon\b/);
+    await press('Move PAPER quiet to right');
+    await press('Ask both PAPER visitors');
+    assert.match(await page.locator('#e10-needs-retest').innerText(),/Both visitors need this spot/);
+    await press('Revise PAPER needs trial');
+    await press('Move PAPER quiet to left');
+    const needsButton=page.getByRole('button',{name:'Ask both PAPER visitors',exact:true});
+    await needsButton.focus();await page.keyboard.press('Enter');
+    assert.match(await page.locator('#e10-needs-retest').innerText(),/Milo renegotiated two simulated needs/);
+    await press('Undo last PAPER needs action');
+    assert.match(await page.locator('#e10-needs-retest').innerText(),/PAPER CHRONICLE PENDING/);
    // Strictly earned E06/E07/E10 + four E11 visitor walks + two shared checks.
    await page.locator('#world-atlas').waitFor({state:'visible'});
    assert.equal(await page.locator('#world-atlas-places .atlas-place').count(),3);
@@ -248,9 +275,36 @@ try{
    await press('Inspect Lower Garden PAPER change');
    assert.match(await page.locator('#world-atlas-observation').innerText(),/PAPER sprout/);
    assert.doesNotMatch(await page.locator('#world-atlas-chronicle').innerText(),/Common/);
+   // Real child-earned Atlas repair: FIRST is not the revised NOW claim.
+   const repairHost=page.locator('#world-atlas-repair');
+   await repairHost.waitFor({state:'visible'});
+   await press('Place FIRST Lower Garden model claim');
+   const atlasTest=page.getByRole('button',{name:'Test PAPER atlas claim',exact:true});
+   await atlasTest.focus();await page.keyboard.press('Enter');
+   assert.match(await repairHost.innerText(),/Try NOW/);
+   assert.equal(await repairHost.locator('[data-atlas-repair="changed"]').count(),0);
+   await press('Undo PAPER atlas repair');
+   await press('Place NOW Lower Garden model claim');
+   await atlasTest.focus();await page.keyboard.press('Enter');
+   assert.match(await repairHost.innerText(),/PAPER ATLAS REPAIR/);
+   assert.match(await repairHost.locator('[data-atlas-repair="changed"]').innerText(),/Lower Garden/);
+   await press('Undo PAPER atlas repair');
+   assert.equal(await repairHost.locator('[data-atlas-repair="changed"]').count(),0);
+   await press('Restart PAPER atlas repair');
+   assert.doesNotMatch(await repairHost.innerText(),/PAPER ATLAS REPAIR/);
+   await press('Revise NOW shared-use PAPER check');
+   assert.match(await page.locator('#shared-use-note').innerText(),/pending/);
+   assert.equal(await page.locator('#world-atlas').isVisible(),false,'revision withdraws stale atlas');
+   await press('BLOCKED PAPER water channel');
+   await press('Record NOW PAPER check');
+   await press('Compare shared-use PAPER changes');
+   assert.match(await page.locator('#shared-use-note').innerText(),/NOW 3\/3 rain marks, 0 overlaps/);
+   assert.equal(await page.locator('#world-atlas').isVisible(),true,'retested NOW restores earned atlas');
    await press('Restart shared-use PAPER checks');
    assert.match(await page.locator('#shared-use-note').innerText(),/pending/);
    assert.equal(await page.locator('#world-atlas').isVisible(),false,'reset withdraws atlas');
+   assert.equal(await page.locator('[data-echo-source="e06"]').getAttribute('data-status'),'verified',
+    'restarting E11 shared-use must not erase actual earlier PAPER work');
    assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
 
    // E05 -> E06 -> E11 is one real child-operated Chromium journey, not a
@@ -270,13 +324,42 @@ try{
    assert.match(await page.locator('#return-route-garden').innerText(),/possible PAPER sprout/);
    assert.doesNotMatch(await page.locator('#return-route-garden').innerText(),/NOT VERIFIED/);
    await press('Visit Map Room PAPER stop');
-   assert.match(await page.locator('#return-route-station').innerText(),/E05 child-earned PAPER/);
-   assert.match(await page.locator('#return-route-station').innerText(),/PAPER table by wall/);
-   assert.match(await page.locator('#return-route-station').innerText(),/Two marks aligned on COPY/);
+   assert.match(await page.locator('#return-route-station').innerText(),/PAPER MODEL PENDING/);
+   assert.match(await page.locator('#return-route-station').innerText(),/Place the PAPER table, then walk the model path/);
    assert.doesNotMatch(await page.locator('#return-route-station').innerText(),/NOT VERIFIED/);
+   // E05-earned Map Room: child tests a blocked table, revises and undoes.
+   await press('Walk and test PAPER path');
+   assert.match(await page.locator('#return-route-station').innerText(),/Nia:.*blocks our model path/);
+   await press('Revise PAPER table trial');
+   await press('Place PAPER table by wall');
+   // Keyboard activation is required in the mobile landscape and desktop journeys.
+   const testButton=page.getByRole('button',{name:'Walk and test PAPER path',exact:true});
+   await testButton.focus();await page.keyboard.press('Enter');
+   assert.match(await page.locator('#return-route-station').innerText(),/PAPER MODEL ONLY: Milo retested a clear Map Room walkway/);
+   await press('Undo last PAPER table action');
+   assert.match(await page.locator('#return-route-station').innerText(),/PAPER MODEL PENDING/);
+   await press('Walk and test PAPER path');
+   assert.match(await page.locator('#return-route-station').innerText(),/PAPER MODEL ONLY/);
+   assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
    await press('Return to Garden PAPER stop');
    await press('Return to Square PAPER start');
    assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
+   // E07-earned connector: test another traveler, revise, keyboard retest and undo.
+   await press('Visit shared crossing PAPER stop');
+   assert.match(await page.locator('#return-route-feedback').innerText(),/Choose a PAPER crossing width/);
+   await press('Test another traveler at PAPER crossing');
+   assert.match(await page.locator('#return-route-feedback').innerText(),/Finn:.*stops the other traveler/);
+   await press('Revise PAPER crossing trial');
+   await press('Place shared PAPER crossing');
+   const crossingButton=page.getByRole('button',{name:'Test another traveler at PAPER crossing',exact:true});
+   await crossingButton.focus();await page.keyboard.press('Enter');
+   assert.match(await page.locator('#return-route-feedback').innerText(),/PAPER CHRONICLE: Milo retested/);
+   await press('Undo last PAPER crossing action');
+   assert.match(await page.locator('#return-route-feedback').innerText(),/PAPER CHRONICLE PENDING/);
+   await press('Test another traveler at PAPER crossing');
+   await press('Return to Square PAPER start');
+   assert.match(await page.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
+
    // These two observations must be earned in this same E05→E06→E11 browser
    // journey, not injected as pre-completed E11 fixture state. A PAPER model
    // observation is distinct from a claim about actual planting or public access.

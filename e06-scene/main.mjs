@@ -1,4 +1,5 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
+import {waterModelEvidence} from './water-model-view.mjs';
 import * as E05 from '../e05-scene/scene-model.mjs';
 import {stationWorld} from './station-world.mjs';
 import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
@@ -75,19 +76,26 @@ function buttons(id,rows){
     b.type='button';b.dataset.key=key;b.textContent=label;
     b.disabled=!can(state,action);
     b.addEventListener('click',()=>{
-      state=dispatch(state,action);
-      if(action.scene==='nav'&&action.type==='restart'){linkedE07=freshE07();linkedE08=freshE08();}
-      render();
+      applyAction(action);
     });
     root.append(b);
   }
+}
+function applyAction(action){
+ const before=view(state)?.screen;
+ state=dispatch(state,action);
+ if(action.scene==='nav'&&action.type==='restart'){linkedE07=freshE07();linkedE08=freshE08();}
+ render();
+ const after=view(state)?.screen;
+ if(after!==before&&['current','lower'].includes(after))
+  $(after==='current'?'current-scene':'lower-scene').scrollIntoView({block:'start',behavior:'instant'});
 }
 // Each PAPER location is a child-operated place, not a route inferred from artwork.
 // First tap moves Milo; a second tap inspects or places a reversible marker.
 const spotNames={
  'present-bed':'Healthy bed','slope':'Uphill slope','shared-path':'Shared path',
  'model-tray':'MODEL tray','runoff-trace':'Runoff trace','public-path':'Public path',
- 'runoff-channel':'Water route','footpath':'Walking route','raised-pocket':'Raised pocket'
+ 'runoff-channel':'Runoff channel','footpath':'Shared footpath','raised-pocket':'Raised pocket'
 };
 function spotAction(spot,g){
  if(g.milo!==spot)return garden('walk',spot);
@@ -98,11 +106,12 @@ function spotAction(spot,g){
  return null;
 }
 function renderSpots(v){
- const g=v.garden,last=g.attempts.at(-1);
+ const g=v.garden,last=g.attempts.at(-1),currentCheck=last?.site===g.markerSite?last:null;
  for(const spot of document.querySelectorAll('[data-spot]')){
   const id=spot.dataset.spot,here=g.milo===id,marked=g.markerSite===id;
   const observed=g.observedCurrent.includes(id)||g.observedLower.includes(id);
   const grown=id==='raised-pocket'&&v.lowerGrowthVisible;
+  const checked=currentCheck?.site===id?currentCheck:null;
   const action=spotAction(id,g);
   spot.disabled=!action||!can(state,action);
   spot.dataset.here=String(here);
@@ -110,26 +119,111 @@ function renderSpots(v){
   spot.dataset.marker=String(marked);
   spot.dataset.growth=String(grown);
   spot.setAttribute('aria-pressed',String(here));
-  const status=marked?(last?.site===id?
-    last.wet?'PAPER marker · WET':last.blocksPath?'PAPER marker · PATH BLOCKED':
-      'PAPER marker · CLEAR MODEL':'PAPER marker · check it'):
-   grown?'PAPER sprout · MODEL only':here?'Milo here':observed?'Observed':'';
+  spot.dataset.conflict=checked?.wet?'water':checked?.blocksPath?'path':checked?'clear':'none';
+  const name=spot.querySelector('.spot-name');
+  if(name)name.textContent=spotNames[id];
+  const player=spot.querySelector('.player-token');
+  if(player)player.hidden=!here;
+  const marker=spot.querySelector('.marker-token');
+  if(marker)marker.hidden=!marked;
+  const pocket=spot.querySelector('#lower-growth-tile');
+  if(pocket){
+   pocket.hidden=!v.lowerPaperStarted;
+   pocket.dataset.stage=v.care.stage;
+   pocket.textContent=v.lowerGrowthVisible?'Small PAPER pocket · 🌱 possible sprout':
+    'Small PAPER pocket · MODEL only';
+  }
+  const status=grown?'':marked?(checked?
+    checked.wet?'WET HERE · MODEL':checked.blocksPath?'PATH BLOCKED · MODEL':
+      'WATER + PATH CLEAR · MODEL':'Marker here · check it'):
+   here?'Milo here':observed?'Observed':'';
   const hint=spot.disabled?'':here?
    (['runoff-channel','footpath','raised-pocket'].includes(id)?'Tap to place':'Tap to inspect'):
    'Tap to walk';
-  const label=document.createElement('span');
-  label.className='spot-state';
-  label.textContent=[status,hint].filter(Boolean).join(' · ');
-  spot.replaceChildren(document.createTextNode(spotNames[id]),label);
+  const label=spot.querySelector('.spot-state');
+  if(label)label.textContent=[status,hint].filter(Boolean).join(' · ');
+  spot.setAttribute('aria-label',[spotNames[id],here?'Milo here':null,marked?'temporary marker here':null,
+   grown?'small PAPER pocket with a hypothetical sprout, model only':null,
+   checked?.wet?'marker may get wet':checked?.blocksPath?'marker blocks the shared path':
+    checked?'water route and path clear':null,hint].filter(Boolean).join('. '));
  }
- const run=g.runs.at(-1),meter=$('model-catchment');
- meter.dataset.level=String(run?.catchment??0);
- meter.setAttribute('aria-valuenow',String(run?.catchment??0));
- $('model-flow-caption').textContent=run?
-  'Last MODEL: '+run.weather.toUpperCase()+' · channel '+run.channel.toUpperCase()+
-  ' · low catchment '+run.catchment+'/3 marks · bypass '+run.bypass+
-  '. A PAPER test, not the garden\'s history.':
-  'No water run yet. Try DRY and RAIN, then change the MODEL channel.';
+}
+function renderLowerMap(g,v){
+ const map=$('lower-map'),feedback=$('lower-map-feedback'),last=g.attempts.at(-1),checked=last?.site===g.markerSite?last:null;
+ const result=checked?.wet?'water':checked?.blocksPath?'path':checked?'clear':'none';
+ map.dataset.conflict=result;
+ map.dataset.paperPocket=String(v.lowerPaperStarted);
+ feedback.dataset.result=result;
+ feedback.textContent=checked?.wet?
+  'Water route: this marker may get wet in the model. Move Milo’s marker and try another place.':
+  checked?.blocksPath?
+   'Shared footpath: this marker blocks where people walk in the model. Move it and try again.':
+    checked&&v.lowerGrowthVisible?
+     'The small PAPER pocket remains at the raised spot. Its sprout is only a model idea; the Current Garden remains healthy.':
+    checked?
+     'Water route and shared footpath stay clear in this model. A small PAPER pocket is possible; the real place still needs checking and permission.':
+    g.markerSite?
+     'Milo’s removable marker is at '+spotNames[g.markerSite]+'. It has not been checked yet.':
+     g.milo==='runoff-trace'||g.milo==='public-path'?
+      'Milo is at '+spotNames[g.milo]+'. Inspect the water trace and public path before placing a marker.':
+      'Blue is the water route. Gold dots are the shared footpath. Walk Milo to a place, then choose a marker site.';
+}
+function renderComparisonCard(id,prefix,run,side){
+ const card=$(id),flow=$(prefix+'-flow');
+ card.dataset.result=run.weather+'-'+run.channel;
+ card.dataset.runIndex=String(run.index);
+ $(prefix+'-label').textContent=side+' · Run '+run.index+' · RAIN / '+run.channel.toUpperCase();
+ flow.replaceChildren();
+ const source=document.createElement('div');source.className='mini-source';
+ source.textContent='HIGH SOURCE ↓ DRAIN CHANNEL '+run.channel.toUpperCase();
+ const low=document.createElement('div');low.className='mini-outcome';
+ low.append(document.createTextNode('↓ LOW BASIN'));
+ const lowValue=document.createElement('strong');lowValue.textContent=run.catchment+'/3';low.append(lowValue);
+ const bypass=document.createElement('div');bypass.className='mini-outcome';
+ bypass.append(document.createTextNode('↗ BYPASS'));
+ const bypassValue=document.createElement('strong');bypassValue.textContent=run.bypass+'/2';bypass.append(bypassValue);
+ flow.append(source,low,bypass);
+}
+function renderModelEvidence(g){
+ const evidence=waterModelEvidence(g.runs),runs=evidence?.history||[],last=evidence?.last,
+  map=$('water-model'),meter=$('model-catchment');
+ const channelAction=garden('channel',g.channel==='open'?'blocked':'open');
+ const level=last?.catchment??0;
+ map.dataset.result=last?.visualState||'none';
+ meter.dataset.level=String(level);
+ meter.setAttribute('aria-valuenow',String(level));
+ $('model-catchment-label').textContent=level+' / 3';
+ $('model-bypass-label').textContent=last?'BYPASS '+last.bypass+'/2':'no completed run';
+ $('model-channel-control').setAttribute('aria-pressed',String(g.channel==='open'));
+ $('model-channel-control').disabled=!can(state,channelAction);
+ $('model-channel-control').setAttribute('aria-label',
+  'Change selected MODEL channel; currently '+g.channel+'. This does not change the last run.');
+ $('model-channel-state').textContent=g.channel.toUpperCase();
+ $('model-channel-hint').textContent=g.channel==='open'?'tap to block':'tap to open';
+ $('model-next-setup').textContent='Selected setup: '+g.weather.toUpperCase()+' · channel '+g.channel.toUpperCase()+
+  ' · setup only; water above comes from completed runs.';
+ $('model-flow-caption').textContent=last?
+  'Last observed run '+runs.length+': '+last.weather.toUpperCase()+' · channel '+last.channel.toUpperCase()+
+  ' · low basin '+last.catchment+'/3 · bypass '+last.bypass+'/2. This is a synthetic PAPER result, not garden history.':
+  'No completed run yet. A changed next-run setting is not an observation.';
+ const pair=evidence?.comparison,comparison=$('model-comparison');
+ comparison.hidden=!pair;
+ if(pair){
+  renderComparisonCard('model-before','model-before',pair.before,'BEFORE');
+  renderComparisonCard('model-after','model-after',pair.after,'AFTER');
+  $('model-comparison-caption').textContent='Both completed runs used RAIN. The channel changed from '+
+  pair.before.channel.toUpperCase()+' to '+pair.after.channel.toUpperCase()+
+   '. Compare the real run snapshots in this PAPER model; this cannot prove the real garden\'s past.';
+ }
+ const historyPanel=$('model-run-history-panel'),history=$('model-run-history');
+ historyPanel.hidden=!runs.length;history.replaceChildren();
+ runs.forEach(run=>{
+  const item=document.createElement('span');item.className='run-chip';
+  item.textContent='Run '+run.index+' · '+run.weather.toUpperCase()+'/'+run.channel.toUpperCase()+
+   ' · low '+run.catchment+'/3 · bypass '+run.bypass+'/2';
+  item.dataset.result=run.visualState;
+  history.append(item);
+ });
 }
 
 function renderStationMap(){
@@ -165,13 +259,11 @@ function render(){
   $('care-panel').hidden=!(v.screen==='lower'&&v.lowerPaperStarted);
   $('garden-revisit-result').hidden=!v.revisitCompared;
   $('garden-revisit-result').textContent=v.revisitCompared?'NOW: the upper bed is healthy today. POSSIBLE PAPER: our lower model shows a sprout, not a real plant. Milo asks what we must check before planting.':'';
+  $('two-place-visual-comparison').hidden=!v.revisitCompared;
+  $('current-garden-comparison-state').textContent='Healthy bed remains';
+  $('lower-garden-comparison-state').textContent=v.lowerGrowthVisible?
+   'Hypothetical PAPER sprout · model only':'Small PAPER pocket · no real growth';
   $('upper-bed-tile').dataset.stage='healthy';
-  $('lower-growth-tile').dataset.stage=v.care.stage;
-  $('lower-growth-tile').textContent=v.care.stage==='paper-sprout'?
-    'PAPER sprout (possible) · NOT a real plant':
-    v.care.stage==='paper-soggy'?'PAPER seed is soggy · try less MODEL water':
-    v.care.stage==='paper-seed'?'PAPER seed looks ready · compare tests':
-    'Future growth · NOT APPROVED';
   $('care-feedback').textContent='PAPER water tests: '+v.care.trials.map(t=>
     t.choice.toUpperCase()+' → '+(t.result==='paper-soggy'?'soggy seed':'possible sprout')).join('; ')+
     (v.care.compared?' · BEFORE / NOW compared.':' · comparison open.');
@@ -184,12 +276,14 @@ function render(){
     '; channel '+g.channel+'; compared '+g.modelCompared+'. A model is not historical proof.';
   $('upper-observations').textContent='Observed now: '+(g.observedCurrent.join(', ')||'nothing yet');
   $('lower-observations').textContent='Observed MODEL: '+(g.observedLower.join(', ')||'nothing yet');
-  const last=g.attempts.at(-1);
+  const last=g.attempts.at(-1),currentCheck=last?.site===g.markerSite?last:null;
   $('marker').textContent='Temporary marker: '+(g.markerSite||'not placed')+
-    (last?' · last check: '+(last.wet?'WET in model':last.blocksPath?'BLOCKS path':'model path and water clear'):' · not checked');
+    (currentCheck?' · last check: '+(currentCheck.wet?'WET in model':currentCheck.blocksPath?'BLOCKS path':'model path and water clear'):' · not checked');
   $('note').textContent=v.paperChronicle;
   $('parent').textContent='Optional parent question: '+v.parentCue;
   renderSpots(v);
+  renderLowerMap(g,v);
+  renderModelEvidence(g);
   const stationFragment=linkedE05&&(linkedE04?
    (lantern?(encodeMemoryLantern(linkedE04,linkedE05,state,linkedE07,linkedE08)||
      encodeMemoryGardenShortcut(linkedE04,linkedE05,state,linkedE07)):
@@ -234,4 +328,10 @@ for(const spot of document.querySelectorAll('[data-spot]')){
   if(action&&can(state,action)){state=dispatch(state,action);render();}
  });
 }
+// Spatial and listed controls use the same existing action and reducer legality.
+$('model-channel-control').addEventListener('click',()=>{
+ const g=view(state)?.garden;if(!g)return;
+ const action=garden('channel',g.channel==='open'?'blocked':'open');
+ if(can(state,action)){state=dispatch(state,action);render();}
+});
 render();

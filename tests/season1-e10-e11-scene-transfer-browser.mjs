@@ -39,6 +39,8 @@ try{
    assert.match(await page.locator('#e10-linked-notes').textContent(),/SIMULATED NEEDS/);
    assert.match(await page.locator('#e10-linked-notes').textContent(),/UNKNOWN/);
    assert.equal(await page.locator('#grid .quiet').count(),0,'E10 cannot pre-place E11 pieces');
+   assert.equal(await page.getByRole('button',{name:'Quiet and activity spots'}).isVisible(),true);
+   assert.match(await page.locator('#return-model-line').innerText(),/Nia: You made two spots.*Finn:/);
    const press=async name=>page.getByRole('button',{name,exact:true}).click();
    await press('Begin the PAPER trial');
    assert.equal(await page.locator('#e10-use-world').isVisible(),true);
@@ -68,6 +70,17 @@ try{
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    assert.match(await page.locator('#stage').innerText(),/finished/);
    assert.equal(await page.locator('#paper-comparison').isVisible(),true);
+   assert.equal(await page.locator('#e11-need-recheck').isVisible(),true);
+   await page.locator('#recheck-reader').click();
+   await page.locator('[data-recheck-slot="shared"]').click();
+   assert.equal(await page.locator('#e11-need-recheck').getAttribute('data-matched'),'false');
+   await page.locator('[data-recheck-slot="left"]').click();
+   assert.equal(await page.locator('#e11-need-recheck').getAttribute('data-matched'),'true');
+   await page.locator('#recheck-group').click();
+   await page.locator('[data-recheck-slot="right"]').click();
+   assert.equal(await page.locator('#e11-need-recheck').getAttribute('data-matched'),'true');
+   assert.match(await page.locator('#recheck-result').innerText(),/PAPER models only/);
+
    assert.equal(await page.locator('#use-staging').getAttribute('data-revised'),'true',
     'E10 return retains only replayed child revision');
    await page.locator('#e11-paper').click();
@@ -83,6 +96,7 @@ try{
    assert.deepEqual(errors,[]);
    await page.locator('#restart').click();
    assert.equal(await page.locator('#revisit').isVisible(),false);
+   assert.equal(await page.locator('#return-models').isVisible(),true,'E11 restart keeps the verified E10 model');
    await page.locator('#e10-return').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent?.includes('finished'));
    assert.match(await page.locator('#stage').innerText(),/finished/);
@@ -97,6 +111,10 @@ try{
    await page.locator('#restart').click();
    assert.equal(await page.locator('#e11-paper').isVisible(),false,'E10 reset withdraws E11 link');
    await page.goto(base+'/e11-scene/');
+   await page.waitForFunction(()=>document.querySelector('#begin')?.hidden===false &&
+    document.querySelector('#e10-linked-context')?.textContent?.includes('Direct E11 authoring'));
+   assert.equal(await page.locator('#return-models').isVisible(),false,
+    'E10 reset leaves no earlier model or companion line on a fresh E11 entry');
    assert.equal(await page.locator('#e10-needs-world').isVisible(),false,
     'direct E11 must not invent an E10 needs world');
    assert.equal(await page.locator('#e10-use-world').isVisible(),false,

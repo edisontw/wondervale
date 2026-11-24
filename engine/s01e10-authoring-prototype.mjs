@@ -135,3 +135,38 @@ export function previewProjection(snapshot){
     tradeoffReviewed:s.tradeoffReviewed,reviewed:s.reviewed,finished:s.finished,
     feedback:s.feedback,canonicalEvents:[],unlocks:[],historicalClaims:[]};
 }
+
+/** Replay-derived PAPER dialogue; no canonical event, unlock, or fabricated retry. */
+export function earnedVoices(snapshot){
+  const s=restore(snapshot);
+  if(!s)return [];
+  const events=s.history;
+  const heard=events.filter(a=>a.type==='hear').map(a=>a.needId);
+  const placements=events.filter(a=>a.type==='place');
+  const latest=events.at(-1);
+  if(!latest)return [];
+  if(latest.type==='hear'&&heard.length===1)
+    return ['Nia: We heard one need. Let us listen to the other person.'];
+  if(latest.type==='hear'&&heard.length===2)
+    return ['Milo: Two people want different things. I can try a paper plan.'];
+  if(latest.type==='place'){
+    const quiet=s.board.quiet,activity=s.board.activity;
+    if(quiet&&activity&&quiet===activity)
+      return ['Finn: Both cards share one spot. Could noise make reading hard?',
+        'Milo: I can move a card. This is only a paper try.'];
+    if(quiet&&activity&&quiet!==activity){
+      const hadConflict=placements.some((a,i)=>{
+        const b={};for(const p of placements.slice(0,i+1))b[p.needId]=p.slot;
+        return b.quiet&&b.activity&&b.quiet===b.activity;
+      });
+      return hadConflict?
+        ['Nia: You noticed the clash and changed the plan. Both needs still matter.',
+          'Milo: I moved a card. We still need to ask real people.']:
+        ['Nia: The cards have different spots. We still need to ask real people.'];
+    }
+    return ['Finn: One card is placed. Where might the other person go?'];
+  }
+  if(latest.type==='review-tradeoff')
+    return ['Nia: Quiet and play both matter. This paper plan is not a real decision.'];
+  return [];
+}

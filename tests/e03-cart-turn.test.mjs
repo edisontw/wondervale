@@ -31,10 +31,37 @@ function overlap(a,b){
  if(a.some(p=>inside(p,b))||b.some(p=>inside(p,a)))return true;
  for(let i=0;i<a.length;i++)for(let j=0;j<b.length;j++){
   const p=a[i],q=a[(i+1)%a.length],r=b[j],s=b[(j+1)%b.length];
-  if(cross(p,q,r)*cross(p,q,s)<0&&cross(r,s,p)*cross(r,s,q)<0)return true;
+  const c1=cross(p,q,r),c2=cross(p,q,s),c3=cross(r,s,p),c4=cross(r,s,q);
+  const onSegment=(u,v,t)=>t[0]>=Math.min(u[0],v[0])&&
+   t[0]<=Math.max(u[0],v[0])&&t[1]>=Math.min(u[1],v[1])&&
+   t[1]<=Math.max(u[1],v[1]);
+  if(c1*c2<0&&c3*c4<0)return true;
+  if((c1===0&&onSegment(p,q,r))||(c2===0&&onSegment(p,q,s))||
+     (c3===0&&onSegment(r,s,p))||(c4===0&&onSegment(r,s,q)))return true;
  }
  return false;
 }
+test('E03 diagnostic polygon boundary contact is not missed',()=>{
+ const square=(x,y,size=10)=>[[x,y],[x+size,y],[x+size,y+size],[x,y+size]];
+ const a=square(0,0);
+ const cases=[
+  ['separated',square(11,11),false],
+  ['interior intersection',square(5,5),true],
+  ['upper-left corner',square(-10,-10),true],
+  ['lower-right corner',square(10,10),true],
+  ['upper-right corner',square(10,-10),true],
+  ['lower-left corner',square(-10,10),true],
+  ['shared vertical edge',square(10,0),true],
+  ['identical',square(0,0),true],
+  ['contained',square(2,2,2),true],
+  ['one-micro-unit gap',square(10.000001,0),false]
+ ];
+ for(const [name,other,expected] of cases){
+  assert.equal(overlap(a,other),expected,name);
+  assert.equal(overlap(other,a),expected,name+' (reverse)');
+ }
+});
+
 function cartPoly([x,y],style,degrees=0){
  const h=actorHeight([x,y]),w=h*spriteBox.width/spriteBox.height;
  const left=x-w/2+style.left*w,top=y-h+style.top*h;
@@ -219,4 +246,107 @@ test('E03 cart screen-space turning diagnostic; physical clearance remains OPEN'
   ' estimated-cargo angle/edge conflicts; '+reviewHits.length+
   ' review-mask corner conflicts; '+foregroundHeadingFindings.length+
   ' registered foreground-mask corner conflicts; real wheel/road/device clearance OPEN.');
+});
+
+
+// #109: sample the actual screen-aligned SVG wheel/handle feature tracks on every
+// L edge. These are image-plane projections against foreground *review* masks,
+// not wheel steering, floor clearance, collision detection or safety acceptance.
+test('E03 cart wheel/handle projected tracks preserve auditable image-plane evidence',async()=>{
+ const css=await readFile('e03/style.css','utf8');
+ const rule=[...css.matchAll(/\.load-cart\s*\{([^}]+)\}/g)].at(-1)?.[1];
+ assert.ok(rule,'Current cart rule must exist');
+ const style=Object.fromEntries(['left','top','width','height'].map(k=>[k,percent(rule,k)]));
+ const svg=await readFile('e03/main.mjs','utf8');
+ assert.match(svg,/viewBox="0 0 132 72"/);
+ for(const x of [47,91])assert.ok(svg.includes('circle cx="'+x+'" cy="58" r="8"'),
+  'Update wheel coordinates if approved cart art changes');
+ const points=[
+  {id:'left-wheel',svg:[47,58],radius:8},
+  {id:'right-wheel',svg:[91,58],radius:8},
+  {id:'handle-end',svg:[9,18],radius:null}
+ ];
+ const project=(foot,[u,v])=>{
+  const h=actorHeight(foot),w=h*spriteBox.width/spriteBox.height;
+  const x0=foot[0]-w/2+style.left*w,y0=foot[1]-h+style.top*h;
+  return [x0+u/132*style.width*w,y0+v/72*style.height*h];
+ };
+ const radius=(foot,svgRadius)=>svgRadius===null?0:svgRadius*
+  Math.max(style.width*actorHeight(foot)*spriteBox.width/spriteBox.height/132,
+           style.height*actorHeight(foot)/72);
+ const distance=(p,a,b)=>{
+  const dx=b[0]-a[0],dy=b[1]-a[1],len=dx*dx+dy*dy;
+  const t=len?Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/len)):0;
+  return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);
+ };
+ const maskDistance=(p,polygons)=>{
+  let edgeDistance=Infinity;
+  for(const polygon of polygons)for(let i=0;i<polygon.length;i++)
+   edgeDistance=Math.min(edgeDistance,
+    distance(p,polygon[i],polygon[(i+1)%polygon.length]));
+  return {edgeDistance,inside:polygons.some(poly=>inside(p,poly))};
+ };
+ const east=Object.fromEntries(points.map(f=>[f.id,project(places.east,f.svg)]));
+ assert.ok(Math.abs(east['left-wheel'][0]-778)<3 &&
+  Math.abs(east['right-wheel'][0]-826)<3 &&
+  Math.abs(east['handle-end'][0]-737)<3,
+  'Update #109 projected-feature baselines after any intentional cart geometry change');
+ const path=route('H','T','tea_cart');
+ assert.ok(path.length>=6);
+ assert.deepEqual(route('T','H','tea_cart'),path.toReversed());
+ const directions={forward:path,reverse:path.toReversed()},traces={};
+ for(const [direction,nodes] of Object.entries(directions)){
+  const edges=[];
+  for(let i=1;i<nodes.length;i++){
+   const from=nodes[i-1],to=nodes[i],a=places[from],b=places[to];
+   const n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/3);
+   const stats=Object.fromEntries(occluders.flatMap(mask=>points.map(feature=>[
+    mask.id+'/'+feature.id,{minImagePlaneMarginPx:Infinity,centerInsideSamples:0,
+      possibleReviewMaskTouches:0,firstPossibleTouchFoot:null}
+   ])));
+   for(let j=0;j<=n;j++){
+    const t=j/n,foot=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+    for(const feature of points){
+     const center=project(foot,feature.svg),r=radius(foot,feature.radius);
+     for(const mask of occluders){
+      const {edgeDistance,inside:within}=maskDistance(center,mask.polygons);
+      // A negative value flags potential image overlap. For handle-end it
+      // omits stroke width; it never provides certified physical clearance.
+      const margin=within?-edgeDistance-r:edgeDistance-r;
+      const entry=stats[mask.id+'/'+feature.id];
+      entry.minImagePlaneMarginPx=Math.min(entry.minImagePlaneMarginPx,margin);
+      if(within)entry.centerInsideSamples++;
+      if(margin<=0){entry.possibleReviewMaskTouches++;
+       if(!entry.firstPossibleTouchFoot)entry.firstPossibleTouchFoot=
+        foot.map(v=>Number(v.toFixed(1)));}
+     }
+    }
+   }
+   for(const value of Object.values(stats)){
+    assert.ok(Number.isFinite(value.minImagePlaneMarginPx));
+    assert.ok(value.possibleReviewMaskTouches<=n+1);
+    value.minImagePlaneMarginPx=Number(value.minImagePlaneMarginPx.toFixed(2));
+   }
+   edges.push({edge:from+'-'+to,sourcePixelSamples:n+1,featuresByReviewMask:stats});
+  }
+  assert.equal(edges.length,path.length-1);
+  traces[direction]=edges;
+ }
+ const report={
+  authority:'E03 L graph / currently rendered screen-aligned cart CSS and SVG',
+  sourceImagePixels:[1672,941],
+  approval:'DIAGNOSTIC ONLY; physical wheel/turn/road clearance NOT VALIDATED',
+  rotation:'No yaw or steering is modeled; reverse is a graph sensitivity probe, not a loaded-cart gameplay return',
+  measurement:'Projected wheel-center circles (conservative max screen radius) and handle endpoint; occlusion polygons are review masks, not solid obstacles',
+  approvedWalkablePavementBoundary:null,
+  measuredCartTurningRadius:null,
+  certifiedSolidObstacleMap:null,
+  eastFeatureCentersSourcePx:east,
+  maskIDs:occluders.map(x=>x.id),
+  traces
+ };
+ await mkdir('test-results',{recursive:true});
+ await writeFile('test-results/e03-cart-wheel-feature-trace.json',JSON.stringify(report,null,2)+'\n');
+ console.log('E03 projected wheel/handle tracks DIAGNOSTIC:',path.length-1,
+  'edges each direction;',occluders.length,'review masks; physical Gate 3 OPEN');
 });

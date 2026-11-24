@@ -85,6 +85,7 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <button id="use-stage-reset" type="button">Clear PAPER cutouts</button></div>
 <p id="use-stage-feedback" class="paper" role="status" aria-live="polite"></p>
 <p id="use-stage-chronicle" class="paper" role="status"></p>
+<p id="use-stage-reaction" class="dialogue" role="status" aria-live="polite" data-beat="waiting"></p>
 <p class="paper">Nia: “We saw marks, not the things that made them.” Finn: “Let's test a different fit.” Optional parent cue: What would we need to check before saying this really happened?</p>
 </section>
 <section id="clue-panel" class="panel" hidden>
@@ -107,6 +108,7 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <p id="clue-chronicle" class="paper" role="status"></p>
 </section>
 <p><a id="e09-return" hidden href="../e09-scene/">Return to E09 PAPER survey (not a real hill route)</a></p>
+<p><a id="e11-direct-zones" hidden href="../e11-scene/two-needs-zones.html">Try Milo’s two-needs PAPER layout in E11 (no JSON file)</a></p>
 <p><a id="e11-paper" hidden href="../e11-scene/">Visit E11 independent shared-space PAPER trial — not an official unlock</a></p>
 <div class="dialogue" aria-live="polite"><strong id="speaker">Milo</strong>: <span id="line"></span><div id="stage"></div></div>
 <div id="story-reaction" class="dialogue" role="status" aria-live="polite" data-beat="arrival"><strong id="story-reaction-speaker">Nia</strong>: <span id="story-reaction-line">What do we know?</span><div id="story-reaction-evidence">PAPER story reactions follow Milo’s actions, not a historical source.</div></div><div class="controls"><button id="e09-callback" disabled>Review E09 PAPER field notes</button><button id="e10-back" hidden>Return to E10 courtyard</button></div><section id="e09-notes" class="panel" hidden><h2>Looking back at the hill</h2><p id="e09-observation" class="paper">No linked field observations.</p><p>The upper hill remains CLOSED. An unidentified mark was observed in a fictional lower survey. It does not prove a real safe entrance, a date, or a place name. No E09 completion is imported.</p></section>
@@ -142,6 +144,7 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <section class="panel"><h2>4. Try a reversible needs board</h2>
 <p>First put BOTH paper cards in one shared slot and test it. Then move a card and compare. No permanent design.</p>
 <div id="need-actions" class="controls"></div>
+<div id="live-needs-board" class="compare-board" aria-label="Current simulated PAPER needs board" aria-live="polite"></div>
 <div class="controls"><button data-action="test-one-slot">Test both cards in one spot</button>
 <button data-action="review-tradeoff">Compare the two needs</button></div>
 <p id="parent-needs" class="paper" hidden></p>
@@ -157,7 +160,7 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <button id="restart">Restart story</button></div>
 <p id="hook" class="paper" role="status"></p>
 </section></div>
-<section id="paper-comparison" class="panel" hidden>
+<section id="e11-need-recheck" class="panel" hidden data-matched="false"><h2>E11 → E10: Test a visitor need again</h2><p>After Milo tests both fictional E11 visitors, choose a visitor and try its question in an E10 PAPER slot. A mismatch is safe to revise. Neither model proves real access.</p><div class="controls"><button id="recheck-reader" type="button">Try quiet reader</button><button id="recheck-group" type="button">Try activity group</button></div><div id="recheck-slots" class="controls"></div><p id="recheck-result" class="paper" role="status" aria-live="polite">Choose a visitor, then a PAPER slot.</p></section><section id="paper-comparison" class="panel" hidden>
 <h2>6. See what Milo changed — FIRST / NOW</h2>
 <p>FIRST is the shared-slot PAPER test Milo actually tried, not the historical past. NOW is his revised model. No real layout is approved.</p>
 <div class="controls"><button id="compare-first" type="button" aria-pressed="false">FIRST: test the overlap</button>
@@ -181,6 +184,8 @@ import {decodeUnnamedTransfer,encodeUnnamedTransfer} from '../authoring-labs/e09
 import {decodeMemoryCourtyard,encodeMemoryCourtyard} from '../authoring-labs/e04-e10-scene-transfer.mjs';
 import {decodeLoopTransfer,encodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
 import {fresh as freshE11} from '../engine/s01e11-authoring-prototype.mjs';
+import {encodeE10Handoff} from '../e11-scene/e10-direct-handoff.mjs';
+import {source as e11RecheckSource,check as checkE11Need,SLOTS as RECHECK_SLOTS} from './e11-need-recheck.mjs';
 const loop=decodeLoopTransfer(location.hash);
 const incoming=loop||decodeMemoryCourtyard(location.hash)||decodeUnnamedTransfer(location.hash);
 let state=incoming?.e10||fresh(),screen='courtyard',comparisonLayer='now';
@@ -189,6 +194,7 @@ const linkedE09=upstream?.e09||null,linkedE08=upstream?.e08||null;
 const linkedE07=upstream?.e07||null,linkedE06=upstream?.e06||null;
 const linkedE04=upstream?.e04||null,linkedE05=upstream?.e05||null;
 let linkedE11=loop?.e11||null;
+let recheckRole=null,recheckSlot=null;
 let linkedMarkerTrial=loop?.markerTrial||null;
 const linkedHillWorld=hillWorld(linkedE09);
 const linkedClueSource=clueSource(linkedE08,linkedE09);
@@ -299,7 +305,7 @@ function renderHillWorld(){
   'NOW: Milo walked '+linkedHillWorld.walkedEdgeIds.length+
   ' model edges, marked '+linkedHillWorld.now.markedEdgeIds.length+
   ' safe lower model edges, and inspected '+linkedHillWorld.now.clueIds.length+
-  ' clues. The upper hill stays CLOSED. Real access NOT approved.':
+  ' clues. '+linkedHillWorld.revisitVoice.speaker+': '+linkedHillWorld.revisitVoice.line+' The upper hill stays CLOSED. Real access NOT approved.':
   'FIRST: Blank PAPER sketch, no child-marked route or clues yet. Upper hill CLOSED.';
 }
 function renderQuestion(){
@@ -371,6 +377,22 @@ function renderUseStage(){
   (v.first?' FIRST: '+Object.entries(v.first).map(([p,a])=>p+' at '+a.replaceAll('_',' ')).join('; ')+'.':' FIRST: no comparison yet.')+
   ' NOW: '+Object.entries(v.now).map(([p,a])=>p+' at '+(a?a.replaceAll('_',' '):'unplaced')).join('; ')+'.';
  $('use-stage-chronicle').textContent=v.paperNote;
+ // Only the strictly replayed PAPER cutout trial may change the companions' response.
+ // A move after comparison withdraws the earlier success until Milo compares again.
+ const reaction=$('use-stage-reaction');
+ if(v.revised){
+  reaction.dataset.beat='revised';
+  reaction.textContent='Milo: "I moved the notice!" Nia: "Now each paper cutout has a place." Finn: "It fits our model, not proven history."';
+ }else if(v.conflict){
+  reaction.dataset.beat='overlap';
+  reaction.textContent='Finn: "They are on top of each other!" Milo: "I can move one." Nia: "Try a different PAPER spot."';
+ }else if(v.firstConflict){
+  reaction.dataset.beat='trying-again';
+  reaction.textContent='Nia: "You changed the model. Compare again to see what happened." Finn: "We can still undo it."';
+ }else{
+  reaction.dataset.beat='waiting';
+  reaction.textContent='Nia: "What could fit?" Finn: "Place two pretend cutouts and compare."';
+ }
 }
 function renderClue(){
  const panel=$('clue-panel');panel.hidden=!linkedClueSource;
@@ -445,6 +467,28 @@ function renderStoryReaction(v){
  $('story-reaction-line').textContent=line;
  $('story-reaction-evidence').textContent=evidence;
 }
+function renderE11NeedRecheck(){
+ const panel=$('e11-need-recheck'),source=e11RecheckSource(state,linkedE11);
+ panel.hidden=!source||screen!=='courtyard';
+ if(!source)return;
+ for(const [id,role] of [['recheck-reader','quiet_reader'],['recheck-group','activity_group']])
+  $(id).setAttribute('aria-pressed',String(recheckRole===role));
+ const host=$('recheck-slots');host.replaceChildren();
+ for(const slot of RECHECK_SLOTS){
+  const b=document.createElement('button');b.type='button';
+  b.textContent='Try '+slot+' PAPER slot';b.dataset.recheckSlot=slot;
+  b.disabled=!recheckRole;b.setAttribute('aria-pressed',String(recheckSlot===slot));
+  b.addEventListener('click',()=>{recheckSlot=slot;renderE11NeedRecheck();});
+  host.append(b);
+ }
+ const result=recheckRole&&recheckSlot?checkE11Need(state,linkedE11,recheckRole,recheckSlot):null;
+ panel.dataset.matched=String(!!result?.matched);
+ $('recheck-result').textContent=result?
+  (result.matched?'Milo found a PAPER match. ':'Milo can revise this PAPER try. ')+result.message:
+  'Choose a visitor, then a PAPER slot. E11 tests: reader '+
+  (source.tests.quiet_reader.passed?'PASS':'RETRY')+', group '+
+  (source.tests.activity_group.passed?'PASS':'RETRY')+'.';
+}
 function render(){
  const v=view(state);
  renderStoryReaction(v);
@@ -463,6 +507,9 @@ function render(){
   encodeUnnamedTransfer(linkedE08,linkedE09,state,linkedE07,linkedE06));
  $('e09-return').hidden=!returnFragment;
  if(returnFragment)$('e09-return').href='../e09-scene/'+returnFragment;
+ const handoff=encodeE10Handoff(state.history);
+ $('e11-direct-zones').hidden=!handoff;
+ if(handoff)$('e11-direct-zones').href='../e11-scene/two-needs-zones.html'+handoff;
  const loopFragment=encodeLoopTransfer(state,linkedE11||freshE11(),
   linkedE04?{e04:linkedE04,e05:linkedE05,e06:linkedE06,e07:linkedE07,
    e08:linkedE08,e09:linkedE09}:
@@ -491,6 +538,15 @@ function render(){
  const needs=$('need-actions');needs.replaceChildren();
  for(const needId of Object.keys(NEEDS))for(const slot of SLOTS)
   add(needs,'place',needId+':'+slot,'Paper '+needId+' → '+slot);
+ const live=$('live-needs-board');live.replaceChildren();
+ for(const [slot,title] of [['left','Left'],['shared','Shared'],['right','Right']]){
+  const cards=v.needs.filter(n=>n.slot===slot).map(n=>n.role);
+  const tile=document.createElement('div');tile.className='compare-slot';
+  tile.dataset.slot=slot;tile.dataset.occupied=String(cards.length>0);tile.dataset.conflict=String(cards.length>1);
+  const label=document.createElement('strong');label.textContent=title+' PAPER slot';
+  const body=document.createElement('span');body.textContent=cards.join(' + ')||'Empty';
+  tile.append(label,body);live.append(tile);
+ }
  $('seen').textContent=v.observations.map(x=>x.text).join(' / ')||'Not inspected yet.';
  $('maybe').textContent=v.hypotheses.map(x=>x.traceId+': '+x.useTag+' (MAYBE)').join(' / ')||'No idea yet.';
  $('needs').textContent=v.needs.map(x=>x.role+': '+x.want+' → '+(x.slot||'unplaced')).join(' / ')||'Not heard yet.';
@@ -503,6 +559,7 @@ function render(){
   ' · Revision: '+(v.changedAfterTest?'tried':'not yet');
  $('hook').textContent=v.paperNote;
  drawComparison(v);
+  renderE11NeedRecheck();
  renderHillWorld();
  renderClue();
  renderQuestion();
@@ -572,6 +629,8 @@ $('use-stage-reset').addEventListener('click',()=>{
 $('ground-provenance-reset').addEventListener('click',()=>{
  groundTrial=freshGroundTrial();renderGround();
 });
-$('restart').addEventListener('click',()=>{useTrial=freshUseTrial();groundTrial=freshGroundTrial();state=fresh();linkedE11=null;linkedMarkerTrial=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
+for(const [id,role] of [['recheck-reader','quiet_reader'],['recheck-group','activity_group']])
+ $(id).addEventListener('click',()=>{recheckRole=role;recheckSlot=null;renderE11NeedRecheck();});
+$('restart').addEventListener('click',()=>{recheckRole=null;recheckSlot=null;useTrial=freshUseTrial();groundTrial=freshGroundTrial();state=fresh();linkedE11=null;linkedMarkerTrial=null;clueTrial=freshTrial();questionTrial=freshQuestion();screen='courtyard';comparisonLayer='now';render();});
 render();
 </script></main></body></html>

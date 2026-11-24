@@ -40,6 +40,12 @@ export function paperReaction(snapshot){
     'Two future questions are pinned. Both checks are NOT DONE.':
     'Which safe view matches each question? We can try again.';
   }
+ }else if(last?.scene==='story'&&last.action?.type==='check-route'){
+  const triedGap=h.slice(0,-1).some(a=>a.scene==='story'&&a.action?.type==='check-route');
+  speaker=v.story.routeResult?.complete?'Nia':'Finn';
+  line=v.story.routeResult?.complete?
+   (triedGap?"You found the missing link! Your PAPER sketch now follows Milo's walk.":'Your PAPER sketch connects the safe model walk. What did we see?'):
+   'I see a gap in our PAPER sketch. Which walked edge can Milo mark next?';
  }else if(last?.scene==='nav'&&last.type==='blank'){
   speaker='Finn';line='BEFORE: this PAPER sketch has no notes from our walk.';
  }else if(last?.scene==='nav'&&last.type==='notes'){
@@ -61,8 +67,13 @@ export function paperReaction(snapshot){
    'Milo placed both observations where he looked.');
   entries.push('The ground-change cause and date remain UNKNOWN.');
  }
- if(s.routeResult?.complete)
-  entries.push('Milo walked and marked a connected lower MODEL route. The upper hill remains CLOSED.');
+ if(s.routeResult?.complete){
+  const revisedRoute=h.some(a=>a.scene==='story'&&a.action?.type==='check-route')&&
+   h.filter(a=>a.scene==='story'&&a.action?.type==='check-route').length>1;
+  entries.push(revisedRoute?
+   'Milo found a gap, revised his PAPER sketch, and connected the lower MODEL route. The upper hill remains CLOSED.':
+   'Milo walked and marked a connected lower MODEL route. The upper hill remains CLOSED.');
+ }
  if(s.symbolCompared)entries.push('The distant mark shape matches; the place name is UNKNOWN.');
  if(v.sightlineBoard.compared)
   entries.push('Milo pinned VISIBILITY and VIEWPOINT as future PAPER questions — NOT DONE.');

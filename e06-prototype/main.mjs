@@ -155,7 +155,8 @@ function drawRevisit(){
   'Finish a valid PAPER pocket trial before comparing FIRST and NOW. No real growth is claimed.':
   (projection?.difference||'No valid revisit evidence.')+' FIRST: empty pocket. NOW: '+
   (projection?.now.pocket==='model-sprout'?'one synthetic sprout':'no established growth')+
-  '. No real planting, permission, historical claim, Chronicle event or unlock.';
+  '. '+(projection?.response||'No valid PAPER story response.')+
+  ' No real planting, permission, historical claim, Chronicle event or unlock.';
  $('scene').dataset.revisit=revisitStage;
 }
 function drawChronicle(){

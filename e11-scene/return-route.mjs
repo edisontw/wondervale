@@ -4,15 +4,18 @@
 import {restore} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
 import {stationWorld} from '../e06-scene/station-world.mjs';
+import {view as viewE07} from '../e07-scene/scene-model.mjs';
 
 export const PAPER_WALK=Object.freeze({
- square:Object.freeze(['market','garden']),
+ square:Object.freeze(['market','garden','connector']),
+ connector:Object.freeze(['square']),
  market:Object.freeze(['square']),
  garden:Object.freeze(['square','map_room']),
  map_room:Object.freeze(['garden'])
 });
 export const WALK_LABELS=Object.freeze({
  square:'Square PAPER start',market:'Market PAPER detour',
+ connector:'Shared crossing PAPER stop',
  garden:'Garden PAPER stop',map_room:'Map Room PAPER stop'
 });
 export function paperReturnRoute(snapshot,steps=[],upstream=null){
@@ -25,18 +28,28 @@ export function paperReturnRoute(snapshot,steps=[],upstream=null){
   if(typeof to!=='string'||!PAPER_WALK[at].includes(to))return null;
   at=to;trail.push(to);
   if(to==='market')detours++;
-  if(to==='garden'||to==='map_room')visited.add(to);
+  if(to==='garden'||to==='map_room'||to==='connector')visited.add(to);
  }
  const garden=paperGardenRevisit(upstream?.e06);
  const station=stationWorld(upstream?.e05);
  const gardenEarned=!!(garden?.lower.compared&&garden.lower.nowStage==='paper-sprout');
  const stationEarned=!!station;
+ const connector=viewE07(upstream?.e07);
+ const crossingEarned=connector?.walkthrough?.phase==='reviewed'&&
+  connector.walkthrough.otherPassed===true;
  const complete=at==='square'&&visited.has('garden')&&visited.has('map_room');
  let feedback='Milo: "Which PAPER stop shall we visit first?"';
  if(steps.length){
   if(at==='market')feedback='Finn: "This detour does not reach the two stops. We can walk back."';
-  else if(at==='garden')feedback='Milo: "We can check the garden PAPER change here."';
-  else if(at==='map_room')feedback='Nia: "Look at the model table. Is the path still clear?"';
+  else if(at==='connector')feedback=crossingEarned?
+   'Finn: "You checked the other traveler at our PAPER crossing. Let us keep room for everyone."':
+   'Finn: "We have not checked another traveler here. This is only a PAPER question."';
+  else if(at==='garden')feedback=gardenEarned?
+   'Milo: "We can check the garden PAPER change here."':
+   'Milo: "We have no checked garden PAPER change in this visit yet."';
+  else if(at==='map_room')feedback=stationEarned?
+   'Nia: "Look at the model table. Is the path still clear?"':
+   'Nia: "We have no checked Map Room PAPER table in this visit yet."';
   else feedback=complete?
    'Milo: "We visited both model changes and came back. The real way is still UNKNOWN."':
    'Milo: "We are back, but we have not checked both model stops. Try again."';
@@ -47,6 +60,10 @@ export function paperReturnRoute(snapshot,steps=[],upstream=null){
   gardenNote:visited.has('garden')?(gardenEarned?
    'E06 child-earned PAPER: '+garden.lower.note:
    'E06 garden change NOT VERIFIED in this visit. Practice only; no growth claim.'):null,
+  connectorNote:visited.has('connector')?(crossingEarned?
+   'E07 child-earned PAPER: another traveler passed the shared crossing; water was checked.':
+   'E07 shared crossing NOT VERIFIED in this visit. No real user or access claim.'):null,
+  crossingEarned,
   stationNote:visited.has('map_room')?(stationEarned?
    'E05 child-earned PAPER: '+station.now.table+'; '+station.now.board+
     '; '+station.now.path+'.':

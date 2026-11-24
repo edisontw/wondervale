@@ -32,15 +32,101 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .spot[data-marker=true]{border-color:#b05e28;border-style:solid;background:#ffefcc}
 .spot[data-growth=true]{background:#d3e8cb;border-color:#3e7751}
 .spot:disabled{opacity:1;color:#456151;border-color:#9aac9d}
+.spot[data-growth=true]:disabled{background:#d3e8cb;border-color:#3e7751}
 .spot .spot-state{font-size:.78rem;font-weight:700}
 .flow-meter{border:2px solid #7c9daf;border-radius:.4rem;overflow:hidden;height:22px;display:flex;margin:.4rem 0}
 .flow-meter span{flex:1;background:#f5f8f8;border-right:1px solid #9cb7c5}
 .flow-meter[data-level="1"] span:first-child,.flow-meter[data-level="3"] span{background:#79b7d1}
+.flow-meter[data-level="2"] span:nth-child(-n+2){background:#79b7d1}
+.water-model{position:relative;min-height:260px;aspect-ratio:2.05/1;max-height:360px;overflow:hidden;border:2px solid #78927e;border-radius:.7rem;background:linear-gradient(165deg,#eff5e9 0 27%,#e2ebd7 28% 100%);margin:.65rem 0}
+.water-model svg{display:block;width:100%;height:100%;min-height:260px}
+.model-hill{fill:none;stroke:#adbd9b;stroke-width:56;stroke-linecap:round;opacity:.58}
+.model-route{fill:none;stroke:#899c89;stroke-width:16;stroke-linecap:round;stroke-dasharray:2 1}
+.model-water{fill:none;stroke:#168bc2;stroke-width:8;stroke-linecap:round;stroke-dasharray:15 10;marker-end:url(#water-arrow);opacity:0}
+#water-model[data-result="rain-open"] .model-water-main,#water-model[data-result="rain-open"] .model-water-bypass{opacity:1}
+#water-model[data-result="rain-open"] .model-water-main{stroke-width:5}
+#water-model[data-result="rain-blocked"] .model-water-main{opacity:1;stroke-width:11}
+.model-source{fill:#fffdf2;stroke:#607e69;stroke-width:3}
+.model-basin{fill:#dce9d4;stroke:#64856a;stroke-width:4}
+.model-text{font:700 15px system-ui,sans-serif;fill:#274c3b}
+.model-small-text{font:700 12px system-ui,sans-serif;fill:#355442}
+.model-channel-control{position:absolute;z-index:2;left:50%;top:51%;transform:translate(-50%,-50%);min-width:148px;min-height:62px;padding:.35rem .55rem;background:#fff9e8;border-color:#695b34;box-shadow:0 2px 0 #8f7b46;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15}
+.model-channel-control strong{font-size:.88rem}
+.model-channel-control[aria-pressed="false"]{background:#fff0e6;border-color:#9b623d}
+.model-next-setup{position:absolute;z-index:2;left:.55rem;bottom:.4rem;max-width:58%;padding:.3rem .5rem;border-radius:.4rem;background:#fffdf0;font-size:.78rem;font-weight:700}
+.catchment-panel{position:absolute;z-index:3;right:2%;bottom:8%;width:27%;min-width:145px;padding:.3rem .4rem;border:2px solid #64856a;border-radius:.5rem;background:#fffdf0;text-align:center;font-size:.78rem;font-weight:700}
+.catchment-panel .flow-meter{height:16px;margin:.15rem 0}
+.model-legend{display:flex;flex-wrap:wrap;gap:.35rem .9rem;margin:.35rem 0;font-size:.88rem}
+.model-legend span{display:inline-flex;align-items:center;gap:.3rem}
+.legend-mark{width:1.1rem;height:.55rem;border-radius:1rem;background:#168bc2}
+.legend-land{width:1.1rem;height:.55rem;border-radius:1rem;background:#adbd9b}
+.run-history{display:flex;flex-wrap:wrap;gap:.35rem;margin:.4rem 0}
+.run-chip{border:1px solid #92aa96;border-radius:.45rem;padding:.4rem .55rem;background:#f5f7ed;font-size:.84rem}
+.comparison{border:2px solid #9bb39e;border-radius:.55rem;padding:.5rem;margin:.5rem 0;background:#f7f8ef}
+.comparison-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+.comparison-card{min-width:0;padding:.5rem;border:1px solid #9eb3a3;border-radius:.5rem;background:white}
+.comparison-card[data-result="rain-open"]{border-top:5px solid #2685a7}
+.comparison-card[data-result="rain-blocked"]{border-top:5px solid #ae7350}
+.comparison-label{font-weight:800;font-size:.95rem}
+.mini-flow{display:grid;grid-template-columns:1fr 1fr;gap:.35rem;margin:.45rem 0}
+.mini-source,.mini-outcome{padding:.4rem;border-radius:.35rem;background:#edf2e8;font-size:.82rem}
+.mini-source{grid-column:1/-1;text-align:center;border-bottom:2px solid #168bc2}
+.mini-outcome{background:#e2f0f6}
+.mini-outcome strong{display:block;font-size:1.05rem}
+.lower-map{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(112px,1fr));gap:.5rem;min-height:250px;aspect-ratio:2.05/1;overflow:hidden;margin:.7rem 0;padding:.6rem;border:2px solid #84998a;border-radius:.7rem;background:linear-gradient(160deg,#eef1dc,#dce8d2);isolation:isolate}
+.lower-map-routes{position:absolute;inset:0;z-index:-1;width:100%;height:100%;pointer-events:none}
+.lower-watercourse{fill:none;stroke:#168bc2;stroke-width:16;stroke-linecap:round;stroke-linejoin:round;opacity:.78;marker-end:url(#lower-flow-arrow)}
+.lower-footway{fill:none;stroke:#b48a48;stroke-width:20;stroke-linecap:round;stroke-dasharray:2 2;opacity:.8}
+.lower-footway-edge{fill:none;stroke:#fff7df;stroke-width:3;stroke-dasharray:9 9;opacity:.9}
+.lower-pocket-zone{fill:#c6d9b4;stroke:#557952;stroke-width:4;stroke-dasharray:4 4}
+.lower-map-grid{position:absolute;inset:.5rem;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:.5rem;min-width:0;min-height:0}
+.lower-map .spot{position:relative;z-index:1;min-height:74px;align-items:center;text-align:center;background:#ffffffed;font-weight:700}
+.lower-map [data-spot="runoff-trace"]{grid-area:1/1}.lower-map [data-spot="raised-pocket"]{grid-area:1/3}
+.lower-map [data-spot="runoff-channel"]{grid-area:2/1}.lower-map [data-spot="footpath"]{grid-area:2/2}
+.lower-map [data-spot="public-path"]{grid-area:2/3}
+.lower-map .spot[data-feature="water"]{border-color:#408aaa;background:#edf8fc}
+.lower-map .spot[data-feature="path"]{border-color:#ad8b53;background:#fff8e8}
+.lower-map .spot[data-feature="pocket"]{border-color:#668257;background:#f1f7e8}
+.lower-map .spot[data-conflict="water"]{border-color:#086c9c;box-shadow:0 0 0 4px #56b8df;}
+.lower-map .spot[data-conflict="path"]{border-color:#9d4829;box-shadow:0 0 0 4px #e7a05a;}
+.lower-map .spot[data-conflict="clear"]{border-color:#4b8055;box-shadow:0 0 0 4px #93bf81;}
+.lower-map[data-conflict="water"] .lower-watercourse{stroke:#0786bd;stroke-width:25;opacity:1}
+.lower-map[data-conflict="path"] .lower-footway{stroke:#a84c2a;stroke-width:28;opacity:1}
+.lower-map[data-conflict="path"] .lower-footway-edge{stroke:#fff;stroke-width:3;opacity:1}
+.lower-map[data-paper-pocket="true"] .lower-pocket-zone{fill:#b6d89f;stroke-width:7;stroke-dasharray:none}
+.site-tokens{display:flex;gap:.2rem;align-items:center;justify-content:center;flex-wrap:wrap;min-height:22px}
+.site-token{display:inline-flex;align-items:center;gap:.2rem;padding:.1rem .22rem;border-radius:999px;font-size:.65rem;line-height:1.1;font-weight:800}
+.player-token{background:#345d4a;color:white}.marker-token{background:#f3d8a2;color:#613d17}
+.paper-pocket-token{background:#d6e9ca;color:#315c3a}
+.lower-map-legend{display:flex;flex-wrap:wrap;gap:.3rem .9rem;margin:-.25rem 0 .55rem;font-size:.78rem;font-weight:700}
+.lower-map-legend span{display:inline-flex;align-items:center;gap:.3rem}
+.map-key{display:inline-block;width:1.05rem;height:.45rem;border-radius:1rem;background:#168bc2}
+.map-key.path{height:.25rem;border-radius:0;background:repeating-linear-gradient(90deg,#b48a48 0 3px,transparent 3px 6px)}
+.map-key.pocket{height:.72rem;border:2px dashed #557952;border-radius:50%;background:#c6d9b4}
+.lower-map-feedback{min-height:3rem;border:2px solid #9aac98;border-radius:.45rem;background:#f5f7ee;padding:.55rem;line-height:1.4}
+.lower-map-feedback[data-result="water"]{border-color:#168bc2;background:#e4f4fb}
+.lower-map-feedback[data-result="path"]{border-color:#a84c2a;background:#fff0df}
+.lower-map-feedback[data-result="clear"]{border-color:#63865c;background:#edf6e8}
+.place-comparison{margin:.55rem 0;padding:.6rem;border:2px solid #91a992;border-radius:.55rem;background:#f5f7ee}
+.place-comparison-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+.place-comparison-card{min-width:0;padding:.55rem;border:2px solid #8ba58c;border-radius:.45rem;background:white}
+.place-comparison-card[data-view="now"]{border-top:6px solid #4c8153}
+.place-comparison-card[data-view="possible"]{border-top:6px dashed #65844b}
+.place-comparison-label{display:block;font-size:.85rem;font-weight:800}
+.place-comparison-art{display:grid;place-items:center;min-height:72px;margin:.35rem 0;padding:.45rem;border-radius:.4rem;background:#e8f0e1;text-align:center;font-weight:700}
+.place-comparison-card[data-view="possible"] .place-comparison-art{background:#f2f4df;border:2px dashed #829762}
+.place-comparison-art .symbol{font-size:1.35rem}
+@media(prefers-reduced-motion:reduce){.model-water{stroke-dasharray:none}}
 @media(max-width:420px){.playfield{grid-template-columns:repeat(2,minmax(0,1fr))}.spot{font-size:.82rem;padding:.4rem}}
+@media(max-width:650px){.water-model{aspect-ratio:1.55/1;min-height:230px}.water-model svg{min-height:230px}.model-channel-control{min-width:124px;min-height:54px;font-size:.8rem}.model-next-setup{max-width:57%;font-size:.7rem}.catchment-panel{min-width:112px;width:30%;font-size:.7rem}.comparison-pair{gap:.35rem}.comparison-card{padding:.35rem}.mini-source,.mini-outcome{font-size:.75rem}}
+@media(max-width:650px) and (orientation:portrait){.water-model{aspect-ratio:1.25/1;min-height:250px}.water-model svg{min-height:250px}.catchment-panel{min-width:114px;width:34%;bottom:7%}}
+@media(max-width:540px){.lower-map{aspect-ratio:1.4/1;min-height:260px;padding:.4rem}.lower-map-grid{inset:.4rem;gap:.25rem}.lower-map .spot{font-size:.78rem;padding:.3rem;min-height:64px}.place-comparison-pair{grid-template-columns:1fr}.place-comparison-art{min-height:58px}}
+@media(max-width:380px){.water-model{min-height:210px}.water-model svg{min-height:210px}.catchment-panel{min-width:104px;right:1%;bottom:6%;padding:.2rem}.model-channel-control{min-width:112px;padding:.25rem}.model-text{font-size:18px}}
 button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
 .paper{background:#edf2e9;border:1px dashed #9aaf9f;border-radius:.4rem;padding:.65rem;line-height:1.5;margin:.4rem 0;overflow-wrap:anywhere}
 [hidden]{display:none!important}
 @media(max-width:650px){.station-map{grid-template-columns:1fr}.world{grid-template-columns:1fr}.diagram{grid-template-columns:repeat(2,minmax(0,1fr))}.panel{padding:.55rem}}
+@media(max-width:700px) and (orientation:landscape) and (max-height:450px){.water-model{aspect-ratio:2.1/1;min-height:190px}.water-model svg{min-height:190px}.catchment-panel{bottom:5%}.model-next-setup{bottom:.25rem}}
 </style></head><body><main>
 <header><h1>E06 — The Garden That Moved</h1><div>Two distinct child-controlled PAPER scenes · Current Garden / Lower Garden</div></header>
 <p class="notice"><strong>AUTHORING ONLY — NOT THE PRODUCTION GAME.</strong> Both floor plans, water flow and planting markers are synthetic. No approved site access, source chronology, planting/care permission, real growth, canonical Chronicle, E07 unlock, saved progress, or MN4 release. The healthy present garden stays. North Hill remains CLOSED.</p>
@@ -54,19 +140,55 @@ button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
 <p class="paper" aria-live="polite"><strong id="speaker"></strong>: <span id="line"></span></p>
 <p id="milo" class="paper"></p>
 <section id="current-scene" class="panel"><h2>Scene 06 · Healthy Current Garden</h2>
-<p>Walk Milo, inspect what exists NOW, then compare dry/rain water on a detachable MODEL tray. The tray cannot prove why the real garden moved.</p>
+<p>Walk Milo and inspect the healthy garden. Then try a small rain-and-drain MODEL. It shows what this synthetic model does, not why the real garden moved.</p>
 <div class="diagram" aria-label="Synthetic Current Garden model">
 <div class="tile" id="upper-bed-tile" data-stage="healthy">Healthy bed<br>NOW · unchanged</div><div class="tile">Slope<br>Higher / lower</div><div class="tile path">Shared path<br>Keep clear</div>
-<div class="tile water">MODEL tray<br>DRY / RAIN</div><div class="tile water">Channel<br>OPEN / BLOCKED</div><div class="tile">Garden stays<br>No transplant</div></div>
+<div class="tile">Garden stays<br>No transplant</div></div>
 <div class="playfield" id="current-playfield" aria-label="Synthetic Current Garden: tap a place to walk Milo, tap again to inspect">
-<button class="spot" data-spot="present-bed" type="button">Healthy bed</button>
-<button class="spot" data-spot="slope" type="button">Uphill slope</button>
-<button class="spot" data-spot="shared-path" type="button">Shared path</button>
-<button class="spot" data-spot="model-tray" type="button">MODEL tray</button>
+<button class="spot" data-spot="present-bed" type="button"><span class="spot-name">Healthy bed</span><span class="spot-state"></span></button>
+<button class="spot" data-spot="slope" type="button"><span class="spot-name">Uphill slope</span><span class="spot-state"></span></button>
+<button class="spot" data-spot="shared-path" type="button"><span class="spot-name">Shared path</span><span class="spot-state"></span></button>
+<button class="spot" data-spot="model-tray" type="button"><span class="spot-name">MODEL tray</span><span class="spot-state"></span></button>
 </div>
-<p class="paper">Tap a place to move Milo; tap it again to inspect. The MODEL tray uses the controls below. These are PAPER positions, not approved terrain.</p>
-<div id="model-catchment" class="flow-meter" data-level="0" role="meter" aria-label="Last MODEL catchment marks" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span></span><span></span><span></span></div>
-<p id="model-flow-caption" class="paper">Run the MODEL to see water.</p>
+<p class="paper">Tap a place to move Milo; tap it again to inspect. This synthetic model is not approved terrain.</p>
+<h3>Rain path · PAPER MODEL</h3>
+<div id="water-model" class="water-model" data-result="none" aria-describedby="model-flow-caption">
+<svg viewBox="0 0 600 300" role="img" aria-labelledby="water-title water-description" preserveAspectRatio="none">
+ <title id="water-title">High rain source, drain channel, bypass and low catchment</title>
+ <desc id="water-description">A synthetic hillside slopes down from the high source. The blue water paths and low basin level show only the last completed model run.</desc>
+ <defs><marker id="water-arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#168bc2"/></marker></defs>
+ <path class="model-hill" d="M35 48 C155 55 200 95 300 145 S430 205 565 260"/>
+ <path class="model-route" d="M65 60 C150 75 220 120 300 150"/>
+ <path class="model-route" d="M300 150 C370 165 420 210 480 250"/>
+ <path class="model-route" d="M300 150 C365 110 445 82 548 70"/>
+ <path class="model-water model-water-main" d="M65 60 C150 75 220 120 300 150 C370 165 420 210 480 250"/>
+ <path class="model-water model-water-bypass" d="M300 150 C365 110 445 82 548 70"/>
+ <rect class="model-source" x="28" y="28" width="126" height="53" rx="12"/><text class="model-text" x="42" y="51">HIGH SOURCE</text><text class="model-small-text" x="42" y="68">rain begins here</text>
+ <ellipse class="model-basin" cx="486" cy="247" rx="78" ry="31"/>
+ <text class="model-small-text" x="430" y="46">BYPASS ROUTE</text>
+ <text id="model-bypass-label" class="model-small-text" x="427" y="65">no completed run</text>
+ <text class="model-small-text" x="218" y="205">downhill flow</text>
+</svg>
+<button id="model-channel-control" class="model-channel-control" type="button" aria-pressed="true" aria-label="Change the PAPER model drain channel">
+ <span>DRAIN CHANNEL</span><strong id="model-channel-state">OPEN</strong><span id="model-channel-hint">tap to block</span>
+</button>
+<div id="model-next-setup" class="model-next-setup">Next run: DRY · channel OPEN · not tested yet.</div>
+<div class="catchment-panel"><span>LOW CATCHMENT</span>
+ <div id="model-catchment" class="flow-meter" data-level="0" role="meter" aria-label="Water in the low catchment from the last completed run" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0"><span></span><span></span><span></span></div>
+ <span id="model-catchment-label">0 / 3</span>
+</div>
+</div>
+<div class="model-legend" aria-label="Model map legend"><span><i class="legend-mark"></i> water in the completed run</span><span><i class="legend-land"></i> synthetic hillside</span></div>
+<p id="model-flow-caption" class="paper" role="status" aria-live="polite">No completed run yet. A changed next-run setting is not an observation.</p>
+<section id="model-comparison" class="comparison" hidden aria-label="Comparison of completed rain runs">
+ <strong>BEFORE / AFTER · same RAIN, channel changed</strong>
+ <p id="model-comparison-caption" class="paper">These are two completed runs from the model history, not real garden evidence.</p>
+ <div class="comparison-pair">
+  <article id="model-before" class="comparison-card"><div class="comparison-label" id="model-before-label"></div><div class="mini-flow" id="model-before-flow"></div></article>
+  <article id="model-after" class="comparison-card"><div class="comparison-label" id="model-after-label"></div><div class="mini-flow" id="model-after-flow"></div></article>
+ </div>
+</section>
+<section id="model-run-history-panel" class="paper" hidden aria-label="Completed model experiment history"><strong>Runs we actually tried:</strong><div id="model-run-history" class="run-history"></div></section>
 <p id="upper-observations" class="paper"></p><p id="tray" class="paper"></p>
 <div id="current-actions" class="controls"></div><section id="e05-world" class="panel" hidden aria-label="E05 station PAPER world callback" data-view="now">
 <h2>E05 station memory · FIRST / NOW</h2>
@@ -77,17 +199,27 @@ button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
 <div class="station-cell" id="station-map-table"></div><div class="station-cell" id="station-map-path"></div></div>
 <p id="station-map-feedback" class="paper" role="status" aria-live="polite"></p></section></section>
 <section id="lower-scene" class="panel" hidden><h2>Scene 07 · Lower Garden Pocket</h2>
-<p>This is a DIFFERENT paper place. Walk Milo to inspect water and public access. Try a marker, see what fails, move it, and keep only a small provisional plan.</p>
-<div class="diagram" aria-label="Synthetic Lower Garden model">
-<div class="tile water">Runoff trace<br>Wet in MODEL</div><div class="tile path">Public path<br>People pass</div><div class="tile water">Runoff channel<br>Keep open</div>
-<div class="tile path">Footpath<br>Do not block</div><div class="tile">Raised pocket<br>Temporary marker</div><div class="tile" id="lower-growth-tile" data-stage="paper-marker">Future growth<br>NOT APPROVED</div></div>
-<div class="playfield lower-field" id="lower-playfield" aria-label="Synthetic Lower Garden: move Milo and test a planting marker">
-<button class="spot" data-spot="runoff-trace" type="button">Runoff trace</button>
-<button class="spot" data-spot="public-path" type="button">Public path</button>
-<button class="spot" data-spot="runoff-channel" type="button">Water route</button>
-<button class="spot" data-spot="footpath" type="button">Walking route</button>
-<button class="spot" data-spot="raised-pocket" type="button">Raised pocket</button>
+<p>This is a DIFFERENT paper place. Follow the blue water route and the shared footpath. Walk Milo, place a temporary marker, then check what happens. You can move it and try again.</p>
+<div class="lower-map" id="lower-map" data-conflict="none" data-paper-pocket="false" role="group" aria-label="Synthetic Lower Garden spatial model">
+<svg class="lower-map-routes" viewBox="0 0 600 320" preserveAspectRatio="none" role="img" aria-labelledby="lower-map-title lower-map-description">
+ <title id="lower-map-title">Lower Garden model routes</title>
+ <desc id="lower-map-description">Blue water flows from the runoff trace through the runoff channel toward the lower edge. The gold dotted shared footpath crosses the site. The outlined green area is the raised pocket. Highlighted markers show only Milo's current PAPER choices and the latest checked result.</desc>
+ <defs><marker id="lower-flow-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#168bc2"/></marker></defs>
+ <path class="lower-watercourse" d="M100 48 C90 90 115 128 100 185 S150 266 240 294"/>
+ <path class="lower-footway" d="M18 232 C130 222 210 240 315 232 S480 224 582 236"/>
+ <path class="lower-footway-edge" d="M18 232 C130 222 210 240 315 232 S480 224 582 236"/>
+ <ellipse class="lower-pocket-zone" cx="500" cy="65" rx="82" ry="48"/>
+</svg>
+<div class="lower-map-grid" id="lower-playfield" role="group" aria-label="Choose a Lower Garden place to move Milo or put a removable marker">
+<button class="spot lower-site" data-spot="runoff-trace" data-feature="water" type="button"><span class="spot-name">Runoff trace</span><span class="site-tokens"><span class="site-token player-token" hidden aria-hidden="true">Milo</span></span><span class="spot-state"></span></button>
+<button class="spot lower-site" data-spot="raised-pocket" data-feature="pocket" type="button"><span class="spot-name">Raised pocket</span><span class="site-tokens"><span class="site-token player-token" hidden aria-hidden="true">Milo</span><span class="site-token marker-token" hidden aria-hidden="true">◆ Marker</span><span id="lower-growth-tile" class="site-token paper-pocket-token" hidden data-stage="paper-marker">Small PAPER pocket</span></span><span class="spot-state"></span></button>
+<button class="spot lower-site" data-spot="runoff-channel" data-feature="water" type="button"><span class="spot-name">Runoff channel</span><span class="site-tokens"><span class="site-token player-token" hidden aria-hidden="true">Milo</span><span class="site-token marker-token" hidden aria-hidden="true">◆ Marker</span></span><span class="spot-state"></span></button>
+<button class="spot lower-site" data-spot="footpath" data-feature="path" type="button"><span class="spot-name">Shared footpath</span><span class="site-tokens"><span class="site-token player-token" hidden aria-hidden="true">Milo</span><span class="site-token marker-token" hidden aria-hidden="true">◆ Marker</span></span><span class="spot-state"></span></button>
+<button class="spot lower-site" data-spot="public-path" data-feature="path" type="button"><span class="spot-name">Public path</span><span class="site-tokens"><span class="site-token player-token" hidden aria-hidden="true">Milo</span></span><span class="spot-state"></span></button>
 </div>
+</div>
+<div class="lower-map-legend" aria-label="Lower Garden map legend"><span><i class="map-key"></i>Blue · runoff water</span><span><i class="map-key path"></i>Gold dots · shared path</span><span><i class="map-key pocket"></i>Green · raised pocket</span></div>
+<p id="lower-map-feedback" class="lower-map-feedback" role="status" aria-live="polite" data-result="none">Blue is the water route. Gold dots are the shared footpath. Walk Milo to a place, then choose a marker site.</p>
 <p class="paper">Tap a place to walk Milo, then tap again to inspect or place a removable marker. Use “Check water and people” to see the consequence.</p>
 <p id="lower-observations" class="paper"></p><p id="marker" class="paper"></p>
 <div id="lower-actions" class="controls"></div></section>
@@ -96,6 +228,10 @@ button:focus-visible{outline:3px solid #a96f20;outline-offset:2px}
 <p id="care-feedback" class="paper" role="status"></p><div id="care-actions" class="controls"></div></section>
 <section class="panel"><h2>Revisit the two places</h2><div id="nav-actions" class="controls"></div>
 <p id="garden-revisit-result" class="paper" role="status" hidden></p><p><a id="e07-transfer" hidden href="../e07-scene/">Visit Finn’s E07 PAPER connector with this child-tested care model</a></p>
+<section id="two-place-visual-comparison" class="place-comparison" hidden aria-label="NOW Current Garden and possible Lower Garden PAPER comparison"><strong>Two places · NOW / POSSIBLE</strong><div class="place-comparison-pair">
+<article id="current-garden-comparison" class="place-comparison-card" data-view="now"><span class="place-comparison-label">NOW · Current Garden</span><div class="place-comparison-art"><span class="symbol" aria-hidden="true">🌿</span><span id="current-garden-comparison-state">Healthy bed remains</span></div><span>Observed in the present-day story.</span></article>
+<article id="lower-garden-comparison" class="place-comparison-card" data-view="possible"><span class="place-comparison-label">POSSIBLE · Lower Garden</span><div class="place-comparison-art"><span class="symbol" aria-hidden="true">◇</span><span id="lower-garden-comparison-state">Small removable PAPER pocket</span></div><span>This is an idea in the model, not a real planted place.</span></article>
+</div></section>
 <p id="note" class="paper" role="status"></p><p id="parent" class="paper"></p>
 <p><small>Touch, Tab, Enter and Space use the same controls. No precision dragging, score, voice, timer, network writes or localStorage. Returning to Current Garden is a read-only visit after entering Lower Garden; the completed rain model and PAPER care comparison remain visible. Restart clears only these PAPER scenes.</small></p></section>
 <script type="module" src="./main.mjs"></script>

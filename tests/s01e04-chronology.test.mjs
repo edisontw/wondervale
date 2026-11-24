@@ -7,6 +7,8 @@ import {
   VERSION,DRAFT_KEY,MAX_ACTIONS,validateSourcePack,fresh,dispatch,timelineSupported,
   draftPayload,restoreDraft,chronicleProjection
 } from '../engine/s01e04-chronology.mjs';
+import {E04_CHECKPOINT_VERSION,replayE04Checkpoint} from '../engine/s01e04-production-checkpoint.mjs';
+import {e05ProductionHandoff} from '../engine/s01e05-production-entry.mjs';
 
 // SYNTHETIC TEST FIXTURE. Never use these cards as historical Wondervale sources.
 export const testPack={
@@ -31,6 +33,43 @@ function complete(mode='draft_preview'){
   s=act(s,{type:'chronicle'});
   return act(s,{type:'finish'});
 }
+
+test('E04 checkpoint restores a revised chronology without giving test sources production authority',()=>{
+  const draft=complete();
+  const firstPlacement=draft.history.findIndex(action=>action.type==='place');
+  const history=[...draft.history];
+  history.splice(firstPlacement,0,{type:'place',id:'archive-map',slot:'later'});
+  const saved=JSON.parse(JSON.stringify({
+    schema:1,version:E04_CHECKPOINT_VERSION,mode:'canonical',
+    packFingerprint:draft.packFingerprint,history
+  }));
+  const replay=replayE04Checkpoint(saved,testPack);
+  assert.equal(replay.phase,'completed');
+  assert.equal(replay.slots['undated-photo'],'uncertain');
+  assert.equal(replay.chronicleSeen,true);
+  assert.equal(replayE04Checkpoint({...saved,history:history.slice(0,-1)},testPack).phase,'ready_to_finish');
+
+  const changed=structuredClone(testPack);
+  changed.clues[0].text='A different note with the same revision.';
+  assert.equal(replayE04Checkpoint(saved,changed),null);
+  const without=type=>history.filter(action=>action.type!==type);
+  for(const rejected of [
+    draftPayload(draft),{...saved,mode:'historical_replay'},{...saved,phase:'completed'},
+    {...saved,history:[{type:'finish'}]},
+    {...saved,history:without('inspect-clue')},
+    {...saved,history:without('chronicle')},
+    {...saved,history:[...history,{type:'finish'}]},
+    {...saved,history:[...history.slice(0,-1),{type:'finish',ready:true}]}
+  ]) assert.equal(replayE04Checkpoint(rejected,testPack),null);
+
+  const gate=e05ProductionHandoff(payload02(realE02()),payload03(realE03()),saved);
+  assert.equal(gate.e03CanonicalComplete,true);
+  assert.equal(gate.e04CanonicalComplete,false);
+  assert.equal(gate.ready,false);
+  assert.deepEqual(gate.canonicalEvents,[]);
+  assert.deepEqual(gate.unlocks,[]);
+});
+
 test('source pack requires distinct, inspectable, bounded evidence',()=>{
   assert.deepEqual(validateSourcePack(testPack),testPack);
   for(const change of [

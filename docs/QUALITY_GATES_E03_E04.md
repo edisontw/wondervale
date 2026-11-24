@@ -23,6 +23,47 @@
 
 Do not create a duplicate Issue for a bug already tracked by PR #107. Refer to the current issue/PR at the time of work; priorities can be changed with new evidence.
 
+### #109 diagnostic regression evidence (2026-11-19)
+
+GitHub Actions verified the `main` push for `600ff0c3a370af20df765f52759feec806575d82` (PR #367). The [E03 engineering run](https://github.com/edisontw/wondervale/actions/runs/44506721924/job/135500141827) passed the Node suite including the polygon boundary-contact cases, the swept display-envelope audit, and packaged desktop/touch Chromium. The [E01 runtime run](https://github.com/edisontw/wondervale/actions/runs/44506721360/job/135500140585) passed its core and Chromium regression steps.
+
+Physical clearance remains open. The next evidence needs a perspective-registered L-route map of walkable paving and solid obstacles, plus a turning model for the swept wheel, cart body and handle. Compare both route directions under that model and record minimum clearance at each turn. The loaded return is an engineering check because canonical delivery clears the cart at T.
+
+### #109 L-route painted boundary survey (2026-11-19)
+
+Source: `public/art/s01e03-market-lane-m0.webp`, 1672 × 941, SHA-256 `1a174ab8913786b7573dda0035af71725c0051e898d801b41a0d1530e731f5b1`. The `tea_cart` path from `engine/s01e03.mjs` was overlaid on the artwork at source scale. The following open polylines trace visible boundaries by eye. Coordinates are source pixels, with the origin at the upper left. The two faces of the curb, rail height and foliage overhang introduce annotation and projection uncertainty.
+
+- Raised unloading-island curb: `(374,669) (376,685) (401,701) (451,718) (519,731) (605,746) (695,761) (785,765) (885,763) (960,750) (1029,731) (1081,716) (1115,697) (1142,671) (1159,653)`
+- Foreground railing at the west approach: `(247,713) (353,758) (473,809) (575,852) (654,878)`
+- Visible tea-stall planting edge: `(1241,651) (1275,647) (1320,649) (1371,651) (1410,649)`
+
+| L route node | Approximate node-to-trace distance (source px) | Trace |
+| --- | ---: | --- |
+| west | 27 | Raised curb |
+| bend | 25 | Raised curb |
+| front | 31 | Raised curb |
+| east | 27 | Raised curb |
+| fork | 16 | Raised curb |
+| ramp0 | 9 | Raised curb |
+| T (delivery endpoint) | 5 | Tea-stall planting silhouette |
+
+Distances use the shortest Euclidean distance from the route node to a segment of the named trace. They describe the projected route centerline at sampled nodes. The route uses the same nodes in both directions, so these distances are direction-independent. No wheel, body or handle envelope is included.
+
+Next, prioritize `fork → ramp0 → T`: distinguish the painted curb's ground contact from its raised lip and the stall planting's base from its overhang. Complete the outer pavement boundary, then register a ground-plane model and compare swept wheel, body and handle margins in both directions. #109 remains open. The existing E03 Node route, cart and S/N suites passed 18/18 on the survey source commit `d2d3445376d5ca6101ece6c17078697fd5a97525`.
+
+### #109 fork-to-tea ground-contact review (2026-11-19)
+
+A magnified overlay of the same M0 artwork separates two visible curb faces along `fork (1085,731) → ramp0 (1160,644)`. Approximate source-pixel traces:
+
+- Curb lip: `(1060,715) (1095,703) (1120,692) (1147,675)`
+- Curb toe (pavement contact): `(1060,722) (1095,710) (1120,700) (1149,681)`
+
+Segment intersection puts the centerline at the toe near `(1107,705)` and at the lip near `(1118,693)` in the forward direction. The reverse path crosses the same pair in reverse order. Both traces indicate a crossing under the visual interpretation of this curb. The previous point distances at fork and ramp0 cannot show the crossing between nodes.
+
+On `ramp0 → T`, foreground foliage conceals the pavement and the stall's base near the destination. Keep that part of the ground boundary unknown. The earlier 5 px value is relative to the foliage silhouette. The single painted view supplies neither a ground distance scale nor the cart's physical dimensions or turning radius, so no swept clearance is assigned.
+
+Keep #109 open. Review a tea-only approach that stays on the visible outside paving, with the interaction endpoint on exposed pavement before the stall occlusion. Preserve the shared bookstall route and existing delivery requirements. Verify the revised centerline against both curb traces before modeling wheels, body and handle. Existing E03 Node route, cart and S/N suites passed 18/18 on the surveyed runtime.
+
 ## 2. E03 Gate 3 exit: engineering and learning
 
 **All are required for a claim of full E03 Gate 3; do not infer them from a single L-path browser run.**

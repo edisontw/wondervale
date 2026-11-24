@@ -13,6 +13,7 @@ try{
    assert.equal(await b('test-milo').isDisabled(),true);
    for(const k of ['start','walk-shared','inspect-shared','walk-channel','inspect-channel','walk-workbench','test-milo'])await hit(k);
    assert.match(await page.locator('#first').innerText(),/Milo: PASS/);
+   assert.doesNotMatch(await page.locator('#connector-world-note').innerText(),/Finn:.*room for everyone/);
    await hit('test-resident');await hit('test-water');
    assert.match(await page.locator('#first').innerText(),/Traveler: BLOCKED/);
    assert.match(await page.locator('#first').innerText(),/Water: BLOCKED/);
@@ -24,6 +25,7 @@ try{
    for(const k of ['test-water','test-milo','test-resident'])await hit(k);
    assert.equal(await page.locator('#board [data-conflict="true"]').count(),0);
    await hit('compare');await hit('finish');
+   assert.match(await page.locator('#connector-world-note').innerText(),/Finn: My first shortcut worked for Milo/);
    assert.match(await page.locator('#line').innerText(),/who else/);
    assert.equal(await b('walk-base').isDisabled(),true);
    await hit('walk-start');await hit('walk-crossing');
@@ -39,6 +41,7 @@ try{
    assert.match(await page.locator('#other-traveler').innerText(),/crosses/);
    await hit('other-step');
    assert.match(await page.locator('#other-traveler').innerText(),/Real access and clearance remain UNKNOWN/);
+   assert.match(await page.locator('#connector-world-note').innerText(),/Finn: The traveler got through.*check the water/);
    assert.equal(await page.locator('[data-other-point="clear"]').getAttribute('data-here'),'true');
    await hit('other-reset');
    assert.equal(await b('walk-review').isDisabled(),true);
@@ -54,6 +57,8 @@ try{
    assert.match(await page.locator('#route-feedback').innerText(),/PAPER route walk reviewed/);
    assert.match(await page.locator('#route-position').innerText(),/Steps BASE/);
    assert.match(await page.locator('#connector-world-note').innerText(),/walked and checked/);
+   assert.equal(await page.locator('#connector-world-note').isVisible(),true);
+   assert.match(await page.locator('#connector-world-note').innerText(),/Finn:.*traveler AND the water.*room for everyone/);
    assert.match(await page.locator('#note').innerText(),/PAPER WALK/);
    assert.match(await page.locator('#note').innerText(),/UNKNOWN/);
    assert.match(await page.locator('#hook').innerText(),/OFF/);
@@ -65,6 +70,7 @@ try{
    const sz=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(sz.scroll<=sz.w+1,JSON.stringify({viewport,sz}));assert.deepEqual(errors,[]);
    await hit('restart');assert.match(await page.locator('#stage').innerText(),/opening/);
+   assert.doesNotMatch(await page.locator('#connector-world-note').innerText(),/Finn:/);
   }finally{await context.close();}
  }
  const ctx=await browser.newContext({viewport:{width:568,height:320}});

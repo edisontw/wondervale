@@ -210,3 +210,23 @@ test('E09 future check dialogue requires child-pinned questions and remains NOT 
  s=go(s,{scene:'sightline',type:'remove',question:'view'});
  assert.doesNotMatch(paperReaction(s).chronicle,/future PAPER questions — NOT DONE/);
 });
+
+test('E09 route gap earns distinct Finn/Nia feedback and replayed PAPER Chronicle',()=>{
+ let s=go(fresh(),a('start'));
+ for(const x of [a('walk','to','signpost'),a('walk','to','lower_bend'),
+  a('walk','to','overlook'),a('mark','edgeId','steps_base:signpost'),
+  a('mark','edgeId','lower_bend:overlook'),a('check-route')])s=go(s,x);
+ assert.equal(paperReaction(s).speaker,'Finn');
+ assert.match(paperReaction(s).line,/gap in our PAPER sketch/);
+ s=go(s,a('mark','edgeId','signpost:lower_bend'));
+ s=go(s,a('check-route'));
+ assert.equal(paperReaction(s).speaker,'Nia');
+ assert.match(paperReaction(s).line,/missing link/);
+ assert.match(paperReaction(s).chronicle,/found a gap, revised his PAPER sketch/);
+ assert.deepEqual(paperReaction(replay(s.history)),paperReaction(s));
+ assert.deepEqual(paperReaction(restore(structuredClone(s))),paperReaction(s));
+ assert.deepEqual(view(s).canonicalEvents,[]);
+ assert.equal(view(s).e10Unlocked,false);
+ s=go(s,n('restart'));
+ assert.doesNotMatch(paperReaction(s).chronicle,/revised his PAPER sketch/);
+});

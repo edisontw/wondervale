@@ -1,6 +1,6 @@
 # S01E06 Two-Garden Interaction Test Matrix
 
-**Gate 1 DRAFT / ALL NOT RUN** as of 2026-10-29. This is a test contract, not a claim that E06 is playable. Source: [E06 EPB](EPISODE_PRODUCTION_BRIEF.md) and [interaction spec](INTERACTION_SPEC.md). Run the authoring engine subset before any E06 UI release; production gates require approved E04/E05 chain and real site/art.
+**Gate 1 DRAFT / production acceptance OPEN.** The Current Garden model PR #376 and its merged-main CI passed on 2026-11-24. The follow-on Lower Garden spatial feedback is locally verified in three Chromium sizes; its dedicated PR is the source of truth for current integration checks. This is a test contract, not production acceptance. Source: [E06 EPB](EPISODE_PRODUCTION_BRIEF.md) and [interaction spec](INTERACTION_SPEC.md). Production gates still require the approved E04/E05 chain and real site/art.
 
 | ID | Layer | Test / stimulus | Expected observation / invariant | Status |
 | --- | --- | --- | --- | --- |
@@ -12,18 +12,22 @@
 | E06-I01 | Observe | Inspect present-bed and slope in either order | Two distinct observations remembered; no auto-cause verdict | NOT RUN |
 | E06-I02 | Observe | Attempt model comparison before observations | Does not advance or fabricate evidence | NOT RUN |
 | E06-I03 | Observe | Inspect healthy bed only, then request lower garden | Cannot bypass reasoning; hint highlights missing observation | NOT RUN |
-| E06-I04 | Model | Run dry configuration | Visible dry trace, not a historical claim | NOT RUN |
-| E06-I05 | Model | Run rain with channel blocked | Visible model catchment wetter; result labeled synthetic | NOT RUN |
-| E06-I06 | Model | Change channel and rerun | Different visible water route; old observation retained for comparison | NOT RUN |
+| E06-I04 | Model | Run dry configuration | No water flow; low catchment stays 0/3; not a historical claim | PR #376 head + merged-main CI PASS |
+| E06-I05 | Model | Run rain with channel blocked | Visible model catchment wetter; result labeled synthetic | PR #376 head + merged-main CI PASS |
+| E06-I06 | Model | Change channel and rerun | Different visible water route; old observation retained for comparison | PR #376 head + merged-main CI PASS |
 | E06-I07 | Model | Try favorable channel first | Child can still complete meaningful comparison without forced mistake | NOT RUN |
 | E06-I08 | Model | Try unfavorable channel first | Nonpunitive retry, same valid ending | NOT RUN |
 | E06-I09 | Model | Try to finish after only one weather or no changed-channel run | Cannot claim comparison or leave as complete | NOT RUN |
 | E06-I10 | Model | Restart/rewind miniature model | Does not alter current garden, lower pocket or canonical ledger | NOT RUN |
 | E06-I11 | Evidence | Finish model | Output states “may/can,” does not assert actual historical cause | NOT RUN |
-| E06-L01 | Lower | Walk to runoff trace and public path | Both visible and inspectable, with touch/keyboard equivalents | NOT RUN |
-| E06-L02 | Lower | Place marker on runoff-channel | Water constraint visibly demonstrated, can move | NOT RUN |
-| E06-L03 | Lower | Place marker on footpath | Access blockage visibly demonstrated, can move | NOT RUN |
-| E06-L04 | Lower | Move marker to raised-pocket | Both modeled constraints clear; provisional trial available | NOT RUN |
+| E06-I12 | Spatial control | Tap or keyboard-activate the drain channel; use the OPEN/BLOCKED action-list control | Both use the same legal channel action and strict replay history | PR #376 head + merged-main CI PASS |
+| E06-I13 | Snapshot integrity | Change the next weather/channel setup without pressing Run | Map, catchment and prior run history still describe completed snapshots only | PR #376 head + merged-main CI PASS |
+| E06-I14 | Comparison | Complete RAIN/OPEN and RAIN/BLOCKED in either order | BEFORE/AFTER shows those real run snapshots, holds weather constant, and reports bypass plus low catchment | PR #376 head + merged-main CI PASS |
+| E06-I15 | Reset | Restart after a completed pair | Flow map, pair and run cards clear; no new history or save is written | PR #376 head + merged-main CI PASS |
+| E06-L01 | Lower | Walk to runoff trace and public path | Both visible and inspectable; entering the scene focuses it; touch and keyboard paths work | Local Node + three-viewport Chromium PASS; integration tracked in separate PR |
+| E06-L02 | Lower | Place marker on runoff-channel | Marker follows the selected site; checked water constraint highlights in the scene; can move | Local Node + three-viewport Chromium PASS; integration tracked in separate PR |
+| E06-L03 | Lower | Place marker on footpath | Checked access blockage highlights in the scene; moving clears the active result until rechecked | Local Node + three-viewport Chromium PASS; integration tracked in separate PR |
+| E06-L04 | Lower | Move marker to raised-pocket | Water/path remain clear; small PAPER pocket remains visible through hypothetical sprout and NOW/POSSIBLE revisit | Local Node + three-viewport Chromium PASS; integration tracked in separate PR |
 | E06-L05 | Lower | Try to confirm without inspecting constraints | Does not complete or write events | NOT RUN |
 | E06-L06 | Lower | Confirm at blocked site | Does not complete; nonpunitive correction available | NOT RUN |
 | E06-L07 | Lower | Confirm at viable site | Only a small preview pocket appears; present garden unchanged | NOT RUN |
@@ -37,8 +41,8 @@
 | E06-C07 | Ledger | No E04/E05 approval / missing source | Synthetic model remains isolated; no production history/Chronicle assertion | NOT RUN |
 | E06-E01 | EFL | Limited-English child uses Listen/visual scaffold | Can compare terrain and revise without reading long text | NOT RUN |
 | E06-E02 | Parent | Parent cue displayed after model comparison | One optional nonspoiling cue; child can continue alone | NOT RUN |
-| E06-E03 | Accessibility | Touch and keyboard for model, movement and marker | Same outcome; no precision or timer | NOT RUN |
-| E06-E04 | Mobile | 568×320, 667×375 landscape; portrait fallback | Garden visible, controls/captions legible, no accidental page overflow | NOT RUN |
+| E06-E03 | Accessibility | Touch and keyboard for model, movement and marker | Same outcome; no precision or timer | Local Chromium PASS: touch in 568×320 + 390×844; keyboard on drain and Lower Garden map |
+| E06-E04 | Mobile | 568×320, 667×375 landscape; portrait fallback | Garden visible, controls/captions legible, no accidental page overflow | Local Chromium PASS at 568×320 and 390×844; physical-device QA OPEN |
 | E06-E05 | Regression | Integrate E06 only after approval | E01/E02/E03/C01 bytes and existing saves unchanged | NOT RUN |
 | E06-E06 | Release | E06 production package and MN4 deploy | Exact-head CI, artifact integrity, HTTPS and rollback separately verified | NOT RUN |
 | E06-E07 | Family | Owner/family play two spaces | Both count as genuine interactive scenes; child can explain change without a quiz | NOT RUN |

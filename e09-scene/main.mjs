@@ -50,11 +50,12 @@ function button(host,label,action,disabled=false,pressed=false){
   if(pressed)b.setAttribute('aria-pressed','true');
   b.addEventListener('click',()=>act(action));host.append(b);return b;
 }
-function edgeLine(host,a,b,classes){
+function edgeLine(host,a,b,classes,gapLabel=null){
   const w=host.clientWidth,h=host.clientHeight;
   const x1=coords[a][0]*w/100,y1=coords[a][1]*h/100;
   const x2=coords[b][0]*w/100,y2=coords[b][1]*h/100;
   const line=document.createElement('div');line.className='edge '+classes;
+  if(gapLabel){line.setAttribute('role','img');line.setAttribute('aria-label','PAPER sketch gap: '+gapLabel);}
   line.style.left=x1+'px';line.style.top=y1+'px';
   line.style.width=Math.hypot(x2-x1,y2-y1)+'px';
   line.style.transform='rotate('+Math.atan2(y2-y1,x2-x1)+'rad)';
@@ -68,8 +69,9 @@ function world(){const s=story(),v=view(state);
   const closed=document.createElement('span');closed.className='closed-label';
   closed.textContent='UPPER HILL CLOSED — NO ENTRY';host.append(closed);
   for(const e of SAFE_EDGES){
-    edgeLine(host,e.a,e.b,(notes||!s.previewComplete)&&s.surveyedEdges.includes(e.id)?
-      'surveyed '+((notes||!s.previewComplete)&&s.markedEdges.includes(e.id)?'marked':''):'');
+    const gap=!s.previewComplete&&s.routeResult&&!s.routeResult.complete&&s.routeResult.nextGap===e.id;
+    edgeLine(host,e.a,e.b,((notes||!s.previewComplete)&&s.surveyedEdges.includes(e.id)?
+      'surveyed '+((notes||!s.previewComplete)&&s.markedEdges.includes(e.id)?'marked':''):'')+(gap?' gap':''),gap?edgeNames[e.id]:null);
   }
   edgeLine(host,'fence_view',CLOSED_NODE,'closed');
   const closedNode=document.createElement('span');closedNode.className='closed-node';
@@ -111,6 +113,21 @@ function world(){const s=story(),v=view(state);
       pin.style.left=Math.min(95,coords[at][0]+13)+'%';
       pin.style.top=Math.max(5,coords[at][1]-21)+'%';host.append(pin);
     }
+  }
+  // A child-earned, reversible link on the actual PAPER scene, never a real path.
+  if(linkedLampWorld&&v.sightlineBoard.compared){
+    const ns='http://www.w3.org/2000/svg';
+    const overlay=document.createElementNS(ns,'svg');
+    overlay.setAttribute('viewBox','0 0 100 100');
+    overlay.setAttribute('preserveAspectRatio','none');
+    overlay.setAttribute('role','img');
+    overlay.setAttribute('aria-label','Milo linked two future PAPER questions; no real hill route or lighting approved');
+    overlay.dataset.sightlineLink='paper';
+    overlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2';
+    const line=document.createElementNS(ns,'line');
+    for(const [key,value] of Object.entries({x1:77,y1:11,x2:95,y2:49,stroke:'#245e67','stroke-width':1.5,'stroke-dasharray':'2 2'}))
+      line.setAttribute(key,String(value));
+    overlay.append(line);host.append(overlay);
   }
   host.append(actor);
   actor.style.left=coords[s.position][0]+'%';

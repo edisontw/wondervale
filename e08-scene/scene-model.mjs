@@ -45,6 +45,11 @@ export function restore(s){
  if(verified.get(s)===JSON.stringify(s))return s;
  const r=replay(s.history);return r&&same(r,s)?mark(s):null;
 }
+// Rewind only validated child actions; no inverse event or forged snapshot is accepted.
+export function rewind(snapshot){
+ const s=restore(snapshot);
+ return s&&s.history.length?replay(s.history.slice(0,-1)):null;
+}
 export function can(snapshot,action){
  const s=restore(snapshot),a=clean(action);
  return !!(s&&a&&(a.scene==='nav'&&a.type==='restart'||s.history.length<MAX_ACTIONS&&apply(s,a)));

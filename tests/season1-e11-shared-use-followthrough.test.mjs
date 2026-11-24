@@ -5,7 +5,7 @@ import * as E07 from '../e07-scene/scene-model.mjs';
 import * as E11 from '../engine/s01e11-authoring-prototype.mjs';
 import {dispatchRoleWalk,paperRoleWalk} from '../e11-scene/role-walk.mjs';
 import {paperSharedUse,dispatchSharedUse} from '../e11-scene/shared-use-followthrough.mjs';
-import {paperWorldAtlas} from '../e11-scene/world-atlas.mjs';
+import {paperWorldAtlas,paperWorldAtlasSources} from '../e11-scene/world-atlas.mjs';
 import * as E10 from '../authoring-labs/unnamed-story-model.mjs';
 
 const g=(type,value)=>({scene:'garden',action:value===undefined?{type}:{type,value}});
@@ -94,6 +94,24 @@ test('E11 child compares FIRST blocked and NOW open with two replay-verified ear
  assert.equal(view.now.overlaps,0);
  assert.equal(view.changed,true);
  assert.equal(view.compared,true);
+ // A child can reconsider NOW without erasing the FIRST trial or claiming real work.
+ act({type:'revise-now'});
+ let revised=paperSharedUse(e11,h,upstream,actions);
+ assert.ok(revised.first);
+ assert.equal(revised.now,null);
+ assert.equal(revised.compared,false);
+ assert.match(revised.chronicle,/pending/);
+ act({type:'choose',phase:'now',channel:'blocked'});
+ act({type:'record'});act({type:'compare'});
+ revised=paperSharedUse(e11,h,upstream,actions);
+ assert.equal(revised.now.overlaps,0);
+ assert.equal(revised.now.catchment,3);
+ assert.equal(revised.changed,true);
+ assert.equal(revised.compared,true);
+ assert.equal(revised.canonicalEvents.length,0);
+ assert.equal(revised.realAccessApproved,false);
+ // Compare the original first revision separately, without changing the replay evidence.
+ view=paperSharedUse(e11,h,upstream,actions.slice(0,4));
  assert.match(view.chronicle,/FIRST 3\/3 rain marks, 2 connector overlap cells; NOW 1\/3 rain marks, 0 overlaps/);
  assert.match(view.chronicle,/INDEPENDENT PAPER checks/);
  assert.match(view.chronicle,/UNKNOWN/);
@@ -104,7 +122,7 @@ test('E11 child compares FIRST blocked and NOW open with two replay-verified ear
  assert.equal(view.persistentSave,false);
  assert.deepEqual(paperSharedUse(e11,h,{
   e06:E06.replay(upstream.e06.history),e07:E07.replay(upstream.e07.history)
- },actions),view);
+ },actions),revised);
 });
 test('missing or forged upstream and visitor evidence fail closed, retries do not grant rights',()=>{
  const e11=layout(),h=walked(e11),upstream={e06:gardens(),e07:connector()};
@@ -123,7 +141,30 @@ test('missing or forged upstream and visitor evidence fail closed, retries do no
  assert.equal(paperSharedUse(e11,h,upstream,[{type:'choose',phase:'now',channel:'fake'}]),null);
  assert.equal(paperSharedUse(e11,h,upstream,[{type:'choose',phase:'now',channel:'open'},{type:'record'}]),null);
  assert.equal(paperSharedUse(e11,h,upstream,[{type:'compare'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'revise-now'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'record'},{type:'revise-now'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'record'},{type:'choose',phase:'now',channel:'open'},{type:'record'},{type:'revise-now'}]),null);
+ assert.equal(paperSharedUse(e11,h,upstream,[{type:'record'},{type:'choose',phase:'now',channel:'open'},{type:'record'},{type:'compare'},{type:'revise-now',rights:true}]),null);
  assert.equal(paperSharedUse(e11,h,upstream,Array(9).fill({type:'record'})),null);
+ // A valid, bounded revision must reach its final comparison in the full browser path.
+ let bounded=[];
+ for(const a of [{type:'choose',phase:'first',channel:'blocked'},
+  {type:'record'},{type:'choose',phase:'now',channel:'blocked'},
+  {type:'choose',phase:'now',channel:'open'},{type:'record'},{type:'compare'},
+  {type:'revise-now'},{type:'choose',phase:'now',channel:'blocked'},
+  {type:'record'},{type:'compare'}]){
+  const next=dispatchSharedUse(e11,h,upstream,bounded,a);
+  assert.equal(next.length,bounded.length+1,'valid child revision is not truncated');
+  bounded=next;
+ }
+ assert.equal(paperSharedUse(e11,h,upstream,bounded).compared,true);
+ while(bounded.length<12)bounded=dispatchSharedUse(e11,h,upstream,bounded,
+  {type:'choose',phase:'now',channel:'blocked'});
+ assert.equal(bounded.length,12);
+ assert.deepEqual(dispatchSharedUse(e11,h,upstream,bounded,
+  {type:'choose',phase:'now',channel:'open'}),bounded,'history stays bounded');
+ assert.equal(paperSharedUse(e11,h,upstream,[...bounded,
+  {type:'choose',phase:'now',channel:'open'}]),null,'oversize replay fails closed');
  let actions=dispatchSharedUse(e11,h,upstream,[],{type:'record'});
  assert.equal(actions.length,1);
  assert.deepEqual(dispatchSharedUse(e11,h,upstream,actions,{type:'record'}),actions);
@@ -187,4 +228,144 @@ test('E11 three-place FIRST/NOW PAPER atlas is child-earned and source-bound',()
  assert.equal(paperWorldAtlas(E11.dispatch(e11,{type:'reset'}),h,u,actions,e10),null);
  assert.equal(paperWorldAtlas(e11,h,u,actions,{...e10,rights:['open']}),null);
  assert.equal(paperWorldAtlas(e11,h,u,actions,e10,{rights:['open']}),null);
+});
+
+test('E11 atlas claim repair earns NOW from E06/E07/E10, survives JSON replay and fails closed on reset',async()=>{
+ const {paperAtlasRepair,dispatchAtlasRepair}=await import('../e11-scene/atlas-repair.mjs');
+ const e11=layout(),visitors=walked(e11),upstream={e06:gardens(),e07:connector()},e10=courtyard();
+ let shared=[];
+ for(const a of [{type:'record'},{type:'choose',phase:'now',channel:'open'},
+  {type:'record'},{type:'compare'}])
+  shared=dispatchSharedUse(e11,visitors,upstream,shared,a);
+ const source=[e11,visitors,upstream,shared,e10,null];
+ let history=[];
+ const place={type:'place',place:'connector',phase:'first'};
+ history=dispatchAtlasRepair(...source,history,place);
+ assert.equal(history.length,1);
+ history=dispatchAtlasRepair(...source,history,{type:'test'});
+ let view=paperAtlasRepair(...source,history);
+ assert.equal(view.checked,true);
+ assert.equal(view.accepted,false);
+ assert.equal(view.chronicle,null);
+ assert.match(view.feedback,/FIRST/);
+ assert.deepEqual(dispatchAtlasRepair(...source,history,{type:'test'}),history);
+ history=history.slice(0,-1); // Undo test, then change FIRST to NOW
+ history=[]; // Restart
+ history=dispatchAtlasRepair(...source,history,{type:'place',place:'connector',phase:'now'});
+ history=dispatchAtlasRepair(...source,history,{type:'test'});
+ view=paperAtlasRepair(...source,history);
+ assert.equal(view.accepted,true);
+ assert.match(view.chronicle,/PAPER ATLAS REPAIR/);
+ assert.match(view.visibleClaim.title,/0 connector overlap/);
+ assert.deepEqual(view.canonicalEvents,[]);
+ assert.deepEqual(view.unlocks,[]);
+ assert.equal(view.realRouteOpen,false);
+ assert.equal(view.persistentSave,false);
+ const replayed=source.map((s,i)=>i===2?{
+  e06:E06.replay(s.e06.history),e07:E07.replay(s.e07.history)
+ }:i===4?E10.replay(s.history):s);
+ assert.deepEqual(paperAtlasRepair(...replayed,JSON.parse(JSON.stringify(history))),view);
+ assert.equal(paperAtlasRepair(...source,[]).checked,false);
+ assert.equal(paperAtlasRepair(e11,visitors,{...upstream,e06:E06.fresh()},shared,e10,null,history),null);
+ assert.equal(paperAtlasRepair(e11,visitors,{...upstream,e07:E07.fresh()},shared,e10,null,history),null);
+ assert.equal(paperAtlasRepair(e11,visitors,upstream,shared,E10.fresh(),null,history),null);
+ assert.equal(paperAtlasRepair(E11.dispatch(e11,{type:'reset'}),visitors,upstream,shared,e10,null,history),null);
+ assert.equal(paperAtlasRepair(...source,[...history,{type:'grant-unlock'}]),null);
+ assert.equal(paperAtlasRepair(...source,[{type:'place',place:'north_hill',phase:'now'}]),null);
+});
+
+test('partial Atlas sources are replay-verified and cannot forge world completion',()=>{
+ const e11=layout(),e06=gardens(),e07=connector(),e10=courtyard();
+ const project=(u,t)=>paperWorldAtlasSources(e11,[],u,[],t);
+ const empty=project(null,null);
+ assert.equal(empty.visible,false);assert.equal(empty.atlas,null);
+ assert.deepEqual(empty.sources.map(x=>x.status),Array(4).fill('missing'));
+ assert.deepEqual(empty.echoes.map(x=>x.changed),Array(4).fill(false));
+ const garden=project({e06},null);
+ assert.deepEqual(garden.sources.map(x=>x.status),['missing','verified','missing','missing']);
+ assert.equal(garden.atlas,null);
+ assert.equal(garden.echoes[1].changed,true);
+ assert.match(garden.echoes[1].now,/PAPER sprout/);
+ assert.equal(garden.echoes[0].changed,false);
+ const crossing=project({e07},null);
+ assert.deepEqual(crossing.sources.map(x=>x.status),['missing','missing','verified','missing']);
+ const needs=project(null,e10);
+ assert.deepEqual(needs.sources.map(x=>x.status),['missing','missing','missing','verified']);
+ const partial=project({e06,e07},e10);
+ assert.equal(partial.verifiedCount,3);
+ assert.deepEqual(partial.echoes.map(x=>x.changed),[false,true,true,true]);
+ assert.match(partial.echoes[2].now,/traveler and water/);
+ assert.match(partial.echoes[3].now,/separate PAPER slots/);
+ assert.equal(partial.atlas,null,'verified upstream sources cannot finish E11');
+ assert.match(partial.partialChronicle,/remain unearned/);
+ assert.deepEqual(partial.canonicalEvents,[]);
+ assert.deepEqual(partial.unlocks,[]);
+ assert.equal(partial.realRouteOpen,false);
+ assert.equal(partial.commonRevealed,false);
+ assert.equal(partial.persistentSave,false);
+ const forgedGarden=project({e06:{...e06,rights:['approved']},e07},e10);
+ assert.equal(forgedGarden.sources[1].status,'missing');
+ assert.equal(forgedGarden.echoes[1].changed,false);
+ assert.equal(project({e06,e07:{...e07,rights:['approved']}},e10).sources[2].status,'missing');
+ assert.equal(project({e06:E06.fresh(),e07:E07.fresh()},E10.fresh()).verifiedCount,0);
+ assert.equal(project({e06,e07},{...e10,rights:['approved']}).sources[3].status,'missing');
+ const h=walked(e11),upstream={e06,e07};let checks=[];
+ for(const a of [{type:'record'},{type:'choose',phase:'now',channel:'open'},
+  {type:'record'},{type:'compare'}])
+  checks=dispatchSharedUse(e11,h,upstream,checks,a);
+ assert.ok(paperWorldAtlasSources(e11,h,upstream,checks,e10).atlas);
+ assert.equal(paperWorldAtlasSources(e11,h,upstream,checks,e10).verifiedCount,3);
+ assert.equal(paperWorldAtlasSources(E11.dispatch(e11,{type:'reset'}),[],upstream,[],e10).atlas,null);
+});
+
+
+test('E11 source notebook revokes independently on reset, clear and JSON reload',()=>{
+ const e11=layout(),e06=gardens(),e07=connector(),e10=courtyard();
+ const full={e06,e07};
+ const status=(u,t)=>paperWorldAtlasSources(e11,[],u,[],t);
+ const verified=status(full,e10);
+ assert.deepEqual(verified.sources.map(s=>s.status),
+  ['missing','verified','verified','verified']);
+ assert.equal(verified.verifiedCount,3);
+ assert.equal(verified.atlas,null);
+ assert.deepEqual(verified.echoes.map(x=>x.changed),[false,true,true,true]);
+ // A reset in one upstream scene must not preserve its previous notebook credit.
+ const resetGarden=status({...full,e06:E06.fresh()},e10);
+ assert.deepEqual(resetGarden.sources.map(s=>s.status),
+  ['missing','missing','verified','verified']);
+ assert.equal(resetGarden.verifiedCount,2);
+ assert.equal(resetGarden.echoes[1].changed,false);
+ assert.match(resetGarden.echoes[1].now,/No child-earned/);
+ assert.equal(resetGarden.echoes[2].changed,true);
+ assert.equal(resetGarden.atlas,null);
+ assert.deepEqual(resetGarden.unlocks,[]);
+ assert.deepEqual(resetGarden.canonicalEvents,[]);
+ const resetConnector=status({...full,e07:E07.fresh()},e10);
+ assert.deepEqual(resetConnector.sources.map(s=>s.status),
+  ['missing','verified','missing','verified']);
+ assert.equal(resetConnector.verifiedCount,2);
+ assert.equal(resetConnector.echoes[2].changed,false);
+ const resetNeeds=status(full,E10.fresh());
+ assert.deepEqual(resetNeeds.sources.map(s=>s.status),
+  ['missing','verified','verified','missing']);
+ assert.equal(resetNeeds.verifiedCount,2);
+ assert.equal(resetNeeds.echoes[3].changed,false);
+ // Clearing one source and then reloading cannot resurrect stale verification.
+ const cleared=status({e07},null);
+ assert.deepEqual(cleared.sources.map(s=>s.status),
+  ['missing','missing','verified','missing']);
+ assert.equal(cleared.verifiedCount,1);
+ assert.deepEqual(cleared.echoes.map(x=>x.changed),[false,false,true,false]);
+ const reloaded=status({
+  e06:E06.replay(JSON.parse(JSON.stringify(e06.history))),
+  e07:E07.replay(JSON.parse(JSON.stringify(e07.history)))
+ },E10.replay(JSON.parse(JSON.stringify(e10.history))));
+ assert.deepEqual(reloaded,verified);
+ const reloadCleared=status({e07:E07.replay(JSON.parse(JSON.stringify(e07.history)))},null);
+ assert.deepEqual(reloadCleared,cleared);
+ assert.deepEqual(reloadCleared.echoes.map(x=>x.changed),[false,false,true,false]);
+ assert.equal(reloadCleared.atlas,null);
+ assert.equal(reloadCleared.realRouteOpen,false);
+ assert.equal(reloadCleared.commonRevealed,false);
+ assert.equal(reloadCleared.persistentSave,false);
 });

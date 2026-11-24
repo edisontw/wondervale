@@ -1,4 +1,6 @@
+import {encodeE07Handoff} from '../e11-scene/e07-direct-handoff.mjs';
 import {gardenCareWorld} from './garden-world.mjs';
+import {earnedStepsViews} from './steps-revisit.mjs';
 import {runoffChoice} from './garden-connector-whatif.mjs';
 import {fresh,dispatch,can,view} from './scene-model.mjs';
 import {decodeTransfer,encodeTransfer} from '../authoring-labs/e06-e07-scene-transfer.mjs';
@@ -15,7 +17,7 @@ let state=extended?.e07||stepsIncoming?.e07||gardenIncoming?.e07||fresh(),
  linkedE06=extended?.e06||stepsIncoming?.e06||gardenIncoming?.e06||null,
  linkedE08=lantern?.e08||stepsIncoming?.e08||freshE08();
 const linkedE04=extended?.e04||null,linkedE05=extended?.e05||null;const $=id=>document.getElementById(id);
-let gardenWorldView='now',flowChannel='blocked',flowPhase='first';
+let gardenWorldView='now',flowChannel='blocked',flowPhase='first',stepsView='first';
 const a=(type,value)=>({scene:'story',action:value===undefined?{type}:{type,value}});
 const n=type=>({scene:'nav',type});
 const w=(type,value)=>({scene:'walkthrough',type,...(value===undefined?{}:{value})});
@@ -135,6 +137,28 @@ function drawGardenFlow(){
   comparison.overlap.length+' overlap cells; E06 rain '+flowChannel+
   ' garden catchment '+comparison.catchment+' of 3. Independent models.');
 }
+function drawStepsRevisit(){
+ const evidence=earnedStepsViews(state,linkedE08),panel=$('e08-revisit-panel');
+ panel.hidden=!evidence;
+ const board=$('e08-revisit-marks');board.replaceChildren();
+ if(!evidence)return;
+ panel.dataset.view=stepsView;
+ for(const key of ['first','second'])
+  $('e08-revisit-'+key).setAttribute('aria-pressed',String(stepsView===key));
+ const frame=evidence[stepsView];
+ for(const mark of frame.marks){
+  const dot=document.createElement('span');dot.className='steps-mark';
+  dot.dataset.mark=mark.mark;dot.textContent=mark.mark;
+  dot.style.left=(mark.x/320*100).toFixed(1)+'%';
+  dot.style.top=(mark.y/160*100).toFixed(1)+'%';
+  board.append(dot);
+ }
+ board.setAttribute('aria-label','PAPER '+stepsView+' viewpoint: fixed marks A B C, apparent spread '+
+  frame.spreadDegrees.toFixed(1)+' degrees. North Hill CLOSED.');
+ $('e08-revisit-detail').textContent='Milo looked from '+frame.anchor.replaceAll('-',' ')+
+  '. PAPER spacing: '+frame.spreadDegrees.toFixed(1)+' degrees. '+
+  'The marks stayed still. The viewpoint changed. Real Steps lights are OFF.';
+}
 function render(){
  const v=view(state),s=v.story;
  $('connector-scene').hidden=v.screen!=='connector';$('garden-revisit').hidden=v.screen!=='garden';
@@ -165,6 +189,11 @@ function render(){
   'No E06 PAPER care record in this independent visit; the lower pocket remains unbuilt.';
  drawGardenWorld();
  drawGardenFlow();
+ const e11Fragment=encodeE07Handoff(state.history);
+ const e11Link=$('e11-turn-transfer');e11Link.hidden=!e11Fragment;
+ const mainLink=$('e11-main-transfer');mainLink.hidden=!e11Fragment;
+ if(e11Fragment)mainLink.href='../e11-scene/'+e11Fragment;
+ if(e11Fragment)e11Link.href='../e11-scene/e07-earned-turn-taking.html'+e11Fragment;
  const stepsFragment=linkedE04?
   encodeMemoryLantern(linkedE04,linkedE05,linkedE06,state,linkedE08):
   encodeStepsTransfer(state,linkedE08,linkedE06);
@@ -173,6 +202,7 @@ function render(){
  $('e08-paper-callback').textContent=viewE08(linkedE08).story.previewComplete?
   'E08 PAPER callback: Milo compared two lower-model viewpoints. The real Steps remain unlit and the hill CLOSED.':
   'E08 PAPER comparison not yet made. Real Steps lights OFF; no official E08 unlock.';
+ drawStepsRevisit();
  const back=$('e06-return'),fragment=linkedE06&&(linkedE04?
   (lantern?(encodeMemoryLantern(linkedE04,linkedE05,linkedE06,state,linkedE08)||
    encodeMemoryGardenShortcut(linkedE04,linkedE05,linkedE06,state)):
@@ -183,9 +213,10 @@ function render(){
   'E04 two sincere memories: UNKNOWN dates. E05 MOCK station question retained. Milo must test E07 himself; no canonical source, access, Chronicle or E08 unlock.';
  back.hidden=!fragment;
  if(fragment)back.href='../e06-scene/'+fragment;
- $('connector-world-note').textContent=v.walkthrough.reviewed?
+ $('connector-world-note').textContent=(v.walkthrough.reviewed?
   'Milo walked and checked the revised PAPER route. No real route built.':
-  v.connectorPaperRevised?'Revised PAPER proposal visible. No real route built.':'FIRST model needs testing.';
+  v.connectorPaperRevised?'Revised PAPER proposal visible. No real route built.':'FIRST model needs testing.')+
+  (v.earnedFinnResponse?' '+v.earnedFinnResponse:'');
  $('note').textContent=s.paperNote+(v.walkthrough.reviewed?
   ' PAPER WALK: BEFORE only a tested connector layout; NOW Milo checked a shared crossing and water edge on the synthetic route. No construction or historical proof.':'');
  $('parent').textContent='Optional parent cue: '+(s.parentCue||'Who else uses this space?');
@@ -203,4 +234,7 @@ for(const b of document.querySelectorAll('[data-flow-channel]'))
  b.addEventListener('click',()=>{flowChannel=b.dataset.flowChannel;render();});
 for(const b of document.querySelectorAll('[data-flow-phase]'))
  b.addEventListener('click',()=>{flowPhase=b.dataset.flowPhase;render();});
+for(const key of ['first','second'])$('e08-revisit-'+key).addEventListener('click',()=>{
+ stepsView=key;render();
+});
 render();

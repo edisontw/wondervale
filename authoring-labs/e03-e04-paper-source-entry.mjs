@@ -1,6 +1,7 @@
 // Read-only, authoring-only source check before the E04 PAPER memory worktable.
 // A verified E02/E03 source handoff is NOT an E04 canonical unlock or evidence approval.
-import {e04Handoff,E02_KEY,E03_KEY} from '../engine/s01e04-handoff.mjs';
+import {e04Handoff,E02_KEY,E03_KEY,E04_KEY} from '../engine/s01e04-handoff.mjs';
+import {e05ProductionHandoff} from '../engine/s01e05-production-entry.mjs';
 import {MEMORIES} from './arc1-memory-station-handoff-model.mjs';
 
 export const PAPER_WORKTABLE='./arc1-memory-station-handoff.html';
@@ -40,5 +41,10 @@ export function readPaperSourceGate(storage) {
   } catch {
     return {...paperSourceGate(null,null),reason:'checkpoint-unreadable'};
   }
-  return paperSourceGate(e02,e03);
+  const paper=paperSourceGate(e02,e03);
+  if (!paper.ready) return paper;
+  // An unreadable E04 save does not revoke the two independently verified E03 memories.
+  let e04=null;
+  try { e04=JSON.parse(storage.getItem(E04_KEY)); } catch {}
+  return {...paper,e05Reason:e05ProductionHandoff(e02,e03,e04).reason};
 }

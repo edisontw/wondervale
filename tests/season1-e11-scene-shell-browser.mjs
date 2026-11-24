@@ -58,6 +58,12 @@ async function journey(page,label,shots){
  assert.match(await page.locator('#loop-visual-status').innerText(),/North Hill CLOSED/);
  assert.equal(await btn(page,'Cell 0,3').isDisabled(),true);
  assert.equal(await btn(page,'Review NONCANONICAL finale').isDisabled(),true);
+ assert.equal(await btn(page,'Undo last model action').isDisabled(),true);
+ await press(page,'Place access strip (two middle cells)');
+ assert.equal(await btn(page,'Undo last model action').isEnabled(),true);
+ await press(page,'Undo last model action');
+ assert.equal(await btn(page,'Place access strip (two middle cells)').isEnabled(),true);
+ assert.equal(await btn(page,'Undo last model action').isDisabled(),true);
  await press(page,'Place access strip (two middle cells)');
  await press(page,'Place quiet seat');await press(page,'Cell 0,1');
  await press(page,'Place activity area');await press(page,'Cell 0,2');
@@ -91,7 +97,35 @@ async function journey(page,label,shots){
   await press(page,'Walk '+stage+' · '+role);
   for(const cell of route)await press(page,'Walk visitor to '+cell);
   await press(page,'Check visitor at place');
+  if(stage==='NOW'&&role==='quiet reader'){
+   assert.equal(await page.locator('#visitor-walk-board [data-checked="pass"]').count(),1);
+   assert.match(await page.locator('#visitor-walk-feedback').innerText(),/Nia: I can see this PAPER visitor reached the place/);
+   await press(page,'Undo last visitor check');
+   assert.doesNotMatch(await page.locator('#visitor-walk-feedback').innerText(),/Nia: I can see this PAPER visitor reached the place/);
+   assert.equal(await page.locator('#visitor-walk-board [data-checked="pass"]').count(),0);
+   assert.match(await page.locator('#visitor-walk-results').innerText(),/NOW Quiet reader: not walked/);
+   await press(page,'Check visitor at place');
+   assert.equal(await page.locator('#visitor-walk-board [data-checked="pass"]').count(),1);
+  }
  }
+ // Checked PAPER visitor destinations visibly follow replayed check actions, not trial previews.
+ await press(page,'Walk FIRST · quiet reader');
+ assert.equal(await page.locator('#visitor-walk-board [data-checked="retry"]').count(),1);
+ assert.match(await page.locator('#visitor-walk-feedback').innerText(),/Finn: This PAPER route needs another try/);
+ await press(page,'Walk NOW · quiet reader');
+ assert.equal(await page.locator('#visitor-walk-board [data-checked="pass"]').count(),1);
+ assert.match(await page.locator('#visitor-walk-board [data-checked="pass"]').innerText(),/PAPER checked/);
+ // A new walk draws footsteps; retracing withdraws them without erasing earlier visits.
+ await press(page,'Walk NOW · quiet reader');
+ assert.equal(await page.locator('#visitor-walk-board [data-trail="true"]').count(),1);
+ await press(page,'Walk visitor to 1,1');
+ assert.equal(await page.locator('#visitor-walk-board [data-trail="true"]').count(),2);
+ assert.match(await page.locator('#visitor-walk-board [aria-label="Walk visitor to 1,1"]').innerText(),/step 1/);
+ await press(page,'Retrace one visitor step');
+ assert.equal(await page.locator('#visitor-walk-board [data-trail="true"]').count(),1);
+ assert.equal(await page.locator('#visitor-walk-board [aria-label="Walk visitor to 1,1"]').getAttribute('data-trail'),'false');
+ await press(page,'Walk visitor to 1,1');
+ assert.equal(await page.locator('#visitor-walk-board [data-trail="true"]').count(),2);
  assert.match(await page.locator('#visitor-walk-chronicle').innerText(),
   /FIRST quiet RETRY, group PASS → NOW quiet PASS, group PASS/);
  assert.match(await page.locator('#visitor-walk-chronicle').innerText(),/UNKNOWN/);
@@ -152,7 +186,10 @@ async function journey(page,label,shots){
  await press(page,'Add link: market ↔ unnamed place');
  await press(page,'Check the current loop');
  assert.match(await page.locator('#loop-status').innerText(),/not established/);
+ assert.match(await page.locator('#loop-status').innerText(),/connections at.*Square: 1.*Unnamed place: 1/);
+ assert.equal(await page.locator('#loop-visual [data-loop-hint]').count(),2);
  await press(page,'Add link: unnamed place ↔ square');
+ assert.equal(await page.locator('#loop-visual [data-loop-hint]').count(),0);
  assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),3);
  await press(page,'Check the current loop');
  assert.match(await page.locator('#loop-status').innerText(),/YES — FICTIONAL ONLY/);
@@ -162,9 +199,17 @@ async function journey(page,label,shots){
  assert.match(await page.locator('#loop-status').innerText(),/not established/);
  await press(page,'Check the current loop');
  assert.match(await page.locator('#loop-status').innerText(),/not established/);
+ assert.match(await page.locator('#loop-status').innerText(),/Square: 3/);
  await press(page,'Remove link: square ↔ garden');
  assert.equal(await page.locator('#loop-visual line[data-selected="true"]').count(),3);
  await press(page,'Check the current loop');
+ await press(page,'Review NONCANONICAL finale');
+ assert.match(await page.locator('#hook').innerText(),/unnamed place is NOT OPEN/);
+ await press(page,'Undo last model action');
+ assert.equal(await page.locator('#hook').isVisible(),false,'review consequence was withdrawn');
+ assert.match(await page.locator('#chronicle').innerText(),/model review pending/);
+ assert.equal(await page.locator('#loop-visual').getAttribute('data-reviewed'),'false');
+ assert.equal(await btn(page,'Review NONCANONICAL finale').isEnabled(),true);
  await press(page,'Review NONCANONICAL finale');
  assert.match(await page.locator('#hook').innerText(),/unnamed place is NOT OPEN/);
  assert.match(await page.locator('#hook').innerText(),/Season 1 is NOT COMPLETE/);
@@ -174,16 +219,24 @@ async function journey(page,label,shots){
  assert.equal(await page.locator('#return-route').isVisible(),true);
  assert.match(await page.locator('#return-route-result').innerText(),/Not complete/);
  assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'square');
+ await press(page,'Visit shared crossing PAPER stop');
+ assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'connector');
+ assert.match(await page.locator('#return-route-feedback').innerText(),/Finn:.*not checked another traveler/);
+ assert.match(await page.locator('#return-route-feedback').innerText(),/E07 shared crossing NOT VERIFIED/);
+ await press(page,'Undo last PAPER step');
+ assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'square');
  await press(page,'Try Market PAPER detour');
  assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'market');
  assert.match(await page.locator('#return-route-feedback').innerText(),/walk back/);
  await press(page,'Return to Square PAPER start');
  await press(page,'Visit Garden PAPER stop');
  assert.match(await page.locator('#return-route-garden').innerText(),/NOT VERIFIED/);
+ assert.match(await page.locator('#return-route-feedback').innerText(),/no checked garden PAPER change/);
  assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'garden');
  await press(page,'Visit Map Room PAPER stop');
  assert.equal(await page.locator('#return-route-map [data-here="true"]').getAttribute('data-place'),'map_room');
  assert.match(await page.locator('#return-route-station').innerText(),/NOT VERIFIED/);
+ assert.match(await page.locator('#return-route-feedback').innerText(),/no checked Map Room PAPER table/);
  await press(page,'Return to Garden PAPER stop');
  await press(page,'Return to Square PAPER start');
  assert.match(await page.locator('#return-route-result').innerText(),/PAPER route tested/);
@@ -310,6 +363,9 @@ try{
   await btn(page,'Place quiet seat').focus();await page.keyboard.press('Space');
   await btn(page,'Cell 0,1').focus();await page.keyboard.press('Enter');
   assert.match(await page.locator('#grid').innerText(),/Quiet/);
+  await btn(page,'Undo last model action').focus();await page.keyboard.press('Enter');
+  assert.doesNotMatch(await page.locator('#grid').innerText(),/Quiet/);
+  assert.equal(await btn(page,'Place quiet seat').isEnabled(),true);
   records.push({label:'keyboard',passed:true});
  }finally{await ctx.close();}
  assert.deepEqual(errors,[],'no page/console errors');

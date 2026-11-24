@@ -1,33 +1,50 @@
 // E11 independent PAPER scene. Reuses the strict fictional reducer; never unlocks production.
 import {START,BOUNDARY,TOKENS,USERS,EVIDENCE,SAFE_LINKS,
-  fresh,dispatch,projection} from '../engine/s01e11-authoring-prototype.mjs';
+  fresh,dispatch,replay,projection} from '../engine/s01e11-authoring-prototype.mjs';
 import {paperRevisit} from './revisit-model.mjs';
 import {paperRoleWalk,dispatchRoleWalk} from './role-walk.mjs';
 import {paperSharedUse,dispatchSharedUse} from './shared-use-followthrough.mjs';
-import {paperWorldAtlas} from './world-atlas.mjs';
+import {paperWorldAtlasSources} from './world-atlas.mjs';
+import {paperAtlasRepair,dispatchAtlasRepair} from './atlas-repair.mjs';
 import {paperLoopVisual} from './loop-visual.mjs';
 import {paperE11Story} from './story-reactions.mjs';
 import {paperGardenRevisit} from './garden-revisit.mjs';
 import {paperReturnRoute,WALK_LABELS} from './return-route.mjs';
+import {paperTableRetest,dispatchTableRetest} from './map-room-retest.mjs';
+import {paperCrossingRetest,dispatchCrossingRetest} from './crossing-retest.mjs';
 import {paperReturnReflection} from './return-reflection.mjs';
 import {paperReflectionWorld} from './reflection-world.mjs';
 import {paperReflectionFollowUp} from './reflection-follow-up.mjs';
 import {paperFollowUpMap,PAPER_CHECK_STOPS} from './follow-up-map.mjs';
+import {paperNeedsRetest,dispatchNeedsRetest} from './needs-retest.mjs';
 import {paperE10NeedsRevisit} from './e10-needs-revisit.mjs';
 import {paperE10UseRevisit} from './e10-use-revisit.mjs';
-import {paperHillTraceRevisit,PAPER_FUTURE_STOPS,freshFutureMarker,restoreFutureMarker,dispatchFutureMarker} from './hill-trace-revisit.mjs';
+import {paperHillTraceRevisit,PAPER_FUTURE_STOPS,freshFutureMarker,restoreFutureMarker,dispatchFutureMarker,paperFutureCheckDialogue,paperFutureMarkerChronicle} from './hill-trace-revisit.mjs';
 import {inspectPaperRole} from './role-inspection.mjs';
 import {PAPER_QUESTIONS,PAPER_CHECKS,draftPaperVerification} from './verification-plan.mjs';
 import {view as viewE10} from '../authoring-labs/unnamed-story-model.mjs';
 import {encodeLoopTransfer,decodeLoopTransfer} from '../authoring-labs/e10-e11-scene-transfer.mjs';
 import {paperChronicle} from '../authoring-labs/e03-e11-paper-chronicle.mjs';
+import {decodeE07Handoff} from './e07-direct-handoff.mjs';
+import {decodeE05Handoff} from './e05-direct-handoff.mjs';
 const $=id=>document.getElementById(id);
 const titles={quiet:'Quiet seat',activity:'Activity area',access:'Access strip',
  quiet_reader:'Quiet reader',activity_group:'Activity group',
  e03_delivery:'E03 delivery',e06_drainage:'E06 water',e07_user_impact:'E07 shared use',
  e09_closure:'E09 closed hill',e10_needs:'E10 needs'};
 const toolNames={walk:'Walk Milo',quiet:'Place quiet seat',activity:'Place activity area'};
-const incoming=decodeLoopTransfer(location.hash);
+const e05Earned=decodeE05Handoff(location.hash);
+const e07Earned=e05Earned?null:decodeE07Handoff(location.hash);
+const incoming=e05Earned||e07Earned?null:decodeLoopTransfer(location.hash);
+if(e07Earned||e05Earned)history.replaceState(null,'',location.pathname+location.search);
+const e05Status=document.getElementById('e05-earned-context');
+if(e05Status)e05Status.textContent=e05Earned?
+ 'Milo tried a PAPER Map Room. The table now leaves a clear path. Nia asks: who else needs space? Finn asks: can we test another plan? Try the E11 layout below. PAPER only; no station access, real route, or official Chronicle.':
+ 'No child-checked E05 PAPER Map Room linked. A model is not real station permission.';
+const e07Status=document.getElementById('e07-earned-context');
+if(e07Status)e07Status.textContent=e07Earned?
+ 'Milo checked Finn’s revised PAPER crossing for another traveler and water. Nia asks: who needs quiet here? Finn asks: who needs room? Try a new E11 plan below. This is not a real route, permission, official Chronicle or E11 unlock.':
+ 'No E07 child-checked PAPER crossing linked. Finn’s proposal is not evidence of a built route.';
 const linkedE10=incoming?.e10||null,upstream=incoming?.upstream||null;
 const linkedQuestionTrial=incoming?.questionTrial||null;
 const linkedUseTrial=incoming?.useTrial||null;
@@ -39,12 +56,46 @@ let selectedUnknown=null,draftChecks={},planFeedback='',returnSteps=[],
 let markerTrial=incoming?.markerTrial||freshFutureMarker();
 let roleWalkHistory=[];
 let sharedUseHistory=[];
-let atlasStage='now',atlasFocus='garden';
+let tableRetestHistory=[];
+let crossingRetestHistory=[];
+let needsRetestHistory=[];
+let atlasStage='now',atlasFocus='garden',atlasRepairHistory=[];
+const returnModelLines={
+ e05:'Nia: You moved the table and left a way through. Can both visitors get to their spots here?',
+ e07:'Finn: We left room for a traveler and for water. Where can both visitors get through here?',
+ e10:'Nia: You made two spots. Finn: Let’s see if one person can read while the other group plays.'
+};
+const returnModelButtons=[...$('return-models').querySelectorAll('button')];
+let selectedReturnModel=null;
+function showReturnModel(id){
+ selectedReturnModel=id;
+ for(const button of returnModelButtons)
+  button.setAttribute('aria-pressed',String(button.dataset.returnModel===id));
+ const line=$('return-model-line');
+ const dialogue=returnModelLines[id]||'';
+ if(line.textContent!==dialogue)line.textContent=dialogue;
+}
+for(const button of returnModelButtons)
+ button.addEventListener('click',()=>{
+  if(!button.hidden)showReturnModel(button.dataset.returnModel);
+ });
 function clearPlan(){selectedUnknown=null;draftChecks={};planFeedback='';}
 function clearReflection(){reflectionChoices={};reflectionFocus=null;followUpQuestion=null;followUpAction=null;followUpStop=null;}
 const adjacent=(a,b)=>{const [r,c]=a.split(',').map(Number),[s,d]=b.split(',').map(Number);return Math.abs(r-s)+Math.abs(c-d)===1;};
 const validCell=x=>/^[0-2],[0-3]$/.test(x)&&!BOUNDARY.includes(x);
-function act(action){returnSteps=[];clearReflection();markerTrial=freshFutureMarker();roleWalkHistory=[];sharedUseHistory=[];atlasStage='now';atlasFocus='garden';state=dispatch(state,action);render();}
+function clearDependentPaperViews(){
+ needsRetestHistory=[];
+ returnSteps=[];tableRetestHistory=[];crossingRetestHistory=[];clearReflection();markerTrial=freshFutureMarker();
+ roleWalkHistory=[];sharedUseHistory=[];atlasRepairHistory=[];atlasStage='now';atlasFocus='garden';
+}
+function act(action){clearDependentPaperViews();state=dispatch(state,action);render();}
+function undoModelAction(){
+ if(!state.history.length)return;
+ // Reconstruct prior state from valid child actions, not by editing derived flags.
+ const prior=replay(state.history.slice(0,-1));
+ if(!prior)return;
+ clearDependentPaperViews();state=prior;render();
+}
 function button(host,name,handler,disabled=false,pressed=false){
  const b=document.createElement('button');b.type='button';b.textContent=name;b.disabled=disabled;
  if(pressed)b.setAttribute('aria-pressed','true');
@@ -127,6 +178,13 @@ function comparison(){
   'SYNTHETIC earlier-discovery label: '+titles[state.citation]+'. No verified source or canonical E10 handoff.':
   'No earlier model clue selected.';
 }
+function loopHints(){
+ if(state.history.at(-1)?.type!=='check-loop'||state.loopChecked)return [];
+ const counts={};
+ for(const id of state.loopEdges)for(const node of SAFE_LINKS[id])counts[node]=(counts[node]||0)+1;
+ const labels={square:'Square',market:'Market',common:'Unnamed place',garden:'Garden',map_room:'Map Room'};
+ return Object.entries(counts).filter(([,count])=>count!==2).map(([id,count])=>({id,label:labels[id],count}));
+}
 function map(){
  const host=$('map');host.replaceChildren();
  for(const [id,nodes] of Object.entries(SAFE_LINKS)){
@@ -137,7 +195,8 @@ function map(){
  $('check-loop').disabled=state.loopChecked;
  $('loop-status').textContent='Chosen links: '+(state.loopEdges.join(', ')||'none')+
   '. Connected current cycle: '+(state.loopChecked?'YES — FICTIONAL ONLY':'not established')+
-  '. Historic hill remains CLOSED.';
+  '. Historic hill remains CLOSED.'+(loopHints().length?
+  ' PAPER check — connections at '+loopHints().map(x=>x.label+': '+x.count).join(', ')+'. A loop needs two at each used stop.':'');
 }
 
 const SVG_NS='http://www.w3.org/2000/svg';
@@ -168,8 +227,10 @@ function drawPaperLoop(){
   svg.append(line);
  }
  for(const node of model.nodes){
+  const hint=now&&loopHints().find(x=>x.id===node.id);
   svg.append(svgPart('circle',{cx:node.x,cy:node.y,r:16,
-   fill:'#e6ede6',stroke:'#466d61','stroke-width':2}));
+   fill:hint?'#ffe1a8':'#e6ede6',stroke:hint?'#a45a12':'#466d61','stroke-width':hint?4:2,'data-connections':hint?.count??''}));
+  if(hint)svg.append(svgPart('text',{x:node.x,y:node.y+4,'text-anchor':'middle','font-size':12,'font-weight':'bold',fill:'#703b08','data-loop-hint':node.id},String(hint.count)));
   const label=node.label==='Unnamed place'?'Unnamed place':node.label;
   svg.append(svgPart('text',{x:node.x,y:node.y+29,'text-anchor':'middle',
    'font-size':12,fill:'#253f37'},label));
@@ -240,7 +301,7 @@ function miniBoard(host,trial,focus,stage){
 function visitorWalk(){
  const model=paperRoleWalk(state,roleWalkHistory),panel=$('visitor-walk');
  panel.hidden=!model;
- if(!model)return;
+ if(!model){worldAtlas();return;}
  const choices=$('visitor-walk-choices');choices.replaceChildren();
  for(const [stage,role,label] of [
   ['first','quiet_reader','FIRST · quiet reader'],
@@ -250,7 +311,7 @@ function visitorWalk(){
  ]){
   button(choices,'Walk '+label,()=>{
    roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'choose',stage,role});
-   sharedUseHistory=[];visitorWalk();
+   sharedUseHistory=[];atlasRepairHistory=[];visitorWalk();
   },false,model.stage===stage&&model.role===role);
  }
  const board=$('visitor-walk-board');board.replaceChildren();
@@ -262,12 +323,21 @@ function visitorWalk(){
   const cell=r+','+c,closed=BOUNDARY.includes(cell),
    quiet=!!layout?.quiet.includes(cell),activity=!!layout?.activity.includes(cell),
    here=model.stage&&model.position===cell;
+  const checked=model.stage&&model.role&&model.visits[model.stage+':'+model.role];
+  const target=model.role==='quiet_reader'?'quiet':'activity';
+  const isTarget=!!checked&&!!layout?.[target].includes(cell);
   const b=document.createElement('button');b.type='button';b.className='mini-cell';
+  b.dataset.checked=isTarget?(checked.passed?'pass':'retry'):'none';
   if(closed)b.classList.add('mini-closed');
   if(quiet)b.classList.add('mini-quiet');
   if(activity)b.classList.add('mini-activity');
   if(here)b.classList.add('mini-focus');
-  b.textContent=(here?'Visitor · ':'')+(quiet?'Quiet':activity?'Group':closed?'CLOSED':cell);
+  // Show only steps earned in this visitor's current reversible PAPER walk.
+  const visitIndex=model.trail.lastIndexOf(cell);
+  b.dataset.trail=String(visitIndex>=0);
+  b.textContent=(here?'Visitor · ':'')+(quiet?'Quiet':activity?'Group':closed?'CLOSED':cell)+
+   (visitIndex>=0?' · step '+visitIndex:'')+
+   (isTarget?(checked.passed?' · PAPER checked':' · PAPER retry'):'');
   b.setAttribute('aria-label','Walk visitor to '+cell);
   b.disabled=!model.stage||closed||!adjacent(model.position,cell);
   b.addEventListener('click',()=>{
@@ -280,7 +350,11 @@ function visitorWalk(){
   model.stage.toUpperCase()+' · '+titles[model.role]+' at '+model.position+
   ' · '+model.steps+' steps · '+model.blocked+' safe blocked tries.':
   'Choose a visitor to start at the model entrance.';
- $('visitor-walk-feedback').textContent=model.feedback;
+ const selectedCheck=model.stage&&model.role&&model.visits[model.stage+':'+model.role];
+ $('visitor-walk-feedback').textContent=model.feedback+(selectedCheck?
+  (selectedCheck.passed?
+   ' Nia: I can see this PAPER visitor reached the place. Milo, can we check another need?':
+   ' Finn: This PAPER route needs another try. Milo, retrace and change the model.'):'');
  const controls=$('visitor-walk-controls');controls.replaceChildren();
  button(controls,'Retrace one visitor step',()=>{
   roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'retrace'});
@@ -290,6 +364,12 @@ function visitorWalk(){
   roleWalkHistory=dispatchRoleWalk(state,roleWalkHistory,{type:'check'});
   sharedUseHistory=[];visitorWalk();
  },!model.stage||model.steps<1);
+ // Withdraw only the most recent check; replay restores all earlier visitor evidence.
+ button(controls,'Undo last visitor check',()=>{
+  if(roleWalkHistory.at(-1)?.type!=='check')return;
+  roleWalkHistory=roleWalkHistory.slice(0,-1);
+  sharedUseHistory=[];visitorWalk();
+ },roleWalkHistory.at(-1)?.type!=='check');
  button(controls,'Restart visitor rehearsal',()=>{roleWalkHistory=[];sharedUseHistory=[];visitorWalk();},!roleWalkHistory.length);
  $('visitor-walk-results').textContent=['first','now'].flatMap(stage=>
   USERS.map(role=>{
@@ -309,7 +389,7 @@ function sharedUseView(){
  const choose=(phase,channel)=>{
   sharedUseHistory=dispatchSharedUse(state,roleWalkHistory,upstream,sharedUseHistory,
    {type:'choose',phase,channel});
-  sharedUseView();
+  atlasRepairHistory=[];sharedUseView();
  };
  for(const phase of ['first','now'])
   button(choices,phase.toUpperCase()+' connector',()=>choose(phase,model.channel),
@@ -346,6 +426,10 @@ function sharedUseView(){
   sharedUseHistory=dispatchSharedUse(state,roleWalkHistory,upstream,sharedUseHistory,
    {type:'compare'});sharedUseView();
  },!model.first||!model.now||model.compared);
+ button(controls,'Revise NOW shared-use PAPER check',()=>{
+  sharedUseHistory=dispatchSharedUse(state,roleWalkHistory,upstream,sharedUseHistory,
+   {type:'revise-now'});sharedUseView();
+ },!model.compared);
  button(controls,'Restart shared-use PAPER checks',()=>{
   sharedUseHistory=[];sharedUseView();
  },!sharedUseHistory.length);
@@ -367,10 +451,46 @@ function sharedUseView(){
 
 
 function worldAtlas(){
- const model=paperWorldAtlas(state,roleWalkHistory,upstream,sharedUseHistory,
-  linkedE10,linkedUseTrial);
+ const sourceView=paperWorldAtlasSources(state,roleWalkHistory,upstream,sharedUseHistory,
+  linkedE10,linkedUseTrial,e05Earned,e07Earned),model=sourceView.atlas;
+ // Carry only replay-verified models into the opening of the current trial.
+ const returns=sourceView.partial.map(source=>source.id).filter(id=>Object.hasOwn(returnModelLines,id));
+ for(const button of returnModelButtons)
+  button.hidden=!returns.includes(button.dataset.returnModel);
+ $('return-models').hidden=!returns.length;
+ if(!returns.includes(selectedReturnModel))
+  showReturnModel(returns.includes('e10')?'e10':returns[0]??null);
  const panel=$('world-atlas');panel.hidden=!model;
- if(!model)return;
+ $('world-atlas-source-panel').hidden=!sourceView.visible;
+ const sourceList=$('world-atlas-sources');sourceList.replaceChildren();
+ for(const source of sourceView.sources){
+  const row=document.createElement('p');row.className='status';
+  row.dataset.source=source.id;row.dataset.status=source.status;
+  row.textContent=source.label+': '+source.status+' PAPER replay. '+source.note;
+  sourceList.append(row);
+ }
+ $('world-atlas-partial').textContent=sourceView.partialChronicle;
+ // Earlier PAPER changes follow strict replay; raw completion flags cannot
+ // turn an unverified source into an earned visual change.
+ const echoHost=$('world-atlas-echo');echoHost.replaceChildren();
+ for(const echo of sourceView.echoes){
+  const card=document.createElement('div');card.className='world-echo-card';
+  card.dataset.echoSource=echo.id;card.dataset.status=echo.status;
+  const heading=document.createElement('strong');
+  heading.textContent=echo.label+' · '+(echo.changed?'PAPER CHANGED':'NOT CHECKED');
+  const first=document.createElement('p');first.textContent=echo.first;
+  const now=document.createElement('p');now.textContent=echo.now;
+  card.append(heading,first,now);echoHost.append(card);
+ }
+ for(const id of ['world-atlas-stages','world-atlas-places',
+  'world-atlas-observation','world-atlas-chronicle'])$(id).hidden=!model;
+ const existingRepair=$('world-atlas-repair');
+ if(existingRepair)existingRepair.hidden=!model;
+ if(!model){
+  atlasRepairHistory=[];
+  if(existingRepair)existingRepair.replaceChildren();
+  return;
+ }
  const stages=$('world-atlas-stages');stages.replaceChildren();
  for(const phase of ['first','now'])
   button(stages,'Show '+phase.toUpperCase()+' three-place PAPER world',
@@ -391,6 +511,38 @@ function worldAtlas(){
   atlasStage.toUpperCase()+' · '+focused.label+'. '+focused.detail+
   ' Milo can switch the view or inspect another PAPER place.';
  $('world-atlas-chronicle').textContent=model.chronicle;
+
+ const repair=paperAtlasRepair(state,roleWalkHistory,upstream,sharedUseHistory,
+  linkedE10,linkedUseTrial,atlasRepairHistory);
+ const host=$('world-atlas-repair')||document.createElement('div');
+ if(!host.id){host.id='world-atlas-repair';panel.append(host);}
+ host.replaceChildren();
+ if(repair){
+  const note=document.createElement('p');note.setAttribute('aria-live','polite');
+  note.textContent=repair.feedback+(repair.chronicle?' '+repair.chronicle:'');
+  host.append(note);
+  const apply=action=>{
+   atlasRepairHistory=dispatchAtlasRepair(state,roleWalkHistory,upstream,sharedUseHistory,
+    linkedE10,linkedUseTrial,atlasRepairHistory,action);worldAtlas();
+  };
+  if(!repair.checked)for(const place of repair.places)for(const phase of ['first','now'])
+   button(host,'Place '+phase.toUpperCase()+' '+place.label+' model claim',
+    ()=>apply({type:'place',place:place.id,phase}),false,
+    repair.place===place.id&&repair.phase===phase);
+  button(host,'Test PAPER atlas claim',()=>apply({type:'test'}),!repair.place||repair.checked);
+  button(host,'Undo PAPER atlas repair',()=>{
+   atlasRepairHistory=atlasRepairHistory.slice(0,-1);worldAtlas();
+  },!atlasRepairHistory.length);
+  button(host,'Restart PAPER atlas repair',()=>{atlasRepairHistory=[];worldAtlas();},
+   !atlasRepairHistory.length);
+  if(repair.visibleClaim){
+   const changed=document.createElement('p');changed.dataset.atlasRepair='changed';
+   changed.textContent='CHANGED PAPER NOTE: '+repair.visibleClaim.label+
+    ' — '+repair.visibleClaim.title+'. '+repair.visibleClaim.detail;
+   host.append(changed);
+  }
+ }
+
 }
 
 function verificationPlan(){
@@ -457,7 +609,7 @@ function returnRoute(){
   ' · visited: '+(model.visited.map(id=>WALK_LABELS[id]).join(' + ')||'none')+
   ' · returned with both stops: '+(model.complete?'YES, PAPER ONLY':'not yet')+'.';
  const map=$('return-route-map');map.replaceChildren();
- for(const id of ['square','market','garden','map_room']){
+ for(const id of ['square','market','garden','map_room','connector']){
   const stop=document.createElement('div');stop.className='route-stop';
   stop.dataset.place=id;stop.dataset.here=String(model.at===id);
   stop.dataset.visited=String(model.visited.includes(id));
@@ -471,9 +623,12 @@ function returnRoute(){
   'Garden stop not visited. No earlier growth is claimed.';
  $('return-route-station').textContent=model.stationNote||
   'Map Room stop not visited. No earlier room change is claimed.';
+ $('return-route-feedback').textContent=model.feedback+(model.connectorNote?' '+model.connectorNote:'');
  const host=$('return-route-controls');host.replaceChildren();
  const labels={
   'square:market':'Try Market PAPER detour',
+  'square:connector':'Visit shared crossing PAPER stop',
+  'connector:square':'Return to Square PAPER start',
   'square:garden':'Visit Garden PAPER stop',
   'market:square':'Return to Square PAPER start',
   'garden:square':'Return to Square PAPER start',
@@ -481,12 +636,53 @@ function returnRoute(){
   'map_room:garden':'Return to Garden PAPER stop'
  };
  for(const to of model.choices)
-  button(host,labels[model.at+':'+to],()=>{returnSteps=[...returnSteps,to];clearReflection();returnRoute();reflection();},
+  button(host,labels[model.at+':'+to],()=>{returnSteps=[...returnSteps,to];tableRetestHistory=[];crossingRetestHistory=[];clearReflection();returnRoute();reflection();},
    returnSteps.length>=24);
+ if(model.at==='connector'&&model.crossingEarned){
+  const trial=paperCrossingRetest(state,returnSteps,upstream,crossingRetestHistory);
+  if(trial){
+   for(const width of ['narrow','shared'])
+    button(host,'Place '+width+' PAPER crossing',()=>{
+     crossingRetestHistory=dispatchCrossingRetest(state,returnSteps,upstream,crossingRetestHistory,{type:'place',width});returnRoute();
+    },trial.tested,trial.width===width);
+   button(host,'Test another traveler at PAPER crossing',()=>{
+    crossingRetestHistory=dispatchCrossingRetest(state,returnSteps,upstream,crossingRetestHistory,{type:'test'});returnRoute();
+   },trial.tested);
+   button(host,'Revise PAPER crossing trial',()=>{
+    crossingRetestHistory=dispatchCrossingRetest(state,returnSteps,upstream,crossingRetestHistory,{type:'revise'});returnRoute();
+   },!trial.tested);
+   button(host,'Undo last PAPER crossing action',()=>{
+    crossingRetestHistory=crossingRetestHistory.slice(0,-1);returnRoute();
+   },!crossingRetestHistory.length);
+   $('return-route-feedback').textContent=trial.feedback+' '+trial.chronicle;
+  }
+ }
+ if(model.at==='map_room'&&model.stationEarned){
+  const trial=paperTableRetest(state,returnSteps,upstream,tableRetestHistory);
+  if(trial){
+   for(const spot of ['across-walkway','near-wall'])
+    button(host,'Place PAPER table '+(spot==='near-wall'?'by wall':'across walkway'),()=>{
+     tableRetestHistory=dispatchTableRetest(state,returnSteps,upstream,tableRetestHistory,{type:'place',spot});
+     returnRoute();
+    },trial.tested,trial.spot===spot);
+   button(host,'Walk and test PAPER path',()=>{
+    tableRetestHistory=dispatchTableRetest(state,returnSteps,upstream,tableRetestHistory,{type:'test'});
+    returnRoute();
+   },trial.tested);
+   button(host,'Revise PAPER table trial',()=>{
+    tableRetestHistory=dispatchTableRetest(state,returnSteps,upstream,tableRetestHistory,{type:'revise'});
+    returnRoute();
+   },!trial.tested);
+   button(host,'Undo last PAPER table action',()=>{
+    tableRetestHistory=tableRetestHistory.slice(0,-1);returnRoute();
+   },!tableRetestHistory.length);
+   $('return-route-station').textContent=trial.feedback+' '+trial.chronicle;
+  }
+ }
  button(host,'Undo last PAPER step',()=>{
-  returnSteps=returnSteps.slice(0,-1);clearReflection();returnRoute();reflection();
+  returnSteps=returnSteps.slice(0,-1);tableRetestHistory=[];crossingRetestHistory=[];clearReflection();returnRoute();reflection();
  },!returnSteps.length);
- button(host,'Restart PAPER return route',()=>{returnSteps=[];clearReflection();returnRoute();reflection();},!returnSteps.length);
+ button(host,'Restart PAPER return route',()=>{returnSteps=[];tableRetestHistory=[];crossingRetestHistory=[];clearReflection();returnRoute();reflection();},!returnSteps.length);
  $('return-route-result').textContent=model.complete?
   'PAPER route tested: both stops visited and Milo returned. No real route, Common access or official unlock.':
   'Not complete. Milo must visit both model stops and return to Square; a wrong turn is safe.';
@@ -637,6 +833,24 @@ function e10NeedsWorld(){
  $('e10-needs-result').textContent='FIRST: '+(atlas.firstConflict?'1 tested PAPER overlap':'no overlap')+
   ' → NOW: '+(atlas.nowConflict?'overlap':'0 overlaps after Milo moved a card')+
   '. The two simulated needs remain visible. Source, consent and real access UNKNOWN; North Hill CLOSED.';
+ needsRetestView();
+}
+function needsRetestView(){
+ const panel=$('e10-needs-world');
+ let host=$('e10-needs-retest');
+ if(!host){host=document.createElement('div');host.id='e10-needs-retest';panel.append(host);}
+ host.replaceChildren();
+ const trial=paperNeedsRetest(linkedE10,needsRetestHistory);
+ if(!trial)return;
+ const status=document.createElement('p');status.setAttribute('aria-live','polite');
+ status.textContent='NEW PAPER trial: Quiet '+trial.quiet+' / Activity '+trial.activity+'. '+trial.feedback+' '+trial.chronicle;
+ host.append(status);
+ const apply=a=>{needsRetestHistory=dispatchNeedsRetest(linkedE10,needsRetestHistory,a);needsRetestView();};
+ for(const role of ['quiet','activity'])for(const slot of ['left','shared','right'])
+  button(host,'Move PAPER '+role+' to '+slot,()=>apply({type:'place',role,slot}),trial.tested);
+ button(host,'Ask both PAPER visitors',()=>apply({type:'test'}),trial.tested||!trial.moved);
+ button(host,'Revise PAPER needs trial',()=>apply({type:'revise'}),!trial.tested);
+ button(host,'Undo last PAPER needs action',()=>{needsRetestHistory=needsRetestHistory.slice(0,-1);needsRetestView();},!needsRetestHistory.length);
 }
 function e10UseWorld(){
  const atlas=paperE10UseRevisit(linkedE10,linkedUseTrial);
@@ -670,8 +884,9 @@ function hillTraceRevisit(){
   'PAPER NEXT STEP — NOT DONE.':
   marker?'That stop does not check this question. Move ? and try again.':
   'Choose where Milo should seek a real check later.');
- $('hill-trace-diary').textContent=matched?atlas.chroniclePreview:
-  'The PAPER trace does not prove history, access or identity. No real check completed.';
+ $('hill-trace-diary').textContent=paperFutureMarkerChronicle(markerTrial,atlas)||
+  'PAPER Chronicle unavailable. No real check completed.';
+ $('hill-trace-dialogue').textContent=paperFutureCheckDialogue(markerTrial,atlas)||'';
 }
 function render(){
  gardenRevisit();
@@ -716,6 +931,7 @@ function render(){
  $('e11-back').hidden=screen!=='callback';
  $('e10-callback').disabled=!state.reviewed||screen==='callback';
  $('story-line').textContent=paperE11Story(state);
+ $('undo-paper').disabled=!state.history.length;
  controls();board();tests();comparison();map();drawPaperLoop();review();worldRevisit();visitorWalk();returnRoute();reflection();
 }
 $('access').addEventListener('click',()=>act({type:'place',tokenId:'access',cells:['1,1','1,2']}));
@@ -727,5 +943,6 @@ $('loop-now').addEventListener('click',()=>{mapView='now';drawPaperLoop();});
 $('begin').addEventListener('click',()=>{begun=true;render();});
 $('e10-callback').addEventListener('click',()=>{if(state.reviewed){screen='callback';render();}});
 $('e11-back').addEventListener('click',()=>{screen='trial';render();});
+$('undo-paper').addEventListener('click',undoModelAction);
 $('restart').addEventListener('click',()=>{tool='walk';begun=false;screen='trial';revisitFocus='quiet_reader';roleCell=null;mapView='now';clearPlan();act({type:'reset'});});
 render();

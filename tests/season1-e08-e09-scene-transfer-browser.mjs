@@ -56,18 +56,37 @@ try{
    await page.locator('#sightline-compare').click();
    assert.match(await page.locator('#sightline-feedback').innerText(),/NOT DONE/);
    assert.equal(await page.locator('#scene .sightline-pin').count(),2);
+   assert.equal(await page.locator('#scene [data-sightline-link="paper"]').count(),1,
+    'Milo sees the earned PAPER link between his two future check questions');
+   await page.locator('[data-sightline-remove="light"]').click();
+   assert.equal(await page.locator('#scene [data-sightline-link="paper"]').count(),0,
+    'Removing a question must undo the visible world response');
+   await page.locator('[data-sightline-select="light"]').click();
+   await page.locator('[data-sightline-site="fence_view"]').click();
+   await page.locator('#sightline-compare').click();
+   assert.equal(await page.locator('#scene [data-sightline-link="paper"]').count(),1,
+    'Revised child action earns the world response again');
    await hit('mark-steps_base:signpost');
    await hit('mark-signpost:lower_bend');await hit('mark-lower_bend:overlook');
    await hit('check-route');await hit('compare-symbol');await hit('review');await hit('finish-preview');
    assert.match(await page.locator('#chronicle').innerText(),/E10 NOT UNLOCKED/);
    await page.locator('#e08-return').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
-   assert.match(await page.locator('#e09-callback').innerText(),/E09 PAPER return/);
+   assert.match(await page.locator('#e09-callback').innerText(),/Nia: Milo.*revised PAPER questions.*CLOSED/);
+   assert.equal(await page.locator('#steps-world').getAttribute('data-hill-return'),'revised');
+   assert.equal(await page.locator('#map [data-hill-question="light"]').count(),1);
+   assert.equal(await page.locator('#map [data-hill-question="view"]').count(),1);
+   await page.locator('[data-hill-question="light"]').last().click();
+   assert.match(await page.locator('#hill-question-detail').innerText(),/fence-view LIGHT question/);
+   assert.equal(await page.locator('#map [data-selected="true"]').count(),1);
+   await page.locator('button[data-hill-question="view"]').click();
+   assert.match(await page.locator('#hill-question-detail').innerText(),/overlook VIEWPOINT question/);
    await page.locator('#e09-transfer').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E09 finished'));
    assert.match(await page.locator('#survey-summary').innerText(),/Milo walked 4 model edges/);
    assert.equal(await page.locator('#lantern-world-map .view-ray').count(),6);
    assert.equal(await page.locator('#scene .sightline-pin').count(),2);
+   assert.equal(await page.locator('#scene [data-sightline-link="paper"]').count(),1);
    assert.match(await page.locator('#sightline-feedback').innerText(),/NOT DONE/);
    await page.locator('#restart').click();
    assert.equal(await page.locator('#scene .sightline-pin').count(),0);
@@ -75,6 +94,11 @@ try{
    assert.equal(await page.locator('#lantern-world-map .view-ray').count(),6);
    await page.locator('#e08-return').click();
    await page.waitForFunction(()=>document.querySelector('#stage')?.textContent.includes('E08 finished'));
+   assert.match(await page.locator('#e09-callback').innerText(),/Finn:.*not matched both safe future questions/);
+   assert.equal(await page.locator('#steps-world').getAttribute('data-hill-return'),'unverified');
+   assert.equal(await page.locator('#map [data-hill-question="light"]').count(),0);
+   assert.equal(await page.locator('#map [data-hill-question="view"]').count(),0);
+   assert.equal(await page.locator('#hill-question-panel').isVisible(),false);
    await hit('restart');
    assert.equal(await page.locator('#e09-transfer').isVisible(),false);
    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['paper-sentinel']);

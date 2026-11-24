@@ -99,19 +99,22 @@ export function draftPayload(s) {
 export function restoreDraft(raw,pack,mode='draft_preview') {
   const clean=fresh(pack,mode);
   if (!raw || raw.schema!==1 || raw.version!==VERSION || raw.mode!==mode ||
-      raw.packFingerprint!==clean.packFingerprint || !Array.isArray(raw.history) ||
-      raw.history.length>MAX_ACTIONS) return clean;
+      raw.packFingerprint!==clean.packFingerprint) return clean;
+  const restored=replayChronology(raw.history,pack,mode);
+  try { return restored && JSON.stringify(restored)===JSON.stringify(raw) ? restored : clean; }
+  catch { return clean; }
+}
+export function replayChronology(history,pack,mode='draft_preview') {
+  if (!Array.isArray(history) || history.length>MAX_ACTIONS) return null;
   try {
-    let s=clean;
-    for (const action of raw.history) {
-      if (!action || !['inspect-memory','inspect-card','inspect-clue','place','explain','chronicle','finish'].includes(action.type))
-        return clean;
+    let s=fresh(pack,mode);
+    for (const action of history) {
       const next=dispatch(s,action,pack);
-      if (next.history.length!==s.history.length+1) return clean;
+      if (next.history.length!==s.history.length+1) return null;
       s=next;
     }
-    return JSON.stringify(s)===JSON.stringify(raw) ? s : clean;
-  } catch {return clean;}
+    return s;
+  } catch {return null;}
 }
 export function chronicleProjection(s,pack) {
   const p=validateSourcePack(pack);
