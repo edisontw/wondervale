@@ -9,7 +9,7 @@ try{
    const page=await context.newPage(),errors=[];
    page.on('pageerror',e=>errors.push(e.message));
    assert.equal((await page.goto(base+'/e06-scene/'))?.status(),200);
-   await page.evaluate(()=>localStorage.setItem('e06-sentinel','keep'));
+   await page.evaluate(()=>{localStorage.setItem('e06-sentinel','keep');localStorage.setItem('canonical-save-sentinel','unchanged');});
    const b=key=>page.locator('[data-key="'+key+'"]');
    const hit=async key=>{assert.equal(await b(key).isDisabled(),false,key);await b(key).click();};
    assert.match(await page.locator('.notice').innerText(),/AUTHORING ONLY/);
@@ -25,11 +25,33 @@ try{
    await tap('model-tray');
    await hit('run');
    assert.equal(await page.locator('#model-catchment').getAttribute('aria-valuenow'),'0');
-   await hit('rain');await hit('run');
+   assert.equal(await page.locator('#water-model').getAttribute('data-result'),'dry');
+   await hit('rain');
+   assert.equal(await page.locator('#water-model').getAttribute('data-result'),'dry','new weather is not observed before Run');
+   assert.match(await page.locator('#model-next-setup').innerText(),/RAIN.*OPEN.*setup only/);
+   await hit('run');
    assert.equal(await page.locator('#model-catchment').getAttribute('aria-valuenow'),'1');
-   await hit('blocked');await hit('run');
+   assert.equal(await page.locator('#water-model').getAttribute('data-result'),'rain-open');
+   await page.locator('#model-channel-control').click();
+   assert.equal(await page.locator('#model-channel-control').getAttribute('aria-pressed'),'false');
+   assert.match(await page.locator('#model-next-setup').innerText(),/RAIN.*BLOCKED.*setup only/);
+   assert.equal(await page.locator('#water-model').getAttribute('data-result'),'rain-open','spatial channel edit must not redraw old evidence');
+   assert.match(await page.locator('#model-flow-caption').innerText(),/RAIN.*OPEN.*1\/3.*bypass 2\/2/);
+   await hit('open');
+   assert.match(await page.locator('#model-next-setup').innerText(),/RAIN.*OPEN.*setup only/);
+   await page.locator('#model-channel-control').click();
+   await hit('run');
    assert.equal(await page.locator('#model-catchment').getAttribute('aria-valuenow'),'3');
    assert.match(await page.locator('#model-flow-caption').innerText(),/RAIN.*BLOCKED.*3\/3/);
+   assert.equal(await page.locator('#water-model').getAttribute('data-result'),'rain-blocked');
+   assert.equal(await page.locator('#model-comparison').isVisible(),true);
+   assert.match(await page.locator('#model-before-label').innerText(),/BEFORE.*Run 2.*RAIN \/ OPEN/);
+   assert.match(await page.locator('#model-after-label').innerText(),/AFTER.*Run 3.*RAIN \/ BLOCKED/);
+   assert.equal(await page.locator('#model-before').getAttribute('data-result'),'rain-open');
+   assert.equal(await page.locator('#model-after').getAttribute('data-result'),'rain-blocked');
+   assert.match(await page.locator('#model-before-flow').innerText(),/LOW BASIN.*1\/3.*BYPASS.*2\/2/s);
+   assert.match(await page.locator('#model-after-flow').innerText(),/LOW BASIN.*3\/3.*BYPASS.*0\/2/s);
+   assert.equal(await page.locator('#model-run-history .run-chip').count(),3);
    await hit('compare');await hit('enter');
    assert.equal(await page.locator('#lower-scene').isVisible(),true);
    assert.match(await page.locator('#current-world-note').innerText(),/completed/);
@@ -105,7 +127,8 @@ try{
     assert.match(await page.locator('#e06-transfer-note').innerText(),/MODEL water: PASS/);
     await page.locator('#e06-return').click();
    }
-   assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),['e06-sentinel']);
+   assert.deepEqual(await page.evaluate(()=>Object.fromEntries(Object.entries(localStorage))),
+    {'e06-sentinel':'keep','canonical-save-sentinel':'unchanged'});
    const size=await page.evaluate(()=>({w:innerWidth,scroll:document.documentElement.scrollWidth}));
    assert.ok(size.scroll<=size.w+1,JSON.stringify({viewport,size}));
    assert.deepEqual(errors,[]);
@@ -115,6 +138,11 @@ try{
    assert.equal(await page.locator('#care-panel').isVisible(),false);
    assert.equal(await page.locator('#lower-growth-tile').getAttribute('data-stage'),'paper-marker');
    assert.equal(await spot('raised-pocket').getAttribute('data-growth'),'false');
+   assert.equal(await page.locator('#water-model').getAttribute('data-result'),'none');
+   assert.equal(await page.locator('#model-comparison').isVisible(),false);
+   assert.equal(await page.locator('#model-run-history-panel').isVisible(),false);
+   assert.deepEqual(await page.evaluate(()=>Object.fromEntries(Object.entries(localStorage))),
+    {'e06-sentinel':'keep','canonical-save-sentinel':'unchanged'});
   }finally{await context.close();}
  }
  const context=await browser.newContext({viewport:{width:568,height:320}});
@@ -125,6 +153,12 @@ try{
   assert.equal(await page.locator(':focus').evaluate(el=>el.tagName),'BUTTON');
   await page.keyboard.press('Enter');
   assert.match(await page.locator('#stage').innerText(),/model phase current/);
+  await page.locator('[data-spot="present-bed"]').click();
+  await page.locator('[data-spot="slope"]').click();await page.locator('[data-spot="slope"]').click();
+  await page.locator('#model-channel-control').focus();
+  await page.keyboard.press('Space');
+  assert.equal(await page.locator('#model-channel-control').getAttribute('aria-pressed'),'false');
+  assert.match(await page.locator('#model-next-setup').innerText(),/channel BLOCKED/);
  }finally{await context.close();}
- console.log('E06 isolated two-scene Chromium PASS: three viewports, wrong-first care, hypothetical sprout revisit, restart, keyboard');
+ console.log('E06 isolated two-scene Chromium PASS: three viewports, spatial runoff control, completed-run evidence comparison, wrong-first care, revisit, reset, keyboard, storage isolation');
 }finally{await browser.close();}

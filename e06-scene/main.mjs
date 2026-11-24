@@ -1,4 +1,5 @@
 import {fresh,dispatch,can,view} from './scene-model.mjs';
+import {waterModelEvidence} from './water-model-view.mjs';
 import * as E05 from '../e05-scene/scene-model.mjs';
 import {stationWorld} from './station-world.mjs';
 import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
@@ -122,14 +123,63 @@ function renderSpots(v){
   label.textContent=[status,hint].filter(Boolean).join(' · ');
   spot.replaceChildren(document.createTextNode(spotNames[id]),label);
  }
- const run=g.runs.at(-1),meter=$('model-catchment');
- meter.dataset.level=String(run?.catchment??0);
- meter.setAttribute('aria-valuenow',String(run?.catchment??0));
- $('model-flow-caption').textContent=run?
-  'Last MODEL: '+run.weather.toUpperCase()+' · channel '+run.channel.toUpperCase()+
-  ' · low catchment '+run.catchment+'/3 marks · bypass '+run.bypass+
-  '. A PAPER test, not the garden\'s history.':
-  'No water run yet. Try DRY and RAIN, then change the MODEL channel.';
+}
+function renderComparisonCard(id,prefix,run,side){
+ const card=$(id),flow=$(prefix+'-flow');
+ card.dataset.result=run.weather+'-'+run.channel;
+ card.dataset.runIndex=String(run.index);
+ $(prefix+'-label').textContent=side+' · Run '+run.index+' · RAIN / '+run.channel.toUpperCase();
+ flow.replaceChildren();
+ const source=document.createElement('div');source.className='mini-source';
+ source.textContent='HIGH SOURCE ↓ DRAIN CHANNEL '+run.channel.toUpperCase();
+ const low=document.createElement('div');low.className='mini-outcome';
+ low.append(document.createTextNode('↓ LOW BASIN'));
+ const lowValue=document.createElement('strong');lowValue.textContent=run.catchment+'/3';low.append(lowValue);
+ const bypass=document.createElement('div');bypass.className='mini-outcome';
+ bypass.append(document.createTextNode('↗ BYPASS'));
+ const bypassValue=document.createElement('strong');bypassValue.textContent=run.bypass+'/2';bypass.append(bypassValue);
+ flow.append(source,low,bypass);
+}
+function renderModelEvidence(g){
+ const evidence=waterModelEvidence(g.runs),runs=evidence?.history||[],last=evidence?.last,
+  map=$('water-model'),meter=$('model-catchment');
+ const channelAction=garden('channel',g.channel==='open'?'blocked':'open');
+ const level=last?.catchment??0;
+ map.dataset.result=last?.visualState||'none';
+ meter.dataset.level=String(level);
+ meter.setAttribute('aria-valuenow',String(level));
+ $('model-catchment-label').textContent=level+' / 3';
+ $('model-bypass-label').textContent=last?'BYPASS '+last.bypass+'/2':'no completed run';
+ $('model-channel-control').setAttribute('aria-pressed',String(g.channel==='open'));
+ $('model-channel-control').disabled=!can(state,channelAction);
+ $('model-channel-control').setAttribute('aria-label',
+  'Change selected MODEL channel; currently '+g.channel+'. This does not change the last run.');
+ $('model-channel-state').textContent=g.channel.toUpperCase();
+ $('model-channel-hint').textContent=g.channel==='open'?'tap to block':'tap to open';
+ $('model-next-setup').textContent='Selected setup: '+g.weather.toUpperCase()+' · channel '+g.channel.toUpperCase()+
+  ' · setup only; water above comes from completed runs.';
+ $('model-flow-caption').textContent=last?
+  'Last observed run '+runs.length+': '+last.weather.toUpperCase()+' · channel '+last.channel.toUpperCase()+
+  ' · low basin '+last.catchment+'/3 · bypass '+last.bypass+'/2. This is a synthetic PAPER result, not garden history.':
+  'No completed run yet. A changed next-run setting is not an observation.';
+ const pair=evidence?.comparison,comparison=$('model-comparison');
+ comparison.hidden=!pair;
+ if(pair){
+  renderComparisonCard('model-before','model-before',pair.before,'BEFORE');
+  renderComparisonCard('model-after','model-after',pair.after,'AFTER');
+  $('model-comparison-caption').textContent='Both completed runs used RAIN. The channel changed from '+
+  pair.before.channel.toUpperCase()+' to '+pair.after.channel.toUpperCase()+
+   '. Compare the real run snapshots in this PAPER model; this cannot prove the real garden\'s past.';
+ }
+ const historyPanel=$('model-run-history-panel'),history=$('model-run-history');
+ historyPanel.hidden=!runs.length;history.replaceChildren();
+ runs.forEach(run=>{
+  const item=document.createElement('span');item.className='run-chip';
+  item.textContent='Run '+run.index+' · '+run.weather.toUpperCase()+'/'+run.channel.toUpperCase()+
+   ' · low '+run.catchment+'/3 · bypass '+run.bypass+'/2';
+  item.dataset.result=run.visualState;
+  history.append(item);
+ });
 }
 
 function renderStationMap(){
@@ -190,6 +240,7 @@ function render(){
   $('note').textContent=v.paperChronicle;
   $('parent').textContent='Optional parent question: '+v.parentCue;
   renderSpots(v);
+  renderModelEvidence(g);
   const stationFragment=linkedE05&&(linkedE04?
    (lantern?(encodeMemoryLantern(linkedE04,linkedE05,state,linkedE07,linkedE08)||
      encodeMemoryGardenShortcut(linkedE04,linkedE05,state,linkedE07)):
@@ -234,4 +285,10 @@ for(const spot of document.querySelectorAll('[data-spot]')){
   if(action&&can(state,action)){state=dispatch(state,action);render();}
  });
 }
+// Spatial and listed controls use the same existing action and reducer legality.
+$('model-channel-control').addEventListener('click',()=>{
+ const g=view(state)?.garden;if(!g)return;
+ const action=garden('channel',g.channel==='open'?'blocked':'open');
+ if(can(state,action)){state=dispatch(state,action);render();}
+});
 render();
