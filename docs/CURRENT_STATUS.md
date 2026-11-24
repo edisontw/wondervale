@@ -22,7 +22,7 @@
 | 05 | E05 Station/Map Room | Isolated replayable PAPER scene | No canonical E04 handoff or approved real station source/art |
 | 06 | E06 Current Garden | Spatial rain tray; visible water result comes from a completed model run | No approved real garden chronology/terrain or canonical entry |
 | 07 | E06 Lower Garden | Distinct water/path/pocket zones; chosen marker and checked conflicts shown in the scene | No real planting permission/growth, care authority or canonical entry |
-| 08 | E07 connector | Isolated replayable PAPER shared-route test | No approved physical route/drainage/access |
+| 08 | E07 connector | PAPER shared-route test with child-operated tap-to-snap placement targets | No approved physical route/drainage/access or production entry |
 | 09 | E08 Lantern Steps | Isolated replayable PAPER two-view/light model | No real lighting, source or site rights |
 | 10 | E09 Closed Hill | Isolated replayable PAPER safe survey | Real hill CLOSED; no approved geometry/access |
 | 11 | E10 unnamed courtyard | Isolated replayable PAPER needs/trace investigation | No confirmed real identity, needs or access |
@@ -34,14 +34,15 @@ The inventory proves **3 existing episode experiences + 1 blocked E04 + 8 PAPER 
 
 - **2026-11-24:** [PR #376](https://github.com/edisontw/wondervale/pull/376) added a child-operated spatial rain tray to E06 Current Garden. Completed reducer snapshots drive the visible water route and catchment; unrun settings do not appear as observed evidence. It merged from `c237ebbda7faa989c5b1a954219295fb451a0600` at `9cda31c3d9ee212359a4edaa654f56a035fa71d0`. See [engineering QA](../content/season-01/s01e06/SPATIAL_MODEL_ENGINEERING_QA_20261124.md).
 - **2026-11-24:** [PR #377](https://github.com/edisontw/wondervale/pull/377) added Lower Garden runoff/path/pocket regions, child-positioned marker feedback, visible checked conflicts and an observed-vs-possible two-garden comparison. It merged at `a654037ec8f4e4c95c498661edcd70f62c79eb68`. All five merged-main workflows, six jobs and 72 steps passed: [E06 shell](https://github.com/edisontw/wondervale/actions/runs/45392718332), [twelve-scene regression](https://github.com/edisontw/wondervale/actions/runs/45392718272), [E01](https://github.com/edisontw/wondervale/actions/runs/45392718335), [E05→E06](https://github.com/edisontw/wondervale/actions/runs/45392718229) and [E04→E05→E06](https://github.com/edisontw/wondervale/actions/runs/45392718326). See [spatial-feedback QA](../content/season-01/s01e06/LOWER_GARDEN_SPATIAL_FEEDBACK_QA_20261124.md).
-- **Next unique task:** conduct a supervised child/family usability review on real phone screens. Check whether the child understands water/path feedback, can place and move the marker, and distinguishes observed Current Garden state from the possible PAPER pocket. This is not yet family acceptance or real-site evidence.
-- **Current `main`:** `a654037ec8f4e4c95c498661edcd70f62c79eb68`.
+- **2026-11-24:** [PR #379](https://github.com/edisontw/wondervale/pull/379) added four direct E07 board snap targets: move from the shared-path or water overlap, or try an upper/lower detour. Targets reuse the existing validated `place` action, are at least 44×44 CSS px, and keep named keyboard controls. It merged at `14e0fc76c075c4c789d899f0baf4d474593ea1f6`. PR-head checks passed 4 workflows, 5 jobs and 62 steps. Merged-main checks also passed 4 workflows, 5 jobs and 61 steps: [E07 shell](https://github.com/edisontw/wondervale/actions/runs/45412760019), [twelve-scene regression](https://github.com/edisontw/wondervale/actions/runs/45412759993), [E01 runtime](https://github.com/edisontw/wondervale/actions/runs/45412760076), and [E04→E05→E06](https://github.com/edisontw/wondervale/actions/runs/45412759848). See [390×844 browser evidence](evidence/e07-spatial-placement/e07-spatial-placement-390x844.png) and the [E07 interaction contract](../content/season-01/s01e07/INTERACTION_SPEC.md). This remains synthetic PAPER geometry.
+- **Next unique task:** conduct a supervised child/family usability review on real phone screens across E06 and E07. Check water/path comprehension, marker placement and revision, direct snap-target understanding, and the difference between observed Current Garden state and a possible PAPER pocket. This is not production acceptance or real-site evidence.
+- **Latest integrated runtime SHA:** `14e0fc76c075c4c789d899f0baf4d474593ea1f6`.
 
 ## Outstanding blockers and validation
 
 1. **`blocked-design` Owner Gate, one consolidated batch:** E04 attributed historical cards/time relationship; actual site rights/safety and painterly composition. Do not repeatedly ask separate micro-approvals.
 2. **E03 physical limitation:** issue #109 proves actual cart/wheel/corner clearance remains open despite model clearance checks.
-3. **Release/device:** E05–E11 PAPER work is not MN4 deployment; HTTPS/rollback and broader family-device acceptance must be explicitly verified before promotion. The next E06 usability review requires actual child/family participants and phone screens; browser viewport checks do not substitute for it.
+3. **Release/device:** E05–E11 PAPER work is not MN4 deployment; HTTPS/rollback and broader family-device acceptance must be explicitly verified before promotion. The next E06/E07 usability review requires actual child/family participants and phone screens; browser viewport checks do not substitute for it.
 
 ## Maintenance rules
 
