@@ -176,10 +176,50 @@ try{
     await ready(4,'e04');
     const e04=frame('e04');
     await e04.getByRole('heading',{name:'Source cards',exact:true}).waitFor();
-    assert.match(await e04.locator('.alpha-warning').innerText(),/SYNTHETIC PAPER SOURCES.*NOT APPROVED HISTORY/);
-    assert.match(await e04.locator('#e04-preview').innerText(),/Draft timeline|MODEL/);
+    assert.match(await e04.locator('.alpha-warning').innerText(),/SYNTHETIC PAPER SOURCES.*OWNER-SELECTED FICTIONAL SCRIPT MODEL.*NOT HISTORICAL EVIDENCE/);
+    const e04Initial=await e04.locator('#e04-preview').innerText();
+    assert.match(e04Initial,/station route board · Version 1/i);
+    assert.match(e04Initial,/garden route update · Version 2/i);
+    assert.match(e04Initial,/Undated photo: way sign/);
+    assert.match(e04Initial,/Draft timeline|MODEL/);
     assert.doesNotMatch(await e04.locator('#e04-preview').innerText(),/E05 unlocked|E05 available/i);
     assert.equal(await e04.locator('a[href*="e05"]').count(),0,'synthetic E04 must not unlock E05');
+
+    // Play the Owner-selected fictional proposal: the child can make a wrong
+    // first order, use the visible version-mark clue to revise, and keep the
+    // photograph uncertain. No calendar year, cause, Canon event or E05 gate
+    // is produced by completing this local source model.
+    for(const key of ['memory:station','memory:garden',
+      'inspect:station-route-copy','inspect:garden-route-update','inspect:undated-way-photo','clue:version-mark'])
+      await e04.locator(`[data-focus-key="${key}"]`).click();
+    await e04.locator('[data-focus-key="place:station-route-copy:later"]').click();
+    await e04.locator('[data-focus-key="place:garden-route-update:earlier"]').click();
+    await e04.locator('[data-focus-key="place:undated-way-photo:uncertain"]').click();
+    assert.equal(await e04.locator('[data-focus-key="explain"]').isDisabled(),true,
+      'the draft cannot explain an unsupported paper order');
+    await e04.locator('[data-focus-key="place:station-route-copy:earlier"]').click();
+    await e04.locator('[data-focus-key="place:garden-route-update:later"]').click();
+    assert.equal(await e04.locator('[data-focus-key="explain"]').isEnabled(),true,
+      'inspected Version 1/Version 2 records support only their relative order');
+    await e04.locator('[data-focus-key="explain"]').click();
+    await e04.locator('[data-focus-key="chronicle"]').click();
+    const e04Chronicle=await e04.locator('.e04-chronicle').innerText();
+    assert.match(e04Chronicle,/Earlier and later show source order, not confirmed calendar dates/);
+    assert.match(e04Chronicle,/Version 1/);assert.match(e04Chronicle,/Version 2/);
+    assert.match(e04Chronicle,/Not sure yet:[\s\S]*Undated photo: way sign/);
+    assert.match(e04Chronicle,/Neither memory has a verified date/);
+    assert.match(e04Chronicle,/Different times could explain both memories/);
+    assert.doesNotMatch(e04Chronicle,/19\d{2}|20\d{2}|because the garden moved/i,
+      'the script model cannot invent years or explain the route change');
+    await e04.locator('[data-focus-key="finish"]').click();
+    await e04.getByText('Draft timeline complete. This does not unlock another episode.').waitFor();
+    assert.equal(await e04.locator('a[href*="e05"]').count(),0);
+    assert.deepEqual(await page.locator('iframe[data-frame-key="e02"]').evaluate((element,key)=>
+      JSON.parse(element.contentWindow.localStorage.getItem(key)),e02SaveKey),e02Stored,
+      'E04 draft completion cannot rewrite the E02 save');
+    assert.deepEqual(await page.locator('iframe[data-frame-key="e03"]').evaluate((element,key)=>
+      JSON.parse(element.contentWindow.localStorage.getItem(key)),e03SaveKey),e03Stored,
+      'E04 draft completion cannot rewrite the E03 save');
     const outsideAfter=await context.newPage();
     await outsideAfter.goto(otherOrigin+'/');
     assert.deepEqual(await outsideAfter.evaluate(keys=>keys.map(key=>localStorage.getItem(key)),
