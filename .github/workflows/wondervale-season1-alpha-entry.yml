@@ -5,6 +5,7 @@ on:
       - 'season-alpha/**'
       - 'scripts/serve_season1_alpha.mjs'
       - 'tests/season1-alpha-entry-browser.mjs'
+      - 'tests/season1-alpha-continuous-browser.mjs'
       - 'e04/authoring-ui.mjs'
       - 'e04/authoring-ui.css'
       - 'e10-scene/index.html'
@@ -16,6 +17,7 @@ on:
       - 'season-alpha/**'
       - 'scripts/serve_season1_alpha.mjs'
       - 'tests/season1-alpha-entry-browser.mjs'
+      - 'tests/season1-alpha-continuous-browser.mjs'
       - 'e04/authoring-ui.mjs'
       - 'e04/authoring-ui.css'
       - 'e10-scene/index.html'
@@ -59,3 +61,4 @@ jobs:
           done
           if [ "$ready" -ne 1 ]; then cat /tmp/wondervale-alpha-other-origin.log /tmp/wondervale-alpha-server.log >&2; exit 1; fi
           node tests/season1-alpha-entry-browser.mjs
+          node tests/season1-alpha-continuous-browser.mjs
