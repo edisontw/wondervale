@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#294b43">
+  <title>Wondervale · Season 1 Alpha</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main id="alpha-player">
+    <header class="masthead">
+      <div>
+        <p class="eyebrow">LOCAL DEVELOPER PREVIEW · 11 EPISODES · 12 SCENES</p>
+        <h1>Wondervale · Season 1</h1>
+      </div>
+      <p id="scene-position" class="scene-position" aria-live="polite">Scene 1 of 12</p>
+    </header>
+
+    <p class="boundary-note"><strong>Noncanonical alpha.</strong> Scene visits and PAPER work stay in this local browser origin. This preview never writes production progress, Chronicle, or unlocks. North Hill stays CLOSED; the Common's real identity and access remain UNKNOWN.</p>
+
+    <nav id="scene-steps" class="scene-steps" aria-label="Season scenes"></nav>
+
+    <section class="play-panel" aria-labelledby="scene-title">
+      <div class="play-heading">
+        <div>
+          <p id="scene-episode" class="eyebrow">E01</p>
+          <h2 id="scene-title">The Map Behind the Board</h2>
+        </div>
+        <p id="scene-opened" class="scene-opened" role="status">Opened in this session: 0 of 12</p>
+      </div>
+      <div id="scene-frame" class="scene-frame" aria-live="polite"></div>
+    </section>
+
+    <div class="player-controls">
+      <button id="previous-scene" type="button" disabled>Previous scene</button>
+      <p id="scene-handoff-note">Use a scene's own PAPER handoff when available to carry its replay-checked actions forward. These step controls only switch the preview.</p>
+      <button id="next-scene" type="button">Next scene</button>
+    </div>
+    <p class="storage-note">Start this preview at <code>http://127.0.0.1:4174/season-alpha/</code>. Port 4174 keeps development browser storage separate from production origins.</p>
+  </main>
+  <script type="module" src="./main.mjs"></script>
+</body>
+</html>

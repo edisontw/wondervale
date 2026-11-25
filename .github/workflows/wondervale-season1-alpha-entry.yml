@@ -1,0 +1,61 @@
+name: Wondervale Season 1 local alpha entry
+on:
+  pull_request:
+    paths:
+      - 'season-alpha/**'
+      - 'scripts/serve_season1_alpha.mjs'
+      - 'tests/season1-alpha-entry-browser.mjs'
+      - 'e04/authoring-ui.mjs'
+      - 'e04/authoring-ui.css'
+      - 'e10-scene/index.html'
+      - 'package.json'
+      - '.github/workflows/wondervale-season1-alpha-entry.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'season-alpha/**'
+      - 'scripts/serve_season1_alpha.mjs'
+      - 'tests/season1-alpha-entry-browser.mjs'
+      - 'e04/authoring-ui.mjs'
+      - 'e04/authoring-ui.css'
+      - 'e10-scene/index.html'
+      - 'package.json'
+      - '.github/workflows/wondervale-season1-alpha-entry.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-alpha-entry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Chromium
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npx playwright install --with-deps chromium
+      - name: Serve isolated development origins and play the ordered alpha
+        run: |
+          set -euo pipefail
+          pids=()
+          cleanup() {
+            for pid in "${pids[@]}"; do kill "$pid" 2>/dev/null || true; wait "$pid" 2>/dev/null || true; done
+          }
+          trap cleanup EXIT
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory . >/tmp/wondervale-alpha-other-origin.log 2>&1 &
+          pids+=("$!")
+          npm run serve:alpha >/tmp/wondervale-alpha-server.log 2>&1 &
+          pids+=("$!")
+          ready=0
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null 2>&1 && curl -fsS http://127.0.0.1:4174/season-alpha/ >/dev/null 2>&1; then ready=1; break; fi
+            sleep 0.25
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/wondervale-alpha-other-origin.log /tmp/wondervale-alpha-server.log >&2; exit 1; fi
+          node tests/season1-alpha-entry-browser.mjs

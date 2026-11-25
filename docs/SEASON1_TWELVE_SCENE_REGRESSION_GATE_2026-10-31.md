@@ -40,3 +40,9 @@ The workflow has bounded HTTP server readiness checks and server cleanup. Both j
 - After source/art/device gates: run real full-season browser traversal, verify release allowlists/integrity, MN4 HTTPS deployment and rollback separately, then family acceptance. Only then mark Season 1 complete.
 
 **Next independent implementation task:** an Owner-gated canonical E04 checkpoint contract and fail-closed E05 transition tests, without treating synthetic cards or E04 draft completion as approval. If the source gate is still blocked, work on a production-independent world-growth/Chronicle visual contract rather than repeated E04 preview polish.
+
+## Local integrated alpha entry (2026-11-25)
+
+`season-alpha/` provides a local developer entry for the 12 intended scene slots without manual URL switching. Run `npm run serve:alpha` and open `http://127.0.0.1:4174/season-alpha/`. Its loopback-only port keeps browser storage on a distinct origin from production. The entry's visited list is in-memory; scene steps are navigation only and do not create completion, canonical progress or unlocks. E04 reuses the existing chronology authoring UI with an explicitly synthetic model pack and requires valid E02/E03 saves on the alpha origin. Use each scene's replay-verified PAPER handoff when continuing child action history across scenes. E06 Current and Lower Garden stay in the same live page and preserve that session's in-memory state. Chromium coverage lives in `tests/season1-alpha-entry-browser.mjs` and its dedicated local-alpha workflow; it proves launcher routing, origin isolation, keyboard and four viewport behavior, not production readiness.
+
+E10's five existing courtyard anchors are now native direct-walk buttons. Current place/reachable-next/blocked-neighbor feedback uses the existing strict reducer action; movement controls remain for equivalent access. The interaction contract and browser evidence are recorded in the E10 spec and scene README.
