@@ -9,6 +9,14 @@ try{
    await page.evaluate(()=>localStorage.setItem('e08-sentinel','keep'));
    const b=key=>page.locator('[data-key="'+key+'"]');
    const hit=async key=>{assert.equal(await b(key).isDisabled(),false,key);await b(key).click();};
+   const target=anchor=>page.locator('button[data-anchor="'+anchor+'"]');
+   const move=async(anchor,keyboard=false)=>{
+    const el=target(anchor);assert.equal(await el.isDisabled(),false,anchor);
+    const box=await el.boundingBox();assert.ok(box.width>=44&&box.height>=44,JSON.stringify(box));
+    if(keyboard){await el.focus();await page.keyboard.press('Enter');}else await el.click();
+    assert.equal(await el.getAttribute('aria-current'),'location');
+    assert.equal(await el.isDisabled(),true);
+   };
    assert.match(await page.locator('.notice').innerText(),/AUTHORING ONLY/);
    assert.match(await page.locator('.notice').innerText(),/CLOSED/);
    assert.equal(await b('undo').isDisabled(),true);
@@ -19,7 +27,9 @@ try{
    assert.match(await page.locator('#lamp-state').innerText(),/Not enough light/);
    assert.equal(await page.locator('#live-viewfinder [data-live-mark]').count(),0);
    assert.equal(await b('observe').isDisabled(),true);
-   for(const k of ['walk-landing','inspect-b','lamp-b','walk-base','observe'])await hit(k);
+   assert.equal(await target('base').getAttribute('aria-current'),'location');
+   assert.equal(await target('side').isDisabled(),true);
+   await move('lower-landing');await hit('inspect-b');await hit('lamp-b');await move('base',true);await hit('observe');
    assert.match(await page.locator('#first').innerText(),/base/);
    assert.equal(await page.locator('#live-viewfinder').getAttribute('data-lit'),'true');
    assert.equal(await page.locator('#live-viewfinder [data-live-mark]').count(),3);
@@ -27,10 +37,12 @@ try{
    const aligned=await xs();assert.ok(aligned.every(x=>x===aligned[0]));
    assert.match(await page.locator('#parent').innerText(),/another safe place/);
    assert.equal(await b('compare').isDisabled(),true);
-   for(const k of ['walk-landing','walk-side'])await hit(k);
+   assert.equal(await target('side').isDisabled(),true);
+   await move('lower-landing');await move('side',true);
    const separated=await xs();assert.ok(Math.max(...separated)-Math.min(...separated)>100);
    assert.match(await page.locator('#live-view-note').innerText(),/marks themselves stay fixed/);
-   for(const k of ['walk-landing','walk-base'])await hit(k);
+   assert.equal(await target('base').isDisabled(),true);
+   await move('lower-landing');await move('base');
    assert.deepEqual(await xs(),aligned);
    for(const k of ['walk-landing','walk-side','observe'])await hit(k);
    assert.match(await page.locator('#second').innerText(),/side/);
@@ -80,6 +92,8 @@ try{
    assert.equal(await b('undo').isDisabled(),true);
    assert.equal(await page.locator('#shadow-panel').isVisible(),false);
    assert.match(await page.locator('#lamp-state').innerText(),/OFF/);
+   assert.equal(await target('base').getAttribute('aria-current'),'location');
+   assert.equal(await target('side').isDisabled(),true);
   }finally{await context.close();}
  }
  const ctx=await browser.newContext({viewport:{width:568,height:320}});

@@ -52,6 +52,14 @@ for(const [host,items] of Object.entries(groups))for(const [key,label,action] of
  const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;
  b.addEventListener('click',()=>{if(key==='undo'){const previous=rewind(state);if(previous){state=previous;linkedE09=null;selectedHillQuestion=null;approach={layout:'first',view:'first',pins:[]};shadow=freshShadow();}render();return;}if(action.scene==='nav'&&action.type==='restart'){linkedE09=null;selectedHillQuestion=null;approach={layout:'first',view:'first',pins:[]};shadow=freshShadow();}state=dispatch(state,action);render();});$(host).append(b);
 }
+// The visible viewpoint targets share the existing strict story action; no teleport or parallel state.
+for(const button of document.querySelectorAll('button[data-anchor]')){
+ button.addEventListener('click',()=>{
+  const action=a('walk','anchor',button.dataset.anchor);
+  if(!can(state,action))return;
+  state=dispatch(state,action);render();
+ });
+}
 for(const button of document.querySelectorAll('[data-approach]')){
  button.addEventListener('click',()=>{
   const key=button.dataset.approach;
@@ -309,6 +317,12 @@ function render(){
  $('hook').textContent=v.lowerLightsPaperOn?'Next question: survey North Hill from a safe place. E09 NOT UNLOCKED.':'The service plate date and source are UNKNOWN. No E09 unlock.';
  draw(s);drawLiveView(s);drawShadow();drawConnectorCallback();drawApproach(approachFrame(linkedE07,state,approach.layout,approach.view));
  for(const [key,,action] of rows)document.querySelector('[data-key="'+key+'"]').disabled=key==='undo'?!state.history.length:!can(state,action);
- for(const el of document.querySelectorAll('[data-anchor]'))el.dataset.here=String(el.dataset.anchor===s.milo);
+ for(const el of document.querySelectorAll('button[data-anchor]')){
+  const here=el.dataset.anchor===s.milo,reachable=!here&&can(state,a('walk','anchor',el.dataset.anchor));
+  el.dataset.here=String(here);el.dataset.reachable=String(reachable);
+  el.disabled=!reachable;
+  if(here)el.setAttribute('aria-current','location');else el.removeAttribute('aria-current');
+  el.querySelector('small').textContent=here?'Milo is here':reachable?'Walk here':'Not the next step';
+ }
 }
 render();

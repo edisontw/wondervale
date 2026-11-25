@@ -16,8 +16,10 @@ button{font:inherit;min-height:44px;min-width:44px;max-width:100%;padding:.45rem
 button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px solid #b47820;outline-offset:2px}
 .paper{background:#edf3f3;border:1px dashed #9ab3b7;border-radius:.4rem;padding:.65rem;line-height:1.5;margin:.45rem 0;overflow-wrap:anywhere}
 .anchors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.3rem}
-.anchor{background:#e8eff1;padding:.55rem .25rem;text-align:center;border-radius:.35rem;overflow-wrap:anywhere}
-.anchor[data-here=true]{outline:3px solid #b47820}
+.anchor{background:#e8eff1;padding:.55rem .25rem;text-align:center;border-radius:.35rem;overflow-wrap:anywhere;min-height:44px}
+.anchor[data-here=true]{outline:3px solid #b47820;opacity:1;background:#f3d99d;color:#243d42}
+.anchor[data-reachable=true]{background:#e0ece4;border-color:#477960}
+.anchor small{display:block;font-size:.8rem;font-weight:400}
 .trace-map{display:block;width:min(100%,360px);height:auto;background:#f4f7f5;border:1px solid #9ab3b7;border-radius:.4rem;margin:.5rem 0}
 .live-viewfinder{display:block;width:min(100%,360px);height:auto;background:#f4f7f5;border:1px solid #9ab3b7;border-radius:.4rem;margin:.5rem 0}
 .live-viewfinder[data-lit=false]{background:#d8dedf}
@@ -38,10 +40,12 @@ button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible{outline:3px 
 <p id="stage" class="paper" role="status"></p><p class="paper" aria-live="polite"><strong id="speaker"></strong>: <span id="line"></span></p>
 <section id="step-scene" class="panel"><h2>Walk, test the light, change viewpoint</h2>
 <p>Finn proposes a small reversible model. Milo inspects the CLOSED boundary, tries two lower lamps, then compares the SAME three marks from different safe places.</p>
-<div class="anchors" aria-label="Connected synthetic lower viewpoints"><div class="anchor" data-anchor="base">Base</div><div class="anchor" data-anchor="lower-landing">Lower landing</div><div class="anchor" data-anchor="side">Side viewpoint</div></div>
-<p id="milo" class="paper"></p><div id="walk-controls" class="controls"></div><p id="inspected" class="paper"></p>
+<p>Tap a safe place to move Milo. You can only walk to the next connected place.</p>
+<div class="anchors" role="group" aria-label="Connected synthetic lower viewpoints"><button type="button" class="anchor" data-anchor="base">Base<small></small></button><button type="button" class="anchor" data-anchor="lower-landing">Lower landing<small></small></button><button type="button" class="anchor" data-anchor="side">Side viewpoint<small></small></button></div>
+<p id="milo" class="paper"></p><div id="walk-controls" class="controls"></div>
+<div aria-label="Milo's live PAPER viewfinder"><svg id="live-viewfinder" class="live-viewfinder" viewBox="0 0 320 150" role="img" aria-label="Dim synthetic PAPER viewfinder"></svg><p id="live-view-note" class="paper" role="status"></p></div><p id="inspected" class="paper"></p>
 <div class="columns"><section class="panel"><h2>Inspect and try two lower lamps</h2><div id="inspect-controls" class="controls"></div><div id="lamp-controls" class="controls"></div><p id="lamp-state" class="paper" role="status"></p><p id="parent" class="paper"></p></section>
-<section class="panel"><h2>Observe and compare</h2><p>Look through Milo's PAPER viewfinder while walking. Three fixed marks can appear together from HERE and apart from THERE.</p><svg id="live-viewfinder" class="live-viewfinder" viewBox="0 0 320 150" role="img" aria-label="Dim synthetic PAPER viewfinder"></svg><p id="live-view-note" class="paper" role="status"></p><div id="observe-controls" class="controls"></div><p id="first" class="paper"></p><p id="second" class="paper"></p><p id="comparison" class="paper" role="status"></p></section></div>
+<section class="panel"><h2>Observe and compare</h2><p>Look through Milo's PAPER viewfinder above while walking. Three fixed marks can appear together from HERE and apart from THERE.</p><div id="observe-controls" class="controls"></div><p id="first" class="paper"></p><p id="second" class="paper"></p><p id="comparison" class="paper" role="status"></p></section></div>
 <div class="columns"><section class="panel"><h2>Synthetic fixed-marker plan</h2><div id="map" class="map" role="img" aria-label="Synthetic fixed markers and safe viewpoint"></div>
 <p>A, B, C = fixed marks · M = Milo · no upper-hill walking. Pale marks without both lamps are not usable evidence.</p>
 <div id="hill-question-panel" hidden><p>Two E09 child-revised questions now appear as ?L and ?V on this synthetic plan. Inspect one; these positions are NOT real geography.</p>
