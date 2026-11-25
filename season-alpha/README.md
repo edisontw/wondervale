@@ -28,6 +28,7 @@ In a third terminal run:
 
 ```powershell
 node tests/season1-alpha-entry-browser.mjs
+node tests/season1-alpha-canonical-start-browser.mjs
 node tests/season1-alpha-continuous-browser.mjs
 node --test tests/season1-e09-scene-shell.test.mjs tests/s01e09-authoring-prototype.test.mjs tests/season1-unnamed-story.test.mjs tests/s01e10-authoring-prototype.test.mjs tests/season1-e10-use-staging.test.mjs tests/s01e11-authoring-prototype.test.mjs tests/season1-e11-scene-shell.test.mjs tests/season1-e03-e11-paper-chronicle.test.mjs
 node tests/season1-e09-scene-shell-browser.mjs
