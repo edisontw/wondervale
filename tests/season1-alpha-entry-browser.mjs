@@ -124,5 +124,75 @@ try{
     assert.equal(await page.locator('#scene-steps [data-opened="true"]').count(),12);
     assert.deepEqual(errors,[],'full sequence shell page errors');
   }finally{await context.close();}
-  console.log('Season 1 Alpha Chromium PASS: 12 ordered scene slots, E06 state continuity, E04 gate, origin isolation, four viewports and keyboard');
+
+  const storyContext=await browser.newContext({viewport:{width:568,height:320},reducedMotion:'reduce',hasTouch:true});
+  try{
+    const page=await storyContext.newPage(),errors=[];
+    page.on('pageerror',error=>errors.push(error.message));
+    await page.goto(alphaBase+'/season-alpha/');
+    await page.locator('#scene-steps [data-slot="9"]').click();
+    await page.locator('iframe[data-frame-key="e08"][data-loaded="true"]').waitFor();
+    const e08=page.frameLocator('iframe[data-frame-key="e08"]');
+    const hit=async key=>{
+      const action=e08.locator(`[data-key="${key}"]`);
+      assert.equal(await action.isDisabled(),false,key);
+      await action.click();
+    };
+    for(const key of ['start','inspect-brackets','inspect-boundary','inspect-a','lamp-a',
+      'walk-landing','inspect-b','lamp-b','walk-base','observe','walk-landing',
+      'walk-side','observe','compare','inspect-plate','finish'])await hit(key);
+    await e08.locator('#e09-transfer').waitFor({state:'visible'});
+    await e08.locator('#e09-transfer').click();
+    await page.getByText('Scene 10 of 12').waitFor();
+    await page.locator('iframe[data-frame-key="e09"][data-loaded="true"]').waitFor();
+    const e09=page.frameLocator('iframe[data-frame-key="e09"]');
+    assert.match(await page.locator('iframe[data-frame-key="e09"]').evaluate(frame=>frame.contentWindow.location.hash),
+      /^#paper-hill=/,'the alpha carries the replay-built E08 transfer URL');
+    assert.match(await e09.locator('#lantern-context').innerText(),/SAME marks looked different/);
+    assert.match(await e09.locator('#lantern-context').innerText(),/CLOSED hill/);
+
+    const hitE09=async key=>{
+      const action=e09.locator(`[data-key="${key}"]`);
+      assert.equal(await action.isDisabled(),false,key);
+      await action.click();
+    };
+    for(const key of ['start','inspect-entry_note','walk-signpost','inspect-boundary_sign',
+      'walk-fence_view','walk-upper_closed','inspect-disturbed_ground','walk-signpost',
+      'walk-lower_bend','inspect-runoff_marks','walk-overlook','inspect-distant_symbol'])await hitE09(key);
+    await e09.locator('[data-sightline-select="light"]').click();
+    await e09.locator('[data-sightline-site="overlook"]').click();
+    await e09.locator('[data-sightline-select="view"]').click();
+    await e09.locator('[data-sightline-site="fence_view"]').click();
+    await e09.locator('#sightline-compare').click();
+    assert.match(await e09.locator('#sightline-feedback').innerText(),/do not yet match/,
+      'Milo sees the mistaken questions before revising them');
+    await e09.locator('[data-sightline-select="light"]').click();
+    await e09.locator('[data-sightline-site="fence_view"]').click();
+    await e09.locator('[data-sightline-select="view"]').click();
+    await e09.locator('[data-sightline-site="overlook"]').click();
+    await e09.locator('#sightline-compare').click();
+    assert.match(await e09.locator('#sightline-feedback').innerText(),/NOT DONE/);
+    await hitE09('mark-steps_base:signpost');
+    await hitE09('mark-signpost:lower_bend');
+    await hitE09('mark-lower_bend:overlook');
+    await hitE09('check-route');
+    await hitE09('compare-symbol');
+    await hitE09('review');
+    await hitE09('finish-preview');
+
+    const e08Frame=page.locator('iframe[data-frame-key="e08"]');
+    const e08Loads=Number(await e08Frame.getAttribute('data-load-count'));
+    await e09.locator('#e08-return').click();
+    await page.getByText('Scene 9 of 12').waitFor();
+    await page.waitForFunction(count=>{
+      const frame=document.querySelector('iframe[data-frame-key="e08"]');
+      return frame&&!frame.hidden&&frame.dataset.loaded==='true'&&Number(frame.dataset.loadCount)>count;
+    },e08Loads);
+    const resumed=page.frameLocator('iframe[data-frame-key="e08"]');
+    await resumed.getByText(/E08 finished/).waitFor();
+    assert.match(await resumed.locator('#e09-callback').innerText(),/Nia: Milo.*revised PAPER questions.*CLOSED/);
+    assert.deepEqual(errors,[],'earned E08/E09 alpha handoff page errors');
+  }finally{await storyContext.close();}
+
+  console.log('Season 1 Alpha Chromium PASS: 12 ordered scene slots, E06 state continuity, E04 gate, origin isolation, four viewports, keyboard and replay-earned E08/E09 handoff round trip');
 }finally{await browser.close();}

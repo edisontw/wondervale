@@ -28,7 +28,7 @@ for(const scene of scenes){
   stepNav.append(button);
 }
 
-function frameFor(scene){
+function frameFor(scene,initialUrl=null){
   let frame=frames.get(scene.frameKey);
   if(frame)return frame;
   frame=document.createElement('iframe');
@@ -40,12 +40,56 @@ function frameFor(scene){
     try{if(frame.contentWindow.location.href==='about:blank')return;}catch{return;}
     frame.dataset.loaded='true';
     frame.dataset.loadCount=String(Number(frame.dataset.loadCount||0)+1);
+    bindSceneLinks(frame);
   });
   frame.hidden=true;
   frameHost.append(frame);
   frames.set(scene.frameKey,frame);
-  frame.src=new URL(scene.url,location.href).href;
+  const href=initialUrl||entryUrlFor(scene);
+  frame.src=href;
   return frame;
+}
+
+function entryUrlFor(scene){return new URL(scene.url,location.href).href;}
+
+function sceneAt(href){
+  const url=new URL(href,location.href);
+  if(url.origin!==location.origin)return null;
+  const index=scenes.findIndex(scene=>new URL(scene.url,location.href).pathname===url.pathname);
+  return index<0?null:{index,scene:scenes[index],url};
+}
+
+function bindSceneLinks(frame){
+  try{
+    const doc=frame.contentDocument;
+    if(!doc?.documentElement||doc.documentElement.dataset.alphaLinksBound==='true')return;
+    doc.documentElement.dataset.alphaLinksBound='true';
+    doc.addEventListener('click',event=>{
+      if(event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+      const target=event.target?.nodeType===1?event.target:event.target?.parentElement;
+      const link=target?.closest?.('a[href]');
+      if(!link||link.hasAttribute('download')||(link.target&&link.target!=='_self'))return;
+      const destination=sceneAt(link.href);
+      if(!destination||destination.scene.frameKey===frame.dataset.frameKey)return;
+      event.preventDefault();event.stopPropagation();
+      show(destination.index,destination.url.href);
+    },true);
+  }catch{}
+}
+
+function loadEntry(frame,href){
+  frame.dataset.loaded='false';
+  const destination=new URL(href,location.href);
+  try{
+    const currentUrl=new URL(frame.contentWindow.location.href);
+    if(currentUrl.origin===destination.origin&&currentUrl.pathname===destination.pathname&&
+      currentUrl.search===destination.search){
+      frame.contentWindow.location.hash=destination.hash;
+      frame.contentWindow.location.reload();
+      return;
+    }
+  }catch{}
+  frame.src=href;
 }
 
 function isStillBlocked(scene,frame){
@@ -55,16 +99,17 @@ function isStillBlocked(scene,frame){
   catch{return false;}
 }
 
-function show(index){
+function show(index,entryUrl=null){
   current=Math.max(0,Math.min(scenes.length-1,index));
   const scene=scenes[current];
   opened.add(current);
   const existing=frames.get(scene.frameKey);
   const revisitBlocked=Boolean(existing?.hidden&&isStillBlocked(scene,existing));
-  const frame=frameFor(scene);
-  if(revisitBlocked){
-    frame.dataset.loaded='false';
-    frame.src=new URL(scene.url,location.href).href;
+  const frame=frameFor(scene,entryUrl);
+  if(entryUrl&&existing){
+    loadEntry(frame,entryUrl);
+  }else if(revisitBlocked){
+    loadEntry(frame,entryUrlFor(scene));
   }
   for(const other of frames.values())other.hidden=other!==frame;
   frame.title=`Scene ${scene.slot}: ${scene.episode} ${scene.title}`;
