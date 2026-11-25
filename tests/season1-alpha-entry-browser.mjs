@@ -59,10 +59,43 @@ try{
     await page.keyboard.press('Enter');
     assert.match(await page.locator('#scene-position').innerText(),/Scene 2 of 12/);
     await page.locator('iframe[data-frame-key="e02"][data-loaded="true"]').waitFor();
+    const e02=page.locator('iframe[data-frame-key="e02"]');
+    const e02Loads=Number(await e02.getAttribute('data-load-count'));
+    await page.frameLocator('iframe[data-frame-key="e02"]').getByRole('heading',{name:'Riverside is next'}).waitFor();
     await page.keyboard.press('Tab');
     await page.keyboard.press('Enter');
     assert.match(await page.locator('#scene-position').innerText(),/Scene 3 of 12/);
+    await page.locator('iframe[data-frame-key="e01"]').evaluate(frame=>{
+      if(getComputedStyle(frame).display!=='none')throw new Error('previous scene iframe remains visible');
+    });
+    await page.frameLocator('iframe[data-frame-key="e03"]').getByRole('heading',{
+      name:'Market Lane comes after Riverside'
+    }).waitFor();
+    const e03=page.locator('iframe[data-frame-key="e03"]');
+    const e03Loads=Number(await e03.getAttribute('data-load-count'));
 
+    await page.locator('#scene-steps [data-slot="4"]').click();
+    await page.frameLocator('iframe[data-frame-key="e04"]').getByRole('heading',{
+      name:'Episode 04 is not available yet'
+    }).waitFor();
+    const e04=page.locator('iframe[data-frame-key="e04"]');
+    const e04Loads=Number(await e04.getAttribute('data-load-count'));
+
+    await page.locator('#scene-steps [data-slot="1"]').click();
+    for(const [slot,frame,loads,key,heading] of [
+      [2,e02,e02Loads,'e02','Riverside is next'],
+      [3,e03,e03Loads,'e03','Market Lane comes after Riverside'],
+      [4,e04,e04Loads,'e04','Episode 04 is not available yet']
+    ]){
+      await page.locator(`#scene-steps [data-slot="${slot}"]`).click();
+      await page.waitForFunction(({frameKey,count})=>{
+        const el=document.querySelector(`iframe[data-frame-key="${frameKey}"]`);
+        return el?.dataset.loaded==='true'&&Number(el.dataset.loadCount)>count;
+      },{frameKey:key,count:loads});
+      assert.ok(Number(await frame.getAttribute('data-load-count'))>loads,
+        `blocked scene ${slot} rechecks its gate when revisited`);
+      await page.frameLocator(`iframe[data-frame-key="${key}"]`).getByRole('heading',{name:heading}).waitFor();
+    }
     await page.locator('#scene-steps [data-slot="1"]').click();
     for(let scene=2;scene<=12;scene++){
       await page.locator('#next-scene').click();
@@ -72,6 +105,10 @@ try{
       const frameKey=({2:'e02',3:'e03',4:'e04',5:'e05',6:'e06',7:'e06',8:'e07',9:'e08',10:'e09',11:'e10',12:'e11'})[scene];
       await page.locator(`iframe[data-frame-key="${frameKey}"][data-loaded="true"]`).waitFor();
       assert.ok(await page.locator(`#scene-steps [data-slot="${scene}"]`).isVisible(),`scene ${slot}`);
+      for(const oldFrame of await page.locator('.scene-frame iframe[hidden]').all()){
+        assert.equal(await oldFrame.evaluate(el=>getComputedStyle(el).display),'none',
+          'inactive episode frames stay hidden');
+      }
       if(scene===6){
         const e06=page.locator('iframe[data-frame-key="e06"]');
         await e06.evaluate(frame=>{frame.dataset.beforeLower=frame.dataset.loadCount;});

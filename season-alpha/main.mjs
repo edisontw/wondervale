@@ -1,8 +1,8 @@
 const scenes=[
   {slot:1,episode:'E01',title:'The Map Behind the Board',url:'../',frameKey:'e01'},
-  {slot:2,episode:'E02',title:'The Bridge That Stops',url:'../e02/',frameKey:'e02'},
-  {slot:3,episode:'E03',title:'Three Deliveries, One Wrong Turn',url:'../e03/',frameKey:'e03'},
-  {slot:4,episode:'E04',title:'Everyone Remembers It Differently',url:'./e04-preview.html',frameKey:'e04'},
+  {slot:2,episode:'E02',title:'The Bridge That Stops',url:'../e02/',frameKey:'e02',blockedHeading:'Riverside is next'},
+  {slot:3,episode:'E03',title:'Three Deliveries, One Wrong Turn',url:'../e03/',frameKey:'e03',blockedHeading:'Market Lane comes after Riverside'},
+  {slot:4,episode:'E04',title:'Everyone Remembers It Differently',url:'./e04-preview.html',frameKey:'e04',blockedHeading:'Episode 04 is not available yet'},
   {slot:5,episode:'E05',title:'The Station with No Trains',url:'../e05-scene/',frameKey:'e05'},
   {slot:6,episode:'E06',title:'Current Garden',url:'../e06-scene/',frameKey:'e06',hint:'Scene 06 · Current Garden'},
   {slot:7,episode:'E06',title:'Lower Garden',url:'../e06-scene/',frameKey:'e06',hint:'Scene 07 · Lower Garden. Continue in the E06 scene using its “Walk to Lower Garden PAPER model” action.'},
@@ -48,11 +48,24 @@ function frameFor(scene){
   return frame;
 }
 
+function isStillBlocked(scene,frame){
+  if(!scene.blockedHeading||frame.dataset.loaded!=='true')return false;
+  try{return [...frame.contentDocument.querySelectorAll('h1,h2')]
+    .some(heading=>heading.textContent.trim()===scene.blockedHeading);}
+  catch{return false;}
+}
+
 function show(index){
   current=Math.max(0,Math.min(scenes.length-1,index));
   const scene=scenes[current];
   opened.add(current);
+  const existing=frames.get(scene.frameKey);
+  const revisitBlocked=Boolean(existing?.hidden&&isStillBlocked(scene,existing));
   const frame=frameFor(scene);
+  if(revisitBlocked){
+    frame.dataset.loaded='false';
+    frame.src=new URL(scene.url,location.href).href;
+  }
   for(const other of frames.values())other.hidden=other!==frame;
   frame.title=`Scene ${scene.slot}: ${scene.episode} ${scene.title}`;
   $('scene-position').textContent=`Scene ${scene.slot} of ${scenes.length}`;
