@@ -1,6 +1,6 @@
 # Season 1 Integrated Playable Alpha
 
-This local developer entry opens the intended 12-scene order across the existing E01–E11 scene experiences. E06's Current Garden and Lower Garden remain two scenes in one live E06 page. Scene step buttons are preview navigation; they do not mark a scene complete or grant an unlock. Follow an in-scene PAPER handoff when it is available to carry strict replay-checked actions to the next episode.
+This local developer entry opens the intended 12-scene order across the existing E01–E11 scene experiences. E06's Current Garden and Lower Garden remain two scenes in one live E06 page. Scene step buttons are preview navigation; they do not mark a scene complete or grant an unlock. Follow an in-scene PAPER handoff when it is available to carry strict replay-checked actions to the next episode. The launcher follows these existing links, keeps their PAPER URL fragments intact, and reloads a scene on return so its reducer can replay the incoming record. E08→E09→E08 is covered as a playable round trip.
 
 ## Start locally on Windows
 
