@@ -7,8 +7,9 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 source = root / 'prompts/season-01/e01/40-voice-lines.tsv'
-rows = list(csv.DictReader((x for x in source.read_text().splitlines() if not x.startswith('#')), delimiter='\t'))
-script = (root / 'content/season-01/s01e01/DETAILED_SCRIPT.md').read_text()
+rows = list(csv.DictReader((x for x in source.read_text(encoding='utf-8').splitlines() if not x.startswith('#')), delimiter='\t'))
+script = (root / 'content/season-01/s01e01/DETAILED_SCRIPT.md').read_text(encoding='utf-8')
+voice_source = source.read_bytes().replace(b'\r\n', b'\n')
 script_lines = dict(re.findall(r'\[(S01E01-[A-Z]+-\d{3})\] “([^”]+)”', script))
 assert len(rows) == len(script_lines) == 121
 assert len({x['line_id'] for x in rows}) == 121
@@ -17,7 +18,7 @@ for row in rows:
 content = {
     'schemaVersion': 1, 'contentVersion': 's01e01-script-v1',
     'buildId': '20261014-e01-map-choice-compact1',
-    'voiceSourceSha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+    'voiceSourceSha256': hashlib.sha256(voice_source).hexdigest(),
     'lines': {x['line_id']: x for x in rows},
     'parent': {
         'preview': 'Today Milo, Nia, and Finn find something unusual in Town Square. Let your child look before you explain. If they call it a treasure map, ask what they see; do not confirm or deny the guess. No map knowledge is needed.',
@@ -35,5 +36,5 @@ content = {
     'mediaStatus': {'voices': 'browser_synthetic_prototype_only', 'music': 'not_produced', 'sprites': 'production_candidate'}
 }
 out = root / 'public/episode.json'
-out.write_text(json.dumps(content, ensure_ascii=False, indent=2) + '\n')
+out.write_text(json.dumps(content, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
 print('Compiled 121 exact script/TSV lines; separate parent and child channels.')

@@ -7,7 +7,7 @@ import hashlib, json, shutil, zipfile
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'dist/wondervale-e02-preview'
 if OUT.exists():shutil.rmtree(OUT)
-manifest=json.loads((ROOT/'assets/production-candidates/s01e02/PRODUCTION_INTAKE_PENDING.json').read_text())
+manifest=json.loads((ROOT/'assets/production-candidates/s01e02/PRODUCTION_INTAKE_PENDING.json').read_text(encoding='utf-8'))
 assert manifest['status'].startswith('media_uploaded_verified'),"E02 art upload not verified"
 webps=sorted(x['path'] for x in manifest['assets'] if x['path'].endswith('.webp'))
 assert len(webps)==3
@@ -22,7 +22,7 @@ for name in files:
     shutil.copyfile(src,dest)
     b=src.read_bytes()
     artifact['files'].append({'path':name,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
-(OUT/'RELEASE_INTEGRITY.json').write_text(json.dumps(artifact,indent=2)+'\n')
+(OUT/'RELEASE_INTEGRITY.json').write_text(json.dumps(artifact,indent=2)+'\n',encoding='utf-8')
 zpath=ROOT/'dist/wondervale-e02-preview.zip'
 with zipfile.ZipFile(zpath,'w',zipfile.ZIP_DEFLATED) as z:
     for f in sorted(OUT.rglob('*')):

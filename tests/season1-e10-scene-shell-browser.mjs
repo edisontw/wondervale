@@ -13,6 +13,14 @@ try{
    assert.equal(response?.status(),200);
    const b=(type,value)=>page.locator('[data-action="'+type+'"]'+(value?'[data-value="'+value+'"]':''));
    const hit=(type,value)=>b(type,value).click();
+   const place=value=>page.locator('button[data-anchor="'+value+'"]');
+   const walkTo=async(value,key)=>{
+    const target=place(value);assert.equal(await target.isDisabled(),false,value);
+    const box=await target.boundingBox();assert.ok(box.width>=44&&box.height>=44,JSON.stringify(box));
+    if(key){await target.focus();await page.keyboard.press(key);}else await target.click();
+    assert.equal(await target.getAttribute('aria-current'),'location');
+    assert.equal(await target.isDisabled(),true);
+   };
    assert.match(await page.locator('.notice').innerText(),/FICTIONAL COURTYARD/);
    await page.evaluate(()=>localStorage.setItem('e10-paper-sentinel','keep'));
    assert.equal(await b('walk','stone_edge').isDisabled(),true);
@@ -20,16 +28,21 @@ try{
    assert.equal(await page.locator('#paper-comparison').isVisible(),false);
    await hit('start');
    assert.equal(await b('walk','meeting_edge').isDisabled(),true);
+   assert.equal(await place('entry').getAttribute('aria-current'),'location');
+   assert.equal(await place('stone_edge').isDisabled(),false);
+   assert.equal(await place('notice_wall').isDisabled(),false);
+   assert.equal(await place('quiet_corner').isDisabled(),true);
+   await walkTo('notice_wall');await walkTo('entry');
    await hit('compare-symbol');
-   await hit('walk','stone_edge');await hit('inspect','surface');
+   await walkTo('stone_edge');await hit('inspect','surface');
    assert.equal(await page.locator('#story-reaction').getAttribute('data-beat'),'first-trace');
    await hit('suggest','surface:passing');
    await hit('revise','surface:passing:resting');
    assert.match(await page.locator('#maybe').innerText(),/resting \(MAYBE\)/);
-   await hit('walk','quiet_corner');await hit('hear','quiet');
+   await walkTo('quiet_corner');await hit('hear','quiet');
    await hit('place','quiet:shared');
    assert.equal(await page.locator('#live-needs-board [data-slot="shared"][data-occupied="true"]').count(),1);
-   await hit('walk','meeting_edge');await hit('hear','activity');
+   await walkTo('meeting_edge');await hit('hear','activity');
    assert.equal(await page.locator('#story-reaction').getAttribute('data-beat'),'two-voices');
    await hit('place','activity:shared');
    assert.equal(await page.locator('#live-needs-board [data-conflict="true"]').count(),1);
@@ -120,6 +133,10 @@ try{
   await key('start',null,'Enter');
   await key('compare-symbol',null,'Space');
   assert.match(await page.locator('#line').innerText(),/does not prove a name/);
+  await page.locator('button[data-anchor="notice_wall"]').focus();await page.keyboard.press('Enter');
+  assert.equal(await page.locator('button[data-anchor="notice_wall"]').getAttribute('aria-current'),'location');
+  assert.equal(await page.locator('button[data-anchor="quiet_corner"]').isDisabled(),true);
+  await page.locator('button[data-anchor="entry"]').focus();await page.keyboard.press('Enter');
   await key('walk','stone_edge','Enter');
   assert.match(await page.locator('#stage').innerText(),/stone edge/);
  }finally{await ctx.close();}

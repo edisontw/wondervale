@@ -69,6 +69,10 @@ The authoring reducer emits `authoringPreview` only. It must not import or mutat
 
 **Next implementation:** pure reducer + tests for adjacency, source/need typing, revisable hypotheses, stale evidence/review invalidation and fail-closed replay; then separate browser lab. Never silently make the test token into an approved historical name source.
 
+## Direct courtyard-place interaction (2026-11-25, PAPER)
+
+The five existing fictional anchor markers are native buttons. Milo can tap or focus a place in the courtyard map; only the same reducer-validated adjacent `walk` action is enabled. The current place and reachable next places have text status, keyboard focus, and a minimum 44px target. The named walk controls remain as an equivalent fallback. No geometry, route, story state, storage, or unlock was added. The four-viewport E10 browser journey checks direct taps, keyboard activation, nonadjacent rejection, movement feedback, and reset against the existing replay path.
+
 
 ## 2026-11-02 PAPER addendum — E09 ground evidence provenance (PR #278)
 
