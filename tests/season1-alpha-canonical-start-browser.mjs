@@ -220,6 +220,14 @@ try{
     assert.deepEqual(await page.locator('iframe[data-frame-key="e03"]').evaluate((element,key)=>
       JSON.parse(element.contentWindow.localStorage.getItem(key)),e03SaveKey),e03Stored,
       'E04 draft completion cannot rewrite the E03 save');
+    // The ordered alpha shell can continue to E05 without pretending its
+    // preview-navigation control is a canonical unlock or E04 source handoff.
+    await page.locator('#next-scene').click();
+    await ready(5,'e05');
+    const e05=frame('e05');
+    await e05.getByRole('heading',{name:'E05 — The Station with No Trains'}).waitFor();
+    assert.match(await e05.locator('.notice').first().innerText(),/AUTHORING ONLY.*no approved entry permission.*E04 canonical checkpoint/i);
+    assert.match(await e05.locator('#guard').innerText(),/Production E05 LOCKED/);
     const outsideAfter=await context.newPage();
     await outsideAfter.goto(otherOrigin+'/');
     assert.deepEqual(await outsideAfter.evaluate(keys=>keys.map(key=>localStorage.getItem(key)),
