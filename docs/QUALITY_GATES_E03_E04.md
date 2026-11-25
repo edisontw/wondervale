@@ -64,6 +64,14 @@ On `ramp0 → T`, foreground foliage conceals the pavement and the stall's base 
 
 Keep #109 open. Review a tea-only approach that stays on the visible outside paving, with the interaction endpoint on exposed pavement before the stall occlusion. Preserve the shared bookstall route and existing delivery requirements. Verify the revised centerline against both curb traces before modeling wheels, body and handle. Existing E03 Node route, cart and S/N suites passed 18/18 on the surveyed runtime.
 
+### #109 live cart feature-track capture (2026-11-25; source-image evidence only)
+
+Ran `node tests/e03-cart-waypoint-browser.mjs` against the existing isolated E03 scene in Chromium 151. The diagnostic produced 15 records across 320×740 portrait, 568×320 landscape and 1366×900 desktop: static cart checkpoints plus an actual forward L-route animation capture (213–214 rendered frames per viewport) at west, bend, front, east, fork and ramp0. The captured points are the visible SVG wheel centers and handle point back-projected into the selected 1672×941 painting; screenshots and JSON are written under `test-results/e03-cart-*`.
+
+`node scripts/audit_e03_cart_clearance.mjs` reports **geometry PASS** for finite trace validation, continuous straight-segment interpolation in the source-image plane, and reverse-sample order invariance. It does not measure a live reverse journey: the reversed sample check is a computational symmetry check on the same forward capture. `node --test tests/e03-cart-clearance-geometry.test.mjs tests/e03-cart-turn.test.mjs` passed 12/12, including the existing turn sensitivity probe. That probe reports five estimated-cargo angle/edge conflicts, two unloading-mask corner conflicts and one registered foreground-mask corner conflict. Those candidate overlays need visual ground-contact review; the masks are not solid-obstacle or pavement truth.
+
+The report now obtains the source revision through `git rev-parse HEAD`, so the evidence audit also works in Git linked worktrees. **#109 remains OPEN:** wheel centers are not tire contact patches, the rendered cart does not supply a steering/yaw or physical wheelbase model, direction reversal was not played live, and the selected painting still lacks a complete owner-verified walkable-pavement boundary and ground scale. No route, cart behavior, accepted E03 story, or scene artwork changed in this diagnostic pass. This is engineering evidence, not real-world safety or Owner/device acceptance.
+
 ## 2. E03 Gate 3 exit: engineering and learning
 
 **All are required for a claim of full E03 Gate 3; do not infer them from a single L-path browser run.**

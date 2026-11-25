@@ -2,6 +2,7 @@
 // Inter-frame interpolation is a 2D image-plane approximation only. It does not
 // infer wheel radius, axle steering, cart-body extent, yaw, or physical safety.
 import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
 import {readFile, mkdir, writeFile} from 'node:fs/promises';
 import {places, route} from '../engine/s01e03.mjs';
 import {occluders} from '../e03/route-depth.mjs';
@@ -71,23 +72,7 @@ const annotations = [
 ];
 
 async function currentCheckoutSha() {
-  let gitDirectory = '.git';
-  try {
-    const gitFile = await readFile('.git', 'utf8');
-    const match = gitFile.match(/^gitdir:\s*(.+)$/m);
-    if (match) gitDirectory = match[1];
-  } catch {}
-  const head = (await readFile(`${gitDirectory}/HEAD`, 'utf8')).trim();
-  if (!head.startsWith('ref: ')) return head;
-  const reference = head.slice(5);
-  try {
-    return (await readFile(`${gitDirectory}/${reference}`, 'utf8')).trim();
-  } catch {
-    const packed = await readFile(`${gitDirectory}/packed-refs`, 'utf8');
-    const row = packed.split('\n').find(line => line.endsWith(` ${reference}`));
-    if (!row) throw new Error(`Could not resolve current Git ref ${reference}`);
-    return row.split(' ')[0];
-  }
+  return execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim();
 }
 
 function rounded(value, places = 4) {
