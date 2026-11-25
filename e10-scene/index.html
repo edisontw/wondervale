@@ -14,9 +14,9 @@ h1{font-size:1.35rem;margin:.1rem 0}h2{font-size:1.05rem;margin:.35rem 0}
 button{font:inherit;min-width:44px;min-height:44px;padding:.45rem .65rem;border:2px solid #50776c;border-radius:.4rem;background:#fff;color:#21443e;cursor:pointer;overflow-wrap:anywhere;max-width:100%}
 button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px solid #b47a20;outline-offset:2px}
 .map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.35rem;background:#e4e9e0;padding:.5rem;border:2px solid #879f93;border-radius:.5rem}
-.anchor{min-width:0;padding:.55rem .25rem;border:1px solid #a9bcae;background:#f9fbf5;text-align:center;overflow-wrap:anywhere}
+.anchor{min-width:0;min-height:52px;padding:.35rem .25rem;border:1px solid #a9bcae;background:#f9fbf5;color:inherit;font:inherit;line-height:1.25;text-align:center;overflow-wrap:anywhere;cursor:pointer}.anchor:disabled{cursor:default;opacity:.72}.anchor[data-reachable=true]{background:#e5f0e8;border-color:#5c8068}.anchor small{display:block;margin-top:.2rem;font-size:.72rem;font-weight:650}
 .anchor[data-here=true]{background:#ffe6af;outline:2px solid #a46d20}.anchor[data-paper-question=true]::before{content:"? PAPER";display:block;font-size:.75rem;font-weight:700;background:#e5f0fa;border:1px dashed #426783;border-radius:.35rem;padding:.2rem;margin-bottom:.3rem}
-.anchor[data-here=true]::after{content:'Milo here';display:block;background:#365c66;color:white;border-radius:1rem;font-size:.7rem;font-weight:700;padding:.15rem .35rem;margin:.3rem auto 0;width:max-content;max-width:100%}
+.anchor[data-here=true]::after{content:none}
 .closed{background:#f9dfd7;border:2px solid #a44d37;text-align:center;padding:.5rem;font-weight:700}
 .paper{background:#f3f5ed;border:1px dashed #98ad9b;border-radius:.4rem;padding:.6rem;margin:.5rem 0;line-height:1.5;overflow-wrap:anywhere}
 .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.35rem}
@@ -115,11 +115,11 @@ button:disabled{opacity:.48;cursor:not-allowed}button:focus-visible{outline:3px 
 <div class="controls"><button data-action="start">Begin Milo's investigation</button></div>
 <div class="columns" id="e10-work">
 <section class="panel"><h2>1. Walk Milo and look</h2>
-<p>Only adjoining PAPER anchors connect. The closed hill is never an entrance.</p>
-<div id="scene" class="map" aria-label="Five fictional courtyard anchors">
-<div class="anchor" data-anchor="entry">Entry / mark</div><div class="anchor" data-anchor="stone_edge">Stone edge</div>
-<div class="anchor" data-anchor="notice_wall">Notice wall</div><div class="anchor" data-anchor="quiet_corner">Quiet corner</div>
-<div class="anchor" data-anchor="meeting_edge">Meeting edge</div><div class="closed">HILL CLOSED</div></div>
+<p>Tap a nearby place on the map to walk Milo. Only adjoining PAPER anchors connect; the closed hill is never an entrance.</p>
+<div id="scene" class="map" role="group" aria-label="Five fictional courtyard places and the closed hill">
+<button type="button" class="anchor" data-anchor="entry">Entry / mark<small></small></button><button type="button" class="anchor" data-anchor="stone_edge">Stone edge<small></small></button>
+<button type="button" class="anchor" data-anchor="notice_wall">Notice wall<small></small></button><button type="button" class="anchor" data-anchor="quiet_corner">Quiet corner<small></small></button>
+<button type="button" class="anchor" data-anchor="meeting_edge">Meeting edge<small></small></button><div class="closed" role="note">HILL CLOSED</div></div>
 <div class="controls">
 <button data-action="walk" data-value="entry">Walk: entry</button>
 <button data-action="walk" data-value="stone_edge">Walk: stone edge</button>
@@ -525,7 +525,14 @@ function render(){
  $('e10-work').hidden=screen==='survey';
  $('speaker').textContent=v.speaker;$('line').textContent=v.line;
  $('stage').textContent='Story stage: '+v.stage+' · Milo: '+names[v.position];
- for(const a of document.querySelectorAll('.anchor'))a.dataset.here=String(a.dataset.anchor===v.position);
+ for(const place of document.querySelectorAll('button[data-anchor]')){
+  const here=place.dataset.anchor===v.position;
+  const reachable=!here&&can(state,{type:'walk',to:place.dataset.anchor});
+  place.dataset.here=String(here);place.dataset.reachable=String(reachable);
+  place.disabled=!reachable;
+  if(here)place.setAttribute('aria-current','location');else place.removeAttribute('aria-current');
+  place.querySelector('small').textContent=here?'Milo is here':reachable?'Walk here':'Not next to Milo';
+ }
  const ideas=$('ideas');ideas.replaceChildren();
  for(const traceId of Object.keys(TRACES)){
   for(const tag of USE_TAGS)add(ideas,'suggest',traceId+':'+tag,'MAYBE '+traceId+': '+tag);
@@ -570,6 +577,11 @@ function render(){
 document.addEventListener('click',e=>{
  const b=e.target.closest('button[data-action]');if(!b)return;
  linkedMarkerTrial=null;state=dispatch(state,action(b));render();
+});
+for(const place of document.querySelectorAll('button[data-anchor]'))place.addEventListener('click',()=>{
+ const next={type:'walk',to:place.dataset.anchor};
+ if(!can(state,next))return;
+ linkedMarkerTrial=null;state=dispatch(state,next);render();
 });
 $('e09-callback').addEventListener('click',()=>{if(view(state).finishedPaper){screen='survey';render();}});
 $('e10-back').addEventListener('click',()=>{screen='courtyard';render();});
