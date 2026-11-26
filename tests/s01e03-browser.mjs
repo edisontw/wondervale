@@ -68,7 +68,11 @@ async function perspectiveFoot(p,label){
  assert.ok(Math.abs(result.bottom-result.expectedFoot)<1,label+' shoes remain registered to actual pavement');
  return result;
 }
-async function hub(p){const to=await p.locator('.child').getAttribute('data-phase')==='return-books'?'tea':'flowers';await click(p,'return');await p.locator(`.child[data-phase="${to}"]`).waitFor();await drain(p);await p.locator('[data-a="walk"]').waitFor();}
+async function hub(p){const phase=await p.locator('.child').getAttribute('data-phase');const to=phase==='return-books'?'tea':'flowers';
+ if(phase==='return-tea'){await carriedProp(p,'cart');assert.equal(await p.locator('[data-load-visual="cart"]').getAttribute('aria-label'),'Empty tea handcart','cups leave at the stall while the cart remains with Milo');}
+ await click(p,'return');await p.locator(`.child[data-phase="${to}"]`).waitFor();
+ if(phase==='return-tea')assert.equal(await p.locator('[data-load-visual="cart"]').count(),0,'the empty cart reaches the hub before the flower load is collected');
+ await drain(p);await p.locator('[data-a="walk"]').waitFor();}
 async function geometry(p,label){const result=await p.evaluate(()=>{
  const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right,bottom:r.bottom};};
  const main=document.querySelector('.child'),buttons=[...document.querySelectorAll('.toolbar button,.caption button')];
@@ -86,7 +90,7 @@ async function finish(p){
  await arrive(p);await markerClearOfMilo(p,'bookstall');const destination=await perspectiveFoot(p,'bookstall');assert.ok(destination.source<start.source*.85,'Milo gets smaller at distant upper bookstall');await carriedProp(p,'books');await click(p,'deliver');await drain(p);await destinationGone(p);await hub(p);
  // L-first cart succeeds before any stair-stop or failure line.
  await deliveryGuidance(p,'Tea cart','Tea stall','Push to tea stall');
- await arrive(p);await markerClearOfMilo(p,'tea stall');await carriedProp(p,'cart');await cartFrame(p,'tea-cart at delivery');await p.screenshot({path:'test-results/e03-tea-cart-focus.png'});await click(p,'deliver');await drain(p);await destinationGone(p);
+ await arrive(p);await markerClearOfMilo(p,'tea stall');await carriedProp(p,'cart');await cartFrame(p,'tea-cart at delivery');await p.screenshot({path:'test-results/e03-tea-cart-focus.png'});await click(p,'deliver');await drain(p);await destinationGone(p);await carriedProp(p,'cart');assert.equal(await p.locator('[data-load-visual="cart"]').getAttribute('aria-label'),'Empty tea handcart');
  await click(p,'compare-open');assert.equal(await p.locator('[data-a="reason-steps"]').isDisabled(),true);
  await click(p,'inspect-S');await p.locator('.inspection img').evaluate(img=>img.decode());await click(p,'observe');await click(p,'reason-steps');await drain(p);await hub(p);
  await deliveryGuidance(p,'Flowers','Garden','Walk to garden');await arrive(p);await markerClearOfMilo(p,'garden');await carriedProp(p,'flowers');assert.ok(await p.locator('[data-load-visual="flowers"] .flower-bloom').count()>=5,'flower tray has detailed colorful blossoms');await geometry(p,'flowers-before-delivery');await p.screenshot({path:'test-results/e03-flower-focus.png'});await click(p,'deliver');await drain(p);await destinationGone(p);
