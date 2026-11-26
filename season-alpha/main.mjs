@@ -1,4 +1,4 @@
-import {ALPHA_E05_E06_KEY,buildAlphaChronicle} from './alpha-chronicle.mjs';
+import {ALPHA_E05_E06_KEY,buildAlphaChronicle,recordAlphaStationTransfer} from './alpha-chronicle.mjs';
 
 const scenes=[
   {slot:1,episode:'E01',title:'The Map Behind the Board',url:'../',frameKey:'e01'},
@@ -77,7 +77,7 @@ function bindSceneLinks(frame){
       if(!destination||destination.scene.frameKey===frame.dataset.frameKey)return;
       event.preventDefault();event.stopPropagation();
       if(frame.dataset.frameKey==='e05'&&destination.scene.frameKey==='e06'){
-        try{localStorage.setItem(ALPHA_E05_E06_KEY,destination.url.hash);}catch{}
+        recordAlphaStationTransfer(localStorage,frame.contentWindow.location.hash,destination.url.hash);
       }
       show(destination.index,destination.url.href);
     },true);

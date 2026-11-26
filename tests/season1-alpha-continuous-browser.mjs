@@ -191,6 +191,38 @@ try{
       element.scrollIntoView({block:'start',behavior:'instant'}));
     await page.screenshot({path:'test-results/season1-alpha-e11-alpha-chronicle-568x320.png'});
     await page.screenshot({path:'test-results/season1-alpha-e11-alpha-chronicle-full-568x320.png',fullPage:true});
+    // Two individually valid E04 replays must not be interchangeable once
+    // the Station has been earned. Rebuild the alternative without the two
+    // wrong placements, then restore the original test state.
+    const continuity=await page.evaluate(async()=>{
+      const {buildAlphaChronicle,ALPHA_E05_E06_KEY}=await import('/season-alpha/alpha-chronicle.mjs');
+      const {publishE04AlphaHandoff,validateE04AlphaHandoff,ALPHA_HANDOFF_KEY}=await import('/season-alpha/e04-e05-handoff.mjs');
+      const {DRAFT_KEY,replayChronology}=await import('/engine/s01e04-chronology.mjs');
+      const {E04_ALPHA_PACK}=await import('/season-alpha/e04-script-model.mjs');
+      const station=localStorage.getItem(ALPHA_E05_E06_KEY);
+      const originalDraft=localStorage.getItem(DRAFT_KEY);
+      const originalHandoff=localStorage.getItem(ALPHA_HANDOFF_KEY);
+      const hash=document.querySelector('iframe[data-frame-key="e11"]').contentWindow.location.hash;
+      const build=()=>buildAlphaChronicle(localStorage,station,hash,true,4);
+      try{
+        const before=!!build();
+        const history=JSON.parse(originalDraft).history.filter(action=>
+          !(action.type==='place'&&((action.id==='station-route-copy'&&action.slot==='later')||
+            (action.id==='garden-route-update'&&action.slot==='earlier'))));
+        const alternative=replayChronology(history,E04_ALPHA_PACK,'draft_preview');
+        if(!alternative)return {before,alternative:false};
+        localStorage.setItem(DRAFT_KEY,JSON.stringify(alternative));
+        const href=publishE04AlphaHandoff(alternative,localStorage);
+        const valid=!!href&&!!validateE04AlphaHandoff(href.slice(href.indexOf('#')),localStorage);
+        return {before,alternative:valid&&originalHandoff!==localStorage.getItem(ALPHA_HANDOFF_KEY),
+          rejected:build()===null};
+      }finally{
+        localStorage.setItem(DRAFT_KEY,originalDraft);
+        localStorage.setItem(ALPHA_HANDOFF_KEY,originalHandoff);
+      }
+    });
+    assert.deepEqual(continuity,{before:true,alternative:true,rejected:true},
+      'a different valid E04 replay cannot reuse the previously earned Station visit and finale');
     const alphaKeys=await page.evaluate(()=>Object.keys(localStorage).sort());
     assert.deepEqual(alphaKeys,[
       'wondervale-alpha-s01e04-e05-replay-v1','wondervale-progress-v1',

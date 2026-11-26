@@ -13,13 +13,49 @@ import {projection as view11} from '../engine/s01e11-authoring-prototype.mjs';
 
 export const ALPHA_E05_E06_KEY='wondervale-alpha-s01e05-e06-replay-v1';
 
-export function buildAlphaChronicle(storage,e05E06Hash,e10E11Hash,e11Reviewed=false,e11Placed=null){
+const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+const extendsHistory=(earlier,later)=>Array.isArray(earlier)&&Array.isArray(later)&&
+  earlier.length<=later.length&&same(earlier,later.slice(0,earlier.length));
+
+function boundStationTransfer(storage,text,e04){
+  try{
+    const saved=JSON.parse(text);
+    if(!e04||!saved||saved.v!==1||typeof saved.hash!=='string'||
+       !same(saved.e04,e04.record))return null;
+    return decodeStationGardenTransfer(saved.hash);
+  }catch{return null;}
+}
+
+// Bind the earned Station visit to the specific fictional E04 replay that
+// actually entered it. Independent PAPER previews remain playable but cannot
+// be combined with an unrelated E04 record to claim a continuous Alpha ledger.
+export function recordAlphaStationTransfer(storage,arrivalHash,stationHash){
+  try{
+    const next=decodeStationGardenTransfer(stationHash);
+    const arrival=typeof arrivalHash==='string'&&arrivalHash.startsWith('#alpha-e04-e05=')?
+      validateE04AlphaHandoff(arrivalHash,storage):null;
+    const current=validateE04AlphaHandoff(null,storage);
+    const prior=boundStationTransfer(storage,storage.getItem(ALPHA_E05_E06_KEY),current);
+    const returned=decodeStationGardenTransfer(arrivalHash);
+    const sameVisit=prior&&returned&&same(prior.e05.history,returned.e05.history)&&
+      next&&extendsHistory(returned.e05.history,next.e05.history);
+    if(!next||!current||(!arrival&&!sameVisit)){
+      storage.removeItem(ALPHA_E05_E06_KEY);
+      return false;
+    }
+    storage.setItem(ALPHA_E05_E06_KEY,JSON.stringify({v:1,e04:current.record,hash:stationHash}));
+    return true;
+  }catch{return false;}
+}
+
+export function buildAlphaChronicle(storage,e05E06Record,e10E11Hash,e11Reviewed=false,e11Placed=null){
   const e04=validateE04AlphaHandoff(null,storage);
-  const e05E06=decodeStationGardenTransfer(e05E06Hash);
+  const e05E06=boundStationTransfer(storage,e05E06Record,e04);
   const loop=decodeLoopTransfer(e10E11Hash);
   const u=loop?.upstream;
   if(!e04||e04.mode!=='noncanonical_alpha_paper'||!e05E06||
-     !loop?.e10||!loop?.e11||!u?.e06||!u?.e07||!u?.e08||!u?.e09)return null;
+     !loop?.e10||!loop?.e11||!u?.e06||!u?.e07||!u?.e08||!u?.e09||
+     !extendsHistory(e05E06.e06.history,u.e06.history))return null;
   const b=view05(e05E06.e05),c=view06(u.e06),d=view07(u.e07),
     e=view08(u.e08),f=view09(u.e09),g=view10(loop.e10),h=view11(loop.e11);
   if(!b||b.stage!=='review'||!c||!d||!e||!f||!g||!h)return null;
