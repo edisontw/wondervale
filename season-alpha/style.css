@@ -25,6 +25,12 @@ button:focus-visible{outline:3px solid #b47820;outline-offset:2px}
 .player-controls{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:.55rem;margin:.45rem 0}
 .player-controls p{margin:0;font-size:.76rem;text-align:center;color:#52645c}
 .storage-note{margin:.25rem 0;color:#52645c;font-size:.72rem}
+.alpha-chronicle{margin:.55rem 0;padding:.65rem .8rem;border:1px solid #b5c4b8;border-radius:.55rem;background:#eef2ec}
+.alpha-chronicle h2{margin:.1rem 0 .45rem;font-size:1.05rem}
+.alpha-chronicle p{margin:.35rem 0}
+.alpha-chronicle ol{margin:.35rem 0;padding-left:1.6rem}
+.alpha-chronicle li{margin:.3rem 0}
+.alpha-chronicle .small{font-size:.8rem;color:#52645c}
 code{font-size:.95em}
 @media(max-width:700px){
   #alpha-player{padding:.35rem}
@@ -49,7 +55,10 @@ code{font-size:.95em}
   .play-heading h2{font-size:.9rem}
   .scene-opened{font-size:.68rem}
   .scene-frame{min-height:0}
-  .scene-frame iframe{height:calc(100dvh - 165px);min-height:138px}
+  /* Keep E02's focused notebook large enough for both evidence cards and its
+     44px response control on short landscape screens. The launcher can scroll
+     around this taller play area while the scene itself stays self-contained. */
+  .scene-frame iframe{height:calc(100dvh - 110px);min-height:200px}
   .player-controls{margin:.2rem 0;gap:.25rem}
   .player-controls button{min-height:44px}
   .storage-note{display:none}

@@ -1,3 +1,5 @@
+import {ALPHA_E05_E06_KEY,buildAlphaChronicle} from './alpha-chronicle.mjs';
+
 const scenes=[
   {slot:1,episode:'E01',title:'The Map Behind the Board',url:'../',frameKey:'e01'},
   {slot:2,episode:'E02',title:'The Bridge That Stops',url:'../e02/',frameKey:'e02',blockedHeading:'Riverside is next'},
@@ -41,6 +43,8 @@ function frameFor(scene,initialUrl=null){
     frame.dataset.loaded='true';
     frame.dataset.loadCount=String(Number(frame.dataset.loadCount||0)+1);
     bindSceneLinks(frame);
+    observeE11Review(frame);
+    refreshAlphaChronicle();
   });
   frame.hidden=true;
   frameHost.append(frame);
@@ -72,9 +76,56 @@ function bindSceneLinks(frame){
       const destination=sceneAt(link.href);
       if(!destination||destination.scene.frameKey===frame.dataset.frameKey)return;
       event.preventDefault();event.stopPropagation();
+      if(frame.dataset.frameKey==='e05'&&destination.scene.frameKey==='e06'){
+        try{localStorage.setItem(ALPHA_E05_E06_KEY,destination.url.hash);}catch{}
+      }
       show(destination.index,destination.url.href);
     },true);
   }catch{}
+}
+
+function observeE11Review(frame){
+  if(frame.dataset.alphaReviewObserved==='true')return;
+  try{
+    const doc=frame.contentDocument;
+    const chronicle=doc?.getElementById('chronicle');
+    if(!chronicle)return;
+    frame.dataset.alphaReviewObserved='true';
+    new MutationObserver(()=>refreshAlphaChronicle()).observe(chronicle,{childList:true,characterData:true,subtree:true});
+  }catch{}
+}
+
+function refreshAlphaChronicle(){
+  const panel=$('alpha-chronicle');
+  if(scenes[current]?.frameKey!=='e11'){
+    panel.hidden=true;
+    return;
+  }
+  const frame=frames.get('e11');
+  try{
+    const doc=frame?.contentDocument;
+    const hook=doc?.getElementById('hook');
+    const text=doc?.getElementById('chronicle')?.textContent||'';
+    const reviewed=!!hook&&!hook.hidden&&text.includes('model review recorded');
+    const grid=doc?.querySelector('#grid');
+    const placed=grid?
+      grid.querySelectorAll('.cell.access').length+
+      grid.querySelectorAll('.cell.quiet').length+
+      grid.querySelectorAll('.cell.activity').length:null;
+    const hash=frame.contentWindow.location.hash;
+    const ledger=reviewed&&buildAlphaChronicle(localStorage,
+      localStorage.getItem(ALPHA_E05_E06_KEY),hash,true,placed);
+    panel.hidden=!ledger;
+    if(!ledger)return;
+    $('alpha-chronicle-source').textContent='E02/E03 prerequisites replay-checked for this local handoff; E04–E11 remain fictional PAPER and do not write Canon.';
+    const list=$('alpha-chronicle-entries');
+    list.replaceChildren();
+    for(const entry of ledger.entries){
+      const item=document.createElement('li');
+      item.textContent=entry.scene+': '+entry.text;
+      list.append(item);
+    }
+  }catch{panel.hidden=true;}
 }
 
 function loadEntry(frame,href){
@@ -128,9 +179,14 @@ function show(index,entryUrl=null){
     else button.removeAttribute('aria-current');
     button.dataset.opened=String(opened.has(slot-1));
   }
+  if(scene.frameKey==='e05'){
+    frame.contentWindow.postMessage({type:'wondervale-alpha-activate'},location.origin);
+  }
+  refreshAlphaChronicle();
   document.title=`Wondervale · ${scene.episode} ${scene.title} · Season 1 Alpha`;
 }
 
 $('previous-scene').addEventListener('click',()=>show(current-1));
 $('next-scene').addEventListener('click',()=>show(current+1));
+window.addEventListener('storage',refreshAlphaChronicle);
 show(0);

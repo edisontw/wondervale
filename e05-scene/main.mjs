@@ -12,6 +12,9 @@ import {decodeMemoryGardenShortcut,encodeMemoryGardenShortcut} from '../authorin
 import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
 import {decodeMemoryStationGardenTransfer,encodeMemoryStationGardenTransfer}
  from '../authoring-labs/e04-e06-scene-transfer.mjs';
+import {ALPHA_HANDOFF_KEY,validateE04AlphaHandoff} from '../season-alpha/e04-e05-handoff.mjs';
+import {DRAFT_KEY} from '../engine/s01e04-chronology.mjs';
+import {E02_KEY,E03_KEY} from '../engine/s01e04-handoff.mjs';
 const lantern=decodeMemoryLantern(location.hash);
 const extended=lantern||decodeMemoryGardenShortcut(location.hash);
 const arcIncoming=extended||decodeMemoryStationGardenTransfer(location.hash);
@@ -20,6 +23,7 @@ let state=arcIncoming?.e05||incoming?.e05||fresh(),
  linkedE06=arcIncoming?.e06||incoming?.e06||freshE06(),
  linkedE07=extended?.e07||freshE07(),linkedE08=lantern?.e08||freshE08();
 const linkedE04=arcIncoming?.e04||null;
+let alphaE04Arrival=validateE04AlphaHandoff(location.hash,localStorage);
 let gardenReturnHistory=[];
 const $=id=>document.getElementById(id);
 const boardNames={'peg-pair':'PEG PAIR','worn-edge':'WORN EDGE'};
@@ -111,6 +115,12 @@ const actionOf=b=>{
 };
 function render(){
   const v=view(state);
+  $('e04-alpha-arrival').hidden=!alphaE04Arrival;
+  $('e04-alpha-note').textContent=alphaE04Arrival?
+    'Market coordinator: “I remember a way to the station.” · undated memory. '+
+    'Garden resident: “I remember a way to the garden.” · undated memory. '+
+    'The fictional Version 1 paper comes before Version 2; the way-sign photo stays Not sure yet. '+
+    'The papers do not date either memory or explain why a route changed.':'';
   for(const id of ['foyer','records','layout','review'])$(id).hidden=v.stage!==id;
   $('speaker').textContent=v.speaker;
   $('line').textContent=v.line;
@@ -220,3 +230,16 @@ document.querySelectorAll('[data-return-action]').forEach(b=>b.addEventListener(
   render();
 }));
 render();
+window.addEventListener('storage',event=>{
+  if(event.key===null||[E02_KEY,E03_KEY,DRAFT_KEY,ALPHA_HANDOFF_KEY].includes(event.key)){
+    alphaE04Arrival=validateE04AlphaHandoff(location.hash,localStorage);
+    render();
+  }
+});
+window.addEventListener('message',event=>{
+  if(event.origin===location.origin&&event.source===parent&&
+     event.data?.type==='wondervale-alpha-activate'){
+    alphaE04Arrival=validateE04AlphaHandoff(location.hash,localStorage);
+    render();
+  }
+});

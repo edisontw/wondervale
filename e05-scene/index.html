@@ -40,9 +40,24 @@ button[aria-pressed=true]{background:#d4e9dc;font-weight:700}
 .dialogue{background:#dcece5;padding:.7rem;border-radius:.5rem;line-height:1.5}
 [hidden]{display:none!important}
 @media(max-width:650px){.scene{grid-template-columns:1fr}.panel{padding:.55rem}}
+@media(orientation:landscape) and (max-height:420px){
+main{padding:.2rem}
+header{padding:.35rem .55rem}
+.notice{padding:.3rem .45rem;margin:.3rem 0;font-size:.78rem;line-height:1.25}
+#e04-alpha-arrival.panel{padding:.35rem .45rem;margin:.3rem 0}
+#e04-alpha-arrival h2{font-size:.92rem;margin:.05rem 0 .2rem}
+#e04-alpha-note{min-height:0;padding:.3rem .4rem;margin:.2rem 0;font-size:.78rem;line-height:1.25}
+#e04-alpha-arrival .dialogue{margin:.2rem 0;padding:.3rem .4rem;font-size:.8rem;line-height:1.25}
+}
 </style></head><body><main>
 <header><h1>E05 — The Station with No Trains</h1><div>Isolated scene engineering shell · child-driven PAPER rehearsal</div></header>
 <p class="notice"><strong>AUTHORING ONLY — NOT A RELEASE.</strong> All floor positions, board marks and MOCK source drawings are synthetic. The station foyer has no approved entry permission, original records, painted scene, E04 canonical checkpoint, real Map Room, Chronicle, E06 unlock or saved progress. No train service or North Hill access.</p>
+<section class="panel" id="e04-alpha-arrival" hidden aria-label="The question Milo carried from E04">
+<h2>From the town: two memories, still undated</h2>
+<p id="e04-alpha-note" class="paper" role="status"></p>
+<p class="dialogue"><strong>Nia:</strong> “The papers have an order, but we do not know when either route was there.”<br>
+<strong>Finn:</strong> “Let’s inspect the station board and see what we can learn.”</p>
+</section>
 <div class="dialogue" aria-live="polite"><strong id="speaker"></strong>: <span id="line"></span><p id="stage-text"></p></div>
 <section class="panel" id="foyer"><h2>1. Inspect and test the removable copy</h2>
 <p id="foyer-map" class="paper" role="status"></p>

@@ -1,33 +1,34 @@
 // Real E05-E11 in-scene handoffs inside the isolated ordered alpha launcher.
 import assert from 'node:assert/strict';
+import {mkdir} from 'node:fs/promises';
 import {chromium} from 'playwright';
+import {playAlphaE01ToE04,E02_SAVE_KEY,E03_SAVE_KEY} from './helpers/season1-alpha-e01-e04.mjs';
 
 const alphaBase=process.env.WONDERVALE_ALPHA_TEST_URL||'http://127.0.0.1:4174';
+const otherOrigin=process.env.WONDERVALE_OTHER_ORIGIN||'http://127.0.0.1:4173';
 const browser=await chromium.launch({headless:true});
 try{
   const context=await browser.newContext({viewport:{width:568,height:320},reducedMotion:'reduce',hasTouch:true});
   try{
-    const page=await context.newPage(),errors=[];
-    page.on('pageerror',error=>errors.push(error.message));
-    await page.goto(alphaBase+'/season-alpha/');
-    const open=async(slot,key)=>{
-      await page.waitForFunction(({slot,key})=>{
-        const frame=document.querySelector(`iframe[data-frame-key="${key}"]`);
-        return document.querySelector('#scene-position')?.textContent===`Scene ${slot} of 12`&&
-          frame&&!frame.hidden&&frame.dataset.loaded==='true';
-      },{slot,key});
-    };
-    const frame=key=>page.frameLocator(`iframe[data-frame-key="${key}"]`);
+    const outside=await context.newPage();
+    assert.equal((await outside.goto(otherOrigin+'/'))?.status(),200);
+    const outsideSentinels=[[E02_SAVE_KEY,'isolated-E02'],[E03_SAVE_KEY,'isolated-E03']];
+    await outside.evaluate(items=>items.forEach(([key,value])=>localStorage.setItem(key,value)),outsideSentinels);
+    const outsideOrigin=await outside.evaluate(()=>location.origin);
+    const page=await context.newPage();
+    const {frame,ready:open,errors,e02Stored,e03Stored}=await playAlphaE01ToE04(page,alphaBase);
     const hit=async(root,key)=>{
       const action=root.locator(`[data-key="${key}"]`);
       assert.equal(await action.isDisabled(),false,key);
       await action.click();
     };
 
-    // E05 can be previewed independently; its source and chronology remain fictional.
-    await page.locator('#scene-steps [data-slot="5"]').click();
-    await open(5,'e05');
     const e05=frame('e05');
+    await open(5,'e05');
+    assert.equal(await e05.locator('#e04-alpha-arrival').isVisible(),true,
+      'the E01→E04 child journey enters E05 with its earned story handoff');
+    await mkdir('test-results',{recursive:true});
+    await page.screenshot({path:'test-results/season1-alpha-e04-e05-earned-568x320.png'});
     const e05act=async(scene,type,extra={})=>{
       let selector=`[data-scene="${scene}"][data-type="${type}"]`;
       for(const [key,value] of Object.entries(extra))selector+=`[data-${key}="${value}"]`;
@@ -163,10 +164,46 @@ try{
     await e11.getByRole('button',{name:'Save tested trial',exact:true}).click();
     await e11.getByRole('button',{name:'Compare FIRST and NOW',exact:true}).click();
     assert.match(await e11.locator('#comparison').innerText(),/trial-1 → NOW trial-2/);
+    await e11.getByRole('button',{name:'Recall E09 closed hill',exact:true}).click();
+    for(const link of ['Add link: square ↔ market','Add link: market ↔ unnamed place',
+      'Add link: unnamed place ↔ square'])
+      await e11.getByRole('button',{name:link,exact:true}).click();
+    await e11.getByRole('button',{name:'Check the current loop',exact:true}).click();
+    assert.match(await e11.locator('#loop-status').innerText(),/YES — FICTIONAL ONLY/);
+    await e11.getByRole('button',{name:'Review NONCANONICAL finale',exact:true}).click();
+    const alphaPanel=page.locator('[aria-label="Read-only Season 1 Alpha Chronicle"]');
+    await alphaPanel.waitFor({state:'visible'});
+    assert.match(await alphaPanel.innerText(),/E02\/E03 prerequisites replay-checked/);
+    const alphaEntries=await page.locator('#alpha-chronicle-entries li').allInnerTexts();
+    assert.deepEqual(alphaEntries.map(entry=>entry.split(':')[0]),[
+      'E02–E03','E04','E05','E06 Current','E06 Lower','E07','E08','E09','E10','E11'
+    ],'E11 shows the replay-validated Season 1 Alpha Chronicle across the played scenes');
     assert.match(await e11.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
-    assert.deepEqual(await page.evaluate(()=>Object.keys(localStorage)),[],
-      'the continuous PAPER journey stores no progress in browser saves');
-    assert.deepEqual(errors,[],'E05-E11 alpha journey page errors');
-    console.log('Season 1 Alpha Chromium PASS: child-played E05→E06→E07→E08→E09→E10→E11, corrected world evidence, E11 FIRST/NOW, no saves or unlocks');
+    assert.match(alphaEntries.at(-1),/layout cells placed: 4; model review: recorded/);
+    assert.equal(await e11.locator('#revisit').isVisible(),true,
+      'the child-earned FIRST and NOW boards are visible after the corrected review');
+    for(const [stage,id] of [['first','#revisit-first'],['now','#revisit-now']]){
+      await e11.locator(id).evaluate(element=>
+        element.scrollIntoView({block:'start',behavior:'instant'}));
+      await page.screenshot({path:`test-results/season1-alpha-e11-${stage}-board-568x320.png`});
+    }
+    await alphaPanel.evaluate(element=>
+      element.scrollIntoView({block:'start',behavior:'instant'}));
+    await page.screenshot({path:'test-results/season1-alpha-e11-alpha-chronicle-568x320.png'});
+    await page.screenshot({path:'test-results/season1-alpha-e11-alpha-chronicle-full-568x320.png',fullPage:true});
+    const alphaKeys=await page.evaluate(()=>Object.keys(localStorage).sort());
+    assert.deepEqual(alphaKeys,[
+      'wondervale-alpha-s01e04-e05-replay-v1','wondervale-progress-v1',
+      'wondervale-alpha-s01e05-e06-replay-v1',
+      'wondervale-s01e02-progress-v1','wondervale-s01e03-progress-v1',
+      'wondervale-s01e04-authoring-preview-v1'
+    ].sort(),'only the isolated Alpha origin contains the four replayed episodes and handoff');
+    assert.equal(await page.evaluate(key=>JSON.parse(localStorage.getItem(key)).phase,'wondervale-s01e04-authoring-preview-v1'),'completed');
+    assert.deepEqual(await outside.evaluate(keys=>keys.map(key=>localStorage.getItem(key)),
+      [E02_SAVE_KEY,E03_SAVE_KEY]),outsideSentinels.map(([,value])=>value),
+      'the production-preview origin keeps its independent save sentinels');
+    assert.notEqual(await page.evaluate(()=>location.origin),outsideOrigin);
+    assert.deepEqual(errors,[],'full E01-E11 alpha journey page errors');
+    console.log('Season 1 Alpha Chromium PASS: one child-played E01→E11 journey, E04 replay-earned Station handoff, E06 session continuity, corrected world evidence, E11 FIRST/NOW, isolated browser storage');
   }finally{await context.close();}
 }finally{await browser.close();}

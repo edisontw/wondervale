@@ -68,7 +68,7 @@ function persist(storage,mode,state,expectedBytes) {
   } catch { return {ok:false}; } // Keep the in-memory draft playable.
 }
 
-export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='draft_preview'}={}) {
+export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='draft_preview',getAlphaHandoffHref=null}={}) {
   if (!root || typeof root.replaceChildren!=='function' || !root.ownerDocument)
     throw new TypeError('E04 preview needs a DOM root');
   // Check actual E02/E03 event-replayed saves before inspecting or showing source data.
@@ -313,6 +313,11 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
   }
   function render(focusKey=null) {
     if(disposed)return;
+    let alphaHandoffHref=null;
+    if(typeof getAlphaHandoffHref==='function') {
+      const eligible=state.phase==='completed'&&!upstreamRevoked&&!conflict&&!saveError;
+      try{alphaHandoffHref=getAlphaHandoffHref(eligible?read():null)||null;}catch{alphaHandoffHref=null;}
+    }
     const focusables=new Map();
     const cardHeadings=new Map();
     let resumeTarget=null;
@@ -661,12 +666,21 @@ export function mountE04Authoring(root,{pack,e02Save,e03Save,storage=null,mode='
     button(decisions,'Complete draft timeline',()=>update({type:'finish'},'finish'),
       'finish',state.phase!=='ready_to_finish');
     if(state.phase==='completed') {
-      const done=el('p','e04-status e04-completion','Draft timeline complete. This does not unlock another episode.');
-      done.setAttribute('role','status');
+      const done=el('div','e04-completion-wrap');
+      const completion=el('p','e04-status e04-completion','Draft timeline complete. This does not unlock production episodes.');
+      completion.setAttribute('role','status');
       // The Finish button becomes disabled after completion. Announce success
       // at the decision itself instead of moving focus to the footer reset.
-      done.tabIndex=-1;
-      completionStatus=done;
+      completion.tabIndex=-1;
+      completionStatus=completion;
+      done.append(completion);
+      if(alphaHandoffHref) {
+        done.append(el('p','','Carry this question to the Station PAPER scene.'));
+        const handoff=el('a','e04-alpha-handoff','Go to the Station');
+        handoff.href=alphaHandoffHref;
+        handoff.setAttribute('aria-label','Go to the Station PAPER scene with this replay-checked draft');
+        done.append(handoff);
+      }
       decisions.append(done);
     }
     box.append(decisions);
