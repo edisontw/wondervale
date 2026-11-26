@@ -18,6 +18,7 @@ const $=id=>document.getElementById(id);
 const stepNav=$('scene-steps');
 const frameHost=$('scene-frame');
 const frames=new Map();
+const reviewObservers=new WeakMap();
 let current=0;
 const opened=new Set();
 
@@ -85,13 +86,17 @@ function bindSceneLinks(frame){
 }
 
 function observeE11Review(frame){
-  if(frame.dataset.alphaReviewObserved==='true')return;
+  if(frame.dataset.frameKey!=='e11')return;
+  // An iframe survives navigation, but its document and observed nodes do not.
+  reviewObservers.get(frame)?.disconnect();
+  reviewObservers.delete(frame);
   try{
     const doc=frame.contentDocument;
     const chronicle=doc?.getElementById('chronicle');
     if(!chronicle)return;
-    frame.dataset.alphaReviewObserved='true';
-    new MutationObserver(()=>refreshAlphaChronicle()).observe(chronicle,{childList:true,characterData:true,subtree:true});
+    const observer=new MutationObserver(()=>refreshAlphaChronicle());
+    observer.observe(chronicle,{childList:true,characterData:true,subtree:true});
+    reviewObservers.set(frame,observer);
   }catch{}
 }
 

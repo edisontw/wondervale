@@ -227,6 +227,26 @@ try{
     });
     assert.deepEqual(continuity,{before:true,alternative:true,rejected:true},
       'a different valid E04 replay cannot reuse the previously earned Station visit and finale');
+    // Reload with the child-earned reviewed replay, not an invented completion.
+    // The same iframe element now owns a different document. Undo/re-review
+    // must update the parent ledger without navigating the parent or changing storage.
+    const finaleFrame=page.locator('iframe[data-frame-key="e11"]');
+    const finaleLoads=Number(await finaleFrame.getAttribute('data-load-count'));
+    await finaleFrame.evaluate(element=>{
+      const child=element.contentWindow;
+      const returnLink=element.contentDocument.getElementById('e10-return');
+      child.location.replace(child.location.pathname+child.location.search+new URL(returnLink.href).hash);
+      child.location.reload();
+    });
+    await page.waitForFunction(count=>Number(document.querySelector('iframe[data-frame-key="e11"]').dataset.loadCount)>count,finaleLoads);
+    await alphaPanel.waitFor({state:'visible'});
+    assert.deepEqual(await page.locator('#alpha-chronicle-entries li').allInnerTexts(),alphaEntries);
+    await e11.locator('#undo-paper').click();
+    await alphaPanel.waitFor({state:'hidden'});
+    await e11.getByRole('button',{name:'Review NONCANONICAL finale',exact:true}).click();
+    await alphaPanel.waitFor({state:'visible'});
+    assert.deepEqual(await page.locator('#alpha-chronicle-entries li').allInnerTexts(),alphaEntries,
+      'reloaded E11 document drives the parent Chronicle on undo and re-review');
     const alphaKeys=await page.evaluate(()=>Object.keys(localStorage).sort());
     assert.deepEqual(alphaKeys,[
       'wondervale-alpha-s01e04-e05-replay-v1','wondervale-progress-v1',
