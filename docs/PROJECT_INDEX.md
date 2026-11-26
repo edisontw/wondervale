@@ -1,8 +1,8 @@
 # Wondervale — Project Index
 
-**Current local integrated play entry (2026-11-25):** [Season 1 Integrated Playable Alpha](../season-alpha/README.md) opens the 12 scene slots in order on an isolated loopback origin. This is a noncanonical engineering preview, not production acceptance.
+**Current local integrated play entry (2026-11-26):** draft [PR #393](https://github.com/edisontw/wondervale/pull/393) extends the [Season 1 Integrated Playable Alpha](../season-alpha/README.md) into a child-played E01→E11 journey, including a replay-validated fictional E04→E05 handoff and E11 read-only Alpha Chronicle. It remains a noncanonical engineering preview; production E05–E11 are locked.
 
-**Active handoff (2026-11-24):** [CURRENT_STATUS](CURRENT_STATUS.md) is the concise current development ledger; [SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29](SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29.md) sets the twelve substantial playable scenes across eleven episodes. GitHub's latest `main` always supersedes dated handoffs. E06 Current/Lower Garden and E07 connector spatial feedback is integrated as PAPER. **Next:** supervised child/family usability review on real phone screens across E06/E07; it does not approve real geography, care rights, Canon or production art.
+**Active handoff (2026-11-26):** [CURRENT_STATUS](CURRENT_STATUS.md) is the concise current development ledger; [SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29](SEASON_1_TWELVE_SCENE_DELIVERY_2026-10-29.md) sets the twelve substantial playable scenes across eleven episodes. GitHub's latest `main` always supersedes dated handoffs. Draft PR #393's nine matching Actions workflows passed on the implementation head; MN4 deployment was skipped. E04 source chronology [#114](https://github.com/edisontw/wondervale/pull/114) and E03 cart clearance [#109](https://github.com/edisontw/wondervale/issues/109) remain open. **Next:** ground-plane pavement/obstacle registration plus a turn-aware swept-cart envelope in both directions; keep S/N restricted and do not close #109 without evidence.
 
 ## Read only what the current task needs
 
