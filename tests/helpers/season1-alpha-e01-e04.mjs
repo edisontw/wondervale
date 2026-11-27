@@ -207,9 +207,15 @@ export async function playAlphaE01ToE04(page,alphaBase=process.env.WONDERVALE_AL
   });
   assert.ok(arrivalBounds.bottom>0&&arrivalBounds.top<arrivalBounds.height,
     'the carried E04 story panel can be brought into the visible E05 scene viewport');
+  const recap=e05.locator('#e04-alpha-recall');
+  assert.equal(await recap.evaluate(el=>el.open),false,'the short arrival dialogue precedes optional source detail');
+  assert.match(await e05.locator('#e04-alpha-story').innerText(),/Milo:.*A way to the station\. A way to the garden\.[\s\S]*Nia:.*Two memories\. We don't know when\.[\s\S]*Finn:.*Let's look at the board/);
+  await recap.locator('summary').click();
+  assert.equal(await recap.evaluate(el=>el.open),true);
   assert.match(await e05.locator('#e04-alpha-note').innerText(),/Market coordinator:.*undated memory.*Garden resident:.*undated memory/);
   assert.match(await e05.locator('#e04-alpha-note').innerText(),/Version 1 paper comes before Version 2.*photo stays Not sure yet/);
-  assert.match(await e05.locator('#e04-alpha-arrival').innerText(),/Nia: “The papers have an order[\s\S]*Finn: “Let’s inspect the station board/);
+  await recap.locator('summary').click();
+  assert.equal(await recap.evaluate(el=>el.open),false);
   assert.match(await e05.locator('.notice').first().innerText(),/AUTHORING ONLY.*no approved entry permission.*E04 canonical checkpoint/i);
   assert.match(await e05.locator('#guard').innerText(),/Production E05 LOCKED/);
 
