@@ -6,9 +6,12 @@ import {playAlphaE01ToE04,E02_SAVE_KEY,E03_SAVE_KEY} from './helpers/season1-alp
 
 const alphaBase=process.env.WONDERVALE_ALPHA_TEST_URL||'http://127.0.0.1:4174';
 const otherOrigin=process.env.WONDERVALE_OTHER_ORIGIN||'http://127.0.0.1:4173';
+const width=Number(process.env.WONDERVALE_ALPHA_WIDTH||568);
+const height=Number(process.env.WONDERVALE_ALPHA_HEIGHT||320);
+const viewportTag=`${width}x${height}`;
 const browser=await chromium.launch({headless:true});
 try{
-  const context=await browser.newContext({viewport:{width:568,height:320},reducedMotion:'reduce',hasTouch:true});
+  const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce',hasTouch:true});
   try{
     const outside=await context.newPage();
     assert.equal((await outside.goto(otherOrigin+'/'))?.status(),200);
@@ -28,7 +31,7 @@ try{
     assert.equal(await e05.locator('#e04-alpha-arrival').isVisible(),true,
       'the E01→E04 child journey enters E05 with its earned story handoff');
     await mkdir('test-results',{recursive:true});
-    await page.screenshot({path:'test-results/season1-alpha-e04-e05-earned-568x320.png'});
+    await page.screenshot({path:`test-results/season1-alpha-e04-e05-earned-${viewportTag}.png`});
     const e05act=async(scene,type,extra={})=>{
       let selector=`[data-scene="${scene}"][data-type="${type}"]`;
       for(const [key,value] of Object.entries(extra))selector+=`[data-${key}="${value}"]`;
@@ -180,17 +183,36 @@ try{
     ],'E11 shows the replay-validated Season 1 Alpha Chronicle across the played scenes');
     assert.match(await e11.locator('#chronicle').innerText(),/canonical events: 0; unlocks: 0/);
     assert.match(alphaEntries.at(-1),/layout cells placed: 4; model review: recorded/);
+    const chronicleLayout=await alphaPanel.evaluate(element=>{
+      const panel=element.getBoundingClientRect();
+      const entries=[...element.querySelectorAll('li')].map(item=>({
+        fontSize:parseFloat(getComputedStyle(item).fontSize),
+        right:item.getBoundingClientRect().right
+      }));
+      return {clientWidth:element.clientWidth,scrollWidth:element.scrollWidth,panelRight:panel.right,
+        smallFont:parseFloat(getComputedStyle(element.querySelector('.small')).fontSize),entries};
+    });
+    assert.ok(chronicleLayout.scrollWidth<=chronicleLayout.clientWidth+1,
+      `Alpha Chronicle has no horizontal overflow at ${viewportTag}`);
+    assert.ok(chronicleLayout.entries.every(entry=>entry.right<=chronicleLayout.panelRight+1),
+      `all Chronicle rows remain within the panel at ${viewportTag}`);
+    if(width<=700){
+      assert.ok(chronicleLayout.entries.every(entry=>entry.fontSize>=16),
+        `mobile Chronicle rows stay at readable 16px at ${viewportTag}`);
+      assert.ok(chronicleLayout.smallFont>=14.4,
+        `mobile Chronicle source note stays at readable 14.4px at ${viewportTag}`);
+    }
     assert.equal(await e11.locator('#revisit').isVisible(),true,
       'the child-earned FIRST and NOW boards are visible after the corrected review');
     for(const [stage,id] of [['first','#revisit-first'],['now','#revisit-now']]){
       await e11.locator(id).evaluate(element=>
         element.scrollIntoView({block:'start',behavior:'instant'}));
-      await page.screenshot({path:`test-results/season1-alpha-e11-${stage}-board-568x320.png`});
+      await page.screenshot({path:`test-results/season1-alpha-e11-${stage}-board-${viewportTag}.png`});
     }
     await alphaPanel.evaluate(element=>
       element.scrollIntoView({block:'start',behavior:'instant'}));
-    await page.screenshot({path:'test-results/season1-alpha-e11-alpha-chronicle-568x320.png'});
-    await page.screenshot({path:'test-results/season1-alpha-e11-alpha-chronicle-full-568x320.png',fullPage:true});
+    await page.screenshot({path:`test-results/season1-alpha-e11-alpha-chronicle-${viewportTag}.png`});
+    await page.screenshot({path:`test-results/season1-alpha-e11-alpha-chronicle-full-${viewportTag}.png`,fullPage:true});
     // Two individually valid E04 replays must not be interchangeable once
     // the Station has been earned. Rebuild the alternative without the two
     // wrong placements in a detached copy of the live storage.
@@ -280,6 +302,8 @@ try{
       'the production-preview origin keeps its independent save sentinels');
     assert.notEqual(await page.evaluate(()=>location.origin),outsideOrigin);
     assert.deepEqual(errors,[],'full E01-E11 alpha journey page errors');
-    console.log('Season 1 Alpha Chromium PASS: one child-played E01→E11 journey, E04 replay-earned Station handoff, E06 session continuity, corrected world evidence, E11 FIRST/NOW, isolated browser storage');
+    const pageWidth=await page.evaluate(()=>({viewport:innerWidth,document:document.documentElement.scrollWidth}));
+    assert.ok(pageWidth.document<=pageWidth.viewport+1,`Alpha page has no horizontal overflow at ${viewportTag}`);
+    console.log(`Season 1 Alpha Chromium PASS at ${viewportTag}: one child-played E01→E11 journey, E04 replay-earned Station handoff, E06 session continuity, corrected world evidence, E11 FIRST/NOW, isolated browser storage, readable Chronicle`);
   }finally{await context.close();}
 }finally{await browser.close();}

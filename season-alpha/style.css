@@ -36,6 +36,8 @@ code{font-size:.95em}
   #alpha-player{padding:.35rem}
   .masthead{padding:.45rem .6rem}
   .boundary-note{font-size:.77rem}
+  .alpha-chronicle li{font-size:1rem;line-height:1.4}
+  .alpha-chronicle .small{font-size:.9rem;line-height:1.4}
   .play-heading{padding:.2rem .35rem}
   .scene-frame iframe{height:62vh;min-height:260px}
   .player-controls{gap:.35rem}
