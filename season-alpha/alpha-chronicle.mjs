@@ -48,18 +48,19 @@ export function recordAlphaStationTransfer(storage,arrivalHash,stationHash){
   }catch{return false;}
 }
 
-export function buildAlphaChronicle(storage,e05E06Record,e10E11Hash,e11Reviewed=false,e11Placed=null){
+export function buildAlphaChronicle(storage,e05E06Record,e10E11Hash){
   const e04=validateE04AlphaHandoff(null,storage);
   const e05E06=boundStationTransfer(storage,e05E06Record,e04);
   const loop=decodeLoopTransfer(e10E11Hash);
   const u=loop?.upstream;
   if(!e04||e04.mode!=='noncanonical_alpha_paper'||!e05E06||
      !loop?.e10||!loop?.e11||!u?.e06||!u?.e07||!u?.e08||!u?.e09||
-     !extendsHistory(e05E06.e06.history,u.e06.history))return null;
+     !extendsHistory(e05E06.e06.history,u.e06.history)||
+     (u.e05&&!same(e05E06.e05.history,u.e05.history)))return null;
   const b=view05(e05E06.e05),c=view06(u.e06),d=view07(u.e07),
     e=view08(u.e08),f=view09(u.e09),g=view10(loop.e10),h=view11(loop.e11);
-  if(!b||b.stage!=='review'||!c||!d||!e||!f||!g||!h)return null;
-  const placed=e11Placed??Object.values(h.layout).reduce((count,cells)=>count+cells.length,0);
+  if(!b||b.stage!=='review'||!c||!d||!e||!f||!g||!h||!h.reviewed)return null;
+  const placed=Object.values(h.layout).reduce((count,cells)=>count+cells.length,0);
   return {
     mode:'noncanonical_alpha_paper',
     upstreamReplaysVerified:true,
@@ -76,7 +77,7 @@ export function buildAlphaChronicle(storage,e05E06Record,e10E11Hash,e11Reviewed=
       {scene:'E08',text:'Lower model lamp/viewpoint trial '+(e.lowerLightsPaperOn?'compared':'still in progress')+'; real lighting NOT approved.'},
       {scene:'E09',text:'Lower PAPER survey '+(f.story.provisionalFinished?'checked':'still in progress')+'; upper North Hill remains CLOSED.'},
       {scene:'E10',text:'Fictional traces and two SIMULATED needs compared; FIRST/NOW model revised.'},
-      {scene:'E11',text:'Reversible PAPER layout cells placed: '+placed+'; model review: '+(e11Reviewed||h.reviewed?'recorded':'pending')+'. Shared place remains CLOSED.'}
+      {scene:'E11',text:'Reversible PAPER layout cells placed: '+placed+'; model review: recorded. Shared place remains CLOSED.'}
     ]
   };
 }

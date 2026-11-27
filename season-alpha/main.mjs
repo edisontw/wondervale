@@ -93,11 +93,28 @@ function observeE11Review(frame){
   try{
     const doc=frame.contentDocument;
     const chronicle=doc?.getElementById('chronicle');
-    if(!chronicle)return;
+    const returnLink=doc?.getElementById('e10-return');
+    if(!chronicle||!returnLink)return;
     const observer=new MutationObserver(()=>refreshAlphaChronicle());
     observer.observe(chronicle,{childList:true,characterData:true,subtree:true});
+    observer.observe(returnLink,{attributes:true,attributeFilter:['href','hidden']});
     reviewObservers.set(frame,observer);
   }catch{}
+}
+
+function currentE10ReturnReplay(frame){
+  if(!frame||frame.hidden||frame.dataset.loaded!=='true')return null;
+  try{
+    const doc=frame.contentDocument;
+    const link=doc?.getElementById('e10-return');
+    if(!link||link.hidden||!link.hasAttribute('href')||!link.isConnected||
+       link.getClientRects().length===0)return null;
+    const target=new URL(link.href,frame.contentWindow.location.href);
+    const expected=new URL('../e10-scene/',frame.contentWindow.location.href);
+    if(target.origin!==location.origin||target.pathname!==expected.pathname||
+       target.search!==expected.search||!target.hash.startsWith('#paper-loop='))return null;
+    return target.hash;
+  }catch{return null;}
 }
 
 function refreshAlphaChronicle(){
@@ -108,18 +125,9 @@ function refreshAlphaChronicle(){
   }
   const frame=frames.get('e11');
   try{
-    const doc=frame?.contentDocument;
-    const hook=doc?.getElementById('hook');
-    const text=doc?.getElementById('chronicle')?.textContent||'';
-    const reviewed=!!hook&&!hook.hidden&&text.includes('model review recorded');
-    const grid=doc?.querySelector('#grid');
-    const placed=grid?
-      grid.querySelectorAll('.cell.access').length+
-      grid.querySelectorAll('.cell.quiet').length+
-      grid.querySelectorAll('.cell.activity').length:null;
-    const hash=frame.contentWindow.location.hash;
-    const ledger=reviewed&&buildAlphaChronicle(localStorage,
-      localStorage.getItem(ALPHA_E05_E06_KEY),hash,true,placed);
+    const hash=currentE10ReturnReplay(frame);
+    const ledger=hash&&buildAlphaChronicle(localStorage,
+      localStorage.getItem(ALPHA_E05_E06_KEY),hash);
     panel.hidden=!ledger;
     if(!ledger)return;
     $('alpha-chronicle-source').textContent='E02/E03 prerequisites replay-checked for this local handoff; E04–E11 remain fictional PAPER and do not write Canon.';

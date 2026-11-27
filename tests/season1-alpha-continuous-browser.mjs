@@ -211,8 +211,10 @@ try{
       const station=storage.getItem(ALPHA_E05_E06_KEY);
       const originalDraft=storage.getItem(DRAFT_KEY);
       const originalHandoff=storage.getItem(ALPHA_HANDOFF_KEY);
-      const hash=document.querySelector('iframe[data-frame-key="e11"]').contentWindow.location.hash;
-      const build=()=>buildAlphaChronicle(storage,station,hash,true,4);
+      const frame=document.querySelector('iframe[data-frame-key="e11"]');
+      const returnLink=frame.contentDocument.getElementById('e10-return');
+      const hash=returnLink&&!returnLink.hidden?new URL(returnLink.href).hash:null;
+      const build=()=>buildAlphaChronicle(storage,station,hash);
       const before=!!build();
       const history=JSON.parse(originalDraft).history.filter(action=>
         !(action.type==='place'&&((action.id==='station-route-copy'&&action.slot==='later')||
@@ -247,6 +249,24 @@ try{
     await alphaPanel.waitFor({state:'visible'});
     assert.deepEqual(await page.locator('#alpha-chronicle-entries li').allInnerTexts(),alphaEntries,
       'reloaded E11 document drives the parent Chronicle on undo and re-review');
+    await page.locator('#scene-steps [data-slot="11"]').click();
+    assert.equal(await alphaPanel.isVisible(),false,'leaving E11 hides its Chronicle');
+    await page.locator('#scene-steps [data-slot="12"]').click();
+    await alphaPanel.waitFor({state:'visible'});
+    assert.deepEqual(await page.locator('#alpha-chronicle-entries li').allInnerTexts(),alphaEntries,
+      'revisiting the still-live E11 document restores the reducer-derived Chronicle');
+    await e11.locator('#restart').click();
+    await alphaPanel.waitFor({state:'hidden'});
+    assert.equal(await e11.locator('#e10-return').isVisible(),true,
+      'the E10 replay link remains available after E11 reset');
+    const resetGate=await page.evaluate(async()=>{
+      const {buildAlphaChronicle,ALPHA_E05_E06_KEY}=await import('/season-alpha/alpha-chronicle.mjs');
+      const frame=document.querySelector('iframe[data-frame-key="e11"]');
+      const link=frame.contentDocument.getElementById('e10-return');
+      return buildAlphaChronicle(localStorage,localStorage.getItem(ALPHA_E05_E06_KEY),
+        link&&!link.hidden?new URL(link.href).hash:null)===null;
+    });
+    assert.equal(resetGate,true,'reset reducer history withdraws the parent Chronicle');
     const alphaKeys=await page.evaluate(()=>Object.keys(localStorage).sort());
     assert.deepEqual(alphaKeys,[
       'wondervale-alpha-s01e04-e05-replay-v1','wondervale-progress-v1',
