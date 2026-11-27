@@ -60,12 +60,12 @@ function renderReplicaBoard(station){
   }
   const status=$('replica-status');
   status.textContent=!p.orientation?
-    'Look at the two PAPER board marks. The removable copy is not placed yet.':
+    'Look at both PAPER board marks. Try a copy when you are ready.':
     p.fit===null?
     'COPY '+p.orientation.toUpperCase()+' is placed. Look at both positions, then compare the marks.':
     p.fit?
     'PAPER COPY: both marks line up on this MODEL. The real station history is still UNKNOWN.':
-    'PAPER COPY: '+p.mismatches+' marks are offset. Turn the removable copy and compare again.';
+    'PAPER COPY: '+p.mismatches+' marks do not match. Turn the copy and try again.';
   const turn=$('board-turn'),next=p.orientation==='side-b'?'side-a':'side-b';
   turn.dataset.orientation=next;
   turn.textContent=p.orientation?'Turn PAPER copy to '+next.toUpperCase():'Place PAPER copy B';
@@ -115,7 +115,8 @@ const actionOf=b=>{
 };
 function render(){
   const v=view(state);
-  $('e04-alpha-arrival').hidden=!alphaE04Arrival;
+  $('e04-alpha-arrival').hidden=!alphaE04Arrival||v.stage!=='foyer';
+  if(!alphaE04Arrival)$('e04-alpha-recall').open=false;
   $('e04-alpha-note').textContent=alphaE04Arrival?
     'Market coordinator: “I remember a way to the station.” · undated memory. '+
     'Garden resident: “I remember a way to the garden.” · undated memory. '+

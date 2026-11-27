@@ -30,11 +30,23 @@ try{
     await open(5,'e05');
     assert.equal(await e05.locator('#e04-alpha-arrival').isVisible(),true,
       'the E01→E04 child journey enters E05 with its earned story handoff');
+    const recall=e05.locator('#e04-alpha-recall');
+    assert.equal(await recall.evaluate(el=>el.open),false,'arrival puts the short child dialogue first');
+    assert.match(await e05.locator('#e04-alpha-story').innerText(),/Two memories\. We don't know when/);
+    await recall.locator('summary').click();
+    assert.equal(await recall.evaluate(el=>el.open),true,'full source context is available on demand');
+    assert.match(await e05.locator('#e04-alpha-note').innerText(),/Market coordinator:.*Garden resident:.*Version 1.*Version 2.*Not sure yet/);
+    await recall.locator('summary').click();
+    assert.equal(await recall.evaluate(el=>el.open),false);
     await mkdir('test-results',{recursive:true});
     await page.screenshot({path:`test-results/season1-alpha-e04-e05-earned-${viewportTag}.png`});
     const e05act=async(scene,type,extra={})=>{
       let selector=`[data-scene="${scene}"][data-type="${type}"]`;
       for(const [key,value] of Object.entries(extra))selector+=`[data-${key}="${value}"]`;
+      // Play the existing in-scene targets, not just the equivalent action list.
+      if(scene==='station'&&type==='inspect')selector=`[data-board-inspect="${extra.value}"]`;
+      if(scene==='station'&&type==='try-copy')selector=`#board-turn[data-orientation="${extra.value}"]`;
+      if(scene==='station'&&type==='place-table')selector=`[data-layout-position="${extra.value}"]`;
       const action=e05.locator(selector);
       assert.equal(await action.isDisabled(),false,`${scene}.${type} ${JSON.stringify(extra)}`);
       await action.click();
@@ -55,6 +67,7 @@ try{
       ['station','confirm'],['station','reflect'],['nav','to-review'],
       ['garden','inspect',{value:'older'}],['garden','inspect',{value:'present'}],['garden','overlay'],['garden','ask-why']
     ])await e05act(scene,type,extra||{});
+    assert.equal(await e05.locator('#e04-alpha-arrival').isVisible(),false,'the arrival recap does not crowd later stages');
     await e05.locator('#e06-paper').click();
     await open(6,'e06');
     assert.match(await frame('e06').locator('#e05-context').innerText(),/maker\/date\/original UNKNOWN/);
