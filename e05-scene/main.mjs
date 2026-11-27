@@ -71,8 +71,8 @@ function renderReplicaBoard(station){
   turn.textContent=p.orientation?'Turn PAPER copy to '+next.toUpperCase():'Place PAPER copy B';
   turn.disabled=!can(state,{scene:'station',action:{type:'try-copy',value:next}});
 }
-function renderMapRoomLayout(station){
-  const p=projectMapRoomLayout(station),grid=$('layout-spatial-grid');
+function renderMapRoomLayout(station,grid,interactive){
+  const p=projectMapRoomLayout(station);
   grid.replaceChildren();
   for(const item of p.cells){
     const cell=document.createElement('div');
@@ -81,7 +81,7 @@ function renderMapRoomLayout(station){
     cell.dataset.walkway=String(item.walkway);
     cell.dataset.table=String(item.occupied);
     cell.dataset.blocked=String(item.blocked);
-    if(item.option){
+    if(interactive&&item.option){
       const button=document.createElement('button');
       button.type='button';
       button.dataset.layoutPosition=item.option;
@@ -99,6 +99,7 @@ function renderMapRoomLayout(station){
     }
     grid.append(cell);
   }
+  if(!interactive)return;
   $('layout-spatial-status').textContent=p.ready?
     'PAPER Map Room ready: table by wall, model passage open. Not a real station layout.':
     p.position===null?'No PAPER table yet. Milo can try either marked place.':
@@ -127,7 +128,11 @@ function render(){
   $('line').textContent=v.line;
   $('stage-text').textContent=v.stageText;
   renderReplicaBoard(v.station);
-  renderMapRoomLayout(v.station);
+  renderMapRoomLayout(v.station,$('layout-spatial-grid'),true);
+  const showRoom=v.stage==='review'&&v.mapRoomPaperVisible;
+  $('review-room').hidden=!showRoom;
+  if(showRoom)renderMapRoomLayout(v.station,$('review-room-grid'),false);
+  else $('review-room-grid').replaceChildren();
   $('foyer-map').textContent='Milo at '+v.station.milo+' · inspected '+(v.station.inspected.join(', ')||'nothing')+
     ' · replica '+(v.station.orientation||'not tried')+' · fit '+
     (v.station.fit===null?'not checked':v.station.fit?'two marks align':'marks do not align');
@@ -207,6 +212,12 @@ document.querySelectorAll('button[data-scene]').forEach(b=>b.addEventListener('c
   state=dispatch(state,action);
   if(action.scene==='nav'&&action.type==='restart'){
     linkedE06=freshE06();linkedE07=freshE07();linkedE08=freshE08();gardenReturnHistory=[];
+    // A restart must not replay the old earned room on reload of this URL.
+    // Keep verified E04 PAPER context, if any, but discard downstream histories.
+    if(arcIncoming||incoming){
+      const cleanHash=linkedE04?encodeMemoryStationGardenTransfer(linkedE04,fresh(),linkedE06):'';
+      history.replaceState(history.state,'',location.pathname+location.search+(cleanHash||''));
+    }
   }
   render();
 }));

@@ -48,6 +48,8 @@ try{
    await hit('sources','place',{card:'a',slot:'unknown'});await hit('sources','test',{card:'a'});
    await hit('sources','place',{card:'b',slot:'unknown'});await hit('sources','test',{card:'b'});
    await hit('sources','compare');await hit('sources','finish');await hit('nav','to-layout');
+   assert.equal(await page.locator('#review-room').isVisible(),false);
+   assert.equal(await page.locator('#review-room-grid [data-table="true"]').count(),0);
    assert.equal(await page.locator('#layout-spatial-grid .layout-spatial-cell').count(),20);
    assert.equal(await page.locator('#layout-spatial-grid [data-walkway="true"]').count(),8);
    assert.equal(await page.locator('[data-layout-position="near-wall"]').isDisabled(),true);
@@ -65,18 +67,29 @@ try{
    await hit('station','confirm');
    assert.match(await page.locator('#layout-spatial-status').innerText(),/Map Room ready/);
    await hit('station','reflect');await hit('nav','to-review');
+   const checkedRoom=page.locator('#review-room');
+   assert.equal(await checkedRoom.isVisible(),true);
+   assert.equal(await checkedRoom.locator('[data-table="true"]').count(),4);
+   assert.equal(await checkedRoom.locator('[data-walkway="true"]').count(),8);
+   assert.equal(await checkedRoom.locator('[data-blocked="true"]').count(),0);
+   assert.equal(await checkedRoom.locator('button').count(),0);
+   assert.match(await checkedRoom.innerText(),/model path is open/);
+   const checkedCells=await checkedRoom.locator('[data-cell]').evaluateAll(cells=>cells.map(c=>({...c.dataset})));
    assert.match(await page.locator('#paper-note').innerText(),/UNKNOWN/);
    assert.equal(await page.locator('[data-scene="garden"][data-type="overlay"]').isDisabled(),true);
    // Child can revisit the completed MOCK record desk without erasing the PAPER Chronicle.
    const chronicleBefore=await page.locator('#paper-note').innerText();
    await hit('nav','back-to-records');
    assert.equal(await page.locator('#records').isVisible(),true);
+   assert.equal(await checkedRoom.isVisible(),false);
    assert.equal(await page.locator('[data-scene="sources"][data-type="place"]').first().isDisabled(),true);
    await hit('nav','to-layout');
    assert.equal(await page.locator('#layout').isVisible(),true);
    await hit('nav','to-review');
    assert.equal(await page.locator('#review').isVisible(),true);
    assert.equal(await page.locator('#paper-note').innerText(),chronicleBefore);
+   assert.equal(await checkedRoom.isVisible(),true);
+   assert.deepEqual(await checkedRoom.locator('[data-cell]').evaluateAll(cells=>cells.map(c=>({...c.dataset}))),checkedCells);
    assert.match(await page.locator('#guard').innerText(),/E06 NOT UNLOCKED/);
    await hit('garden','inspect',{value:'older'});
    assert.equal(await page.locator('[data-scene="garden"][data-type="overlay"]').isDisabled(),true);
@@ -95,6 +108,8 @@ try{
    assert.equal(await page.locator('#foyer').isVisible(),true);
    assert.match(await page.locator('#foyer-map').innerText(),/not tried/);
    assert.equal(await page.locator('#replica-board [data-copy]').count(),0);
+   assert.equal(await checkedRoom.isVisible(),false);
+   assert.equal(await checkedRoom.locator('[data-cell]').count(),0);
    await hit('station','start');
    assert.equal(await page.locator('[data-scene="garden"][data-type="overlay"]').isDisabled(),true);
   }finally{await context.close();}
