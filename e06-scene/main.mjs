@@ -84,7 +84,15 @@ function buttons(id,rows){
 function applyAction(action){
  const before=view(state)?.screen;
  state=dispatch(state,action);
- if(action.scene==='nav'&&action.type==='restart'){linkedE07=freshE07();linkedE08=freshE08();}
+ if(action.scene==='nav'&&action.type==='restart'){
+  linkedE07=freshE07();linkedE08=freshE08();
+  // Replace only this history entry; copied PAPER URLs remain independent rehearsals.
+  const cleanHash=linkedE05?(linkedE04?
+   encodeMemoryStationGardenTransfer(linkedE04,linkedE05,state):
+   encodeStationGardenTransfer(linkedE05,state)):'';
+  if(arcIncoming||stationIncoming||incoming)
+   history.replaceState(history.state,'',location.pathname+location.search+(cleanHash||''));
+ }
  render();
  const after=view(state)?.screen;
  if(after!==before&&['current','lower'].includes(after))

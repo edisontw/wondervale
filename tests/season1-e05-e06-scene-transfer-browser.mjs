@@ -140,6 +140,18 @@ try{
    assert.equal(await page.locator('#current-scene').isVisible(),true);
    assert.equal(await page.locator('#e05-return').isVisible(),true,'E06 reset preserves E05 question');
    assert.equal(await page.locator('#e05-world').isVisible(),true,'E06 reset retains earned E05 station world');
+   assert.notEqual(page.url(),earnedUrl,'restart replaces the old E06 replay URL');
+   const resetUrl=page.url();
+   await page.reload();
+   await page.locator('#current-scene').waitFor({state:'visible'});
+   assert.equal(page.url(),resetUrl);
+   assert.equal(await page.locator('#lower-scene').isVisible(),false);
+   assert.match(await page.locator('#tray').innerText(),/0 run/);
+   assert.equal(await page.locator('#e07-transfer').isVisible(),false);
+   assert.equal(await page.locator('#e05-return').isVisible(),true);
+   assert.equal(await page.locator('#e05-world').isVisible(),true);
+   assert.match(await page.locator('#station-map-table').innerText(),/by wall/);
+   assert.deepEqual(await page.evaluate(()=>Object.entries(localStorage)),[['e05-e06-sentinel','keep']]);
    await page.locator('#e05-return').click();
    await page.waitForFunction(()=>document.querySelector('#e06-paper')?.hidden===false);
    await page.locator('[data-scene="nav"][data-type="restart"]').click();
