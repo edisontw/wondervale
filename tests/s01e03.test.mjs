@@ -69,6 +69,20 @@ test('delivery and reasoning require actual arrival and observed restriction; no
  const queueIds=s.history.filter(x=>x.type==='take-route').map(x=>x.route);assert.ok(queueIds.includes('L'));
  s=dispatch(s,{type:'inspect',what:'S'});s=dispatch(s,{type:'compare',reason:'steps'});assert.equal(has(s,'revision'),true);assert.ok(!s.queue.includes('S01E03-UI-005'));assert.ok(!s.queue.includes('S01E03-FINN-007'));
 });
+test('empty tea handcart returns to the hub on cart-safe L edges before the flower load',()=>{
+ let s=drain(dispatch(fresh(),{type:'begin',ready:true}));
+ s=deliver(s);s=drain(move(dispatch(s,{type:'return'})));
+ s=deliver(s);
+ assert.equal(s.phase,'comparison');assert.equal(s.load,'none');
+ s=dispatch(s,{type:'inspect',what:'S'});s=drain(dispatch(s,{type:'compare',reason:'steps'}));
+ assert.equal(s.phase,'return-tea');
+ const returned=dispatch(s,{type:'return'});
+ assert.deepEqual(returned.travel,route('T','H','tea_cart').slice(1),
+  'unloading removes cups, not the cart or its restricted route');
+ assert.equal(move(returned).phase,'flowers');
+ assert.deepEqual(restore(payload(move(returned))),move(returned),
+  'the derived empty-cart return replays in the unchanged E03 save shape');
+});
 test('repeated unsure remains supportive without milestone; hints can lead to assisted confirmation',()=>{
  let s=drain(dispatch(fresh(),{type:'begin',ready:true}));for(let i=0;i<4;i++)s=drain(dispatch(s,{type:'unsure'}));assert.equal(s.hint,2);assert.equal(s.ledger.length,0);s=deliver(s);s=drain(move(dispatch(s,{type:'return'})));s=deliver(s);s=dispatch(s,{type:'inspect',what:'N'});s=drain(dispatch(s,{type:'compare',reason:'width'}));assert.equal(s.phase,'return-tea');
 });

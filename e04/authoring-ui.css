@@ -120,3 +120,5 @@
 @media (prefers-reduced-motion: reduce) {
   .e04-authoring * { scroll-behavior: auto !important; transition: none !important; }
 }
+.e04-alpha-handoff { display:inline-flex; align-items:center; justify-content:center; min-height:44px; padding:.55rem .8rem; border:2px solid #315d50; border-radius:.5rem; background:#315d50; color:#fff; font-weight:700; text-decoration:none; }
+.e04-alpha-handoff:focus-visible { outline:3px solid #b87a24; outline-offset:3px; }

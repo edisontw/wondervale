@@ -1,3 +1,5 @@
+import {ALPHA_E05_E06_KEY,buildAlphaChronicle,recordAlphaStationTransfer} from './alpha-chronicle.mjs';
+
 const scenes=[
   {slot:1,episode:'E01',title:'The Map Behind the Board',url:'../',frameKey:'e01'},
   {slot:2,episode:'E02',title:'The Bridge That Stops',url:'../e02/',frameKey:'e02',blockedHeading:'Riverside is next'},
@@ -16,6 +18,7 @@ const $=id=>document.getElementById(id);
 const stepNav=$('scene-steps');
 const frameHost=$('scene-frame');
 const frames=new Map();
+const reviewObservers=new WeakMap();
 let current=0;
 const opened=new Set();
 
@@ -41,6 +44,8 @@ function frameFor(scene,initialUrl=null){
     frame.dataset.loaded='true';
     frame.dataset.loadCount=String(Number(frame.dataset.loadCount||0)+1);
     bindSceneLinks(frame);
+    observeE11Review(frame);
+    refreshAlphaChronicle();
   });
   frame.hidden=true;
   frameHost.append(frame);
@@ -72,9 +77,68 @@ function bindSceneLinks(frame){
       const destination=sceneAt(link.href);
       if(!destination||destination.scene.frameKey===frame.dataset.frameKey)return;
       event.preventDefault();event.stopPropagation();
+      if(frame.dataset.frameKey==='e05'&&destination.scene.frameKey==='e06'){
+        recordAlphaStationTransfer(localStorage,frame.contentWindow.location.hash,destination.url.hash);
+      }
       show(destination.index,destination.url.href);
     },true);
   }catch{}
+}
+
+function observeE11Review(frame){
+  if(frame.dataset.frameKey!=='e11')return;
+  // An iframe survives navigation, but its document and observed nodes do not.
+  reviewObservers.get(frame)?.disconnect();
+  reviewObservers.delete(frame);
+  try{
+    const doc=frame.contentDocument;
+    const chronicle=doc?.getElementById('chronicle');
+    const returnLink=doc?.getElementById('e10-return');
+    if(!chronicle||!returnLink)return;
+    const observer=new MutationObserver(()=>refreshAlphaChronicle());
+    observer.observe(chronicle,{childList:true,characterData:true,subtree:true});
+    observer.observe(returnLink,{attributes:true,attributeFilter:['href','hidden']});
+    reviewObservers.set(frame,observer);
+  }catch{}
+}
+
+function currentE10ReturnReplay(frame){
+  if(!frame||frame.hidden||frame.dataset.loaded!=='true')return null;
+  try{
+    const doc=frame.contentDocument;
+    const link=doc?.getElementById('e10-return');
+    if(!link||link.hidden||!link.hasAttribute('href')||!link.isConnected||
+       link.getClientRects().length===0)return null;
+    const target=new URL(link.href,frame.contentWindow.location.href);
+    const expected=new URL('../e10-scene/',frame.contentWindow.location.href);
+    if(target.origin!==location.origin||target.pathname!==expected.pathname||
+       target.search!==expected.search||!target.hash.startsWith('#paper-loop='))return null;
+    return target.hash;
+  }catch{return null;}
+}
+
+function refreshAlphaChronicle(){
+  const panel=$('alpha-chronicle');
+  if(scenes[current]?.frameKey!=='e11'){
+    panel.hidden=true;
+    return;
+  }
+  const frame=frames.get('e11');
+  try{
+    const hash=currentE10ReturnReplay(frame);
+    const ledger=hash&&buildAlphaChronicle(localStorage,
+      localStorage.getItem(ALPHA_E05_E06_KEY),hash);
+    panel.hidden=!ledger;
+    if(!ledger)return;
+    $('alpha-chronicle-source').textContent='E02/E03 prerequisites replay-checked for this local handoff; E04–E11 remain fictional PAPER and do not write Canon.';
+    const list=$('alpha-chronicle-entries');
+    list.replaceChildren();
+    for(const entry of ledger.entries){
+      const item=document.createElement('li');
+      item.textContent=entry.scene+': '+entry.text;
+      list.append(item);
+    }
+  }catch{panel.hidden=true;}
 }
 
 function loadEntry(frame,href){
@@ -128,9 +192,14 @@ function show(index,entryUrl=null){
     else button.removeAttribute('aria-current');
     button.dataset.opened=String(opened.has(slot-1));
   }
+  if(scene.frameKey==='e05'){
+    frame.contentWindow.postMessage({type:'wondervale-alpha-activate'},location.origin);
+  }
+  refreshAlphaChronicle();
   document.title=`Wondervale · ${scene.episode} ${scene.title} · Season 1 Alpha`;
 }
 
 $('previous-scene').addEventListener('click',()=>show(current-1));
 $('next-scene').addEventListener('click',()=>show(current+1));
+window.addEventListener('storage',refreshAlphaChronicle);
 show(0);

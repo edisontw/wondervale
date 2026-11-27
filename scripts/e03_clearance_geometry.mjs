@@ -217,6 +217,26 @@ export function polygonContainsPolygon(containerValue, candidateValue) {
   return true;
 }
 
+export function convexHull(pointValues) {
+  polyline(pointValues, 'convex hull points', 3);
+  const points = [...new Map(pointValues.map(item => [
+    `${item[0]}|${item[1]}`, [...item]
+  ])).values()].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  if (points.length < 3) throw new RangeError('convex hull needs three distinct points');
+  const half = values => {
+    const result = [];
+    for (const current of values) {
+      while (result.length >= 2 && cross(result.at(-2), result.at(-1), current) <= GEOMETRY_EPSILON) result.pop();
+      result.push(current);
+    }
+    return result;
+  };
+  const lower = half(points);
+  const upper = half([...points].reverse());
+  const hull = [...lower.slice(0, -1), ...upper.slice(0, -1)];
+  return polygon(hull, 'convex hull');
+}
+
 export function polygonsOverlap(firstValue, secondValue) {
   const first = polygon(firstValue, 'first polygon');
   const second = polygon(secondValue, 'second polygon');
@@ -327,8 +347,8 @@ export function validateFeatureTrace(document) {
       !sourceImage.every(Number.isFinite) || sourceImage[0] !== 1672 || sourceImage[1] !== 941) {
     throw new TypeError('sourceImage must be the 1672x941 source coordinate plane');
   }
-  if (document.direction !== 'forward') {
-    throw new TypeError('measured trace direction must be forward');
+  if (!['forward', 'reverse'].includes(document.direction)) {
+    throw new TypeError('trace direction must be forward or reverse');
   }
   if (!Array.isArray(frames) || frames.length < 2) {
     throw new TypeError('trace needs at least two frames for continuous movement');
@@ -348,6 +368,12 @@ export function validateFeatureTrace(document) {
     point(frame.wheels[0], `frames[${index}].wheels[0]`);
     point(frame.wheels[1], `frames[${index}].wheels[1]`);
     point(frame.handle, `frames[${index}].handle`);
+    if (frame.visualBounds !== undefined) {
+      polygon(frame.visualBounds, `frames[${index}].visualBounds`);
+      if (frame.visualBounds.length !== 4) {
+        throw new TypeError(`frames[${index}].visualBounds must contain four corners`);
+      }
+    }
   });
   return document;
 }

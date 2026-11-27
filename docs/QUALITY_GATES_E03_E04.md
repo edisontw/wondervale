@@ -72,6 +72,12 @@ Ran `node tests/e03-cart-waypoint-browser.mjs` against the existing isolated E03
 
 The report now obtains the source revision through `git rev-parse HEAD`, so the evidence audit also works in Git linked worktrees. **#109 remains OPEN:** wheel centers are not tire contact patches, the rendered cart does not supply a steering/yaw or physical wheelbase model, direction reversal was not played live, and the selected painting still lacks a complete owner-verified walkable-pavement boundary and ground scale. No route, cart behavior, accepted E03 story, or scene artwork changed in this diagnostic pass. This is engineering evidence, not real-world safety or Owner/device acceptance.
 
+### #109 live unload and empty-cart return (2026-11-26; image-plane only)
+
+On the `codex/season1-integrated-alpha` branch, `python scripts/package_e03.py` built the existing 10-file allowlist and Chromium 151 served that isolated package on port 4175. `node tests/s01e03-browser.mjs` passed 32 browser records; `node tests/e03-cart-waypoint-browser.mjs` passed 16 records. The child-operated 568×320 journey pushes the loaded cart to T (215 live animation frames), unloads the cups, observes the route restriction, then pushes the empty cart back to H (215 live frames) before the flower delivery. The E03 reducer derives the return graph from the existing tea event and return phase; it does not add a save field or completion flag. The cart layering now paints over Milo's body sprite, and the unchanged approved M0 scene artwork is retained.
+
+This improves truthful child-visible continuity and proves that forward and reverse image-plane movement are actually played. It does not resolve #109: the samples are SVG wheel-center and handle points, not tire contacts or a body/handle swept envelope; ground scale, complete walkable boundaries, curb/foliage contact, steering/yaw and physical dimensions remain unknown. Keep the issue open pending a registered pavement/obstacle model and appropriate Owner/device review. Screenshots and the JSON trace are retained locally under `test-results/e03-cart-*`; this branch's source commit is `fa509baafa9caf019693b7dd5713803f65c71e83`.
+
 ## 2. E03 Gate 3 exit: engineering and learning
 
 **All are required for a claim of full E03 Gate 3; do not infer them from a single L-path browser run.**

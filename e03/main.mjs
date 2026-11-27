@@ -64,7 +64,14 @@ function actorDimensions(i,p){
  return {height,width:height*ratio};
 }
 function actorStyle(i,p){const d=actorDimensions(i,p);return `--x:${p[0]/16.72}%;--y:${p[1]/9.41}%;--w:${d.width/16.72}%;--h:${d.height/9.41}%`;}
-function actor(who,i){const p=actorFeet(i),load=i===0?state.load:'none';return `<div class="actor ${i?'companion':''} ${load==='tea_cart'?'has-cart':''}" data-actor="${who}" data-foot-y="${p[1]}" data-source-height="${actorDimensions(i,p).height}" style="${actorStyle(i,p)}">${load!=='none'?propArt(load==='tea_cart'?'cart':load):''}${art(who)}<span class="actor-label">${names[who]}</span></div>`;}
+function actor(who,i){
+ const p=actorFeet(i),load=i===0?state.load:'none';
+ const emptyCart=i===0&&load==='none'&&has(state,'tea')&&['comparison','return-tea'].includes(state.phase);
+ const hasCart=load==='tea_cart'||emptyCart;
+ const prop=emptyCart?propArt('cart').replace('load-cart"','load-cart cart-empty"').replace('Tea cup handcart','Empty tea handcart'):
+  load!=='none'?propArt(load==='tea_cart'?'cart':load):'';
+ return `<div class="actor ${i?'companion':''} ${hasCart?'has-cart':''}" data-actor="${who}" data-foot-y="${p[1]}" data-source-height="${actorDimensions(i,p).height}" style="${actorStyle(i,p)}">${prop}${art(who)}<span class="actor-label">${names[who]}</span></div>`;
+}
 // Fit the complete painting above the caption dock. Focus is a camera transform
 // of the same plate AND all world overlays, never new art or a teleported actor.
 function fit(){const space=root.querySelector('.world-space'),world=root.querySelector('.world');if(!space||!world)return;const w=Math.min(space.clientWidth,space.clientHeight*1672/941);world.style.width=w+'px';world.style.height=w*941/1672+'px';}
@@ -123,9 +130,13 @@ function preserveWorldVisuals(oldWorld){
  for(const who of ['MILO','NIA','FINN']){
   const oldActor=oldWorld.querySelector('[data-actor="'+who+'"]'),nextActor=nextWorld.querySelector('[data-actor="'+who+'"]');
   if(!oldActor||!nextActor)continue;
-  const oldLoad=oldActor.querySelector('[data-load-visual]')?.getAttribute('data-load-visual')||'none';
-  const nextLoad=nextActor.querySelector('[data-load-visual]')?.getAttribute('data-load-visual')||'none';
-  if(oldLoad===nextLoad)nextActor.replaceWith(oldActor);
+  const oldLoadEl=oldActor.querySelector('[data-load-visual]');
+  const nextLoadEl=nextActor.querySelector('[data-load-visual]');
+  const oldLoad=oldLoadEl?.getAttribute('data-load-visual')||'none';
+  const nextLoad=nextLoadEl?.getAttribute('data-load-visual')||'none';
+  const oldCartEmpty=oldLoadEl?.classList.contains('cart-empty')||false;
+  const nextCartEmpty=nextLoadEl?.classList.contains('cart-empty')||false;
+  if(oldLoad===nextLoad&&oldCartEmpty===nextCartEmpty)nextActor.replaceWith(oldActor);
  }
 }
 function render(){

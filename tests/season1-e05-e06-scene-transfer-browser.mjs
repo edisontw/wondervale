@@ -75,6 +75,20 @@ try{
    assert.match(page.url(),/\/e05-scene\/#paper-station-garden=/);
    await page.waitForFunction(()=>document.querySelector('#garden-map')?.textContent?.includes('LOWER PAPER mark'));
    assert.match(await page.locator('#paper-note').innerText(),/cause remain UNKNOWN/);
+   const room=page.locator('#review-room');
+   const assertRoom=async()=>{
+    assert.equal(await room.isVisible(),true);
+    assert.equal(await room.locator('[data-table="true"]').count(),4);
+    assert.equal(await room.locator('[data-walkway="true"]').count(),8);
+    assert.equal(await room.locator('[data-blocked="true"]').count(),0);
+    assert.equal(await room.locator('button').count(),0);
+   };
+   await assertRoom();
+   const returnUrl=page.url();
+   await page.reload();
+   await room.waitFor({state:'visible'});
+   assert.equal(page.url(),returnUrl);
+   await assertRoom();
    await page.locator('#garden-return').waitFor({state:'visible'});
    const ret=type=>page.locator('[data-return-action="'+type+'"]');
    assert.equal(await ret('try-solid').isDisabled(),true);
@@ -126,10 +140,41 @@ try{
    assert.equal(await page.locator('#current-scene').isVisible(),true);
    assert.equal(await page.locator('#e05-return').isVisible(),true,'E06 reset preserves E05 question');
    assert.equal(await page.locator('#e05-world').isVisible(),true,'E06 reset retains earned E05 station world');
+   assert.notEqual(page.url(),earnedUrl,'restart replaces the old E06 replay URL');
+   const resetUrl=page.url();
+   await page.reload();
+   await page.locator('#current-scene').waitFor({state:'visible'});
+   assert.equal(page.url(),resetUrl);
+   assert.equal(await page.locator('#lower-scene').isVisible(),false);
+   assert.match(await page.locator('#tray').innerText(),/0 run/);
+   assert.equal(await page.locator('#e07-transfer').isVisible(),false);
+   assert.equal(await page.locator('#e05-return').isVisible(),true);
+   assert.equal(await page.locator('#e05-world').isVisible(),true);
+   assert.match(await page.locator('#station-map-table').innerText(),/by wall/);
+   assert.deepEqual(await page.evaluate(()=>Object.entries(localStorage)),[['e05-e06-sentinel','keep']]);
    await page.locator('#e05-return').click();
    await page.waitForFunction(()=>document.querySelector('#e06-paper')?.hidden===false);
    await page.locator('[data-scene="nav"][data-type="restart"]').click();
    assert.equal(await page.locator('#e06-paper').isVisible(),false,'E05 reset revokes downstream E06 visit');
+   assert.equal(await room.isVisible(),false);
+   assert.equal(await room.locator('[data-cell]').count(),0);
+   await page.reload();
+   await page.locator('#foyer').waitFor({state:'visible'});
+   assert.equal(await room.isVisible(),false,'reload after restart must not restore old earned room');
+   assert.equal(await page.locator('#e06-paper').isVisible(),false);
+   const stale=new URL(returnUrl),prefix='#paper-station-garden=';
+   const packet=JSON.parse(decodeURIComponent(stale.hash.slice(prefix.length)));
+   for(const invalid of [{...packet,v:0},{...packet,e05:[{scene:'nav',type:'to-review'}]}]){
+    stale.hash=prefix+encodeURIComponent(JSON.stringify(invalid));
+    await page.goto(stale.href);
+    // Hash-only navigation does not rerun modules; explicitly reload the rejected packet.
+    await page.reload();
+    await page.locator('#foyer').waitFor({state:'visible'});
+    assert.equal(await room.isVisible(),false);
+    assert.equal(await room.locator('[data-cell]').count(),0);
+    assert.equal(await page.locator('#e06-paper').isVisible(),false);
+   }
+   assert.deepEqual(await page.evaluate(()=>Object.entries(localStorage)),[['e05-e06-sentinel','keep']]);
   }finally{await ctx.close();}
  }
  console.log('E05-E06 independent PAPER Chromium PASS: three viewports, earned entry, Current/Lower visit, returns, resets, no storage');

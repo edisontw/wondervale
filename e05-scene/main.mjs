@@ -12,6 +12,9 @@ import {decodeMemoryGardenShortcut,encodeMemoryGardenShortcut} from '../authorin
 import {decodeStationGardenTransfer,encodeStationGardenTransfer} from '../authoring-labs/e05-e06-scene-transfer.mjs';
 import {decodeMemoryStationGardenTransfer,encodeMemoryStationGardenTransfer}
  from '../authoring-labs/e04-e06-scene-transfer.mjs';
+import {ALPHA_HANDOFF_KEY,validateE04AlphaHandoff} from '../season-alpha/e04-e05-handoff.mjs';
+import {DRAFT_KEY} from '../engine/s01e04-chronology.mjs';
+import {E02_KEY,E03_KEY} from '../engine/s01e04-handoff.mjs';
 const lantern=decodeMemoryLantern(location.hash);
 const extended=lantern||decodeMemoryGardenShortcut(location.hash);
 const arcIncoming=extended||decodeMemoryStationGardenTransfer(location.hash);
@@ -20,6 +23,7 @@ let state=arcIncoming?.e05||incoming?.e05||fresh(),
  linkedE06=arcIncoming?.e06||incoming?.e06||freshE06(),
  linkedE07=extended?.e07||freshE07(),linkedE08=lantern?.e08||freshE08();
 const linkedE04=arcIncoming?.e04||null;
+let alphaE04Arrival=validateE04AlphaHandoff(location.hash,localStorage);
 let gardenReturnHistory=[];
 const $=id=>document.getElementById(id);
 const boardNames={'peg-pair':'PEG PAIR','worn-edge':'WORN EDGE'};
@@ -56,19 +60,19 @@ function renderReplicaBoard(station){
   }
   const status=$('replica-status');
   status.textContent=!p.orientation?
-    'Look at the two PAPER board marks. The removable copy is not placed yet.':
+    'Look at both PAPER board marks. Try a copy when you are ready.':
     p.fit===null?
     'COPY '+p.orientation.toUpperCase()+' is placed. Look at both positions, then compare the marks.':
     p.fit?
     'PAPER COPY: both marks line up on this MODEL. The real station history is still UNKNOWN.':
-    'PAPER COPY: '+p.mismatches+' marks are offset. Turn the removable copy and compare again.';
+    'PAPER COPY: '+p.mismatches+' marks do not match. Turn the copy and try again.';
   const turn=$('board-turn'),next=p.orientation==='side-b'?'side-a':'side-b';
   turn.dataset.orientation=next;
   turn.textContent=p.orientation?'Turn PAPER copy to '+next.toUpperCase():'Place PAPER copy B';
   turn.disabled=!can(state,{scene:'station',action:{type:'try-copy',value:next}});
 }
-function renderMapRoomLayout(station){
-  const p=projectMapRoomLayout(station),grid=$('layout-spatial-grid');
+function renderMapRoomLayout(station,grid,interactive){
+  const p=projectMapRoomLayout(station);
   grid.replaceChildren();
   for(const item of p.cells){
     const cell=document.createElement('div');
@@ -77,7 +81,7 @@ function renderMapRoomLayout(station){
     cell.dataset.walkway=String(item.walkway);
     cell.dataset.table=String(item.occupied);
     cell.dataset.blocked=String(item.blocked);
-    if(item.option){
+    if(interactive&&item.option){
       const button=document.createElement('button');
       button.type='button';
       button.dataset.layoutPosition=item.option;
@@ -95,6 +99,7 @@ function renderMapRoomLayout(station){
     }
     grid.append(cell);
   }
+  if(!interactive)return;
   $('layout-spatial-status').textContent=p.ready?
     'PAPER Map Room ready: table by wall, model passage open. Not a real station layout.':
     p.position===null?'No PAPER table yet. Milo can try either marked place.':
@@ -111,12 +116,23 @@ const actionOf=b=>{
 };
 function render(){
   const v=view(state);
+  $('e04-alpha-arrival').hidden=!alphaE04Arrival||v.stage!=='foyer';
+  if(!alphaE04Arrival)$('e04-alpha-recall').open=false;
+  $('e04-alpha-note').textContent=alphaE04Arrival?
+    'Market coordinator: “I remember a way to the station.” · undated memory. '+
+    'Garden resident: “I remember a way to the garden.” · undated memory. '+
+    'The fictional Version 1 paper comes before Version 2; the way-sign photo stays Not sure yet. '+
+    'The papers do not date either memory or explain why a route changed.':'';
   for(const id of ['foyer','records','layout','review'])$(id).hidden=v.stage!==id;
   $('speaker').textContent=v.speaker;
   $('line').textContent=v.line;
   $('stage-text').textContent=v.stageText;
   renderReplicaBoard(v.station);
-  renderMapRoomLayout(v.station);
+  renderMapRoomLayout(v.station,$('layout-spatial-grid'),true);
+  const showRoom=v.stage==='review'&&v.mapRoomPaperVisible;
+  $('review-room').hidden=!showRoom;
+  if(showRoom)renderMapRoomLayout(v.station,$('review-room-grid'),false);
+  else $('review-room-grid').replaceChildren();
   $('foyer-map').textContent='Milo at '+v.station.milo+' · inspected '+(v.station.inspected.join(', ')||'nothing')+
     ' · replica '+(v.station.orientation||'not tried')+' · fit '+
     (v.station.fit===null?'not checked':v.station.fit?'two marks align':'marks do not align');
@@ -196,6 +212,12 @@ document.querySelectorAll('button[data-scene]').forEach(b=>b.addEventListener('c
   state=dispatch(state,action);
   if(action.scene==='nav'&&action.type==='restart'){
     linkedE06=freshE06();linkedE07=freshE07();linkedE08=freshE08();gardenReturnHistory=[];
+    // A restart must not replay the old earned room on reload of this URL.
+    // Keep verified E04 PAPER context, if any, but discard downstream histories.
+    if(arcIncoming||incoming){
+      const cleanHash=linkedE04?encodeMemoryStationGardenTransfer(linkedE04,fresh(),linkedE06):'';
+      history.replaceState(history.state,'',location.pathname+location.search+(cleanHash||''));
+    }
   }
   render();
 }));
@@ -220,3 +242,16 @@ document.querySelectorAll('[data-return-action]').forEach(b=>b.addEventListener(
   render();
 }));
 render();
+window.addEventListener('storage',event=>{
+  if(event.key===null||[E02_KEY,E03_KEY,DRAFT_KEY,ALPHA_HANDOFF_KEY].includes(event.key)){
+    alphaE04Arrival=validateE04AlphaHandoff(location.hash,localStorage);
+    render();
+  }
+});
+window.addEventListener('message',event=>{
+  if(event.origin===location.origin&&event.source===parent&&
+     event.data?.type==='wondervale-alpha-activate'){
+    alphaE04Arrival=validateE04AlphaHandoff(location.hash,localStorage);
+    render();
+  }
+});

@@ -202,6 +202,27 @@ test('touch/keyboard buttons inspect, revise, explain, Chronicle, persist and re
   assert.equal(storage.getItem('wondervale-s01e03-progress-v1'),before03);
   ui.destroy();resumed.destroy();
 });
+test('Alpha scene link appears only after the replayed draft finishes and clears on restart',()=>{
+  const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
+  const e02=realE02(),e03=realE03();
+  storage.setItem('wondervale-s01e02-progress-v1',JSON.stringify(e02));
+  storage.setItem('wondervale-s01e03-progress-v1',JSON.stringify(e03));
+  const handoffs=[];
+  const ui=mountE04Authoring(root,{pack,e02Save:e02,e03Save:e03,storage,
+    getAlphaHandoffHref:state=>{handoffs.push(state?.phase??null);return state?'../e05-scene/#replay':null;}});
+  assert.equal(findClass(root,'e04-alpha-handoff'),null);
+  for(const key of ['memory:station','memory:garden','inspect:first-map','inspect:later-record',
+    'inspect:undated-photo','clue:revision-note','place:first-map:earlier','place:later-record:later',
+    'place:undated-photo:uncertain','explain','chronicle','finish'])tap(root,key);
+  const link=findClass(root,'e04-alpha-handoff');
+  assert.ok(link,'completed E04 offers a child-operated in-scene PAPER handoff');
+  assert.equal(link.href,'../e05-scene/#replay');
+  assert.equal(handoffs.at(-1),'completed');
+  ui.reset();
+  assert.equal(findClass(root,'e04-alpha-handoff'),null,'E04 restart withdraws the old handoff');
+  assert.equal(handoffs.at(-1),null);
+  ui.destroy();
+});
 test('long draft Chronicle jumps to undated sources and back without saving or changing history',()=>{
   const doc=new FakeDocument(),root=doc.root(),storage=new MemoryStorage();
   const e02=realE02(),e03=realE03();

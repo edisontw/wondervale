@@ -212,21 +212,62 @@ try{
     assert.doesNotMatch(e04Chronicle,/19\d{2}|20\d{2}|because the garden moved/i,
       'the script model cannot invent years or explain the route change');
     await e04.locator('[data-focus-key="finish"]').click();
-    await e04.getByText('Draft timeline complete. This does not unlock another episode.').waitFor();
-    assert.equal(await e04.locator('a[href*="e05"]').count(),0);
+    await e04.getByText('Draft timeline complete. This does not unlock production episodes.').waitFor();
+    assert.equal(await e04.locator('a[href*="e05-scene"]').count(),1,
+      'the replay-earned Alpha link appears only after completing the fictional E04 draft');
     assert.deepEqual(await page.locator('iframe[data-frame-key="e02"]').evaluate((element,key)=>
       JSON.parse(element.contentWindow.localStorage.getItem(key)),e02SaveKey),e02Stored,
       'E04 draft completion cannot rewrite the E02 save');
     assert.deepEqual(await page.locator('iframe[data-frame-key="e03"]').evaluate((element,key)=>
       JSON.parse(element.contentWindow.localStorage.getItem(key)),e03SaveKey),e03Stored,
       'E04 draft completion cannot rewrite the E03 save');
-    // The ordered alpha shell can continue to E05 without pretending its
-    // preview-navigation control is a canonical unlock or E04 source handoff.
-    await page.locator('#next-scene').click();
+    // The child uses the in-scene replay-earned link. The launcher Next control
+    // remains preview navigation and cannot supply this story context.
+    await e04.locator('.e04-alpha-handoff').click();
     await ready(5,'e05');
     const e05=frame('e05');
     await e05.getByRole('heading',{name:'E05 — The Station with No Trains'}).waitFor();
+    assert.equal(await e05.locator('#e04-alpha-arrival').isVisible(),true,
+      'E05 receives the replay-checked E04 question inside the story scene');
+    const arrivalRecall=e05.locator('#e04-alpha-recall');
+    assert.equal(await arrivalRecall.evaluate(el=>el.open),false,'source recap starts collapsed');
+    await arrivalRecall.locator('summary').click();
+    assert.equal(await arrivalRecall.evaluate(el=>el.open),true);
+    assert.match(await e05.locator('#e04-alpha-note').innerText(),/Market coordinator:.*Garden resident:.*undated memory/);
+    assert.match(await e05.locator('#e04-alpha-note').innerText(),/Version 1.*Version 2.*photo stays Not sure yet/);
+    await arrivalRecall.locator('summary').click();
+    assert.equal(await arrivalRecall.evaluate(el=>el.open),false);
     assert.match(await e05.locator('.notice').first().innerText(),/AUTHORING ONLY.*no approved entry permission.*E04 canonical checkpoint/i);
+    assert.match(await e05.locator('#guard').innerText(),/Production E05 LOCKED/);
+
+    // A parent reload and scene revisit recover only a currently replay-valid
+    // Alpha handoff from isolated storage. Restarting E05 itself keeps that
+    // valid incoming question, while resetting E02 invalidates it on revisit.
+    const e05Restart=await e05.getByRole('button',{name:'Restart E05 paper scene'}).count();
+    assert.equal(e05Restart,1);
+    await e05.getByRole('button',{name:'Restart E05 paper scene'}).click();
+    assert.equal(await e05.locator('#e04-alpha-arrival').isVisible(),true);
+    await page.reload();
+    await ready(1,'e01');
+    await page.locator('#scene-steps [data-slot="5"]').click();
+    await ready(5,'e05');
+    assert.equal(await e05.locator('#e04-alpha-arrival').isVisible(),true,
+      'reload and revisit retain the handoff only while E02/E03/E04 still replay');
+    await page.locator('#scene-steps [data-slot="2"]').click();
+    await ready(2,'e02');
+    const e02ResetFrame=frame('e02');
+    await e02ResetFrame.locator('[data-a="reset-prompt"]').click();
+    await e02ResetFrame.getByRole('button',{name:'Clear E02 and restart',exact:true}).click();
+    assert.equal(await page.locator('iframe[data-frame-key="e02"]').evaluate((element,key)=>
+      element.contentWindow.localStorage.getItem(key),e02SaveKey),null);
+    await page.locator('#scene-steps [data-slot="5"]').click();
+    await ready(5,'e05');
+    await page.waitForFunction(()=>{
+      const frame=document.querySelector('iframe[data-frame-key="e05"]');
+      return frame?.contentDocument?.querySelector('#e04-alpha-arrival')?.hidden===true;
+    });
+    assert.equal(await e05.locator('#e04-alpha-arrival').isVisible(),false,
+      'upstream E02 reset revokes an already loaded Alpha arrival on E05 revisit');
     assert.match(await e05.locator('#guard').innerText(),/Production E05 LOCKED/);
     const outsideAfter=await context.newPage();
     await outsideAfter.goto(otherOrigin+'/');

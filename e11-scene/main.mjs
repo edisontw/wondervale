@@ -897,8 +897,9 @@ function render(){
  const fragment=linkedE10&&encodeLoopTransfer(linkedE10,state,upstream,linkedQuestionTrial,
   paperHillTraceRevisit(linkedE10,upstream,linkedQuestionTrial)?markerTrial:null,
   paperE10UseRevisit(linkedE10,linkedUseTrial)?linkedUseTrial:null);
- $('e10-return').hidden=!fragment;
- if(fragment)$('e10-return').href='../e10-scene/'+fragment;
+ const returnLink=$('e10-return');
+ returnLink.hidden=true;returnLink.removeAttribute('href');
+ if(fragment){returnLink.href='../e10-scene/'+fragment;returnLink.hidden=false;}
  const fullMemory=!!(linked?.finishedPaper&&upstream?.e04&&upstream?.e05);
  $('e04-e05-context').hidden=!fullMemory;
  $('e04-e05-context').textContent=fullMemory?

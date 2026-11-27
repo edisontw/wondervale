@@ -44,7 +44,13 @@ export const fresh=(mode='canonical')=>({schema:1,version:VERSION,mode,phase:'pr
 export const has=(s,k)=>s.achieved.includes(EVENTS[k]);
 function emit(s,k){if(!has(s,k))s.achieved.push(EVENTS[k]);if(s.mode==='canonical'&&!s.ledger.includes(EVENTS[k]))s.ledger.push(EVENTS[k]);}
 function say(s,group,after=null){s.queue=[...group];s.after=after;if(!s.queue.length&&after){s.phase=after;s.after=null;}}
-function plan(s,to,end){const p=route(s.position,to,s.load);if(p.length){s.travel=p.slice(1);s.travelEnd=end;if(!s.travel.length)arrival(s);}}
+function routeLoad(s){
+ // Cups leave at the tea stall, but the empty handcart still returns to the
+ // hub. Keep that movement on the cart-safe graph without changing the E03
+ // save shape or adding a completion flag.
+ return s.load==='none'&&has(s,'tea')&&['comparison','return-tea'].includes(s.phase)?'tea_cart':s.load;
+}
+function plan(s,to,end){const p=route(s.position,to,routeLoad(s));if(p.length){s.travel=p.slice(1);s.travelEnd=end;if(!s.travel.length)arrival(s);}}
 function arrival(s){const end=s.travelEnd;s.travelEnd=null;
  if(end==='hub'){s.load='none';if(s.phase==='return-books'){s.load='tea_cart';s.phase='tea';say(s,speech.tea);}else if(s.phase==='return-tea'){s.load='flowers';s.phase='flowers';say(s,speech.flowers);}else if(s.phase==='return-flowers'){s.phase='signs';say(s,speech.signs);}}
  if(end==='glyph')s.feedback='Look closely at the old stone. The new signs are separate.';
