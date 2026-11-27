@@ -10,11 +10,15 @@ import {
   GEOMETRY_EPSILON,
   analyzeFeatureTrack,
   analyzeFeatureTrace,
+  convexHull,
   continuousPolylineAgainstPolygon,
   pointToSegmentDistance,
+  pointInPolygon,
   polylineToPolygonBoundaryDistance,
   polylineToPolylineMinimumDistance,
+  polygonsOverlap,
   projectPointToSegment,
+  segmentToSegmentMinimumDistance,
   validateFeatureTrace
 } from './e03_clearance_geometry.mjs';
 
@@ -97,16 +101,16 @@ function pointsForFeature(document, feature) {
   return document.frames.map(frame => frame.handle);
 }
 
-function nearestAuthoredEdge(foot) {
-  const nearest = routePath.slice(1).map((next, index) => {
-    const previous = routePath[index];
+function nearestAuthoredEdge(foot, directedPath) {
+  const nearest = directedPath.slice(1).map((next, index) => {
+    const previous = directedPath[index];
     const projection = projectPointToSegment(foot, places[previous], places[next]);
     return {edge: `${previous}-${next}`, distance: projection.distance};
   }).reduce((best, candidate) => candidate.distance < best.distance ? candidate : best);
   return nearest.edge;
 }
 
-function makeFeatureSegmentRows(document, boundaries) {
+function makeFeatureSegmentRows(document, boundaries, directedPath) {
   const positions = Object.fromEntries(FEATURES.map(feature => [feature,
     pointsForFeature(document, feature)]));
   const segments = [];
@@ -125,7 +129,7 @@ function makeFeatureSegmentRows(document, boundaries) {
           start[0] + (end[0] - start[0]) * firstFraction,
           start[1] + (end[1] - start[1]) * firstFraction
         ];
-        const authoredEdge = nearestAuthoredEdge(footMidpoint);
+        const authoredEdge = nearestAuthoredEdge(footMidpoint, directedPath);
         segments.push({
           feature,
           authoredRouteEdge: authoredEdge,
@@ -153,16 +157,18 @@ function minimumRows(rows, fields) {
   for (const row of rows) {
     const key = fields.map(field => row[field]).join('|');
     const previous = grouped.get(key);
-    if (!previous || row.distancePx < previous.distancePx) grouped.set(key, row);
+    const value = row.distancePx ?? row.distance;
+    const previousValue = previous?.distancePx ?? previous?.distance;
+    if (!previous || value < previousValue) grouped.set(key, row);
   }
   return [...grouped.values()];
 }
 
-function turnVertices() {
-  return routePath.slice(1, -1).flatMap((node, index) => {
-    const before = places[routePath[index]];
+function turnVertices(directedPath) {
+  return directedPath.slice(1, -1).flatMap((node, index) => {
+    const before = places[directedPath[index]];
     const pivot = places[node];
-    const after = places[routePath[index + 2]];
+    const after = places[directedPath[index + 2]];
     const incoming = [pivot[0] - before[0], pivot[1] - before[1]];
     const outgoing = [after[0] - pivot[0], after[1] - pivot[1]];
     const cross = incoming[0] * outgoing[1] - incoming[1] * outgoing[0];
@@ -172,8 +178,8 @@ function turnVertices() {
   });
 }
 
-function turnRiskMarkers(document, boundaries) {
-  return turnVertices().map(turn => {
+function turnRiskMarkers(document, boundaries, directedPath) {
+  return turnVertices(directedPath).map(turn => {
     const frameIndex = document.frames.reduce((best, frame, index) =>
       pointToSegmentDistance(frame.foot, turn.point, turn.point) <
         pointToSegmentDistance(document.frames[best].foot, turn.point, turn.point) ? index : best, 0);
@@ -211,6 +217,57 @@ function turnRiskMarkers(document, boundaries) {
   });
 }
 
+function polygonEdges(points) {
+  return points.map((start, index) => [start, points[(index + 1) % points.length]]);
+}
+
+function boundaryAgainstSweep(sweep, annotation) {
+  let minimum = null;
+  const sweepEdges = polygonEdges(sweep);
+  if (annotation.kind === 'polygon' && polygonsOverlap(sweep, annotation.points)) {
+    return {distance: 0, classification: 'overlap-or-contact'};
+  }
+  const boundaryEdges = annotation.kind === 'polygon'
+    ? polygonEdges(annotation.points)
+    : annotation.points.slice(1).map((point, index) => [annotation.points[index], point]);
+  for (const [a, b] of sweepEdges) {
+    for (const [c, d] of boundaryEdges) {
+      const candidate = segmentToSegmentMinimumDistance(a, b, c, d);
+      if (minimum === null || candidate.distance < minimum.distance) minimum = candidate;
+    }
+  }
+  if (annotation.kind === 'polyline' && annotation.points.some(point => pointInPolygon(point, sweep) !== 'outside')) {
+    return {distance: 0, classification: 'contact'};
+  }
+  return {
+    distance: minimum?.distance ?? Infinity,
+    classification: minimum?.distance === 0 ? 'contact' : 'separated'
+  };
+}
+
+function visualEnvelopeSweepRows(document, boundaries, directedPath) {
+  const rows = [];
+  for (let index = 0; index < document.frames.length - 1; index++) {
+    const first = document.frames[index];
+    const second = document.frames[index + 1];
+    const sweptPolygon = convexHull([...first.visualBounds, ...second.visualBounds]);
+    const footMidpoint = [(first.foot[0] + second.foot[0]) / 2,
+      (first.foot[1] + second.foot[1]) / 2];
+    for (const annotation of boundaries) {
+      rows.push({
+        feature: 'cartDomBoxSweep',
+        authoredRouteEdge: nearestAuthoredEdge(footMidpoint, directedPath),
+        boundaryId: annotation.id,
+        fromFrame: index,
+        toFrame: index + 1,
+        sweptPolygon,
+        ...boundaryAgainstSweep(sweptPolygon, annotation)
+      });
+    }
+  }
+  return rows;
+}
+
 function svgOverlay(viewportDocuments, minima) {
   const image = Buffer.from(awaitableImage).toString('base64');
   const colors = {footCenterline: '#ffffff', leftWheel: '#28d7ff', rightWheel: '#ed58cf', handle: '#ff9d39'};
@@ -219,7 +276,7 @@ function svgOverlay(viewportDocuments, minima) {
     `<image href="data:image/webp;base64,${image}" width="${SOURCE_IMAGE[0]}" height="${SOURCE_IMAGE[1]}"/>`,
     '<rect x="16" y="14" width="930" height="92" rx="9" fill="#10252b" fill-opacity=".92"/>',
     '<text x="34" y="50" fill="#fff" font-family="sans-serif" font-size="25">E03 cart feature tracks · image-plane diagnostic</text>',
-    '<text x="34" y="82" fill="#ffe3aa" font-family="sans-serif" font-size="17">Candidate boundaries are provisional. Physical clearance remains OPEN.</text>'
+    '<text x="34" y="82" fill="#ffe3aa" font-family="sans-serif" font-size="17">Green = captured DOM-box sweep; dashed = reverse. Boundaries provisional; physical clearance OPEN.</text>'
   ];
   for (const annotation of annotations) {
     const polygonGeometry = annotation.kind === 'polygon';
@@ -230,18 +287,25 @@ function svgOverlay(viewportDocuments, minima) {
   }
   const pathPoints = routePath.map(node => places[node].join(',')).join(' ');
   parts.push(`<polyline points="${pathPoints}" fill="none" stroke="#ffe36a" stroke-width="4" stroke-dasharray="12 8" opacity=".88"/>`);
-  for (const [viewportIndex, {document}] of viewportDocuments.entries()) {
-    const opacity = viewportIndex === 0 ? 1 : viewportIndex === 1 ? .72 : .48;
+  for (const {document} of viewportDocuments) {
+    const opacity = document.direction === 'forward' ? .65 : .5;
     for (const feature of FEATURES) {
       const track = pointsForFeature(document, feature);
-      parts.push(`<polyline points="${track.map(point => point.join(',')).join(' ')}" fill="none" stroke="${colors[feature]}" stroke-width="${feature === 'handle' ? 2 : 3}" stroke-opacity="${opacity}"><title>${feature}, viewport ${document.viewport.join('x')}</title></polyline>`);
+      parts.push(`<polyline points="${track.map(point => point.join(',')).join(' ')}" fill="none" stroke="${colors[feature]}" stroke-width="${feature === 'handle' ? 2 : 3}" stroke-opacity="${opacity}"${document.direction === 'reverse' ? ' stroke-dasharray="5 5"' : ''}><title>${feature} ${document.direction}, viewport ${document.viewport.join('x')}</title></polyline>`);
+    }
+    const stride = Math.max(1, Math.floor(document.frames.length / 48));
+    for (let index = 0; index < document.frames.length - 1; index += stride) {
+      const sweep = convexHull([...document.frames[index].visualBounds,
+        ...document.frames[index + 1].visualBounds]);
+      const points = sweep.map(point => point.join(',')).join(' ');
+      parts.push(`<polygon points="${points}" fill="#71ff87" fill-opacity=".025" stroke="#71ff87" stroke-opacity="${opacity}" stroke-width="1"${document.direction === 'reverse' ? ' stroke-dasharray="3 3"' : ''}><title>Captured DOM-box sweep ${document.direction}, viewport ${document.viewport.join('x')}, frames ${index}-${index + 1}; screen-space only</title></polygon>`);
     }
   }
   for (const minimum of minima) {
     const [x, y] = minimum.featurePosition;
     parts.push(`<circle cx="${x}" cy="${y}" r="9" fill="#fff" stroke="#d50000" stroke-width="4"><title>Minimum ${minimum.feature} to ${minimum.boundaryId}: ${minimum.distancePx}px at frames ${minimum.fromFrame}-${minimum.toFrame}</title></circle>`);
   }
-  for (const turn of turnVertices()) {
+  for (const turn of turnVertices(routePath)) {
     parts.push(`<circle cx="${turn.point[0]}" cy="${turn.point[1]}" r="10" fill="#ffe36a" stroke="#15272b" stroke-width="3"><title>Route turn ${turn.node}, image-plane review marker</title></circle>`);
     parts.push(`<text x="${turn.point[0] + 11}" y="${turn.point[1] - 8}" fill="#fff" stroke="#15272b" stroke-width="3" paint-order="stroke" font-family="sans-serif" font-size="16">${turn.node}</text>`);
   }
@@ -254,14 +318,22 @@ await mkdir('test-results', {recursive: true});
 const checkedOutCommitSha = await currentCheckoutSha();
 const traceResults = [];
 for (const [width, height] of VIEWPORTS) {
-  const tracePath = `test-results/e03-cart-live-feature-tracks-${width}x${height}.json`;
-  try {
-    const document = JSON.parse(await readFile(tracePath, 'utf8'));
-    validateFeatureTrace(document);
-    assert.deepEqual(document.viewport, [width, height], 'trace viewport must match its filename');
-    traceResults.push({path: tracePath, document, status: 'valid', errors: []});
-  } catch (error) {
-    traceResults.push({path: tracePath, document: null, status: 'data-insufficient', errors: [error.message]});
+  const tracePath = `test-results/e03-cart-actual-forward-reverse-${width}x${height}.json`;
+  for (const direction of ['forward', 'reverse']) {
+    try {
+      const bundle = JSON.parse(await readFile(tracePath, 'utf8'));
+      const frames = bundle[`${direction}Trace`];
+      const document = {viewport: bundle.viewport, sourceImage: SOURCE_IMAGE, direction, frames};
+      validateFeatureTrace(document);
+      assert.ok(frames.every(frame => Array.isArray(frame.visualBounds) && frame.visualBounds.length === 4),
+        'actual cart DOM bounds are required for each swept-envelope sample');
+      assert.deepEqual(document.viewport, [width, height], 'trace viewport must match its filename');
+      assert.equal(bundle[`${direction}Frames`], frames.length,
+        `${direction} frame count must agree with the actual captured sequence`);
+      traceResults.push({path: tracePath, direction, document, status: 'valid', errors: []});
+    } catch (error) {
+      traceResults.push({path: tracePath, direction, document: null, status: 'data-insufficient', errors: [error.message]});
+    }
   }
 }
 
@@ -273,11 +345,13 @@ assert.ok(directionGraphPass, 'authored loaded-cart route must be reversible on 
 const viewportReports = [];
 for (const trace of validTraces) {
   const document = trace.document;
+  const directedPath = document.direction === 'forward' ? routePath : reversePath;
   const featureSummary = [
     ...analyzeFeatureTrace(document, annotations),
     analyzeFeatureTrack(pointsForFeature(document, 'footCenterline'), 'footCenterline', annotations)
   ];
-  const frameSegments = makeFeatureSegmentRows(document, annotations);
+  const frameSegments = makeFeatureSegmentRows(document, annotations, directedPath);
+  const envelopeSegments = visualEnvelopeSweepRows(document, annotations, directedPath);
   const reversed = {...document, frames: [...document.frames].reverse()
     .map((frame, frameIndex) => ({...frame, frameIndex}))};
   const reversedSummary = [
@@ -323,14 +397,14 @@ for (const trace of validTraces) {
     viewport: document.viewport,
     direction: document.direction,
     frameCount: document.frames.length,
-    measuredPath: routePath,
+    measuredPath: directedPath,
     measuredFeatureNames: FEATURES,
     coordinateInterpolation: 'Straight inter-frame segments in the source-image plane. This is not tire kinematics or wheel steering.',
     routeEdgeAssociation: 'Each frame interval is assigned to the authored L edge nearest the linearly interpolated foot midpoint.',
     reverseSequenceTest: {
       result: reverseDirectionInvariant ? 'PASS' : 'FAIL',
       meaning: 'Reversing the same measured samples preserves calculated minimum distances and classifications.',
-      measuredReverseCartAnimation: false
+      measuredReverseCartAnimation: document.direction === 'reverse'
     },
     featureMinimums,
     classificationCounts,
@@ -338,12 +412,39 @@ for (const trace of validTraces) {
     minimumByFeatureAndBoundary: nearestRows,
     minimumByAuthoredRouteLeg: routeLegMinimums,
     frameSegmentMinimums: frameMinimums,
-    turnRiskMarkers: turnRiskMarkers(document, annotations)
+    actualScreenSpaceSweptEnvelope: {
+      source: 'Convex hull between consecutive captured cart DOM bounding boxes back-projected from the rendered Chromium viewport.',
+      meaning: 'Conservative visual DOM-box sweep for the sampled interval; transparent sprite margins may be included, painted alpha and physical body are unknown.',
+      intervalCount: Math.max(0, document.frames.length - 1),
+      classificationCounts: Object.fromEntries(['overlap-or-contact', 'contact', 'separated'].map(classification =>
+        [classification, envelopeSegments.filter(row => row.classification === classification).length])),
+      candidateBoundaryFindings: minimumRows(envelopeSegments, ['boundaryId']).filter(row => row.classification !== 'separated'),
+      minimumByCandidateBoundary: minimumRows(envelopeSegments, ['boundaryId']).map(row => ({
+        boundaryId: row.boundaryId,
+        authoredRouteEdge: row.authoredRouteEdge,
+        distancePx: rounded(row.distance),
+        classification: row.classification,
+        fromFrame: row.fromFrame,
+        toFrame: row.toFrame
+      })),
+      minimumByAuthoredRouteLeg: minimumRows(envelopeSegments, ['authoredRouteEdge', 'boundaryId']).map(row => ({
+        boundaryId: row.boundaryId,
+        authoredRouteEdge: row.authoredRouteEdge,
+        distancePx: rounded(row.distance),
+        classification: row.classification,
+        fromFrame: row.fromFrame,
+        toFrame: row.toFrame
+      }))
+    },
+    turnRiskMarkers: turnRiskMarkers(document, annotations, directedPath)
   });
 }
 
-const missingViewportCount = traceResults.filter(result => !result.document).length;
-const geometryStatus = missingViewportCount === 0 &&
+const missingTraceCount = traceResults.filter(result => !result.document).length;
+const directionsCovered = ['forward', 'reverse'].every(direction =>
+  VIEWPORTS.every(([width, height]) => validTraces.some(trace => trace.document.direction === direction &&
+    trace.document.viewport[0] === width && trace.document.viewport[1] === height)));
+const geometryStatus = missingTraceCount === 0 && directionsCovered &&
   viewportReports.every(report => report.reverseSequenceTest.result === 'PASS')
   ? 'PASS' : 'FAIL';
 const report = {
@@ -357,15 +458,20 @@ const report = {
       path: routePath,
       reversePath,
       reversePathMatchesForwardReversal: directionGraphPass ? 'PASS' : 'FAIL',
-      measuredReverseAnimation: false
+      measuredReverseAnimation: validTraces.some(trace => trace.document.direction === 'reverse'),
+      capturedDirectionsByViewport: VIEWPORTS.map(([width, height]) => ({
+        viewport: [width, height],
+        directions: validTraces.filter(trace => trace.document.viewport[0] === width &&
+          trace.document.viewport[1] === height).map(trace => trace.document.direction).sort()
+      }))
     },
-    traceFiles: traceResults.map(({path, status, errors}) => ({path, status, errors})),
+    traceFiles: traceResults.map(({path, direction, status, errors}) => ({path, direction, status, errors})),
     summary: geometryStatus === 'PASS'
-      ? 'PASS covers finite trace validation, continuous segment calculations, and reverse-sequence invariance. It is not a physical safety result.'
+      ? 'PASS covers actual UI-captured forward and reverse feature/DOM-box traces at every viewport, continuous segment calculations, and reverse-sequence invariance. It is not a physical safety result.'
       : 'FAIL means one or more traces are missing/invalid or reversed-sequence calculations differ. This does not describe physical safety.'
   },
   imagePlaneDiagnostic: {
-    status: missingViewportCount === 0 ? 'COMPLETE_FOR_CAPTURED_FEATURES' : 'DATA_INSUFFICIENT',
+    status: missingTraceCount === 0 && directionsCovered ? 'COMPLETE_FOR_CAPTURED_FEATURES' : 'DATA_INSUFFICIENT',
     sourceImage: SOURCE_IMAGE,
     interpolation: 'Each pair of captured feature points is joined by a straight continuous image-plane segment between frames.',
     featureModel: {
@@ -376,6 +482,12 @@ const report = {
     },
     boundaries: annotations.map(({id, kind, source, purpose, confidence, uncertain, points}) =>
       ({id, kind, source, purpose, confidence, uncertain, points})),
+    visualSweepModel: {
+      name: 'captured-axis-aligned-cart-DOM-box',
+      sweep: 'Convex hull of consecutive back-projected getBoundingClientRect corner sets; includes possible transparent margins and ignores perspective contact and physical yaw.',
+      directions: ['forward', 'reverse'],
+      viewports: VIEWPORTS
+    },
     pavementBoundary: {
       status: 'UNKNOWN',
       reason: 'The repository contains partial curb, rail, foliage and foreground traces, not a complete owner-approved walkable-pavement polygon.'
@@ -399,5 +511,5 @@ await writeFile('test-results/e03-cart-clearance-overlay.svg', svgOverlay(
   minimaForOverlay
 ) + '\n');
 
-console.log(`E03 geometry ${geometryStatus}; image-plane ${report.imagePlaneDiagnostic.status}; physical safety OPEN. Reports written for ${validTraces.length}/${VIEWPORTS.length} viewport traces.`);
+console.log(`E03 geometry ${geometryStatus}; image-plane ${report.imagePlaneDiagnostic.status}; physical safety OPEN. Reports written for ${validTraces.length}/${VIEWPORTS.length * 2} actual UI direction/viewport traces.`);
 if (geometryStatus !== 'PASS') process.exitCode = 1;

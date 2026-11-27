@@ -195,7 +195,8 @@ try {
   // One uninterrupted, UI-played tea delivery and empty-cart return. The only
   // precondition is a replay-built E02 checkpoint; no E03 state is injected.
   {
-   const {ctx,p}=await open(568,320,true);
+   for(const [w,h] of [[320,740],[568,320],[1366,900]]){
+   const {ctx,p}=await open(w,h,true);
    const act=key=>p.locator(`[data-a="${key}"]`).click();
    const inspectCart=()=>p.locator('[data-load-visual="cart"]').evaluate(el=>{
     const rect=node=>{const r=node.getBoundingClientRect();return [r.x,r.y,r.width,r.height].map(n=>Math.round(n*10)/10);};
@@ -210,9 +211,11 @@ try {
      if(!window.__e03CartSampling)return;
      const actor=document.querySelector('[data-actor="MILO"]'),cart=document.querySelector('[data-load-visual="cart"]'),world=document.querySelector('.world');
      if(actor&&cart&&world){
-      const box=cart.getBoundingClientRect(),wr=world.getBoundingClientRect(),matrix=cart.querySelector('svg')?.getScreenCTM();
-      if(matrix){const src=(x,y)=>{const q=new DOMPoint(x,y).matrixTransform(matrix);return [Number(((q.x-wr.left)*1672/wr.width).toFixed(2)),Number(((q.y-wr.top)*941/wr.height).toFixed(2))];};
-       window.__e03CartTrace.push({frameIndex:window.__e03CartTrace.length,foot:[parseFloat(actor.style.getPropertyValue('--x'))*16.72,+actor.dataset.footY],wheels:[src(47,58),src(91,58)],handle:src(9,18),cartLeft:box.left,cartRight:box.right,cartTop:box.top,cartBottom:box.bottom,worldLeft:wr.left,worldRight:wr.right,empty:cart.classList.contains('cart-empty')});}
+     const box=cart.getBoundingClientRect(),wr=world.getBoundingClientRect(),matrix=cart.querySelector('svg')?.getScreenCTM();
+     if(matrix){const src=(x,y)=>{const q=new DOMPoint(x,y).matrixTransform(matrix);return [Number(((q.x-wr.left)*1672/wr.width).toFixed(2)),Number(((q.y-wr.top)*941/wr.height).toFixed(2))];};
+      const backProject=(x,y)=>[Number(((x-wr.left)*1672/wr.width).toFixed(2)),Number(((y-wr.top)*941/wr.height).toFixed(2))];
+      const visualBounds=[[box.left,box.top],[box.right,box.top],[box.right,box.bottom],[box.left,box.bottom]].map(([x,y])=>backProject(x,y));
+      window.__e03CartTrace.push({frameIndex:window.__e03CartTrace.length,foot:[parseFloat(actor.style.getPropertyValue('--x'))*16.72,+actor.dataset.footY],wheels:[src(47,58),src(91,58)],handle:src(9,18),visualBounds,cartLeft:box.left,cartRight:box.right,cartTop:box.top,cartBottom:box.bottom,worldLeft:wr.left,worldRight:wr.right,empty:cart.classList.contains('cart-empty')});}
      }
      requestAnimationFrame(tick);
     };requestAnimationFrame(tick);
@@ -225,7 +228,7 @@ try {
      const point=placesE03[turn];
      await p.waitForFunction(([x,y])=>window.__e03CartTrace?.some(v=>Math.abs(v.foot[0]-x)<16&&Math.abs(v.foot[1]-y)<16),point,{timeout:15000});
      if(['bend','fork','ramp0','west'].includes(turn))
-      await p.screenshot({path:`test-results/e03-cart-actual-${direction}-568x320-${turn}.png`,fullPage:true});
+     await p.screenshot({path:`test-results/e03-cart-actual-${direction}-${w}x${h}-${turn}.png`,fullPage:true});
     }
     await p.waitForFunction(({KEY,node})=>{
      const saved=JSON.parse(localStorage.getItem(KEY)||'null');
@@ -243,9 +246,9 @@ try {
    const forward=await track('forward',['bend','front','east','fork','ramp0'],'T');
    await p.locator('[data-a="deliver"]').waitFor();
    const loadedCartVisual=await inspectCart();
-   await p.screenshot({path:'test-results/e03-cart-forward-loaded-at-tea-stall-568x320.png',fullPage:true});
+   await p.screenshot({path:`test-results/e03-cart-forward-loaded-at-tea-stall-${w}x${h}.png`,fullPage:true});
    await p.locator('[data-load-visual="cart"]').screenshot({
-    path:'test-results/e03-cart-actual-forward-loaded-at-tea-stall-568x320.png'});
+    path:`test-results/e03-cart-actual-forward-loaded-at-tea-stall-${w}x${h}.png`});
    assert.ok(forward.length>=20,'live UI forward trip records actual animation frames');
    assert.ok(forward.every(v=>!v.empty),'tea cups are visible on the outbound cart');
    assert.ok(forward.every(v=>v.cartLeft>=v.worldLeft-2&&v.cartRight<=v.worldRight+2),'forward cart stays in the rendered scene');
@@ -254,9 +257,9 @@ try {
    assert.equal(await p.locator('.child').getAttribute('data-phase'),'return-tea');
    assert.equal(await p.locator('[data-load-visual="cart"]').getAttribute('aria-label'),'Empty tea handcart');
    const emptyCartVisual=await inspectCart();
-   await p.screenshot({path:'test-results/e03-cart-reverse-empty-at-tea-stall-568x320.png',fullPage:true});
+   await p.screenshot({path:`test-results/e03-cart-reverse-empty-at-tea-stall-${w}x${h}.png`,fullPage:true});
    await p.locator('[data-load-visual="cart"]').screenshot({
-    path:'test-results/e03-cart-actual-reverse-empty-at-tea-stall-568x320.png'});
+    path:`test-results/e03-cart-actual-reverse-empty-at-tea-stall-${w}x${h}.png`});
    const reverse=await track('reverse',['ramp0','fork','east','front','bend','west'],'H');
    await p.locator('.child[data-phase="flowers"]').waitFor();
    assert.ok(reverse.length>=20,'live UI reverse trip records actual animation frames');
@@ -267,8 +270,10 @@ try {
    assert.ok(distance(forward.at(-1).wheels[0],reverse[0].wheels[0])<16,'actual return begins near the tea-stall wheel position');
    for(const turn of ['ramp0','fork','east','front','bend','west'])
     assert.ok(reverse.some(v=>Math.abs(v.foot[0]-placesE03[turn][0])<16&&Math.abs(v.foot[1]-placesE03[turn][1])<16),`actual reverse samples ${turn}`);
-   await writeFile('test-results/e03-cart-actual-forward-reverse-568x320.json',JSON.stringify({
-    viewport:[568,320],forwardFrames:forward.length,reverseFrames:reverse.length,
+   await writeFile(`test-results/e03-cart-actual-forward-reverse-${w}x${h}.json`,JSON.stringify({
+    viewport:[w,h],forwardFrames:forward.length,reverseFrames:reverse.length,
+    forwardTrace:forward.map(({frameIndex,foot,wheels,handle,visualBounds})=>({frameIndex,foot,wheels,handle,visualBounds})),
+    reverseTrace:reverse.map(({frameIndex,foot,wheels,handle,visualBounds})=>({frameIndex,foot,wheels,handle,visualBounds})),
     loadedCartVisual,emptyCartVisual,
     forwardTurns:['bend','front','east','fork','ramp0'],reverseTurns:['ramp0','fork','east','front','bend','west'],
     renderedLoadBox:{forward:[forward[0].cartRight-forward[0].cartLeft,forward[0].cartBottom-forward[0].cartTop],reverse:[reverse[0].cartRight-reverse[0].cartLeft,reverse[0].cartBottom-reverse[0].cartTop]},
@@ -276,9 +281,10 @@ try {
     observation:'Milo carries cups out, unloads at the tea stall, then pushes the empty cart back to the hub through the cart-safe graph.',
     limitation:'This records live image-plane motion only; wheel radius, yaw, real painted pavement, ground scale, obstacle contact and physical swept clearance remain unknown.'
    },null,2)+'\n');
-   report.push({label:'actual-ui-cart-forward-and-empty-return-568x320',forwardFrames:forward.length,reverseFrames:reverse.length,
+   report.push({label:`actual-ui-cart-forward-and-empty-return-${w}x${h}`,forwardFrames:forward.length,reverseFrames:reverse.length,
     physicalClearance:'OPEN: real reverse journey captured; no verified physical swept envelope'});
    await ctx.close();
+   }
   }
  }
 

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   GEOMETRY_EPSILON,
   analyzeFeatureTrace,
+  convexHull,
   continuousPolylineAgainstPolygon,
   pointInPolygon,
   pointToSegmentDistance,
@@ -68,6 +69,18 @@ test('polygon containment, overlap and boundary contact handle concave boundarie
     'boundary-aligned containment remains valid');
 });
 
+test('convex hull bounds the continuous sweep between captured visual frames', () => {
+  const first = square(0, 0, 2);
+  const second = square(8, 3, 2);
+  const sweep = convexHull([...first, ...second]);
+  assert.equal(sweep.length, 6);
+  assert.equal(pointInPolygon([4, 2], sweep), 'inside');
+  assert.equal(polygonsOverlap(sweep, square(4, 1, 1)), true,
+    'the swept envelope detects an obstacle between endpoint rectangles');
+  assert.equal(polygonsOverlap(sweep, square(12, 1, 1)), false);
+  assert.throws(() => convexHull([[0, 0], [1, 1], [2, 2]]), /at least 3 point/);
+});
+
 test('polyline boundary distance is continuous and detects interior traversal', () => {
   const region = square(0, 0, 10);
   assert.equal(polylineToPolygonBoundaryDistance([[-2, 5], [12, 5]], region).distance, 0);
@@ -98,12 +111,13 @@ test('invalid coordinates, degenerate polygons and missing movement data fail ex
 
 test('trace schema validates three feature tracks and the exact image coordinate plane', () => {
   const document = {viewport: [568, 320], sourceImage: [1672, 941], direction: 'forward', frames: [
-    {foot: [0, 0], wheels: [[0, 1], [2, 1]], handle: [-1, 0]},
-    {foot: [10, 0], wheels: [[10, 1], [12, 1]], handle: [9, 0]}
+    {foot: [0, 0], wheels: [[0, 1], [2, 1]], handle: [-1, 0], visualBounds: square(-2, -2, 4)},
+    {foot: [10, 0], wheels: [[10, 1], [12, 1]], handle: [9, 0], visualBounds: square(8, -2, 4)}
   ]};
   assert.equal(validateFeatureTrace(document), document);
   assert.throws(() => validateFeatureTrace({...document, sourceImage: [100, 100]}), /1672x941/);
-  assert.throws(() => validateFeatureTrace({...document, direction: 'reverse'}), /must be forward/);
+  assert.equal(validateFeatureTrace({...document, direction: 'reverse'}).direction, 'reverse');
+  assert.throws(() => validateFeatureTrace({...document, direction: 'sideways'}), /forward or reverse/);
   assert.throws(() => validateFeatureTrace({...document, frames: [document.frames[0]]}), /at least two/);
   assert.throws(() => validateFeatureTrace({...document, frames: [document.frames[0],
     {...document.frames[1], handle: [Infinity, 0]}]}), /finite/);
@@ -112,6 +126,8 @@ test('trace schema validates three feature tracks and the exact image coordinate
     .map((frame, frameIndex) => ({...frame, frameIndex}))};
   assert.equal(validateFeatureTrace(indexed), indexed);
   assert.throws(() => validateFeatureTrace({...indexed, frames: [indexed.frames[0], indexed.frames[2]]}), /contiguous/);
+  assert.throws(() => validateFeatureTrace({...document, frames: [document.frames[0],
+    {...document.frames[1], visualBounds: [[0, 0], [1, 1], [2, 2], [3, 3]]}]}), /non-zero area/);
 });
 
 test('forward and reversed full traces retain the same wheel and handle clearance', () => {
