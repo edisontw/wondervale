@@ -27,7 +27,9 @@ try{
    await page.locator('#board-turn').click();
    assert.equal(await page.locator('#replica-board [data-copy][data-overlap="false"]').count(),2);
    await hit('station','check');
-   assert.match(await page.locator('#replica-status').innerText(),/2 marks are offset/);
+   assert.match(await page.locator('#replica-status').innerText(),/2 marks do not match\. Turn the copy and try again\./);
+   assert.equal(await page.locator('#replica-board [data-copy][data-overlap="false"][data-checked="true"]').count(),2);
+   assert.equal(await page.locator('#board-turn').isEnabled(),true);
    assert.match(await page.locator('#foyer-map').innerText(),/do not align/);
    await page.locator('#board-turn').click();
    assert.equal(await page.locator('#replica-board [data-copy][data-overlap="true"]').count(),2);

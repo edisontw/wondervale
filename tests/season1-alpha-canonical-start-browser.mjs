@@ -229,8 +229,14 @@ try{
     await e05.getByRole('heading',{name:'E05 — The Station with No Trains'}).waitFor();
     assert.equal(await e05.locator('#e04-alpha-arrival').isVisible(),true,
       'E05 receives the replay-checked E04 question inside the story scene');
+    const arrivalRecall=e05.locator('#e04-alpha-recall');
+    assert.equal(await arrivalRecall.evaluate(el=>el.open),false,'source recap starts collapsed');
+    await arrivalRecall.locator('summary').click();
+    assert.equal(await arrivalRecall.evaluate(el=>el.open),true);
     assert.match(await e05.locator('#e04-alpha-note').innerText(),/Market coordinator:.*Garden resident:.*undated memory/);
     assert.match(await e05.locator('#e04-alpha-note').innerText(),/Version 1.*Version 2.*photo stays Not sure yet/);
+    await arrivalRecall.locator('summary').click();
+    assert.equal(await arrivalRecall.evaluate(el=>el.open),false);
     assert.match(await e05.locator('.notice').first().innerText(),/AUTHORING ONLY.*no approved entry permission.*E04 canonical checkpoint/i);
     assert.match(await e05.locator('#guard').innerText(),/Production E05 LOCKED/);
 
